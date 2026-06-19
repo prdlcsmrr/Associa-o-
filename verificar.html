@@ -24,13 +24,11 @@ body { background:#c8c8c8; font-family:'Roboto',Arial,sans-serif; min-height:100
 
 /* STATUS */
 .sbar { display:flex; align-items:center; gap:10px; padding:10px 16px; background:#fff; border-bottom:1px solid #e0e0e0; }
-.sicon { width:34px; height:34px; border-radius:50%; border:3px solid #2a7a38; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:#fff; }
-.sicon.inativo { border-color:#b91c1c; }
-.sicon svg { width:17px; height:17px; }
 .slbl { font-family:'Roboto',sans-serif; font-size:13px; font-weight:800; color:#111; letter-spacing:0.3px; }
-.sbadge { margin-left:auto; padding:8px 22px; border-radius:5px; font-family:'Roboto',sans-serif; font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; }
+.sbadge { margin-left:auto; display:flex; align-items:center; gap:8px; padding:9px 22px; border-radius:6px; font-family:'Roboto',sans-serif; font-size:14px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; }
 .sbadge.ativo { background:#2a7a38; color:#fff; }
 .sbadge.inativo { background:#b91c1c; color:#fff; }
+.sbadge-icon { font-size:18px; }
 
 /* MAIN */
 .main { display:flex; gap:16px; padding:16px; border-bottom:1px solid #e8e8e8; background:#fff; position:relative; overflow:hidden; }
@@ -132,14 +130,11 @@ function render(m){
     </div>
 
     <div class="sbar">
-      <div class="sicon${ativo?'':' inativo'}">
-        ${ativo
-          ?'<svg viewBox="0 0 24 24" fill="none" stroke="#2a7a38" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'
-          :'<svg viewBox="0 0 24 24" fill="none" stroke="#b91c1c" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
-        }
-      </div>
       <span class="slbl">STATUS DA CREDENCIAL:</span>
-      <span class="sbadge ${ativo?'ativo':'inativo'}">${ativo?'CREDENCIAL ATIVA':'CREDENCIAL INATIVA'}</span>
+      <span class="sbadge ${ativo?'ativo':'inativo'}">
+        <span class="sbadge-icon">${ativo?'✅':'❌'}</span>
+        ${ativo?'CREDENCIAL ATIVA':'CREDENCIAL INATIVA'}
+      </span>
     </div>
 
     <div class="main">
