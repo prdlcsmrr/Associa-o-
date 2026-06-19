@@ -636,7 +636,37 @@ function toggleStatus(id){
   m.status=novo;
   save();
   renderList();
-  alert('✅ Status alterado para '+novo+'!\n\nAgora clique em "⬇ Exportar db.json" e faça upload no GitHub para sincronizar.');
+  showSyncModal();
+}
+
+function showSyncModal(){
+  const db=JSON.stringify({membros:members},null,2);
+  const existing=document.getElementById('sync-modal');
+  if(existing) existing.remove();
+  const modal=document.createElement('div');
+  modal.id='sync-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  modal.innerHTML=`
+    <div style="background:#1a2a5e;border:2px solid #c9972a;border-radius:16px;padding:28px;width:100%;max-width:480px;text-align:center;">
+      <div style="font-size:28px;margin-bottom:10px;">✅</div>
+      <div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:6px;">Status atualizado!</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:20px;">Copie o código abaixo e envie para o Orion Vale sincronizar:</div>
+      <textarea id="sync-code" style="width:100%;height:120px;background:#0a0f20;border:1px solid #2e3250;border-radius:8px;padding:12px;color:#c9972a;font-size:11px;font-family:monospace;resize:none;">${db}</textarea>
+      <button onclick="copySyncCode()" style="width:100%;background:#c9972a;color:#000;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-top:12px;text-transform:uppercase;">📋 Copiar código</button>
+      <button onclick="document.getElementById('sync-modal').remove()" style="width:100%;background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);border-radius:8px;padding:10px;font-size:13px;cursor:pointer;margin-top:8px;">Fechar</button>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+function copySyncCode(){
+  const txt=document.getElementById('sync-code').value;
+  navigator.clipboard.writeText(txt).then(()=>{
+    alert('✅ Código copiado!\n\nAgora cole no chat com o Orion Vale.');
+  }).catch(()=>{
+    document.getElementById('sync-code').select();
+    document.execCommand('copy');
+    alert('✅ Código copiado!\n\nAgora cole no chat com o Orion Vale.');
+  });
 }
 
 function del(id){if(!confirm('Excluir?'))return;members=members.filter(m=>m.id!==id);save();renderList();}
