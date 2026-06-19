@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Credencial</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --navy:#1a2a5e; --navy2:#0f1a3d; --gold:#c9972a; --gold2:#e8b84a;
+  --green:#1a7a3a; --green2:#22a04e; --red:#b91c1c;
+  --text:#1a1a2e; --muted:#6b7280; --border:#d1d5db;
+  --bg:#e8eaed; --white:#fff;
+}
+body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-height:100vh; color:var(--text); }
+
+/* LOGIN */
+#login-screen { position:fixed;inset:0;background:var(--navy2);display:flex;align-items:center;justify-content:center;z-index:9999; }
+.login-box { background:rgba(255,255,255,0.06);border:1px solid rgba(201,151,42,0.25);border-radius:16px;padding:48px 36px;width:100%;max-width:360px;text-align:center; }
+.login-logo { font-size:28px;color:var(--gold);font-weight:900;letter-spacing:3px; }
+.login-sub { font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:4px;text-transform:uppercase;margin:4px 0 32px; }
+.lf { margin-bottom:14px;text-align:left; }
+.lf label { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35);display:block;margin-bottom:7px; }
+.lf input { width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px 14px;color:#fff;font-size:14px;outline:none;transition:border-color 0.2s; }
+.lf input:focus { border-color:var(--gold); }
+.lbtn { width:100%;background:var(--gold);color:#000;border:none;border-radius:8px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:background 0.2s;margin-top:6px; }
+.lbtn:hover { background:var(--gold2); }
+.lerr { display:none;background:rgba(185,28,28,0.2);border:1px solid var(--red);color:#fca5a5;border-radius:8px;padding:10px;font-size:13px;margin-bottom:14px; }
+
+/* APP HEADER */
+.app-header { background:var(--navy);border-bottom:4px solid var(--gold); }
+.header-inner { display:flex;align-items:center;justify-content:space-between;padding:14px 24px; }
+.hlogo { display:flex;align-items:center;gap:14px; }
+.hemblem { width:50px;height:50px;background:rgba(201,151,42,0.12);border:2px solid rgba(201,151,42,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px; }
+.htitles .horg { font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase; }
+.htitles .hname { font-size:17px;font-weight:900;color:#fff;letter-spacing:1px; }
+.htitles .hsub { font-size:10px;color:var(--gold);letter-spacing:0.5px;margin-top:1px; }
+.hright { display:flex;align-items:center;gap:10px; }
+.hcount { background:rgba(201,151,42,0.15);border:1px solid rgba(201,151,42,0.35);color:var(--gold);font-size:12px;font-weight:700;padding:6px 14px;border-radius:20px; }
+.hbtn { background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.45);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;transition:all 0.2s; }
+.hbtn:hover { border-color:var(--red);color:#fca5a5; }
+
+/* TABS */
+.tabs { display:flex;background:var(--navy2);padding:0 24px;gap:2px; }
+.tab { padding:12px 22px;cursor:pointer;font-size:12px;font-weight:700;color:rgba(255,255,255,0.35);border-bottom:3px solid transparent;transition:all 0.2s;text-transform:uppercase;letter-spacing:0.5px; }
+.tab:hover { color:rgba(255,255,255,0.7); }
+.tab.active { color:var(--gold);border-bottom-color:var(--gold); }
+
+/* CONTENT */
+.content { padding:24px;max-width:1100px;margin:0 auto; }
+.page { display:none; }
+.page.active { display:block; }
+
+/* FORM */
+.form-grid { display:grid;grid-template-columns:1fr 1fr;gap:20px; }
+.box { background:var(--white);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:16px; }
+.box-title { font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--navy);margin-bottom:18px;padding-bottom:10px;border-bottom:2px solid var(--gold);display:flex;align-items:center;gap:8px; }
+.field { margin-bottom:14px; }
+.field label { display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px; }
+.field input,.field select,.field textarea { width:100%;background:#fafafa;border:1px solid var(--border);border-radius:8px;padding:11px 13px;color:var(--text);font-size:14px;outline:none;transition:border-color 0.2s; }
+.field input:focus,.field select:focus { border-color:var(--navy);background:#fff; }
+.field-row { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+.field textarea { resize:vertical;min-height:65px; }
+.status-toggle { display:flex;gap:10px; }
+.sopt { flex:1;padding:11px;border-radius:8px;border:2px solid var(--border);cursor:pointer;text-align:center;font-size:13px;font-weight:700;transition:all 0.2s;color:#999; }
+.sopt.sel-ativo { border-color:var(--green2);background:rgba(26,122,58,0.07);color:var(--green); }
+.sopt.sel-inativo { border-color:var(--red);background:rgba(185,28,28,0.07);color:var(--red); }
+
+/* WEBCAM */
+.wcframe { width:100%;aspect-ratio:4/3;background:#111;border-radius:10px;border:2px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center; }
+.wcframe video,.wcframe img { width:100%;height:100%;object-fit:cover; }
+.wcph { display:flex;flex-direction:column;align-items:center;gap:8px;color:#555;font-size:13px; }
+.wctrls { display:flex;gap:8px;margin-top:12px; }
+#snap-canvas { display:none; }
+
+/* BUTTONS */
+.btn { padding:10px 16px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;text-transform:uppercase; }
+.btn-navy { background:var(--navy);color:#fff; }
+.btn-navy:hover { background:var(--navy2); }
+.btn-gold { background:var(--gold);color:#000; }
+.btn-gold:hover { background:var(--gold2); }
+.btn-outline { background:transparent;border:1px solid var(--border);color:var(--text); }
+.btn-outline:hover { border-color:var(--navy);color:var(--navy); }
+.btn-green { background:var(--green2);color:#fff; }
+.btn-red { background:var(--red);color:#fff; }
+.btn-full { width:100%;padding:13px;font-size:14px; }
+
+/* ALERT */
+.alert { padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none; }
+.alert-ok { background:rgba(26,122,58,0.1);border:1px solid var(--green2);color:var(--green); }
+.alert-err { background:rgba(185,28,28,0.1);border:1px solid var(--red);color:var(--red); }
+
+/* LISTA */
+.search-row { display:flex;gap:12px;margin-bottom:20px;align-items:center; }
+.search-row input { flex:1;background:#fff;border:1px solid var(--border);border-radius:8px;padding:11px 16px;font-size:14px;outline:none; }
+.search-row input:focus { border-color:var(--navy); }
+.badge { background:#fff;border:1px solid var(--border);padding:10px 16px;border-radius:8px;font-size:13px;color:var(--muted);white-space:nowrap; }
+.badge strong { color:var(--navy); }
+.mgrid { display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px; }
+.mcard { background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all 0.2s; }
+.mcard:hover { border-color:var(--navy);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.08); }
+.mcard-photo { width:100%;aspect-ratio:1;background:#f3f4f6;display:flex;align-items:center;justify-content:center;overflow:hidden; }
+.mcard-photo img { width:100%;height:100%;object-fit:cover; }
+.mcard-ph { display:flex;flex-direction:column;align-items:center;gap:6px;color:#9ca3af;font-size:11px; }
+.mcard-body { padding:14px; }
+.mcard-name { font-size:15px;font-weight:800;color:var(--navy);margin-bottom:2px; }
+.mcard-cat { font-size:11px;color:var(--muted);margin-bottom:8px; }
+.mcard-status { display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase; }
+.mcard-status.ativo { background:rgba(26,122,58,0.1);color:var(--green); }
+.mcard-status.inativo { background:rgba(185,28,28,0.08);color:var(--red); }
+.mcard-acts { display:flex;gap:6px;margin-top:10px; }
+.mcard-btn { flex:1;padding:7px;border-radius:6px;border:none;font-size:10px;font-weight:700;cursor:pointer;text-transform:uppercase;transition:all 0.2s; }
+.mcard-btn-cred { background:#f3f4f6;color:var(--navy); }
+.mcard-btn-cred:hover { background:var(--navy);color:#fff; }
+.mcard-btn-del { background:rgba(185,28,28,0.08);color:var(--red); }
+.mcard-btn-del:hover { background:var(--red);color:#fff; }
+.empty { text-align:center;padding:80px 20px;color:var(--muted);grid-column:1/-1; }
+
+/* EXPORT BOX */
+.export-box { background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px; }
+.export-info { flex:1; }
+.export-title { font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px; }
+.export-desc { font-size:12px;color:var(--muted); }
+
+/* MODAL */
+.modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;padding:20px;overflow-y:auto; }
+.modal-overlay.open { display:flex; }
+.modal-inner { display:flex;flex-direction:column;align-items:center;width:100%;max-width:480px; }
+
+/* CREDENTIAL CARD */
+.credential { background:#fff;width:100%;border-radius:4px;box-shadow:0 4px 24px rgba(0,0,0,0.3);overflow:hidden;position:relative; }
+.watermark { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:80px;font-weight:900;color:var(--navy);opacity:0.04;pointer-events:none;white-space:nowrap;z-index:0; }
+.cred-header { background:var(--navy);padding:14px 18px;display:flex;align-items:center;gap:14px;border-bottom:4px solid var(--gold);position:relative;z-index:1; }
+.cred-emblem { width:52px;height:52px;background:rgba(201,151,42,0.12);border:2px solid rgba(201,151,42,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0; }
+.ch-text .ch1 { font-size:9px;color:rgba(255,255,255,0.45);letter-spacing:1.5px;text-transform:uppercase;font-weight:600; }
+.ch-text .ch2 { font-size:16px;font-weight:900;color:#fff;letter-spacing:1px; }
+.ch-text .ch3 { font-size:10px;color:var(--gold);letter-spacing:0.5px;margin-top:2px; }
+.cstatus { display:flex;align-items:center;gap:10px;padding:10px 18px;background:#f5f6f7;border-bottom:1px solid #e0e0e0;position:relative;z-index:1; }
+.cstatus-icon { font-size:22px; }
+.cstatus-lbl { font-size:11px;font-weight:800;color:#333;letter-spacing:0.5px;text-transform:uppercase; }
+.cstatus-badge { padding:5px 16px;border-radius:4px;font-size:12px;font-weight:800;text-transform:uppercase;margin-left:auto; }
+.cstatus-badge.ativo { background:var(--green);color:#fff; }
+.cstatus-badge.inativo { background:var(--red);color:#fff; }
+.cmain { display:flex;gap:14px;padding:16px 18px;border-bottom:1px solid #e8e8e8;position:relative;z-index:1; }
+.cphoto { width:105px;height:130px;border:2px solid #c0c0c0;background:#e8e8e8;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center; }
+.cphoto img { width:100%;height:100%;object-fit:cover; }
+.cphoto-ph { display:flex;flex-direction:column;align-items:center;gap:5px;color:#999;font-size:10px; }
+.cinfo { flex:1; }
+.ci-lbl { font-size:9px;color:#777;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin-top:8px; }
+.ci-lbl:first-child { margin-top:0; }
+.ci-val { font-size:16px;font-weight:800;color:var(--navy);line-height:1.2; }
+.ci-val.sm { font-size:13px; }
+.ci-val.green { color:var(--green);font-size:13px; }
+.ci-val.red { color:var(--red);font-size:13px; }
+.matbox { background:var(--navy);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:3px;display:inline-block;margin-top:4px; }
+.csection { padding:12px 18px;border-bottom:1px solid #e8e8e8;position:relative;z-index:1; }
+.csh { display:flex;align-items:center;gap:7px;background:#e8eaed;padding:5px 10px;border-radius:3px;margin-bottom:10px; }
+.csh-ttl { font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--navy); }
+.cdg { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+.cdlbl { font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:2px; }
+.cdval { font-size:13px;font-weight:700;color:var(--navy); }
+.cdval.xs { font-size:11px;word-break:break-all; }
+.cauth { display:flex;gap:14px;align-items:flex-start; }
+.cqr { display:flex;flex-direction:column;align-items:center;gap:3px; }
+.cqr img { width:85px;height:85px; }
+.cqr-lbl { font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888; }
+.cfooter { background:var(--navy);padding:8px 18px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1; }
+.cft { font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:1px; }
+.modal-acts { display:flex;gap:10px;margin-top:14px;width:100%; }
+
+@media(max-width:660px){
+  .form-grid{grid-template-columns:1fr;}
+  .content{padding:16px;}
+  .tabs,.header-inner{padding-left:16px;padding-right:16px;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">◆ ASSOC</div>
+    <div class="login-sub">Sistema de Credencial</div>
+    <div class="lerr" id="lerr">✗ Usuário ou senha incorretos</div>
+    <div class="lf"><label>Usuário</label><input id="lu" type="text" onkeydown="if(event.key==='Enter')login()"></div>
+    <div class="lf"><label>Senha</label><input id="lp" type="password" onkeydown="if(event.key==='Enter')login()"></div>
+    <button class="lbtn" onclick="login()">Entrar</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="app-header">
+  <div class="header-inner">
+    <div class="hlogo">
+      <div class="hemblem">🏛️</div>
+      <div class="htitles">
+        <div class="horg">Sistema Oficial</div>
+        <div class="hname">ASSOCIAÇÃO</div>
+        <div class="hsub">Sistema de Verificação de Credencial</div>
+      </div>
+    </div>
+    <div class="hright">
+      <div class="hcount" id="hcount">0 membros</div>
+      <button class="hbtn" onclick="logout()">Sair</button>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="goTab('novo')">＋ Novo Cadastro</div>
+  <div class="tab" onclick="goTab('lista')">☰ Membros</div>
+</div>
+
+<div class="content">
+
+  <!-- NOVO -->
+  <div class="page active" id="page-novo">
+    <div class="alert alert-ok" id="aok">✓ Cadastro realizado! Exporte o db.json e faça upload no GitHub.</div>
+    <div class="alert alert-err" id="aerr">✗ Preencha todos os campos obrigatórios.</div>
+
+    <div class="form-grid">
+      <div>
+        <div class="box">
+          <div class="box-title">👤 Dados Pessoais</div>
+          <div class="field"><label>Nome completo *</label><input type="text" id="f-nome" placeholder="Nome completo"></div>
+          <div class="field"><label>CPF *</label><input type="text" id="f-cpf" placeholder="000.000.000-00" maxlength="14"></div>
+          <div class="field-row">
+            <div class="field"><label>Data de Nascimento *</label><input type="date" id="f-nasc"></div>
+            <div class="field"><label>Sexo</label>
+              <select id="f-sexo"><option value="">—</option><option>Masculino</option><option>Feminino</option><option>Outro</option></select>
+            </div>
+          </div>
+          <div class="field"><label>Telefone *</label><input type="tel" id="f-tel" placeholder="(21) 99999-9999"></div>
+          <div class="field"><label>E-mail</label><input type="email" id="f-email" placeholder="email@exemplo.com"></div>
+        </div>
+
+        <div class="box">
+          <div class="box-title">🪪 Dados da Credencial</div>
+          <div class="field">
+            <label>Categoria / Cargo</label>
+            <select id="f-cat">
+              <option>Membro</option><option>Associado</option><option>Diretor</option>
+              <option>Presidente</option><option>Funcionário</option><option>Visitante</option>
+            </select>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Emissão</label><input type="date" id="f-emissao"></div>
+            <div class="field"><label>Validade</label><input type="date" id="f-validade"></div>
+          </div>
+          <div class="field">
+            <label>Status da Credencial *</label>
+            <div class="status-toggle">
+              <div class="sopt sel-ativo" id="opt-a" onclick="setStatus('Ativo')">✓ Ativa</div>
+              <div class="sopt" id="opt-i" onclick="setStatus('Inativo')">✗ Inativa</div>
+            </div>
+            <input type="hidden" id="f-status" value="Ativo">
+          </div>
+          <div class="field"><label>Observações</label><textarea id="f-obs" placeholder="Informações adicionais..."></textarea></div>
+        </div>
+
+        <div class="box">
+          <button class="btn btn-navy btn-full" onclick="salvar()">✓ Salvar Cadastro</button>
+          <button class="btn btn-outline btn-full" onclick="limpar()" style="margin-top:10px">✕ Limpar</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="box">
+          <div class="box-title">📷 Foto do Membro</div>
+          <div class="wcframe" id="wcframe">
+            <video id="video" autoplay playsinline style="display:none"></video>
+            <img id="preview" style="display:none">
+            <div class="wcph" id="wcph">
+              <svg width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              Câmera desligada
+            </div>
+          </div>
+          <canvas id="snap-canvas"></canvas>
+          <div class="wctrls">
+            <button class="btn btn-outline" id="bon" onclick="startCam()">▶ Ligar</button>
+            <button class="btn btn-navy" id="bsnap" onclick="snap()" style="display:none">📷 Tirar</button>
+            <button class="btn btn-outline" id="bflip" onclick="flipCam()" style="display:none">🔄 Virar</button>
+            <button class="btn btn-outline" id="bre" onclick="retake()" style="display:none">↺ Refazer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LISTA -->
+  <div class="page" id="page-lista">
+
+    <!-- EXPORT BOX -->
+    <div class="export-box">
+      <div class="export-info">
+        <div class="export-title">📤 Exportar banco de dados</div>
+        <div class="export-desc">Após cadastrar membros, exporte o db.json e faça upload no GitHub para os QR Codes funcionarem.</div>
+      </div>
+      <button class="btn btn-gold" onclick="exportDB()">⬇ Exportar db.json</button>
+    </div>
+
+    <div class="search-row">
+      <input type="text" id="search" placeholder="🔍 Buscar por nome, CPF, matrícula..." oninput="renderList()">
+      <div class="badge">Total: <strong id="total">0</strong></div>
+      <button class="btn btn-red" onclick="clearAll()" style="padding:11px 14px;font-size:12px;">🗑</button>
+    </div>
+    <div class="mgrid" id="mgrid"></div>
+  </div>
+
+</div>
+
+<!-- MODAL CREDENCIAL -->
+<div class="modal-overlay" id="modal" onclick="closeM(event)">
+  <div class="modal-inner">
+    <div class="credential" id="cred-card">
+      <div class="watermark">ASSOCIAÇÃO</div>
+      <div class="cred-header">
+        <div class="cred-emblem">🏛️</div>
+        <div class="ch-text">
+          <div class="ch1">Sistema Oficial de Verificação</div>
+          <div class="ch2">ASSOCIAÇÃO</div>
+          <div class="ch3">Verificação de Credencial Funcional</div>
+        </div>
+      </div>
+      <div class="cstatus">
+        <span class="cstatus-icon" id="cs-icon">✅</span>
+        <span class="cstatus-lbl">Status da Credencial:</span>
+        <span class="cstatus-badge" id="cs-badge">CREDENCIAL ATIVA</span>
+      </div>
+      <div class="cmain">
+        <div class="cphoto" id="cphoto"></div>
+        <div class="cinfo">
+          <div class="ci-lbl">Nome</div>
+          <div class="ci-val" id="c-nome">—</div>
+          <div class="ci-lbl">Matrícula</div>
+          <div class="matbox" id="c-mat">—</div>
+          <div class="ci-lbl" style="margin-top:8px">Cargo / Categoria</div>
+          <div class="ci-val sm" id="c-cat">—</div>
+          <div class="ci-lbl">Situação Funcional</div>
+          <div class="ci-val" id="c-sit">—</div>
+        </div>
+      </div>
+      <div class="csection">
+        <div class="csh"><span>👤</span><span class="csh-ttl">Dados Pessoais</span></div>
+        <div class="cdg">
+          <div><div class="cdlbl">Nascimento</div><div class="cdval" id="c-nasc">—</div></div>
+          <div><div class="cdlbl">Sexo</div><div class="cdval" id="c-sexo">—</div></div>
+          <div><div class="cdlbl">CPF</div><div class="cdval" id="c-cpf">—</div></div>
+          <div><div class="cdlbl">Telefone</div><div class="cdval" id="c-tel">—</div></div>
+        </div>
+      </div>
+      <div class="csection">
+        <div class="csh"><span>🪪</span><span class="csh-ttl">Dados da Credencial</span></div>
+        <div class="cdg">
+          <div><div class="cdlbl">Número</div><div class="cdval xs" id="c-num">—</div></div>
+          <div><div class="cdlbl">Emissão</div><div class="cdval" id="c-emissao">—</div></div>
+          <div style="grid-column:1/-1"><div class="cdlbl">Validade</div><div class="cdval" id="c-validade">—</div></div>
+        </div>
+      </div>
+      <div class="csection">
+        <div class="csh"><span>▦</span><span class="csh-ttl">Código de Autenticação</span></div>
+        <div class="cauth">
+          <div style="flex:1">
+            <div class="cdlbl">ID Documentação</div>
+            <div class="cdval xs" id="c-docid">—</div>
+            <div class="cdlbl" style="margin-top:8px">Hash</div>
+            <div class="cdval xs" id="c-hash">—</div>
+          </div>
+          <div class="cqr" id="c-qr">
+            <div style="width:85px;height:85px;background:#f3f3f3"></div>
+            <div class="cqr-lbl">Base Legal</div>
+          </div>
+        </div>
+      </div>
+      <div class="cfooter">
+        <span class="cft">Documento gerado eletronicamente</span>
+        <span class="cft" id="c-footer">—</span>
+      </div>
+    </div>
+    <div class="modal-acts">
+      <button class="btn btn-outline" onclick="closeMD()" style="flex:1">✕ Fechar</button>
+      <button class="btn btn-navy" onclick="printCred()" style="flex:1">🖨️ Imprimir</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LUSER='admin', LPASS='1234';
+const BASE_URL='https://prdlcsmrr.github.io/Associa-o-/verificar.html';
+const ORG_PRE='ASC';
+
+// LOGIN
+function login(){
+  if(document.getElementById('lu').value===LUSER&&document.getElementById('lp').value===LPASS){
+    sessionStorage.setItem('ok','1');
+    document.getElementById('login-screen').style.display='none';
+  } else {
+    const e=document.getElementById('lerr');
+    e.style.display='block';
+    document.getElementById('lp').value='';
+    setTimeout(()=>e.style.display='none',3000);
+  }
+}
+function logout(){sessionStorage.removeItem('ok');location.reload();}
+if(sessionStorage.getItem('ok')==='1') document.getElementById('login-screen').style.display='none';
+
+// STATE
+let members=JSON.parse(localStorage.getItem('members')||'[]');
+let stream=null,photo=null,facing='user',curStatus='Ativo';
+
+// TABS
+function goTab(t){
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',(t==='novo'&&i===0)||(t==='lista'&&i===1)));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+t).classList.add('active');
+  if(t==='lista') renderList();
+}
+
+// STATUS
+function setStatus(s){
+  curStatus=s;
+  document.getElementById('f-status').value=s;
+  document.getElementById('opt-a').className='sopt'+(s==='Ativo'?' sel-ativo':'');
+  document.getElementById('opt-i').className='sopt'+(s==='Inativo'?' sel-inativo':'');
+}
+
+// WEBCAM
+async function startCam(){
+  if(!navigator.mediaDevices?.getUserMedia){alert('Câmera não suportada. Use Chrome.');return;}
+  try{
+    if(stream) stream.getTracks().forEach(t=>t.stop());
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing,width:{ideal:1280}},audio:false});
+    const v=document.getElementById('video');
+    v.srcObject=stream;await v.play();
+    v.style.display='block';
+    document.getElementById('wcph').style.display='none';
+    document.getElementById('preview').style.display='none';
+    document.getElementById('bon').style.display='none';
+    document.getElementById('bsnap').style.display='block';
+    document.getElementById('bflip').style.display='block';
+  }catch(e){
+    let m='Erro câmera.';
+    if(e.name==='NotAllowedError') m='Permissão negada.';
+    else if(e.name==='NotFoundError') m='Câmera não encontrada.';
+    else if(location.protocol!=='https:'&&location.hostname!=='localhost') m='Câmera requer HTTPS.';
+    alert(m);
+  }
+}
+async function flipCam(){facing=facing==='user'?'environment':'user';await startCam();}
+function snap(){
+  const v=document.getElementById('video'),c=document.getElementById('snap-canvas');
+  c.width=v.videoWidth;c.height=v.videoHeight;
+  c.getContext('2d').drawImage(v,0,0);
+  photo=c.toDataURL('image/jpeg',0.75);
+  const p=document.getElementById('preview');
+  p.src=photo;p.style.display='block';
+  v.style.display='none';
+  if(stream) stream.getTracks().forEach(t=>t.stop());
+  document.getElementById('bsnap').style.display='none';
+  document.getElementById('bflip').style.display='none';
+  document.getElementById('bre').style.display='block';
+}
+function retake(){
+  photo=null;
+  document.getElementById('preview').style.display='none';
+  document.getElementById('wcph').style.display='flex';
+  document.getElementById('bon').style.display='block';
+  document.getElementById('bre').style.display='none';
+}
+
+// CPF MASK
+document.getElementById('f-cpf').addEventListener('input',function(){
+  let v=this.value.replace(/\D/g,'').slice(0,11);
+  if(v.length>9) v=v.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/,'$1.$2.$3-$4');
+  else if(v.length>6) v=v.replace(/(\d{3})(\d{3})(\d{0,3})/,'$1.$2.$3');
+  else if(v.length>3) v=v.replace(/(\d{3})(\d{0,3})/,'$1.$2');
+  this.value=v;
+});
+
+// UTILS
+function fmt(d){if(!d)return'—';return new Date(d+'T12:00').toLocaleDateString('pt-BR');}
+function genNum(){return ORG_PRE+'-'+String(members.length+1).padStart(6,'0');}
+function genHash(s){let h=0;for(let c of s)h=(h<<5)-h+c.charCodeAt(0)|0;return Math.abs(h).toString(16).toUpperCase().padStart(8,'0');}
+function genDocId(ts){const d=new Date(ts);return ORG_PRE+'-'+d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(ts).slice(-5);}
+
+// SALVAR
+function salvar(){
+  const nome=document.getElementById('f-nome').value.trim();
+  const cpf=document.getElementById('f-cpf').value.trim();
+  const tel=document.getElementById('f-tel').value.trim();
+  const nasc=document.getElementById('f-nasc').value;
+  if(!nome||!cpf||!tel||!nasc){showA('aerr');return;}
+  const ts=Date.now();
+  const numCred=genNum();
+  const docId=genDocId(ts);
+  const m={
+    id:ts,nome,cpf,tel,
+    nasc,sexo:document.getElementById('f-sexo').value,
+    email:document.getElementById('f-email').value.trim(),
+    cat:document.getElementById('f-cat').value,
+    status:curStatus,
+    emissao:document.getElementById('f-emissao').value,
+    validade:document.getElementById('f-validade').value,
+    obs:document.getElementById('f-obs').value.trim(),
+    foto:photo||null,numCred,docId,
+    hash:genHash(docId),
+    dataCad:new Date().toLocaleDateString('pt-BR'),
+    qrUrl:BASE_URL+'?id='+encodeURIComponent(numCred)
+  };
+  members.push(m);
+  save();showA('aok');limpar();
+}
+function showA(id){const e=document.getElementById(id);e.style.display='block';window.scrollTo(0,0);setTimeout(()=>e.style.display='none',4000);}
+function limpar(){
+  ['f-nome','f-cpf','f-tel','f-email','f-obs'].forEach(i=>document.getElementById(i).value='');
+  ['f-nasc','f-emissao','f-validade'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('f-sexo').value='';
+  document.getElementById('f-cat').value='Membro';
+  setStatus('Ativo');retake();
+}
+function save(){localStorage.setItem('members',JSON.stringify(members));updateCount();}
+function updateCount(){const n=members.length;document.getElementById('hcount').textContent=n+(n===1?' membro':' membros');}
+
+// EXPORT DB.JSON
+function exportDB(){
+  const db={membros:members.map(m=>({...m,foto:m.foto||null}))};
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='db.json';
+  a.click();
+  alert('✓ db.json exportado!\n\nAgora:\n1. Abra github.com/prdlcsmrr/Associa-o-\n2. Toque em "Add file" → "Upload files"\n3. Selecione o db.json\n4. Toque em "Commit changes"');
+}
+
+// LISTA
+function renderList(){
+  const q=(document.getElementById('search').value||'').toLowerCase();
+  const f=members.filter(m=>m.nome.toLowerCase().includes(q)||m.cpf.includes(q)||m.numCred.toLowerCase().includes(q)||m.cat.toLowerCase().includes(q));
+  document.getElementById('total').textContent=f.length;
+  const g=document.getElementById('mgrid');
+  if(!f.length){g.innerHTML='<div class="empty"><p>Nenhum membro encontrado.</p></div>';return;}
+  g.innerHTML=f.map(m=>`
+    <div class="mcard">
+      <div class="mcard-photo">${m.foto?`<img src="${m.foto}" alt="">`:`<div class="mcard-ph"><svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Sem foto</span></div>`}</div>
+      <div class="mcard-body">
+        <div class="mcard-name">${m.nome}</div>
+        <div class="mcard-cat">${m.cat} · ${m.numCred}</div>
+        <div class="mcard-status ${m.status==='Ativo'?'ativo':'inativo'}">● ${m.status==='Ativo'?'Credencial Ativa':'Credencial Inativa'}</div>
+        <div class="mcard-acts">
+          <button class="mcard-btn mcard-btn-cred" onclick="openCred(${m.id})">🪪 Ver Credencial</button>
+          <button class="mcard-btn mcard-btn-del" onclick="del(${m.id})">✕</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// CREDENCIAL MODAL
+function openCred(id){
+  const m=members.find(x=>x.id===id);if(!m)return;
+  const ativo=m.status==='Ativo';
+  document.getElementById('cs-icon').textContent=ativo?'✅':'❌';
+  const b=document.getElementById('cs-badge');
+  b.textContent=ativo?'CREDENCIAL ATIVA':'CREDENCIAL INATIVA';
+  b.className='cstatus-badge '+(ativo?'ativo':'inativo');
+  document.getElementById('cphoto').innerHTML=m.foto?`<img src="${m.foto}" alt="">`:`<div class="cphoto-ph"><svg width="32" height="32" fill="none" stroke="#aaa" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Sem foto</span></div>`;
+  document.getElementById('c-nome').textContent=m.nome;
+  document.getElementById('c-mat').textContent=m.numCred;
+  document.getElementById('c-cat').textContent=m.cat;
+  const sit=document.getElementById('c-sit');
+  sit.textContent=ativo?'ATIVO':'INATIVO';
+  sit.className='ci-val '+(ativo?'green':'red');
+  document.getElementById('c-nasc').textContent=fmt(m.nasc);
+  document.getElementById('c-sexo').textContent=m.sexo||'—';
+  document.getElementById('c-cpf').textContent=m.cpf;
+  document.getElementById('c-tel').textContent=m.tel;
+  document.getElementById('c-num').textContent=m.numCred;
+  document.getElementById('c-emissao').textContent=fmt(m.emissao);
+  document.getElementById('c-validade').textContent=fmt(m.validade);
+  document.getElementById('c-docid').textContent=m.docId;
+  document.getElementById('c-hash').textContent=m.hash;
+  document.getElementById('c-footer').textContent='Emitido em '+m.dataCad;
+  const qrUrl=BASE_URL+'?id='+encodeURIComponent(m.numCred);
+  document.getElementById('c-qr').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=85x85&data=${encodeURIComponent(qrUrl)}" alt="QR"><div class="cqr-lbl">Base Legal</div>`;
+  document.getElementById('modal').classList.add('open');
+}
+function closeM(e){if(e.target===document.getElementById('modal'))closeMD();}
+function closeMD(){document.getElementById('modal').classList.remove('open');}
+
+function printCred(){
+  const c=document.getElementById('cred-card').outerHTML;
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Credencial</title><style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--navy:#1a2a5e;--gold:#c9972a;--green:#1a7a3a;--red:#b91c1c;}
+body{background:#fff;display:flex;justify-content:center;padding:20px;font-family:'Segoe UI',system-ui,sans-serif;}
+.credential{width:480px;border:1px solid #ddd;border-radius:4px;overflow:hidden;position:relative;}
+.watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:80px;font-weight:900;color:var(--navy);opacity:0.04;pointer-events:none;white-space:nowrap;}
+.cred-header{background:var(--navy);padding:14px 18px;display:flex;align-items:center;gap:14px;border-bottom:4px solid var(--gold);}
+.cred-emblem{width:52px;height:52px;background:rgba(201,151,42,0.12);border:2px solid rgba(201,151,42,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.ch-text .ch1{font-size:9px;color:rgba(255,255,255,0.45);letter-spacing:1.5px;text-transform:uppercase;}
+.ch-text .ch2{font-size:16px;font-weight:900;color:#fff;letter-spacing:1px;}
+.ch-text .ch3{font-size:10px;color:var(--gold);letter-spacing:0.5px;margin-top:2px;}
+.cstatus{display:flex;align-items:center;gap:10px;padding:10px 18px;background:#f5f6f7;border-bottom:1px solid #e0e0e0;}
+.cstatus-icon{font-size:22px;}.cstatus-lbl{font-size:11px;font-weight:800;color:#333;text-transform:uppercase;}
+.cstatus-badge{padding:5px 16px;border-radius:4px;font-size:12px;font-weight:800;text-transform:uppercase;margin-left:auto;}
+.cstatus-badge.ativo{background:var(--green);color:#fff;}.cstatus-badge.inativo{background:var(--red);color:#fff;}
+.cmain{display:flex;gap:14px;padding:16px 18px;border-bottom:1px solid #e8e8e8;}
+.cphoto{width:105px;height:130px;border:2px solid #c0c0c0;background:#e8e8e8;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.cphoto img{width:100%;height:100%;object-fit:cover;}
+.cinfo{flex:1;}.ci-lbl{font-size:9px;color:#777;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin-top:8px;}.ci-lbl:first-child{margin-top:0;}
+.ci-val{font-size:16px;font-weight:800;color:var(--navy);line-height:1.2;}.ci-val.sm{font-size:13px;}.ci-val.green{color:var(--green);font-size:13px;}.ci-val.red{color:var(--red);font-size:13px;}
+.matbox{background:var(--navy);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:3px;display:inline-block;margin-top:4px;}
+.csection{padding:12px 18px;border-bottom:1px solid #e8e8e8;}
+.csh{display:flex;align-items:center;gap:7px;background:#e8eaed;padding:5px 10px;border-radius:3px;margin-bottom:10px;}
+.csh-ttl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--navy);}
+.cdg{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.cdlbl{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:2px;}
+.cdval{font-size:13px;font-weight:700;color:var(--navy);}.cdval.xs{font-size:11px;word-break:break-all;}
+.cauth{display:flex;gap:14px;align-items:flex-start;}
+.cqr{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.cqr img{width:85px;height:85px;}.cqr-lbl{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;}
+.cfooter{background:var(--navy);padding:8px 18px;display:flex;align-items:center;justify-content:space-between;}
+.cft{font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:1px;}
+.cphoto-ph{display:flex;flex-direction:column;align-items:center;gap:5px;color:#999;font-size:10px;}
+</style></head><body>${c}</body></html>`);
+  w.document.close();setTimeout(()=>w.print(),800);
+}
+
+function del(id){if(!confirm('Excluir?'))return;members=members.filter(m=>m.id!==id);save();renderList();}
+function clearAll(){if(!confirm('Apagar TODOS?'))return;members=[];save();renderList();}
+
+// INIT
+updateCount();
+const today=new Date().toISOString().split('T')[0];
+document.getElementById('f-emissao').value=today;
+const ny=new Date();ny.setFullYear(ny.getFullYear()+1);
+document.getElementById('f-validade').value=ny.toISOString().split('T')[0];
+</script>
+</body>
+</html>
