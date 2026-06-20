@@ -550,6 +550,86 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
         </div>
       </div>
 
+      <!-- Verificação QR Code -->
+      <div class="box" style="margin-bottom:16px">
+        <div class="box-title">🔍 Página de Verificação (QR Code)</div>
+
+        <div class="field">
+          <label>Título principal do header</label>
+          <input type="text" id="cfg-ver-titulo" placeholder="Ex: ASSOCIAÇÃO">
+        </div>
+        <div class="field">
+          <label>Linha 1 (texto pequeno acima)</label>
+          <input type="text" id="cfg-ver-linha1" placeholder="Ex: República Federativa do Brasil">
+        </div>
+        <div class="field">
+          <label>Linha 2 (texto pequeno)</label>
+          <input type="text" id="cfg-ver-linha2" placeholder="Ex: Sistema Oficial de Verificação">
+        </div>
+        <div class="field">
+          <label>Subtítulo itálico</label>
+          <input type="text" id="cfg-ver-sub" placeholder="Ex: Sistema Oficial de Verificação de Credencial Funcional">
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Cor do header</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="color" id="cfg-ver-cor1" value="#1b2a5e" style="width:52px;height:40px;border:1px solid #ddd;border-radius:6px;cursor:pointer;padding:2px">
+              <input type="text" id="cfg-ver-cor1-hex" value="#1b2a5e" style="flex:1" oninput="document.getElementById('cfg-ver-cor1').value=this.value">
+            </div>
+          </div>
+          <div class="field">
+            <label>Cor da linha dourada</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="color" id="cfg-ver-cor2" value="#c9952a" style="width:52px;height:40px;border:1px solid #ddd;border-radius:6px;cursor:pointer;padding:2px">
+              <input type="text" id="cfg-ver-cor2-hex" value="#c9952a" style="flex:1" oninput="document.getElementById('cfg-ver-cor2').value=this.value">
+            </div>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Cor badge ATIVA</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="color" id="cfg-ver-ativo" value="#2a7a38" style="width:52px;height:40px;border:1px solid #ddd;border-radius:6px;cursor:pointer;padding:2px">
+              <input type="text" id="cfg-ver-ativo-hex" value="#2a7a38" style="flex:1" oninput="document.getElementById('cfg-ver-ativo').value=this.value">
+            </div>
+          </div>
+          <div class="field">
+            <label>Cor badge INATIVA</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="color" id="cfg-ver-inativo" value="#b91c1c" style="width:52px;height:40px;border:1px solid #ddd;border-radius:6px;cursor:pointer;padding:2px">
+              <input type="text" id="cfg-ver-inativo-hex" value="#b91c1c" style="flex:1" oninput="document.getElementById('cfg-ver-inativo').value=this.value">
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Texto legal do rodapé (seções de dados)</label>
+          <textarea id="cfg-ver-rodape" style="width:100%;background:#fafafa;border:1px solid #ddd;border-radius:8px;padding:11px 13px;font-size:13px;resize:vertical;min-height:60px" placeholder="TEM FÉ PÚBLICA E VALIDADE EM TODO O TERRITÓRIO NACIONAL..."></textarea>
+        </div>
+
+        <div class="field">
+          <label>Campos visíveis na verificação</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;text-transform:none;letter-spacing:0;cursor:pointer"><input type="checkbox" id="cfg-ver-nasc" checked> Data de Nascimento</label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;text-transform:none;letter-spacing:0;cursor:pointer"><input type="checkbox" id="cfg-ver-cpf" checked> CPF</label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;text-transform:none;letter-spacing:0;cursor:pointer"><input type="checkbox" id="cfg-ver-tel" checked> Telefone</label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;text-transform:none;letter-spacing:0;cursor:pointer"><input type="checkbox" id="cfg-ver-filiacao" checked> Filiação</label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;text-transform:none;letter-spacing:0;cursor:pointer"><input type="checkbox" id="cfg-ver-validade" checked> Validade</label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;text-transform:none;letter-spacing:0;cursor:pointer"><input type="checkbox" id="cfg-ver-emissao" checked> Emissão</label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;text-transform:none;letter-spacing:0;cursor:pointer"><input type="checkbox" id="cfg-ver-hash" checked> Hash/Autenticação</label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;text-transform:none;letter-spacing:0;cursor:pointer"><input type="checkbox" id="cfg-ver-porte" checked> Porte de Arma</label>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;padding:12px;background:#f0f4ff;border-radius:8px;border:1px solid #c0ceff">
+          <p style="font-size:12px;color:#1a2a5e;font-weight:600">💡 Como funciona:</p>
+          <p style="font-size:11px;color:#555;margin-top:4px;line-height:1.6">Ao salvar, as configurações são gravadas e aplicadas automaticamente na página de verificação quando alguém ler o QR Code. As cores e textos serão atualizados em tempo real.</p>
+        </div>
+      </div>
+
       <button class="btn btn-navy btn-full" onclick="saveConfig()" style="margin-bottom:10px">✓ Salvar Todas as Configurações</button>
       <button class="btn btn-outline btn-full" onclick="resetConfig()">↺ Restaurar Configuração Padrão</button>
     </div>
@@ -1095,6 +1175,22 @@ function goToConfig(){
   document.getElementById('cfg-valor').value = cfg.valorMensalidade || '100';
   document.getElementById('cfg-venc').value = cfg.diaVencimento || '10';
   document.getElementById('cfg-pix').value = cfg.pixKey || '';
+  // Verificação QR Code settings
+  document.getElementById('cfg-ver-titulo').value = cfg.verTitulo || 'ASSOCIAÇÃO';
+  document.getElementById('cfg-ver-linha1').value = cfg.verLinha1 || 'República Federativa do Brasil';
+  document.getElementById('cfg-ver-linha2').value = cfg.verLinha2 || 'Sistema Oficial de Verificação';
+  document.getElementById('cfg-ver-sub').value = cfg.verSub || 'Sistema Oficial de Verificação de Credencial Funcional';
+  document.getElementById('cfg-ver-rodape').value = cfg.verRodape || 'TEM FÉ PÚBLICA E VALIDADE EM TODO O TERRITÓRIO NACIONAL';
+  const vc1=cfg.verCor1||'#1b2a5e', vc2=cfg.verCor2||'#c9952a';
+  document.getElementById('cfg-ver-cor1').value=vc1; document.getElementById('cfg-ver-cor1-hex').value=vc1;
+  document.getElementById('cfg-ver-cor2').value=vc2; document.getElementById('cfg-ver-cor2-hex').value=vc2;
+  const va=cfg.verAtivo||'#2a7a38', vi=cfg.verInativo||'#b91c1c';
+  document.getElementById('cfg-ver-ativo').value=va; document.getElementById('cfg-ver-ativo-hex').value=va;
+  document.getElementById('cfg-ver-inativo').value=vi; document.getElementById('cfg-ver-inativo-hex').value=vi;
+  ['nasc','cpf','tel','filiacao','validade','emissao','hash','porte'].forEach(f=>{
+    const el=document.getElementById('cfg-ver-'+f);
+    if(el) el.checked = cfg['ver_'+f]!==false;
+  });
   if(cfg.logo){
     document.getElementById('logo-preview').style.display='flex';
     document.getElementById('logo-img').src=cfg.logo;
@@ -1182,7 +1278,25 @@ function saveConfig(){
     valorMensalidade:document.getElementById('cfg-valor').value||'100',
     diaVencimento:document.getElementById('cfg-venc').value||'10',
     pixKey:document.getElementById('cfg-pix').value.trim(),
-    logo:logo
+    logo:logo,
+    // Verificação QR settings
+    verTitulo:document.getElementById('cfg-ver-titulo').value.trim()||'ASSOCIAÇÃO',
+    verLinha1:document.getElementById('cfg-ver-linha1').value.trim(),
+    verLinha2:document.getElementById('cfg-ver-linha2').value.trim(),
+    verSub:document.getElementById('cfg-ver-sub').value.trim(),
+    verRodape:document.getElementById('cfg-ver-rodape').value.trim(),
+    verCor1:document.getElementById('cfg-ver-cor1').value,
+    verCor2:document.getElementById('cfg-ver-cor2').value,
+    verAtivo:document.getElementById('cfg-ver-ativo').value,
+    verInativo:document.getElementById('cfg-ver-inativo').value,
+    ver_nasc:document.getElementById('cfg-ver-nasc').checked,
+    ver_cpf:document.getElementById('cfg-ver-cpf').checked,
+    ver_tel:document.getElementById('cfg-ver-tel').checked,
+    ver_filiacao:document.getElementById('cfg-ver-filiacao').checked,
+    ver_validade:document.getElementById('cfg-ver-validade').checked,
+    ver_emissao:document.getElementById('cfg-ver-emissao').checked,
+    ver_hash:document.getElementById('cfg-ver-hash').checked,
+    ver_porte:document.getElementById('cfg-ver-porte').checked
   };
 
   localStorage.setItem('assoc-config',JSON.stringify(cfg));
