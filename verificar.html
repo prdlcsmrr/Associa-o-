@@ -87,21 +87,41 @@ body { background:#c8c8c8; font-family:'Roboto',Arial,sans-serif; min-height:100
   <div class="loading">⏳ Verificando credencial...</div>
 </div>
 <script>
-const DB='https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5/latest';
+
 function fmt(d){if(!d)return'—';return new Date(d+'T12:00').toLocaleDateString('pt-BR');}
+const DB_GITHUB='https://prdlcsmrr.github.io/Associa-o-/db.json';
+const BIN_ID='6a35c2ddda38895dfee044d5';
+
 async function init(){
   const id=new URLSearchParams(location.search).get('id');
   if(!id){showErr('QR Code inválido','Este código não contém identificador.');return;}
+
+  // Try GitHub db.json first (works on all devices)
+  try{
+    const r=await fetch(DB_GITHUB+'?t='+Date.now());
+    if(r.ok){
+      const data=await r.json();
+      const membros=data.membros||[];
+      const m=membros.find(x=>x.numCred===id);
+      if(m){render(m);return;}
+    }
+  }catch(e){}
+
+  // Fallback: try JSONBin
   try{
     const KEY=['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
-    const r=await fetch(DB,{headers:{'X-Master-Key':KEY,'X-Bin-Meta':'false'}});
-    if(!r.ok)throw 0;
-    const data=await r.json();
-    const membros=data.membros||[];
-    const m=membros.find(x=>x.numCred===id);
-    if(!m){showErr('Não encontrado','Nenhum membro com este código foi localizado.');return;}
-    render(m);
-  }catch(e){showErr('Erro ao verificar','Não foi possível acessar o banco de dados.');}
+    const r=await fetch('https://api.jsonbin.io/v3/b/'+BIN_ID+'/latest',{
+      headers:{'X-Master-Key':KEY,'X-Bin-Meta':'false'}
+    });
+    if(r.ok){
+      const data=await r.json();
+      const membros=data.membros||[];
+      const m=membros.find(x=>x.numCred===id);
+      if(m){render(m);return;}
+    }
+  }catch(e){}
+
+  showErr('Não encontrado','Nenhum membro com este código foi localizado.');
 }
 function render(m){
   const ativo=m.status==='Ativo';
