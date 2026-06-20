@@ -802,17 +802,9 @@ async function salvar(){
   const nasc=document.getElementById('f-nasc').value;
   if(!nome||!cpf||!tel||!nasc){showA('aerr');return;}
 
-  // Force get latest list from cloud
-  try{
-    const k='$2a$10$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2';
-    const r=await fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5/latest',{
-      headers:{'X-Master-Key':k,'X-Bin-Meta':'false'}
-    });
-    if(r.ok){
-      const data=await r.json();
-      if(Array.isArray(data.membros)) members=data.membros;
-    }
-  }catch(e){}
+  // Use current localStorage as base (most up to date)
+  const localNow = JSON.parse(localStorage.getItem('members')||'[]');
+  if(localNow.length >= members.length) members = localNow;
 
   const ts=Date.now();
   const numCred=ORG_PRE+'-'+String(members.length+1).padStart(6,'0');
@@ -1051,41 +1043,41 @@ function toggleStatus(id){
 }
 
 async function reloadMembers(){
-  const btn = event.target;
-  btn.textContent = '⏳';
-  btn.disabled = true;
-  try{
-    // Try GitHub db.json directly (most reliable on mobile)
-    const r = await fetch('https://prdlcsmrr.github.io/Associa-o-/db.json?nocache='+Date.now());
-    if(r.ok){
-      const data = await r.json();
-      if(data.membros && data.membros.length > 0){
-        members = data.membros;
-        localStorage.setItem('members', JSON.stringify(members));
-        updateCount();
-        renderList();
-        btn.textContent = '✅';
-        setTimeout(()=>{btn.textContent='🔄';btn.disabled=false;}, 1500);
-        return;
-      }
-    }
-  }catch(e){}
-  // Try JSONBin
+  const btn = event?.target;
+  if(btn){ btn.textContent='⏳'; btn.disabled=true; }
+
+  const local = JSON.parse(localStorage.getItem('members')||'[]');
+  let cloud1 = [];
+
+  // Get from JSONBin
   try{
     const k='$2a$10$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2';
-    const r2 = await fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5/latest',{
-      headers:{'X-Master-Key':k,'X-Bin-Meta':'false'}
-    });
-    if(r2.ok){
-      const data2 = await r2.json();
-      members = data2.membros || [];
-      localStorage.setItem('members', JSON.stringify(members));
-      updateCount();
-      renderList();
-    }
+    const r=await fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5/latest',{headers:{'X-Master-Key':k,'X-Bin-Meta':'false'}});
+    if(r.ok){ const d=await r.json(); cloud1=d.membros||[]; }
   }catch(e){}
-  btn.textContent = '🔄';
-  btn.disabled = false;
+
+  // Use whichever has more members
+  if(cloud1.length > local.length){
+    members = cloud1;
+    localStorage.setItem('members', JSON.stringify(members));
+  } else {
+    members = local;
+    // If local has more, push to cloud
+    if(local.length > cloud1.length){
+      try{
+        const k='$2a$10$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2';
+        await fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5',{
+          method:'PUT',
+          headers:{'Content-Type':'application/json','X-Master-Key':k},
+          body:JSON.stringify({membros:members})
+        });
+      }catch(e){}
+    }
+  }
+
+  updateCount();
+  renderList();
+  if(btn){ btn.textContent='✅'; setTimeout(()=>{btn.textContent='🔄';btn.disabled=false;},1500); }
 }
 
 async function loadFromCloud(){
