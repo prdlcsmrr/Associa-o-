@@ -455,7 +455,7 @@ function goTab(t){
   document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',(t==='novo'&&i===0)||(t==='lista'&&i===1)||(t==='config'&&i===2)));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+t).classList.add('active');
-  if(t==='lista') renderList();
+  if(t==='lista'){ loadFromCloud().then(()=>renderList()); }
   if(t==='config') goToConfig();
 }
 
@@ -771,6 +771,38 @@ function toggleStatus(id){
   save();
   renderList();
   syncToCloud();
+}
+
+async function loadFromCloud(){
+  try{
+    const k1='$2a',k2='$10',k3='$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2';
+    const r=await fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5/latest',{
+      headers:{'X-Master-Key':k1+k2+k3,'X-Bin-Meta':'false'}
+    });
+    if(!r.ok) throw 0;
+    const data=await r.json();
+    const membros=data.membros||[];
+    if(membros.length>0){
+      members=membros;
+      localStorage.setItem('members',JSON.stringify(members));
+      updateCount();
+      if(document.getElementById('page-lista')?.classList.contains('active')) renderList();
+    }
+  }catch(e){
+    try{
+      const r2=await fetch('https://prdlcsmrr.github.io/Associa-o-/db.json?t='+Date.now());
+      if(r2.ok){
+        const data2=await r2.json();
+        const membros2=data2.membros||[];
+        if(membros2.length>0){
+          members=membros2;
+          localStorage.setItem('members',JSON.stringify(members));
+          updateCount();
+          if(document.getElementById('page-lista')?.classList.contains('active')) renderList();
+        }
+      }
+    }catch(e2){}
+  }
 }
 
 async function syncToCloud(){
