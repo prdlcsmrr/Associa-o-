@@ -117,10 +117,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 .empty { text-align:center;padding:80px 20px;color:var(--muted);grid-column:1/-1; }
 
 /* EXPORT BOX */
-.export-box { background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px; }
-.export-info { flex:1; }
-.export-title { font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px; }
-.export-desc { font-size:12px;color:var(--muted); }
+
 
 /* MODAL */
 .modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;padding:20px;overflow-y:auto; }
@@ -298,14 +295,6 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
   <div class="page" id="page-lista">
 
     <!-- EXPORT BOX -->
-    <div class="export-box">
-      <div class="export-info">
-        <div class="export-title">📤 Exportar banco de dados</div>
-        <div class="export-desc">Após cadastrar membros, exporte o db.json e faça upload no GitHub para os QR Codes funcionarem.</div>
-      </div>
-      <button class="btn btn-gold" onclick="exportDB()">⬇ Exportar db.json</button>
-    </div>
-
     <div class="search-row">
       <input type="text" id="search" placeholder="🔍 Buscar por nome, CPF, matrícula..." oninput="renderList()">
       <button onclick="reloadMembers()" style="background:#1a2a5e;border:none;border-radius:8px;padding:11px 14px;color:#fff;cursor:pointer;font-size:16px;" title="Atualizar">🔄</button>
