@@ -1089,34 +1089,27 @@ async function reloadMembers(){
 }
 
 async function loadFromCloud(){
-  // Only load from cloud if local is empty
+  // Compare localStorage vs cloud — use whichever has MORE members
   const localData = JSON.parse(localStorage.getItem('members')||'[]');
-  if(localData.length > 0){
-    members = localData;
-    updateCount();
-    const lista=document.getElementById('page-lista');
-    if(lista&&lista.classList.contains('active')) renderList();
-    return;
-  }
 
-  let loaded = false;
-
-  // Try JSONBin first
+  let cloudData = [];
   try{
     const k1='$2a',k2='$10',k3='$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2';
     const r=await fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5/latest',{
       headers:{'X-Master-Key':k1+k2+k3,'X-Bin-Meta':'false'}
     });
-    if(r.ok){
-      const data=await r.json();
-      const membros=data.membros||[];
-      if(membros.length>=0){
-        members=membros;
-        localStorage.setItem('members',JSON.stringify(members));
-        loaded=true;
-      }
-    }
+    if(r.ok){ const data=await r.json(); cloudData=data.membros||[]; }
   }catch(e){}
+
+  // Use whichever source has more members
+  if(cloudData.length > localData.length){
+    members = cloudData;
+    localStorage.setItem('members', JSON.stringify(members));
+  } else {
+    members = localData;
+  }
+
+  let loaded = members.length >= 0;
 
   // Fallback: GitHub db.json
   if(!loaded){
@@ -1173,8 +1166,8 @@ function del(id){if(!confirm('Excluir?'))return;members=members.filter(m=>m.id!=
 function clearAll(){if(!confirm('Apagar TODOS?'))return;members=[];save();renderList();}
 
 // INIT
-// Load from cloud on start
-loadFromCloud();
+// Use localStorage first, cloud only if empty
+members = JSON.parse(localStorage.getItem('members') || '[]');
 // ── CONFIG ──────────────────────────────────────────────────────────
 let cfg = JSON.parse(localStorage.getItem('assoc-config') || '{}');
 
