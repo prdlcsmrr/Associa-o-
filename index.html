@@ -391,6 +391,41 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
   </div>
 </div>
 
+<!-- MODAL PAGAMENTOS -->
+<div class="modal-overlay" id="modal-pag" onclick="closePag(event)">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:500px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.3)">
+    <div style="background:var(--navy);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold)">
+      <div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px">Controle de Pagamentos</div>
+        <div style="font-size:16px;font-weight:800;color:#fff" id="pag-nome">—</div>
+      </div>
+      <button onclick="closePagDirect()" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:20px;cursor:pointer">✕</button>
+    </div>
+    <div style="padding:20px 24px">
+      <div style="font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px">
+        Selecione os meses pagos:
+      </div>
+      <div id="pag-meses" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px"></div>
+      <div style="background:#f0f9f0;border:1px solid #bbf0bb;border-radius:8px;padding:12px;margin-bottom:16px">
+        <div style="font-size:11px;font-weight:800;color:#2a7a38;margin-bottom:4px">📊 Resumo</div>
+        <div style="display:flex;justify-content:space-between;font-size:13px">
+          <span style="color:#555">Meses pagos:</span>
+          <span style="font-weight:800;color:#2a7a38" id="pag-count">0/12</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-top:4px">
+          <span style="color:#555">Total pago:</span>
+          <span style="font-weight:800;color:#1a2a5e" id="pag-total">R$ 0,00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-top:4px">
+          <span style="color:#555">Total pendente:</span>
+          <span style="font-weight:800;color:#b91c1c" id="pag-pend">R$ 1.200,00</span>
+        </div>
+      </div>
+      <button onclick="savePag()" style="width:100%;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;text-transform:uppercase">✓ Salvar Pagamentos</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const LUSER='admin', LPASS='1234';
 const BASE_URL='https://prdlcsmrr.github.io/Associa-o-/verificar.html';
@@ -547,7 +582,69 @@ function limpar(){
   document.getElementById('f-cat').value='Membro';
   setStatus('Ativo');retake();
 }
-function save(){localStorage.setItem('members',JSON.stringify(members));updateCount();}
+function save(){localStorage.setItem('members',JSON.stringify(members));// ── PAGAMENTOS ──────────────────────────────────────────────────────
+const MESES_NOME = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+let pagAtualId = null;
+
+function openPag(id){
+  const m = members.find(x=>x.id===id);
+  if(!m) return;
+  pagAtualId = id;
+  document.getElementById('pag-nome').textContent = m.nome;
+  const pagos = m.pagamentos || [];
+  const ano = new Date().getFullYear();
+
+  let html = '';
+  MESES_NOME.forEach((mes, i) => {
+    const pago = pagos.includes(i);
+    html += `<button onclick="togglePag(${i})" id="pag-mes-${i}" style="
+      padding:10px 6px; border-radius:8px; border:2px solid ${pago?'#2a7a38':'#e0e0e0'};
+      background:${pago?'rgba(26,122,58,0.1)':'#f9f9f9'}; color:${pago?'#2a7a38':'#666'};
+      font-size:11px; font-weight:700; cursor:pointer; transition:all 0.2s; text-align:center;
+    ">${pago?'✅':'○'}<br><span style="font-size:9px">${mes.slice(0,3)}</span></button>`;
+  });
+
+  document.getElementById('pag-meses').innerHTML = html;
+  updatePagSummary(pagos);
+  document.getElementById('modal-pag').classList.add('open');
+}
+
+function togglePag(mes){
+  const m = members.find(x=>x.id===pagAtualId);
+  if(!m) return;
+  if(!m.pagamentos) m.pagamentos = [];
+  const idx = m.pagamentos.indexOf(mes);
+  if(idx >= 0) m.pagamentos.splice(idx, 1);
+  else m.pagamentos.push(mes);
+
+  const pago = m.pagamentos.includes(mes);
+  const btn = document.getElementById('pag-mes-'+mes);
+  btn.style.border = '2px solid '+(pago?'#2a7a38':'#e0e0e0');
+  btn.style.background = pago?'rgba(26,122,58,0.1)':'#f9f9f9';
+  btn.style.color = pago?'#2a7a38':'#666';
+  btn.innerHTML = (pago?'✅':'○')+'<br><span style="font-size:9px">'+MESES_NOME[mes].slice(0,3)+'</span>';
+  updatePagSummary(m.pagamentos);
+}
+
+function updatePagSummary(pagos){
+  const n = pagos.length;
+  document.getElementById('pag-count').textContent = n+'/12';
+  document.getElementById('pag-total').textContent = 'R$ '+(n*100).toLocaleString('pt-BR',{minimumFractionDigits:2});
+  document.getElementById('pag-pend').textContent = 'R$ '+((12-n)*100).toLocaleString('pt-BR',{minimumFractionDigits:2});
+}
+
+function savePag(){
+  save();
+  syncToCloud();
+  closePagDirect();
+  renderList();
+  alert('✅ Pagamentos salvos com sucesso!');
+}
+
+function closePag(e){ if(e.target===document.getElementById('modal-pag')) closePagDirect(); }
+function closePagDirect(){ document.getElementById('modal-pag').classList.remove('open'); pagAtualId=null; }
+
+updateCount();}
 function updateCount(){const n=members.length;document.getElementById('hcount').textContent=n+(n===1?' membro':' membros');}
 
 // EXPORT DB.JSON
@@ -579,6 +676,7 @@ function renderList(){
           <button class="mcard-btn mcard-btn-cred" onclick="openCred(${m.id})">🪪 Ver</button>
           <button class="mcard-btn" onclick="gerarCarteirinha('${m.numCred}')" style="flex:1;padding:7px;border-radius:6px;border:none;font-size:10px;font-weight:700;cursor:pointer;text-transform:uppercase;background:rgba(201,151,42,0.15);color:#c9972a;">🖨️ Carteirinha</button>
           <button class="mcard-btn" onclick="gerarCobranca('${m.numCred}')" style="flex:1;padding:7px;border-radius:6px;border:none;font-size:10px;font-weight:700;cursor:pointer;text-transform:uppercase;background:rgba(26,122,58,0.1);color:#1a7a3a;">💰 Cobrança</button>
+          <button class="mcard-btn" onclick="openPag(${m.id})" style="flex:1;padding:7px;border-radius:6px;border:none;font-size:10px;font-weight:700;cursor:pointer;text-transform:uppercase;background:rgba(26,122,58,0.08);color:#1a7a3a;">📋 Pagamentos</button>
           <button class="mcard-btn" onclick="toggleStatus(${m.id})" style="flex:1;padding:7px;border-radius:6px;border:none;font-size:10px;font-weight:700;cursor:pointer;text-transform:uppercase;background:${m.status==='Ativo'?'rgba(185,28,28,0.08)':'rgba(26,122,58,0.1)'};color:${m.status==='Ativo'?'#b91c1c':'#1a7a3a'}">${m.status==='Ativo'?'⛔ Desativar':'✅ Ativar'}</button>
           <button class="mcard-btn mcard-btn-del" onclick="del(${m.id})">✕</button>
         </div>
@@ -843,6 +941,68 @@ function resetConfig(){
 
 // Update goTab to load config values when switching to config
 const _origGoTab = goTab;
+
+// ── PAGAMENTOS ──────────────────────────────────────────────────────
+const MESES_NOME = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+let pagAtualId = null;
+
+function openPag(id){
+  const m = members.find(x=>x.id===id);
+  if(!m) return;
+  pagAtualId = id;
+  document.getElementById('pag-nome').textContent = m.nome;
+  const pagos = m.pagamentos || [];
+  const ano = new Date().getFullYear();
+
+  let html = '';
+  MESES_NOME.forEach((mes, i) => {
+    const pago = pagos.includes(i);
+    html += `<button onclick="togglePag(${i})" id="pag-mes-${i}" style="
+      padding:10px 6px; border-radius:8px; border:2px solid ${pago?'#2a7a38':'#e0e0e0'};
+      background:${pago?'rgba(26,122,58,0.1)':'#f9f9f9'}; color:${pago?'#2a7a38':'#666'};
+      font-size:11px; font-weight:700; cursor:pointer; transition:all 0.2s; text-align:center;
+    ">${pago?'✅':'○'}<br><span style="font-size:9px">${mes.slice(0,3)}</span></button>`;
+  });
+
+  document.getElementById('pag-meses').innerHTML = html;
+  updatePagSummary(pagos);
+  document.getElementById('modal-pag').classList.add('open');
+}
+
+function togglePag(mes){
+  const m = members.find(x=>x.id===pagAtualId);
+  if(!m) return;
+  if(!m.pagamentos) m.pagamentos = [];
+  const idx = m.pagamentos.indexOf(mes);
+  if(idx >= 0) m.pagamentos.splice(idx, 1);
+  else m.pagamentos.push(mes);
+
+  const pago = m.pagamentos.includes(mes);
+  const btn = document.getElementById('pag-mes-'+mes);
+  btn.style.border = '2px solid '+(pago?'#2a7a38':'#e0e0e0');
+  btn.style.background = pago?'rgba(26,122,58,0.1)':'#f9f9f9';
+  btn.style.color = pago?'#2a7a38':'#666';
+  btn.innerHTML = (pago?'✅':'○')+'<br><span style="font-size:9px">'+MESES_NOME[mes].slice(0,3)+'</span>';
+  updatePagSummary(m.pagamentos);
+}
+
+function updatePagSummary(pagos){
+  const n = pagos.length;
+  document.getElementById('pag-count').textContent = n+'/12';
+  document.getElementById('pag-total').textContent = 'R$ '+(n*100).toLocaleString('pt-BR',{minimumFractionDigits:2});
+  document.getElementById('pag-pend').textContent = 'R$ '+((12-n)*100).toLocaleString('pt-BR',{minimumFractionDigits:2});
+}
+
+function savePag(){
+  save();
+  syncToCloud();
+  closePagDirect();
+  renderList();
+  alert('✅ Pagamentos salvos com sucesso!');
+}
+
+function closePag(e){ if(e.target===document.getElementById('modal-pag')) closePagDirect(); }
+function closePagDirect(){ document.getElementById('modal-pag').classList.remove('open'); pagAtualId=null; }
 
 updateCount();
 const today=new Date().toISOString().split('T')[0];
