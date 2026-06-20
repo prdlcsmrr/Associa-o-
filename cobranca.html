@@ -197,6 +197,8 @@ async function init(){
 }
 
 function boletoHTML(m, mes, ano){
+  const pagos = m.pagamentos || [];
+  const pago = pagos.includes(mes);
   const num = docNum(m.id, mes, ano);
   const venc = vencimento(mes, ano);
   const mesNome = MESES[mes]+'/'+ano;
@@ -205,6 +207,7 @@ function boletoHTML(m, mes, ano){
 
   return `
   <div class="boleto" id="boleto-${mes}">
+    ${pago ? `<div style='background:#2a7a38;color:#fff;text-align:center;padding:8px;font-size:13px;font-weight:800;letter-spacing:1px'>✅ MENSALIDADE PAGA — ${MESES[mes]}/${ano}</div>` : ''}
     <div class="b-header">
       <div class="b-logo">
         <div class="b-logo-icon">🏛️</div>
@@ -226,7 +229,7 @@ function boletoHTML(m, mes, ano){
           <div class="bv-label">Vencimento</div>
           <div class="bv-date">${venc}</div>
         </div>
-        <div class="bv-status">⏳ Pendente</div>
+        <div class="bv-status" style="${pago?'background:#d1fae5;color:#065f46;border:1px solid #34d399':'background:#fef3c7;color:#92400e;border:1px solid #f59e0b'}">${pago?'✅ PAGO':'⏳ Pendente'}</div>
       </div>
       <div>
         <div class="bv-valor-lbl">Valor</div>
