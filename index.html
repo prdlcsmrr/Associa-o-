@@ -781,14 +781,18 @@ function genHash(s){let h=0;for(let c of s)h=(h<<5)-h+c.charCodeAt(0)|0;return M
 function genDocId(ts){const d=new Date(ts);return ORG_PRE+'-'+d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(ts).slice(-5);}
 
 // SALVAR
-function salvar(){
+async function salvar(){
   const nome=document.getElementById('f-nome').value.trim();
   const cpf=document.getElementById('f-cpf').value.trim();
   const tel=document.getElementById('f-tel').value.trim();
   const nasc=document.getElementById('f-nasc').value;
   if(!nome||!cpf||!tel||!nasc){showA('aerr');return;}
+
+  // Sync from cloud first to avoid overwriting existing members
+  await loadFromCloud();
+
   const ts=Date.now();
-  const numCred=genNum();
+  const numCred=ORG_PRE+'-'+String(members.length+1).padStart(6,'0');
   const docId=genDocId(ts);
   const m={
     id:ts,nome,cpf,tel,
@@ -802,6 +806,7 @@ function salvar(){
     foto:photo||null,numCred,docId,
     hash:genHash(docId),
     dataCad:new Date().toLocaleDateString('pt-BR'),
+    pagamentos:[],
     qrUrl:BASE_URL+'?id='+encodeURIComponent(numCred)
   };
   members.push(m);
