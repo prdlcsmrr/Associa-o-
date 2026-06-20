@@ -280,6 +280,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
             <button class="btn btn-outline" id="bon" onclick="startCam()">▶ Câmera</button>
             <button class="btn btn-navy" id="bsnap" onclick="snap()" style="display:none">📷 Tirar</button>
             <button class="btn btn-outline" id="bflip" onclick="flipCam()" style="display:none">🔄 Virar</button>
+            <button class="btn btn-outline" id="bclose" onclick="closeCam()" style="display:none;background:#fee2e2;border-color:#fca5a5;color:#b91c1c">✕ Fechar</button>
             <button class="btn btn-outline" id="bre" onclick="retake()" style="display:none">↺ Refazer</button>
             <label class="btn btn-gold" style="cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px" id="bupload">
               📁 Galeria
@@ -714,6 +715,7 @@ async function startCam(){
     document.getElementById('bon').style.display='none';
     document.getElementById('bsnap').style.display='block';
     document.getElementById('bflip').style.display='block';
+    document.getElementById('bclose').style.display='block';
   }catch(e){
     let m='Erro câmera.';
     if(e.name==='NotAllowedError') m='Permissão negada.';
@@ -723,6 +725,17 @@ async function startCam(){
   }
 }
 async function flipCam(){facing=facing==='user'?'environment':'user';await startCam();}
+
+function closeCam(){
+  if(stream) stream.getTracks().forEach(t=>t.stop());
+  stream=null;
+  document.getElementById('video').style.display='none';
+  document.getElementById('wcph').style.display='flex';
+  document.getElementById('bon').style.display='block';
+  document.getElementById('bsnap').style.display='none';
+  document.getElementById('bflip').style.display='none';
+  document.getElementById('bclose').style.display='none';
+}
 function snap(){
   const v=document.getElementById('video'),c=document.getElementById('snap-canvas');
   c.width=v.videoWidth;c.height=v.videoHeight;
@@ -734,6 +747,7 @@ function snap(){
   if(stream) stream.getTracks().forEach(t=>t.stop());
   document.getElementById('bsnap').style.display='none';
   document.getElementById('bflip').style.display='none';
+  document.getElementById('bclose').style.display='none';
   document.getElementById('bre').style.display='block';
 }
 function retake(){
