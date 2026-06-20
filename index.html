@@ -211,6 +211,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 <div class="tabs">
   <div class="tab active" onclick="goTab('novo')">＋ Novo Cadastro</div>
   <div class="tab" onclick="goTab('lista')">☰ Membros</div>
+  <div class="tab" onclick="goTab('config')">⚙️ Configurações</div>
 </div>
 
 <div class="content">
@@ -412,10 +413,11 @@ let stream=null,photo=null,facing='user',curStatus='Ativo';
 
 // TABS
 function goTab(t){
-  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',(t==='novo'&&i===0)||(t==='lista'&&i===1)));
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',(t==='novo'&&i===0)||(t==='lista'&&i===1)||(t==='config'&&i===2)));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+t).classList.add('active');
   if(t==='lista') renderList();
+  if(t==='config') goToConfig();
 }
 
 // STATUS
@@ -661,6 +663,152 @@ function clearAll(){if(!confirm('Apagar TODOS?'))return;members=[];save();render
 // INIT
 // Load from cloud on start
 loadFromCloud();
+// ── CONFIG ──────────────────────────────────────────────────────────
+let cfg = JSON.parse(localStorage.getItem('assoc-config') || '{}');
+
+function loadConfig(){
+  cfg = JSON.parse(localStorage.getItem('assoc-config') || '{}');
+  if(cfg.cor1) document.documentElement.style.setProperty('--navy', cfg.cor1);
+  if(cfg.cor2) document.documentElement.style.setProperty('--gold', cfg.cor2);
+  if(cfg.cor3) document.documentElement.style.setProperty('--green', cfg.cor3);
+  if(cfg.cor4) document.documentElement.style.setProperty('--red', cfg.cor4);
+  if(cfg.fonte) document.body.style.fontFamily = cfg.fonte+',sans-serif';
+  if(cfg.nomeAssoc){
+    document.querySelectorAll('.hname').forEach(e=>e.textContent=cfg.nomeAssoc);
+  }
+  if(cfg.subAssoc){
+    document.querySelectorAll('.hsub').forEach(e=>e.textContent=cfg.subAssoc);
+  }
+  if(cfg.logo){
+    document.querySelectorAll('.hemblem').forEach(e=>{
+      e.innerHTML='<img src="'+cfg.logo+'" style="width:40px;height:40px;object-fit:contain;border-radius:50%">';
+    });
+  }
+}
+
+function goToConfig(){
+  // Fill current values
+  document.getElementById('cfg-nome').value = cfg.nomeAssoc || 'ASSOCIAÇÃO';
+  document.getElementById('cfg-sub').value = cfg.subAssoc || 'Sistema de Verificação de Credencial';
+  document.getElementById('cfg-cor1').value = cfg.cor1 || '#1a2a5e';
+  document.getElementById('cfg-cor1-hex').value = cfg.cor1 || '#1a2a5e';
+  document.getElementById('cfg-cor2').value = cfg.cor2 || '#c9972a';
+  document.getElementById('cfg-cor2-hex').value = cfg.cor2 || '#c9972a';
+  document.getElementById('cfg-cor3').value = cfg.cor3 || '#2a7a38';
+  document.getElementById('cfg-cor3-hex').value = cfg.cor3 || '#2a7a38';
+  document.getElementById('cfg-cor4').value = cfg.cor4 || '#b91c1c';
+  document.getElementById('cfg-cor4-hex').value = cfg.cor4 || '#b91c1c';
+  document.getElementById('cfg-fonte').value = cfg.fonte || 'Roboto';
+  document.getElementById('cfg-user').value = cfg.loginUser || 'admin';
+  if(cfg.logo){
+    document.getElementById('logo-preview').style.display='block';
+    document.getElementById('logo-img').src=cfg.logo;
+  }
+  // Live preview on color change
+  ['cfg-cor1','cfg-cor2','cfg-cor3','cfg-cor4'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', function(){
+      document.getElementById(id+'-hex').value = this.value;
+      updatePreview();
+    });
+  });
+  document.getElementById('cfg-nome').addEventListener('input', updatePreview);
+  document.getElementById('cfg-sub').addEventListener('input', updatePreview);
+  updatePreview();
+}
+
+function updatePreview(){
+  const cor1 = document.getElementById('cfg-cor1').value;
+  const cor2 = document.getElementById('cfg-cor2').value;
+  const nome = document.getElementById('cfg-nome').value || 'ASSOCIAÇÃO';
+  const sub = document.getElementById('cfg-sub').value || 'Sistema de Verificação de Credencial';
+  document.getElementById('prev-header').style.background = cor1;
+  document.getElementById('prev-header').style.borderBottomColor = cor2;
+  document.getElementById('prev-nome').textContent = nome;
+  document.getElementById('prev-sub').textContent = sub;
+  document.getElementById('prev-sub').style.color = cor2;
+}
+
+function applyTheme(c1,c2,c3,c4){
+  document.getElementById('cfg-cor1').value=c1;
+  document.getElementById('cfg-cor1-hex').value=c1;
+  document.getElementById('cfg-cor2').value=c2;
+  document.getElementById('cfg-cor2-hex').value=c2;
+  document.getElementById('cfg-cor3').value=c3;
+  document.getElementById('cfg-cor3-hex').value=c3;
+  document.getElementById('cfg-cor4').value=c4;
+  document.getElementById('cfg-cor4-hex').value=c4;
+  updatePreview();
+}
+
+function previewLogo(input){
+  if(!input.files||!input.files[0])return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    document.getElementById('logo-img').src=e.target.result;
+    document.getElementById('logo-preview').style.display='block';
+    document.getElementById('prev-emblem').innerHTML='<img src="'+e.target.result+'" style="width:40px;height:40px;object-fit:contain;border-radius:50%">';
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function removeLogo(){
+  document.getElementById('logo-preview').style.display='none';
+  document.getElementById('logo-img').src='';
+  document.getElementById('cfg-logo').value='';
+  document.getElementById('prev-emblem').innerHTML='🏛️';
+}
+
+function previewFonte(fonte){
+  const el=document.getElementById('fonte-preview');
+  el.style.fontFamily=fonte+',sans-serif';
+}
+
+function saveConfig(){
+  // Validate password change
+  const passAtual = document.getElementById('cfg-pass-atual').value;
+  const passNova = document.getElementById('cfg-pass-nova').value;
+  const passConf = document.getElementById('cfg-pass-conf').value;
+  const currentPass = cfg.loginPass || LPASS;
+  const currentUser = cfg.loginUser || LUSER;
+
+  if(passNova){
+    if(passAtual !== currentPass){ alert('❌ Senha atual incorreta.'); return; }
+    if(passNova !== passConf){ alert('❌ Nova senha e confirmação não coincidem.'); return; }
+    if(passNova.length < 4){ alert('❌ Senha deve ter pelo menos 4 caracteres.'); return; }
+  }
+
+  const newUser = document.getElementById('cfg-user').value.trim() || currentUser;
+  const logo = document.getElementById('logo-img').src && document.getElementById('logo-preview').style.display!=='none' ? document.getElementById('logo-img').src : null;
+
+  cfg = {
+    nomeAssoc: document.getElementById('cfg-nome').value.trim() || 'ASSOCIAÇÃO',
+    subAssoc: document.getElementById('cfg-sub').value.trim() || 'Sistema de Verificação de Credencial',
+    cor1: document.getElementById('cfg-cor1').value,
+    cor2: document.getElementById('cfg-cor2').value,
+    cor3: document.getElementById('cfg-cor3').value,
+    cor4: document.getElementById('cfg-cor4').value,
+    fonte: document.getElementById('cfg-fonte').value,
+    loginUser: newUser,
+    loginPass: passNova || currentPass,
+    logo: logo
+  };
+
+  localStorage.setItem('assoc-config', JSON.stringify(cfg));
+  loadConfig();
+  alert('✅ Configurações salvas com sucesso!\n\nAs mudanças já foram aplicadas.');
+  goTab('lista');
+}
+
+function resetConfig(){
+  if(!confirm('Restaurar todas as configurações para o padrão?'))return;
+  localStorage.removeItem('assoc-config');
+  cfg={};
+  location.reload();
+}
+
+// Update goTab to load config values when switching to config
+const _origGoTab = goTab;
+
 updateCount();
 const today=new Date().toISOString().split('T')[0];
 document.getElementById('f-emissao').value=today;
