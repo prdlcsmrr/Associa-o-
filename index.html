@@ -308,6 +308,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 
     <div class="search-row">
       <input type="text" id="search" placeholder="🔍 Buscar por nome, CPF, matrícula..." oninput="renderList()">
+      <button onclick="reloadMembers()" style="background:#1a2a5e;border:none;border-radius:8px;padding:11px 14px;color:#fff;cursor:pointer;font-size:16px;" title="Atualizar">🔄</button>
       <div class="badge">Total: <strong id="total">0</strong></div>
       <button class="btn btn-red" onclick="clearAll()" style="padding:11px 14px;font-size:12px;">🗑</button>
     </div>
@@ -771,6 +772,44 @@ function toggleStatus(id){
   save();
   renderList();
   syncToCloud();
+}
+
+async function reloadMembers(){
+  const btn = event.target;
+  btn.textContent = '⏳';
+  btn.disabled = true;
+  try{
+    // Try GitHub db.json directly (most reliable on mobile)
+    const r = await fetch('https://prdlcsmrr.github.io/Associa-o-/db.json?nocache='+Date.now());
+    if(r.ok){
+      const data = await r.json();
+      if(data.membros && data.membros.length > 0){
+        members = data.membros;
+        localStorage.setItem('members', JSON.stringify(members));
+        updateCount();
+        renderList();
+        btn.textContent = '✅';
+        setTimeout(()=>{btn.textContent='🔄';btn.disabled=false;}, 1500);
+        return;
+      }
+    }
+  }catch(e){}
+  // Try JSONBin
+  try{
+    const k='$2a$10$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2';
+    const r2 = await fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5/latest',{
+      headers:{'X-Master-Key':k,'X-Bin-Meta':'false'}
+    });
+    if(r2.ok){
+      const data2 = await r2.json();
+      members = data2.membros || [];
+      localStorage.setItem('members', JSON.stringify(members));
+      updateCount();
+      renderList();
+    }
+  }catch(e){}
+  btn.textContent = '🔄';
+  btn.disabled = false;
 }
 
 async function loadFromCloud(){
