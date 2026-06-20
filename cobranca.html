@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cobrança Mensal</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#888; font-family:Arial,sans-serif; display:flex; flex-direction:column; align-items:center; padding:20px; min-height:100vh; }
+
+.controls {
+  background:#1a2a5e; border-radius:12px; padding:16px 24px;
+  display:flex; gap:12px; align-items:center; margin-bottom:24px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.3); flex-wrap:wrap; justify-content:center;
+}
+.controls h2 { color:#c9972a; font-size:16px; font-weight:800; }
+.btn { padding:10px 20px; border-radius:8px; border:none; font-size:13px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:0.5px; transition:all 0.2s; }
+.btn-gold { background:#c9972a; color:#000; }
+.btn-gold:hover { background:#e8b84a; }
+.btn-navy { background:#fff; color:#1a2a5e; }
+.btn-green { background:#2a7a38; color:#fff; }
+
+/* BOLETO */
+#boleto {
+  width: 700px;
+  background: #fff;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+
+/* HEADER */
+.b-header {
+  background: #1a2a5e;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 4px solid #c9972a;
+}
+.b-logo { display:flex; align-items:center; gap:12px; }
+.b-logo-icon { width:48px; height:48px; background:rgba(201,151,42,0.15); border:2px solid rgba(201,151,42,0.4); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; }
+.b-logo-text { color:#fff; }
+.b-logo-text .bn { font-size:16px; font-weight:800; letter-spacing:1px; }
+.b-logo-text .bs { font-size:10px; color:rgba(255,255,255,0.6); }
+.b-doc { text-align:right; color:#fff; }
+.b-doc .bd-tipo { font-size:10px; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px; }
+.b-doc .bd-num { font-size:18px; font-weight:800; color:#c9972a; letter-spacing:2px; }
+.b-doc .bd-data { font-size:11px; color:rgba(255,255,255,0.7); margin-top:2px; }
+
+/* STATUS VENCIMENTO */
+.b-venc {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.bv-left { display:flex; align-items:center; gap:10px; }
+.bv-label { font-size:11px; color:#666; text-transform:uppercase; letter-spacing:0.5px; font-weight:600; }
+.bv-date { font-size:15px; font-weight:800; color:#1a2a5e; }
+.bv-status { padding:5px 16px; border-radius:4px; font-size:12px; font-weight:800; text-transform:uppercase; }
+.bv-status.pendente { background:#fef3c7; color:#92400e; border:1px solid #f59e0b; }
+.bv-valor { text-align:right; }
+.bv-valor-lbl { font-size:10px; color:#666; text-transform:uppercase; letter-spacing:0.5px; }
+.bv-valor-num { font-size:24px; font-weight:900; color:#1a2a5e; }
+
+/* CORPO */
+.b-body { padding:20px 24px; }
+
+/* DADOS PAGADOR */
+.b-section-title {
+  font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:1.5px;
+  color:#1a2a5e; margin-bottom:12px; padding-bottom:6px;
+  border-bottom:2px solid #c9972a; display:flex; align-items:center; gap:6px;
+}
+.b-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+.b-grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:20px; }
+.b-field-lbl { font-size:9px; color:#888; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px; font-weight:600; }
+.b-field-val { font-size:13px; font-weight:700; color:#111; }
+.b-field-val.lg { font-size:15px; }
+
+/* DESCRIÇÃO */
+.b-desc {
+  background:#f8f9fa; border:1px solid #e0e0e0; border-radius:8px;
+  padding:14px 16px; margin-bottom:20px;
+}
+.b-desc-title { font-size:10px; font-weight:800; color:#1a2a5e; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+.b-desc-row { display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px dashed #e0e0e0; }
+.b-desc-row:last-child { border-bottom:none; font-weight:800; }
+.b-desc-item { font-size:12px; color:#333; }
+.b-desc-valor { font-size:13px; font-weight:700; color:#1a2a5e; }
+.b-desc-total { font-size:15px; font-weight:900; color:#1a2a5e; }
+
+/* PIX */
+.b-pix {
+  display:flex; gap:20px; align-items:flex-start;
+  background:#f0f9f0; border:1px solid #bbf0bb; border-radius:8px;
+  padding:16px; margin-bottom:20px;
+}
+.b-pix-qr { display:flex; flex-direction:column; align-items:center; gap:6px; flex-shrink:0; }
+.b-pix-qr img { width:110px; height:110px; border:2px solid #2a7a38; border-radius:4px; }
+.b-pix-qr-lbl { font-size:9px; font-weight:700; color:#2a7a38; text-transform:uppercase; letter-spacing:0.5px; }
+.b-pix-info { flex:1; }
+.b-pix-title { font-size:13px; font-weight:800; color:#2a7a38; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+.b-pix-key-lbl { font-size:9px; color:#666; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px; }
+.b-pix-key { font-size:11px; font-weight:700; color:#1a2a5e; background:#fff; padding:6px 10px; border-radius:4px; border:1px solid #e0e0e0; word-break:break-all; margin-bottom:10px; }
+.b-pix-inst { font-size:10px; color:#555; line-height:1.6; }
+.b-pix-inst li { margin-bottom:2px; }
+
+/* INSTRUÇÕES */
+.b-inst {
+  background:#fff8e1; border:1px solid #f59e0b; border-radius:8px;
+  padding:14px 16px; margin-bottom:20px;
+}
+.b-inst-title { font-size:10px; font-weight:800; color:#92400e; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+.b-inst p { font-size:10px; color:#555; line-height:1.6; margin-bottom:4px; }
+
+/* RODAPÉ */
+.b-footer {
+  background:#1a2a5e; padding:12px 24px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.bf-text { font-size:9px; color:rgba(255,255,255,0.5); letter-spacing:0.5px; }
+.bf-id { font-size:10px; color:#c9972a; font-weight:700; letter-spacing:1px; }
+
+/* LINHA PICOTADA */
+.b-picote {
+  border-top: 2px dashed #999;
+  text-align:center;
+  padding:8px;
+  font-size:9px;
+  color:#999;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+
+/* CANHOTO (parte inferior) */
+.b-canhoto {
+  padding:16px 24px;
+  display:flex;
+  gap:20px;
+  align-items:flex-start;
+}
+.bc-info { flex:1; }
+.bc-title { font-size:10px; font-weight:800; color:#1a2a5e; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; }
+.bc-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+.bc-field-lbl { font-size:8px; color:#888; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px; }
+.bc-field-val { font-size:11px; font-weight:700; color:#111; }
+.bc-assinatura { width:160px; text-align:center; }
+.bc-ass-line { border-bottom:1px solid #333; height:40px; margin-bottom:4px; }
+.bc-ass-lbl { font-size:8px; color:#555; text-transform:uppercase; letter-spacing:0.5px; }
+
+.loading { color:#fff; font-size:16px; padding:40px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <h2>📄 COBRANÇA MENSAL</h2>
+  <button class="btn btn-navy" onclick="window.history.back()">← Voltar</button>
+  <button class="btn btn-gold" onclick="downloadPDF()">📄 Baixar PDF</button>
+</div>
+
+<div id="app">
+  <div class="loading">⏳ Carregando dados...</div>
+</div>
+
+<script>
+const DB_GITHUB = 'https://prdlcsmrr.github.io/Associa-o-/db.json';
+const BIN_ID = '6a35c2ddda38895dfee044d5';
+const VALOR = 100.00;
+const PIX_KEY = 'simulacao@associacao.com.br'; // Chave Pix simulada
+
+function fmt(d){ if(!d)return'—'; return new Date(d+'T12:00').toLocaleDateString('pt-BR'); }
+function mesRef(){
+  const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const d=new Date(); return meses[d.getMonth()]+'/'+d.getFullYear();
+}
+function vencimento(){
+  const d=new Date(); d.setDate(10);
+  if(d < new Date()) d.setMonth(d.getMonth()+1);
+  return d.toLocaleDateString('pt-BR');
+}
+function docNum(id){ return 'ASC-'+String(id).slice(-6)+'-'+new Date().getFullYear(); }
+
+async function init(){
+  const id = new URLSearchParams(location.search).get('id');
+  if(!id){ document.getElementById('app').innerHTML='<div class="loading">❌ ID não fornecido</div>'; return; }
+
+  let m = null;
+  try{
+    const r = await fetch(DB_GITHUB+'?t='+Date.now());
+    if(r.ok){ const data=await r.json(); m=data.membros?.find(x=>x.numCred===id); }
+  }catch(e){}
+  if(!m){
+    try{
+      const KEY=['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
+      const r=await fetch('https://api.jsonbin.io/v3/b/'+BIN_ID+'/latest',{headers:{'X-Master-Key':KEY,'X-Bin-Meta':'false'}});
+      if(r.ok){ const data=await r.json(); m=data.membros?.find(x=>x.numCred===id); }
+    }catch(e){}
+  }
+  if(!m){ document.getElementById('app').innerHTML='<div class="loading">❌ Membro não encontrado</div>'; return; }
+  render(m);
+}
+
+function render(m){
+  const num = docNum(m.id);
+  const mes = mesRef();
+  const venc = vencimento();
+  const pixData = 'PIX|'+PIX_KEY+'|'+VALOR.toFixed(2)+'|ASSOCIACAO|'+num;
+  const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=110x110&color=2a7a38&data='+encodeURIComponent(pixData);
+
+  document.getElementById('app').innerHTML = `
+  <div id="boleto">
+
+    <!-- HEADER -->
+    <div class="b-header">
+      <div class="b-logo">
+        <div class="b-logo-icon">🏛️</div>
+        <div class="b-logo-text">
+          <div class="bn">ASSOCIAÇÃO</div>
+          <div class="bs">Sistema de Gestão de Membros</div>
+        </div>
+      </div>
+      <div class="b-doc">
+        <div class="bd-tipo">Nº do Documento</div>
+        <div class="bd-num">${num}</div>
+        <div class="bd-data">Emitido em ${new Date().toLocaleDateString('pt-BR')}</div>
+      </div>
+    </div>
+
+    <!-- VENCIMENTO E VALOR -->
+    <div class="b-venc">
+      <div class="bv-left">
+        <div>
+          <div class="bv-label">Vencimento</div>
+          <div class="bv-date">${venc}</div>
+        </div>
+        <div class="bv-status pendente">⏳ Pendente</div>
+      </div>
+      <div class="bv-valor">
+        <div class="bv-valor-lbl">Valor Total</div>
+        <div class="bv-valor-num">R$ 100,00</div>
+      </div>
+    </div>
+
+    <!-- CORPO -->
+    <div class="b-body">
+
+      <!-- DADOS DO PAGADOR -->
+      <div class="b-section-title">👤 Dados do Associado</div>
+      <div class="b-grid" style="margin-bottom:16px">
+        <div>
+          <div class="b-field-lbl">Nome Completo</div>
+          <div class="b-field-val lg">${m.nome}</div>
+        </div>
+        <div>
+          <div class="b-field-lbl">Matrícula</div>
+          <div class="b-field-val lg">${m.numCred}</div>
+        </div>
+        <div>
+          <div class="b-field-lbl">CPF</div>
+          <div class="b-field-val">${m.cpf}</div>
+        </div>
+        <div>
+          <div class="b-field-lbl">Categoria</div>
+          <div class="b-field-val">${m.cat}</div>
+        </div>
+      </div>
+
+      <!-- DESCRIÇÃO DA COBRANÇA -->
+      <div class="b-section-title">📋 Descrição da Cobrança</div>
+      <div class="b-desc">
+        <div class="b-desc-title">Detalhamento</div>
+        <div class="b-desc-row">
+          <span class="b-desc-item">Mensalidade — ${mes}</span>
+          <span class="b-desc-valor">R$ 100,00</span>
+        </div>
+        <div class="b-desc-row">
+          <span class="b-desc-item">Multa por atraso (após vencimento)</span>
+          <span class="b-desc-valor">R$ 10,00</span>
+        </div>
+        <div class="b-desc-row">
+          <span class="b-desc-item">Juros por dia de atraso</span>
+          <span class="b-desc-valor">0,033%</span>
+        </div>
+        <div class="b-desc-row" style="margin-top:8px;padding-top:8px;border-top:2px solid #1a2a5e">
+          <span class="b-desc-item" style="font-size:14px;font-weight:800;color:#1a2a5e">TOTAL</span>
+          <span class="b-desc-total">R$ 100,00</span>
+        </div>
+      </div>
+
+      <!-- PIX -->
+      <div class="b-section-title">💚 Pagar com PIX</div>
+      <div class="b-pix">
+        <div class="b-pix-qr">
+          <img src="${qrUrl}" alt="QR Code Pix" crossorigin="anonymous">
+          <div class="b-pix-qr-lbl">QR Code Pix</div>
+        </div>
+        <div class="b-pix-info">
+          <div class="b-pix-title">✅ Pague instantaneamente com PIX</div>
+          <div class="b-pix-key-lbl">Chave PIX</div>
+          <div class="b-pix-key">${PIX_KEY}</div>
+          <ul class="b-pix-inst">
+            <li>1. Abra o app do seu banco</li>
+            <li>2. Acesse a área PIX</li>
+            <li>3. Escaneie o QR Code ou copie a chave</li>
+            <li>4. Confirme o valor de <strong>R$ 100,00</strong></li>
+            <li>5. O pagamento é confirmado instantaneamente</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- INSTRUÇÕES -->
+      <div class="b-inst">
+        <div class="b-inst-title">⚠️ Instruções</div>
+        <p>• Não receber após o vencimento sem acréscimos.</p>
+        <p>• Após o vencimento, cobrar multa de 10% + juros de 0,033% ao dia.</p>
+        <p>• Em caso de dúvidas, entre em contato com a secretaria da associação.</p>
+        <p>• Guardar este comprovante até a confirmação do pagamento.</p>
+      </div>
+
+    </div>
+
+    <!-- PICOTE -->
+    <div class="b-picote">✂ recorte aqui ✂</div>
+
+    <!-- CANHOTO -->
+    <div class="b-canhoto">
+      <div class="bc-info">
+        <div class="bc-title">🪪 Canhoto — Comprovante do Associado</div>
+        <div class="bc-grid">
+          <div>
+            <div class="bc-field-lbl">Nome</div>
+            <div class="bc-field-val">${m.nome}</div>
+          </div>
+          <div>
+            <div class="bc-field-lbl">Matrícula</div>
+            <div class="bc-field-val">${m.numCred}</div>
+          </div>
+          <div>
+            <div class="bc-field-lbl">Referência</div>
+            <div class="bc-field-val">${mes}</div>
+          </div>
+          <div>
+            <div class="bc-field-lbl">Valor</div>
+            <div class="bc-field-val">R$ 100,00</div>
+          </div>
+          <div>
+            <div class="bc-field-lbl">Vencimento</div>
+            <div class="bc-field-val">${venc}</div>
+          </div>
+          <div>
+            <div class="bc-field-lbl">Nº Documento</div>
+            <div class="bc-field-val">${num}</div>
+          </div>
+        </div>
+      </div>
+      <div class="bc-assinatura">
+        <div class="bc-ass-line"></div>
+        <div class="bc-ass-lbl">Assinatura / Carimbo</div>
+      </div>
+    </div>
+
+    <!-- RODAPÉ -->
+    <div class="b-footer">
+      <div class="bf-text">Documento gerado eletronicamente • ASSOCIAÇÃO</div>
+      <div class="bf-id">${num}</div>
+    </div>
+
+  </div>`;
+}
+
+async function downloadPDF(){
+  const el = document.getElementById('boleto');
+  if(!el) return;
+  const canvas = await html2canvas(el, {scale:2, useCORS:true, allowTaint:true, backgroundColor:'#ffffff'});
+  const imgData = canvas.toDataURL('image/png');
+  const {jsPDF} = window.jspdf;
+  const pdf = new jsPDF({orientation:'portrait', unit:'mm', format:'a4'});
+  const w=210, h=(canvas.height*210)/canvas.width;
+  pdf.addImage(imgData,'PNG',0,0,w,h);
+  pdf.save('cobranca-'+new Date().getMonth()+1+'-'+new Date().getFullYear()+'.pdf');
+}
+
+init();
+</script>
+</body>
+</html>
