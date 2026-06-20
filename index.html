@@ -802,8 +802,22 @@ async function salvar(){
   const nasc=document.getElementById('f-nasc').value;
   if(!nome||!cpf||!tel||!nasc){showA('aerr');return;}
 
-  // Sync from cloud first to avoid overwriting existing members
-  await loadFromCloud();
+  // Force load latest from cloud before saving
+  try{
+    const k='$2a$10$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2';
+    const r=await fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5/latest',{
+      headers:{'X-Master-Key':k,'X-Bin-Meta':'false'}
+    });
+    if(r.ok){
+      const data=await r.json();
+      if(data.membros) members=data.membros;
+    }
+  }catch(e){
+    try{
+      const r2=await fetch('https://prdlcsmrr.github.io/Associa-o-/db.json?t='+Date.now());
+      if(r2.ok){ const d2=await r2.json(); if(d2.membros) members=d2.membros; }
+    }catch(e2){}
+  }
 
   const ts=Date.now();
   const numCred=ORG_PRE+'-'+String(members.length+1).padStart(6,'0');
@@ -824,7 +838,11 @@ async function salvar(){
     qrUrl:BASE_URL+'?id='+encodeURIComponent(numCred)
   };
   members.push(m);
-  save();showA('aok');limpar();
+  localStorage.setItem('members',JSON.stringify(members));
+  updateCount();
+  syncToCloud();
+  showA('aok');
+  limpar();
 }
 function showA(id){const e=document.getElementById(id);e.style.display='block';window.scrollTo(0,0);setTimeout(()=>e.style.display='none',4000);}
 function limpar(){
