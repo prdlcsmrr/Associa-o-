@@ -672,13 +672,19 @@ function renderList(){
         <div class="mcard-name">${m.nome}</div>
         <div class="mcard-cat">${m.cat} · ${m.numCred}</div>
         <div class="mcard-status ${m.status==='Ativo'?'ativo':'inativo'}">● ${m.status==='Ativo'?'Credencial Ativa':'Credencial Inativa'}</div>
-        <div class="mcard-acts">
-          <button class="mcard-btn mcard-btn-cred" onclick="openCred(${m.id})">🪪 Ver</button>
-          <button class="mcard-btn" onclick="gerarCarteirinha('${m.numCred}')" style="flex:1;padding:7px;border-radius:6px;border:none;font-size:10px;font-weight:700;cursor:pointer;text-transform:uppercase;background:rgba(201,151,42,0.15);color:#c9972a;">🖨️ Carteirinha</button>
-          <button class="mcard-btn" onclick="gerarCobranca('${m.numCred}')" style="flex:1;padding:7px;border-radius:6px;border:none;font-size:10px;font-weight:700;cursor:pointer;text-transform:uppercase;background:rgba(26,122,58,0.1);color:#1a7a3a;">💰 Cobrança</button>
-          <button class="mcard-btn" onclick="openPag(${m.id})" style="flex:1;padding:7px;border-radius:6px;border:none;font-size:10px;font-weight:700;cursor:pointer;text-transform:uppercase;background:rgba(26,122,58,0.08);color:#1a7a3a;">📋 Pagamentos</button>
-          <button class="mcard-btn" onclick="toggleStatus(${m.id})" style="flex:1;padding:7px;border-radius:6px;border:none;font-size:10px;font-weight:700;cursor:pointer;text-transform:uppercase;background:${m.status==='Ativo'?'rgba(185,28,28,0.08)':'rgba(26,122,58,0.1)'};color:${m.status==='Ativo'?'#b91c1c':'#1a7a3a'}">${m.status==='Ativo'?'⛔ Desativar':'✅ Ativar'}</button>
-          <button class="mcard-btn mcard-btn-del" onclick="del(${m.id})">✕</button>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="mcard-btn mcard-btn-cred" onclick="openCred(${m.id})" style="flex:1;padding:8px">🪪 Ver Credencial</button>
+          <div style="position:relative" id="menu-wrap-${m.id}">
+            <button onclick="toggleMenu(${m.id},event)" style="width:36px;height:34px;border-radius:8px;border:1px solid #e0e0e0;background:#f9f9f9;cursor:pointer;font-size:18px;font-weight:900;color:#555;display:flex;align-items:center;justify-content:center" title="Mais opções">⋯</button>
+            <div id="dd-${m.id}" style="display:none;position:absolute;bottom:42px;right:0;background:#fff;border:1px solid #e0e0e0;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.15);min-width:195px;z-index:999;overflow:hidden">
+              <div onclick="gerarCarteirinha('${m.numCred}');closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">🖨️ Gerar Carteirinha</div>
+              <div onclick="gerarCobranca('${m.numCred}');closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">💰 Cobrança / Carnê</div>
+              <div onclick="openPag(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">📋 Pagamentos</div>
+              <div onclick="toggleStatus(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;cursor:pointer;border-bottom:1px solid #f3f4f6;color:${m.status==='Ativo'?'#b91c1c':'#2a7a38'}" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''"> ${m.status==='Ativo'?'⛔ Desativar':'✅ Ativar'} Credencial</div>
+              <div onclick="del(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#b91c1c;cursor:pointer" onmouseover="this.style.background='#fff5f5'" onmouseout="this.style.background=''">🗑️ Excluir Membro</div>
+            </div>
+          </div>
+        </div>
         </div>
       </div>
     </div>`).join('');
@@ -781,6 +787,17 @@ async function syncToCloud(){
     if(si){si.textContent='\u26a0\ufe0f Erro ao sincronizar';setTimeout(()=>si.style.display='none',3000);}
   }
 }
+
+function toggleMenu(id, e){
+  e.stopPropagation();
+  closeMenus();
+  const dd = document.getElementById('dd-'+id);
+  if(dd) dd.style.display = dd.style.display==='block'?'none':'block';
+}
+function closeMenus(){
+  document.querySelectorAll('[id^="dd-"]').forEach(d=>d.style.display='none');
+}
+document.addEventListener('click', closeMenus);
 
 function gerarCobranca(numCred){
   window.open('https://prdlcsmrr.github.io/Associa-o-/cobranca.html?id='+encodeURIComponent(numCred),'_blank');
