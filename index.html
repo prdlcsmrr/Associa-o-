@@ -578,6 +578,7 @@ function renderList(){
         <div class="mcard-acts">
           <button class="mcard-btn mcard-btn-cred" onclick="openCred(${m.id})">🪪 Ver</button>
           <button class="mcard-btn" onclick="gerarCarteirinha('${m.numCred}')" style="flex:1;padding:7px;border-radius:6px;border:none;font-size:10px;font-weight:700;cursor:pointer;text-transform:uppercase;background:rgba(201,151,42,0.15);color:#c9972a;">🖨️ Carteirinha</button>
+          <button class="mcard-btn" onclick="gerarCobranca('${m.numCred}')" style="flex:1;padding:7px;border-radius:6px;border:none;font-size:10px;font-weight:700;cursor:pointer;text-transform:uppercase;background:rgba(26,122,58,0.1);color:#1a7a3a;">💰 Cobrança</button>
           <button class="mcard-btn" onclick="toggleStatus(${m.id})" style="flex:1;padding:7px;border-radius:6px;border:none;font-size:10px;font-weight:700;cursor:pointer;text-transform:uppercase;background:${m.status==='Ativo'?'rgba(185,28,28,0.08)':'rgba(26,122,58,0.1)'};color:${m.status==='Ativo'?'#b91c1c':'#1a7a3a'}">${m.status==='Ativo'?'⛔ Desativar':'✅ Ativar'}</button>
           <button class="mcard-btn mcard-btn-del" onclick="del(${m.id})">✕</button>
         </div>
@@ -681,6 +682,10 @@ async function syncToCloud(){
   }catch(e){
     if(si){si.textContent='\u26a0\ufe0f Erro ao sincronizar';setTimeout(()=>si.style.display='none',3000);}
   }
+}
+
+function gerarCobranca(numCred){
+  window.open('https://prdlcsmrr.github.io/Associa-o-/cobranca.html?id='+encodeURIComponent(numCred),'_blank');
 }
 
 function gerarCarteirinha(numCred){
