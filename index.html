@@ -689,7 +689,7 @@ function goTab(t){
   document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',(t==='novo'&&i===0)||(t==='lista'&&i===1)||(t==='config'&&i===2)));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+t).classList.add('active');
-  if(t==='lista'){ renderList(); loadFromCloud(); }
+  if(t==='lista'){ renderList(); }
   if(t==='config') goToConfig();
 }
 
@@ -802,7 +802,7 @@ async function salvar(){
   const nasc=document.getElementById('f-nasc').value;
   if(!nome||!cpf||!tel||!nasc){showA('aerr');return;}
 
-  // Force load latest from cloud before saving
+  // Force get latest list from cloud
   try{
     const k='$2a$10$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2';
     const r=await fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5/latest',{
@@ -810,14 +810,9 @@ async function salvar(){
     });
     if(r.ok){
       const data=await r.json();
-      if(data.membros) members=data.membros;
+      if(Array.isArray(data.membros)) members=data.membros;
     }
-  }catch(e){
-    try{
-      const r2=await fetch('https://prdlcsmrr.github.io/Associa-o-/db.json?t='+Date.now());
-      if(r2.ok){ const d2=await r2.json(); if(d2.membros) members=d2.membros; }
-    }catch(e2){}
-  }
+  }catch(e){}
 
   const ts=Date.now();
   const numCred=ORG_PRE+'-'+String(members.length+1).padStart(6,'0');
@@ -838,11 +833,23 @@ async function salvar(){
     qrUrl:BASE_URL+'?id='+encodeURIComponent(numCred)
   };
   members.push(m);
+
+  // Save to localStorage immediately
   localStorage.setItem('members',JSON.stringify(members));
   updateCount();
-  syncToCloud();
   showA('aok');
   limpar();
+
+  // Sync to cloud in background (don't await)
+  const dbToSave = JSON.stringify({membros:members});
+  fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5',{
+    method:'PUT',
+    headers:{'Content-Type':'application/json','X-Master-Key':'$2a$10$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'},
+    body:dbToSave
+  }).then(()=>{
+    const si=document.getElementById('sync-ind');
+    if(si){si.style.display='flex';si.textContent='✅ Sincronizado!';setTimeout(()=>si.style.display='none',2000);}
+  }).catch(()=>{});
 }
 function showA(id){const e=document.getElementById(id);e.style.display='block';window.scrollTo(0,0);setTimeout(()=>e.style.display='none',4000);}
 function limpar(){
@@ -1082,6 +1089,16 @@ async function reloadMembers(){
 }
 
 async function loadFromCloud(){
+  // Only load from cloud if local is empty
+  const localData = JSON.parse(localStorage.getItem('members')||'[]');
+  if(localData.length > 0){
+    members = localData;
+    updateCount();
+    const lista=document.getElementById('page-lista');
+    if(lista&&lista.classList.contains('active')) renderList();
+    return;
+  }
+
   let loaded = false;
 
   // Try JSONBin first
