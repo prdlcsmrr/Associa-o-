@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Carteirinha</title>
+<title>Carteirinha Funcional</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -13,88 +13,91 @@ body { background:#888; font-family:'Arial',sans-serif; display:flex; flex-direc
 .controls {
   background:#1a2a5e; border-radius:12px; padding:14px 20px;
   display:flex; gap:10px; align-items:center; margin-bottom:20px;
-  box-shadow:0 4px 16px rgba(0,0,0,0.3); flex-wrap:wrap; justify-content:center;
+  flex-wrap:wrap; justify-content:center;
 }
 .controls h2 { color:#c9972a; font-size:15px; font-weight:800; }
-.btn { padding:9px 18px; border-radius:8px; border:none; font-size:12px; font-weight:700; cursor:pointer; text-transform:uppercase; transition:all 0.2s; }
+.btn { padding:9px 18px; border-radius:8px; border:none; font-size:12px; font-weight:700; cursor:pointer; text-transform:uppercase; }
 .btn-gold { background:#c9972a; color:#000; }
 .btn-navy { background:#fff; color:#1a2a5e; }
 .btn-green { background:#2a7a38; color:#fff; }
 
-/* WRAPPER — frente e verso lado a lado */
-#carteirinha {
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  align-items:center;
-}
+#carteirinha { display:flex; gap:4px; }
 
-/* CARD BASE */
+/* ═══ CARD BASE ═══ */
 .card {
-  width: 680px;
-  height: 430px;
+  width: 500px;
+  height: 316px;
   position: relative;
   overflow: hidden;
-  background: #f0f0ec;
+  background: #f5f5f0;
   font-family: Arial, sans-serif;
 }
 
-/* FAIXA DIAGONAL BANDEIRA */
-.bandeira {
+/* FAIXA BANDEIRA */
+.flag-stripe {
   position: absolute;
   top: 0; left: 0;
   width: 100%; height: 100%;
-  pointer-events: none;
   z-index: 0;
+  pointer-events: none;
 }
-.bandeira::before {
+.flag-stripe::before {
   content: '';
   position: absolute;
-  top: -40px; left: -60px;
-  width: 280px; height: 520px;
+  top: -30px; left: -40px;
+  width: 220px; height: 400px;
   background: linear-gradient(
-    135deg,
-    transparent 0%,
-    rgba(0,150,57,0.25) 20%,
-    rgba(0,150,57,0.3) 35%,
-    rgba(255,220,0,0.3) 50%,
-    rgba(0,39,118,0.25) 70%,
-    transparent 85%
+    140deg,
+    rgba(0,150,57,0.35) 0%,
+    rgba(0,150,57,0.4) 25%,
+    rgba(255,220,0,0.35) 45%,
+    rgba(0,39,118,0.3) 65%,
+    transparent 80%
   );
-  transform: rotate(-10deg);
+  transform: skewX(-5deg);
 }
 
 /* MARCA D'ÁGUA TREM */
-.watermark {
+.wm-trem {
   position: absolute;
-  right: -20px; bottom: 20px;
-  font-size: 120px;
-  opacity: 0.06;
-  transform: rotate(-5deg);
+  right: -10px; bottom: 20px;
+  font-size: 110px;
+  opacity: 0.05;
   z-index: 0;
   pointer-events: none;
+  transform: rotate(-5deg);
 }
 
-/* ══ FRENTE ══════════════════════════════ */
-
-/* HEADER FRENTE */
+/* ═══ FRENTE ═══ */
 .f-header {
   position: absolute;
-  top: 10px; left: 145px; right: 10px;
+  top: 8px; left: 130px; right: 80px;
   text-align: center;
   z-index: 2;
 }
-.f-rep { font-size: 9px; font-weight: 700; color: #1a1a1a; letter-spacing: 0.5px; text-transform: uppercase; }
-.f-org { font-size: 14px; font-weight: 900; color: #cc0000; letter-spacing: 0.5px; text-transform: uppercase; line-height: 1.2; }
-.f-sub { font-size: 8px; font-weight: 700; color: #1a1a1a; text-transform: uppercase; margin-top: 2px; }
-.f-cnpj { font-size: 9px; color: #333; margin-top: 2px; }
+.f-h1 { font-size: 7.5px; font-weight: 700; color: #111; letter-spacing: 0.3px; text-transform: uppercase; }
+.f-h2 { font-size: 13px; font-weight: 900; color: #cc0000; letter-spacing: 0.5px; text-transform: uppercase; line-height: 1.1; }
+.f-h3 { font-size: 6.5px; font-weight: 700; color: #111; text-transform: uppercase; margin-top: 1px; }
+.f-h4 { font-size: 7px; font-weight: 700; color: #111; margin-top: 1px; }
+.f-h5 { font-size: 7px; color: #333; margin-top: 1px; }
+
+/* BRASÃO CANTO DIREITO */
+.f-brasao-dir {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 55px; height: 55px;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2;
+  opacity: 0.85;
+}
+.f-brasao-dir img { width: 100%; }
 
 /* FOTO */
 .f-photo {
   position: absolute;
-  left: 12px; top: 10px;
-  width: 105px; height: 140px;
-  border: 1.5px solid #aaa;
+  left: 10px; top: 8px;
+  width: 95px; height: 125px;
+  border: 1px solid #bbb;
   background: #ddd;
   overflow: hidden;
   display: flex; align-items: center; justify-content: center;
@@ -104,128 +107,126 @@ body { background:#888; font-family:'Arial',sans-serif; display:flex; flex-direc
 .f-photo-ph { font-size:9px; color:#aaa; text-align:center; }
 
 /* MATRÍCULA */
-.f-matricula {
+.f-mat {
   position: absolute;
-  left: 10px; top: 155px;
-  width: 110px;
+  left: 8px; top: 138px;
+  width: 108px;
   text-align: center;
   z-index: 2;
 }
-.f-mat-lbl { font-size: 7.5px; font-weight: 700; color: #333; text-transform: uppercase; letter-spacing: 0.3px; }
-.f-mat-num { font-size: 12px; font-weight: 800; color: #111; }
+.f-mat-lbl { font-size: 7px; font-weight: 700; color: #333; text-transform: uppercase; }
+.f-mat-num { font-size: 11px; font-weight: 800; color: #111; }
 
-/* LOGO EMBAIXO DA FOTO */
+/* LOGO + NOME */
 .f-logo {
   position: absolute;
-  left: 10px; top: 190px;
-  width: 110px;
-  display: flex; align-items: center; gap: 5px;
+  left: 8px; top: 168px;
+  width: 108px;
+  display: flex; align-items: center; gap: 4px;
   z-index: 2;
 }
-.f-logo-icon { font-size: 28px; }
-.f-logo-text { font-size: 16px; font-weight: 900; color: #1a2a5e; letter-spacing: 1px; }
+.f-logo-img { width: 32px; height: 32px; object-fit: contain; }
+.f-logo-txt { font-size: 16px; font-weight: 900; color: #1a2a5e; letter-spacing: 0.5px; }
 
 /* DADOS FRENTE */
-.f-data {
+.f-dados {
   position: absolute;
-  left: 130px; top: 100px; right: 12px;
+  left: 118px; top: 72px; right: 8px;
   z-index: 2;
 }
-.fd-lbl { font-size: 8px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.3px; margin-top: 8px; margin-bottom: 1px; }
+.fd-lbl { font-size: 7px; font-weight: 700; color: #444; text-transform: uppercase; letter-spacing: 0.2px; margin-top: 7px; margin-bottom: 1px; }
 .fd-lbl:first-child { margin-top: 0; }
-.fd-val { font-size: 11px; font-weight: 800; color: #111; line-height: 1.2; }
-.fd-val.lg { font-size: 13px; }
-.fd-row { display: flex; gap: 20px; }
+.fd-val { font-size: 10px; font-weight: 800; color: #111; line-height: 1.2; }
+.fd-val.lg { font-size: 12px; }
+.fd-row { display: flex; gap: 16px; margin-top: 6px; }
 .fd-col { flex: 1; }
 
 /* RODAPÉ FRENTE */
 .f-footer {
   position: absolute;
-  bottom: 6px; left: 10px; right: 10px;
+  bottom: 5px; left: 8px; right: 8px;
   text-align: center;
+  border-top: 0.5px solid #bbb;
+  padding-top: 4px;
   z-index: 2;
-  border-top: 1px solid #ccc;
-  padding-top: 5px;
 }
-.f-footer p { font-size: 6.5px; color: #333; line-height: 1.5; font-weight: 600; }
+.f-footer p { font-size: 5.5px; color: #333; line-height: 1.5; font-weight: 600; }
 
-/* ══ VERSO ══════════════════════════════ */
-
-/* TEXTO TOPO VERSO */
+/* ═══ VERSO ═══ */
 .v-top {
   position: absolute;
-  top: 8px; left: 10px; right: 10px;
-  text-align: center;
+  top: 6px; left: 8px; right: 8px;
+  border-bottom: 0.5px solid #bbb;
+  padding-bottom: 5px;
   z-index: 2;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 6px;
 }
-.v-top p { font-size: 7px; color: #111; line-height: 1.6; font-weight: 600; }
+.v-top p { font-size: 6px; color: #111; line-height: 1.5; font-weight: 600; }
 
-/* DADOS VERSO */
-.v-data {
+.v-dados {
   position: absolute;
-  top: 55px; left: 10px; right: 150px;
+  top: 44px; left: 8px; right: 140px;
   z-index: 2;
 }
-.vd-lbl { font-size: 8px; font-weight: 700; color: #444; text-transform: uppercase; letter-spacing: 0.3px; margin-top: 7px; margin-bottom: 1px; }
+.vd-lbl { font-size: 7px; font-weight: 700; color: #444; text-transform: uppercase; letter-spacing: 0.2px; margin-top: 6px; margin-bottom: 1px; }
 .vd-lbl:first-child { margin-top: 0; }
-.vd-val { font-size: 10px; font-weight: 700; color: #111; line-height: 1.3; }
-.v-row { display: flex; gap: 16px; margin-top: 7px; }
+.vd-val { font-size: 9.5px; font-weight: 700; color: #111; line-height: 1.3; }
+.v-row { display: flex; gap: 12px; margin-top: 6px; }
 .v-col { flex: 1; }
 
 /* DIGITAL */
 .v-digital {
   position: absolute;
-  bottom: 55px; left: 10px;
-  width: 65px; height: 65px;
+  bottom: 42px; left: 8px;
+  width: 55px; height: 55px;
   border: 1px solid #999;
-  background: #f5f5f5;
+  background: #eee;
   display: flex; align-items: center; justify-content: center;
   z-index: 2;
-  font-size: 38px;
-  filter: grayscale(1);
+  font-size: 32px;
+  filter: grayscale(1) contrast(0.7);
 }
 
 /* ASSINATURAS */
 .v-sigs {
   position: absolute;
-  bottom: 35px; left: 82px; right: 155px;
+  bottom: 25px; left: 68px; right: 145px;
   z-index: 2;
 }
-.v-sig-line { border-bottom: 1px solid #555; margin-bottom: 3px; height: 30px; }
-.v-sig-lbl { font-size: 6.5px; color: #333; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+.v-sig { text-align: center; }
+.v-sig-line { border-bottom: 0.5px solid #555; height: 24px; margin-bottom: 2px; }
+.v-sig-cursive { font-size: 8px; color: #333; font-style: italic; font-family: Georgia, serif; margin-bottom: 2px; }
+.v-sig-lbl { font-size: 6px; color: #333; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
 
 /* QR CODE */
 .v-qr {
   position: absolute;
-  top: 50px; right: 8px;
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  top: 42px; right: 6px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
   z-index: 2;
 }
-.v-qr img { width: 90px; height: 90px; }
-.v-qr-lbl { font-size: 7px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
+.v-qr img { width: 80px; height: 80px; }
+.v-qr-lbl { font-size: 6px; font-weight: 700; color: #555; text-transform: uppercase; }
 
 /* BRASÃO CIDADE */
 .v-brasao {
   position: absolute;
-  bottom: 45px; right: 8px;
+  bottom: 30px; right: 6px;
   display: flex; flex-direction: column; align-items: center; gap: 2px;
   z-index: 2;
 }
-.v-brasao-icon { font-size: 32px; }
-.v-cidade { font-size: 7px; font-weight: 700; color: #1a2a5e; text-transform: uppercase; letter-spacing: 0.3px; text-align: center; }
+.v-brasao-img { width: 45px; height: 45px; object-fit: contain; }
+.v-cidade { font-size: 6.5px; font-weight: 700; color: #1a2a5e; text-transform: uppercase; text-align: center; }
 
 /* RODAPÉ VERSO */
 .v-footer {
   position: absolute;
-  bottom: 6px; left: 10px; right: 10px;
+  bottom: 5px; left: 8px; right: 8px;
   text-align: center;
+  border-top: 0.5px solid #bbb;
+  padding-top: 3px;
   z-index: 2;
-  border-top: 1px solid #ccc;
-  padding-top: 4px;
 }
-.v-footer p { font-size: 6.5px; color: #333; line-height: 1.5; font-weight: 600; }
+.v-footer p { font-size: 5.5px; color: #333; line-height: 1.5; font-weight: 600; }
 
 .loading { color:#fff; font-size:16px; padding:40px; text-align:center; }
 </style>
@@ -239,79 +240,83 @@ body { background:#888; font-family:'Arial',sans-serif; display:flex; flex-direc
   <button class="btn btn-green" onclick="downloadPDF()">📄 PDF</button>
 </div>
 
-<div id="app">
-  <div class="loading">⏳ Carregando...</div>
-</div>
+<div id="app"><div class="loading">⏳ Carregando...</div></div>
 
 <script>
-const DB_GITHUB = 'https://prdlcsmrr.github.io/Associa-o-/db.json';
-const BIN_ID = '6a35c2ddda38895dfee044d5';
-
-function fmt(d){ if(!d)return'—'; return new Date(d+'T12:00').toLocaleDateString('pt-BR'); }
+const DB = 'https://prdlcsmrr.github.io/Associa-o-/db.json';
+const BIN = '6a35c2ddda38895dfee044d5';
+function fmt(d){if(!d)return'—';return new Date(d+'T12:00').toLocaleDateString('pt-BR');}
 
 async function init(){
-  const id = new URLSearchParams(location.search).get('id');
-  if(!id){ document.getElementById('app').innerHTML='<div class="loading">❌ ID não fornecido</div>'; return; }
-
-  let m = null;
-  try{
-    const r = await fetch(DB_GITHUB+'?t='+Date.now());
-    if(r.ok){ const data=await r.json(); m=data.membros?.find(x=>x.numCred===id); }
-  }catch(e){}
+  const id=new URLSearchParams(location.search).get('id');
+  if(!id){document.getElementById('app').innerHTML='<div class="loading">❌ ID não fornecido</div>';return;}
+  let m=null;
+  try{const r=await fetch(DB+'?t='+Date.now());if(r.ok){const d=await r.json();m=d.membros?.find(x=>x.numCred===id);}}catch(e){}
   if(!m){
     try{
       const k=['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
-      const r=await fetch('https://api.jsonbin.io/v3/b/'+BIN_ID+'/latest',{headers:{'X-Master-Key':k,'X-Bin-Meta':'false'}});
-      if(r.ok){ const data=await r.json(); m=data.membros?.find(x=>x.numCred===id); }
+      const r=await fetch('https://api.jsonbin.io/v3/b/'+BIN+'/latest',{headers:{'X-Master-Key':k,'X-Bin-Meta':'false'}});
+      if(r.ok){const d=await r.json();m=d.membros?.find(x=>x.numCred===id);}
     }catch(e){}
   }
-  if(!m){ document.getElementById('app').innerHTML='<div class="loading">❌ Membro não encontrado</div>'; return; }
+  if(!m){document.getElementById('app').innerHTML='<div class="loading">❌ Membro não encontrado</div>';return;}
   render(m);
 }
 
 function render(m){
-  const cfg = JSON.parse(localStorage.getItem('assoc-config')||'{}');
-  const orgNome = cfg.nomeAssoc || 'ASSOCIAÇÃO';
-  const qrUrl = 'https://prdlcsmrr.github.io/Associa-o-/verificar.html?id='+encodeURIComponent(m.numCred);
-  const qrSrc = 'https://api.qrserver.com/v1/create-qr-code/?size=90x90&color=cc0000&data='+encodeURIComponent(qrUrl);
+  const cfg=JSON.parse(localStorage.getItem('assoc-config')||'{}');
+  const orgNome=cfg.assocNome||cfg.nomeAssoc||'ASSOCIAÇÃO';
+  const orgSub=cfg.assocCnpj?cfg.assocCnpj:'';
+  const orgSub2=cfg.assocEnd||'';
+  const diretor=cfg.assocDiretor||'';
+  const cidade=cfg.assocCidade||m.municipio||'—';
+  const logo=cfg.logo||null;
+  const legal=cfg.assocLegal||'TEM FÉ PÚBLICA E VALIDADE EM TODO O TERRITÓRIO NACIONAL\nART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020';
+  const qrUrl='https://prdlcsmrr.github.io/Associa-o-/verificar.html?id='+encodeURIComponent(m.numCred);
+  const qrSrc='https://api.qrserver.com/v1/create-qr-code/?size=80x80&color=cc0000&bgcolor=ffffff&data='+encodeURIComponent(qrUrl);
+  const filiacao=[m.pai?'Pai: '+m.pai:'',m.mae?'Mãe: '+m.mae:''].filter(Boolean).join('<br>')||'—';
 
-  document.getElementById('app').innerHTML = `
+  document.getElementById('app').innerHTML=`
   <div id="carteirinha">
 
     <!-- FRENTE -->
     <div class="card" id="card-frente">
-      <div class="bandeira"></div>
-      <div class="watermark">🚆</div>
+      <div class="flag-stripe"></div>
+      <div class="wm-trem">🚆</div>
 
       <div class="f-header">
-        <div class="f-rep">República Federativa do Brasil</div>
-        <div class="f-org">${orgNome}</div>
-        <div class="f-sub">Sistema de Credencial Funcional</div>
-        <div class="f-cnpj">${m.numCred}</div>
+        <div class="f-h1">República Federativa do Brasil</div>
+        <div class="f-h2">${orgNome}</div>
+        ${orgSub?`<div class="f-h3">${orgSub}</div>`:''}
+        ${orgSub2?`<div class="f-h4">${orgSub2}</div>`:''}
+      </div>
+
+      <div class="f-brasao-dir">
+        ${logo?`<img src="${logo}" style="width:50px;height:50px;object-fit:contain">`:'<div style="font-size:36px;opacity:0.4">🏛️</div>'}
       </div>
 
       <div class="f-photo">
-        ${m.foto ? `<img src="${m.foto}" alt="">` : '<div class="f-photo-ph">👤<br>Sem foto</div>'}
+        ${m.foto?`<img src="${m.foto}" alt="">`:'<div class="f-photo-ph">👤<br>Sem foto</div>'}
       </div>
 
-      <div class="f-matricula">
+      <div class="f-mat">
         <div class="f-mat-lbl">Matrícula</div>
         <div class="f-mat-num">${m.numCred.replace('ASC-','')}</div>
       </div>
 
       <div class="f-logo">
-        <span class="f-logo-icon">🏛️</span>
-        <span class="f-logo-text">ASSOC</span>
+        ${logo?`<img class="f-logo-img" src="${logo}">`:'<span style="font-size:24px">🏛️</span>'}
+        <span class="f-logo-txt">${(orgNome||'ASSOC').split(' ')[0]}</span>
       </div>
 
-      <div class="f-data">
+      <div class="f-dados">
         <div class="fd-lbl">Cargo</div>
         <div class="fd-val lg">${m.cat.toUpperCase()}</div>
 
         <div class="fd-lbl">Nome</div>
         <div class="fd-val lg">${m.nome}</div>
 
-        <div class="fd-row" style="margin-top:6px">
+        <div class="fd-row">
           <div class="fd-col">
             <div class="fd-lbl">CPF</div>
             <div class="fd-val">${m.cpf}</div>
@@ -327,29 +332,28 @@ function render(m){
       </div>
 
       <div class="f-footer">
-        <p>TEM FÉ PÚBLICA E VALIDADE EM TODO O TERRITÓRIO NACIONAL<br>
-        ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020</p>
+        <p>${legal.replace(/\n/g,'<br>')}</p>
       </div>
     </div>
 
     <!-- VERSO -->
     <div class="card" id="card-verso">
-      <div class="bandeira"></div>
-      <div class="watermark">🚆</div>
+      <div class="flag-stripe"></div>
+      <div class="wm-trem">🚆</div>
 
       <div class="v-top">
         <p>O TITULAR TEM LIVRE PORTE DE ARMA DE FOGO, COM VALIDADE EM ÂMBITO NACIONAL.<br>
         DECRETO Nº 1.655 DE 1995, LEI Nº 12.696, DE 2003, ART. 30 DO DECRETO Nº 3.647, DE 2019.</p>
       </div>
 
-      <div class="v-data">
+      <div class="v-dados">
         <div class="vd-lbl">Filiação</div>
-        <div class="vd-val">${m.obs||'—'}</div>
+        <div class="vd-val">${filiacao}</div>
 
         <div class="v-row">
           <div class="v-col">
             <div class="vd-lbl">Naturalidade</div>
-            <div class="vd-val">BRASILEIRO</div>
+            <div class="vd-val">${m.naturalidade||'BRASILEIRO'}</div>
           </div>
           <div class="v-col">
             <div class="vd-lbl">Validade</div>
@@ -371,27 +375,32 @@ function render(m){
         <div class="v-row">
           <div class="v-col">
             <div class="vd-lbl">CPF</div>
-            <div class="vd-val">${m.cpf}</div>
+            <div class="vd-val">${m.cpf} / ${m.sexo?m.sexo.charAt(0):'—'}</div>
           </div>
           <div class="v-col">
             <div class="vd-lbl">Município</div>
-            <div class="vd-val">—</div>
+            <div class="vd-val">${m.municipio||cidade}</div>
           </div>
         </div>
 
-        <div style="margin-top:8px">
+        <div style="margin-top:6px">
           <div class="vd-lbl">Situação Funcional</div>
-          <div class="vd-val" style="color:${m.status==='Ativo'?'#2a7a38':'#cc0000'};font-size:12px">${m.status==='Ativo'?'ATIVO':'INATIVO'}</div>
+          <div class="vd-val" style="color:${m.status==='Ativo'?'#2a7a38':'#cc0000'};font-size:11px;font-weight:900">${m.status==='Ativo'?'ATIVO':'INATIVO'}</div>
         </div>
       </div>
 
       <div class="v-digital">👆</div>
 
       <div class="v-sigs">
-        <div class="v-sig-line"></div>
-        <div class="v-sig-lbl">Diretor/Geral</div>
-        <div class="v-sig-line" style="margin-top:8px"></div>
-        <div class="v-sig-lbl">Assinatura</div>
+        <div class="v-sig">
+          <div class="v-sig-cursive">Firma do Círculo do Brasil</div>
+          <div class="v-sig-line"></div>
+          <div class="v-sig-lbl">Diretor/Geral</div>
+        </div>
+        <div class="v-sig" style="margin-top:4px">
+          <div class="v-sig-line"></div>
+          <div class="v-sig-lbl">Assinatura</div>
+        </div>
       </div>
 
       <div class="v-qr">
@@ -400,13 +409,12 @@ function render(m){
       </div>
 
       <div class="v-brasao">
-        <div class="v-brasao-icon">🏛️</div>
-        <div class="v-cidade">${orgNome}</div>
+        ${logo?`<img class="v-brasao-img" src="${logo}">`:'<div style="font-size:28px">🏛️</div>'}
+        <div class="v-cidade">${cidade}</div>
       </div>
 
       <div class="v-footer">
-        <p>TEM FÉ PÚBLICA E VALIDADE EM TODO O TERRITÓRIO NACIONAL<br>
-        ART. 2º INCISO V DA LEI Nº 12.037 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020</p>
+        <p>${legal.replace(/\n/g,'<br>')}</p>
       </div>
     </div>
 
@@ -414,26 +422,23 @@ function render(m){
 }
 
 async function downloadPNG(){
-  const el = document.getElementById('carteirinha');
-  const canvas = await html2canvas(el, {scale:3, useCORS:true, backgroundColor:'#888'});
-  const a = document.createElement('a');
-  a.download = 'carteirinha.png';
-  a.href = canvas.toDataURL('image/png');
+  const el=document.getElementById('carteirinha');
+  const canvas=await html2canvas(el,{scale:3,useCORS:true,backgroundColor:'#f5f5f0'});
+  const a=document.createElement('a');
+  a.download='carteirinha.png';
+  a.href=canvas.toDataURL('image/png');
   a.click();
 }
 
 async function downloadPDF(){
-  const {jsPDF} = window.jspdf;
-  const pdf = new jsPDF({orientation:'landscape', unit:'mm', format:[242,86]});
-
-  const frente = document.getElementById('card-frente');
-  const c1 = await html2canvas(frente, {scale:3, useCORS:true, backgroundColor:'#f0f0ec'});
-  pdf.addImage(c1.toDataURL('image/png'),'PNG',0,0,121,86);
-
-  const verso = document.getElementById('card-verso');
-  const c2 = await html2canvas(verso, {scale:3, useCORS:true, backgroundColor:'#f0f0ec'});
-  pdf.addImage(c2.toDataURL('image/png'),'PNG',121,0,121,86);
-
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF({orientation:'landscape',unit:'mm',format:[210,133]});
+  const f=document.getElementById('card-frente');
+  const c1=await html2canvas(f,{scale:3,useCORS:true,backgroundColor:'#f5f5f0'});
+  pdf.addImage(c1.toDataURL('image/png'),'PNG',0,0,105,66);
+  const v=document.getElementById('card-verso');
+  const c2=await html2canvas(v,{scale:3,useCORS:true,backgroundColor:'#f5f5f0'});
+  pdf.addImage(c2.toDataURL('image/png'),'PNG',105,0,105,66);
   pdf.save('carteirinha.pdf');
 }
 
