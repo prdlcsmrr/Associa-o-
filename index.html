@@ -1858,7 +1858,37 @@ members = JSON.parse(localStorage.getItem('members') || '[]');
 let cfg = JSON.parse(localStorage.getItem('assoc-config') || '{}');
 
 function loadConfig(){
-  cfg = JSON.parse(localStorage.getItem('assoc-config') || '{}');
+  const _cfgSaved = localStorage.getItem('assoc-config');
+  const _cfgDefaults = {
+    nomeAssoc:     'UBAPFF',
+    subAssoc:      'União Brasileira dos Agentes da Policia Ferroviária Federal',
+    assocNome:     'ASSOCIAÇÃO DOS AGENTES FERROVIÁRIOS FEDERAIS DO MUNICÍPIO DE NOVA IGUAÇU RJ',
+    assocCnpj:     '67.134.819/0001-12',
+    assocDiretor:  'Lindomar Oliveira Carneiro',
+    assocCargo:    'Presidente',
+    assocCidade:   'Nova Iguaçu',
+    assocUf:       'RJ',
+    assocEnd:      'Rua Escada, Nº 5',
+    assocTel:      '(21) 99284-9236',
+    assocLegal:    'TEM FÉ PÚBLICA E VALIDADE EM TODO O TERRITÓRIO NACIONAL\nART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020',
+    banco:         '104',
+    agencia:       '2131',
+    conta:         '567567329-2',
+    tipoConta:     'corrente',
+    titular:       'Associação dos Agentes Ferroviários Federais do Município Nova Iguaçu/RJ',
+    pixTipo:       'cnpj',
+    pixChave:      '67.134.819/0001-12',
+    pixFavorecido: 'UBAPFF — Associação dos Agentes Ferroviários Federais',
+    verTitulo:     'UBAPFF',
+    verLinha1:     'República Federativa do Brasil',
+    verLinha2:     'União Brasileira dos Agentes da Policia Ferroviária Federal',
+    verSub:        'Sistema Oficial de Verificação de Credencial Funcional',
+    verRodape:     'TEM FÉ PÚBLICA E VALIDADE EM TODO O TERRITÓRIO NACIONAL',
+    loginUser:     'admin',
+    valorMensalidade: '100',
+    diaVencimento: '10',
+  };
+  cfg = Object.assign({}, _cfgDefaults, _cfgSaved ? JSON.parse(_cfgSaved) : {});
   if(cfg.cor1){ document.documentElement.style.setProperty('--navy', cfg.cor1); document.documentElement.style.setProperty('--navy2', shadeColor(cfg.cor1,-20)); }
   if(cfg.cor2){ document.documentElement.style.setProperty('--gold', cfg.cor2); document.documentElement.style.setProperty('--gold2', shadeColor(cfg.cor2,20)); }
   if(cfg.cor3){ document.documentElement.style.setProperty('--green', cfg.cor3); document.documentElement.style.setProperty('--green2', shadeColor(cfg.cor3,15)); }
@@ -1884,7 +1914,37 @@ function shadeColor(color, percent){
 }
 
 function goToConfig(){
-  cfg = JSON.parse(localStorage.getItem('assoc-config') || '{}');
+  const _cfgSaved = localStorage.getItem('assoc-config');
+  const _cfgDefaults = {
+    nomeAssoc:     'UBAPFF',
+    subAssoc:      'União Brasileira dos Agentes da Policia Ferroviária Federal',
+    assocNome:     'ASSOCIAÇÃO DOS AGENTES FERROVIÁRIOS FEDERAIS DO MUNICÍPIO DE NOVA IGUAÇU RJ',
+    assocCnpj:     '67.134.819/0001-12',
+    assocDiretor:  'Lindomar Oliveira Carneiro',
+    assocCargo:    'Presidente',
+    assocCidade:   'Nova Iguaçu',
+    assocUf:       'RJ',
+    assocEnd:      'Rua Escada, Nº 5',
+    assocTel:      '(21) 99284-9236',
+    assocLegal:    'TEM FÉ PÚBLICA E VALIDADE EM TODO O TERRITÓRIO NACIONAL\nART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020',
+    banco:         '104',
+    agencia:       '2131',
+    conta:         '567567329-2',
+    tipoConta:     'corrente',
+    titular:       'Associação dos Agentes Ferroviários Federais do Município Nova Iguaçu/RJ',
+    pixTipo:       'cnpj',
+    pixChave:      '67.134.819/0001-12',
+    pixFavorecido: 'UBAPFF — Associação dos Agentes Ferroviários Federais',
+    verTitulo:     'UBAPFF',
+    verLinha1:     'República Federativa do Brasil',
+    verLinha2:     'União Brasileira dos Agentes da Policia Ferroviária Federal',
+    verSub:        'Sistema Oficial de Verificação de Credencial Funcional',
+    verRodape:     'TEM FÉ PÚBLICA E VALIDADE EM TODO O TERRITÓRIO NACIONAL',
+    loginUser:     'admin',
+    valorMensalidade: '100',
+    diaVencimento: '10',
+  };
+  cfg = Object.assign({}, _cfgDefaults, _cfgSaved ? JSON.parse(_cfgSaved) : {});
   document.getElementById('cfg-nome').value = cfg.nomeAssoc || 'ASSOCIAÇÃO';
   document.getElementById('cfg-sub').value = cfg.subAssoc || 'Sistema de Verificação de Credencial';
   const c1=cfg.cor1||'#1a2a5e', c2=cfg.cor2||'#c9972a', c3=cfg.cor3||'#1a7a3a', c4=cfg.cor4||'#b91c1c';
