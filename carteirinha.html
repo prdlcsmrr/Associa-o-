@@ -165,22 +165,33 @@ const BINKEY  = ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn7
    Tamanhos de fonte em vw (do viewport), bold e color ajustáveis.           */
 const DEFAULT = {
   /* ── FRENTE ── */
-  f_photo:    { card:'F', type:'photo', left:1.5,  top:26,  w:17, ratio:'3/4' },
-  f_cargo:    { card:'F', left:24,  top:29,  size:1.3, bold:true,  color:'#111', upper:true },
-  f_nome:     { card:'F', left:24,  top:38,  size:1.4, bold:true,  color:'#111', upper:true },
-  f_mat:      { card:'F', left:1.5, top:55,  size:1.0, bold:true,  color:'#111', upper:false },
-  f_cpf:      { card:'F', left:24,  top:55,  size:1.0, bold:true,  color:'#111', upper:false },
-  f_emissao:  { card:'F', left:57,  top:55,  size:1.0, bold:true,  color:'#111', upper:false },
-  f_hash:     { card:'F', left:24,  top:63,  size:0.9, bold:false, color:'#333', upper:false },
+  // Foto: canto esq, abaixo do header institucional
+  f_photo:    { card:'F', type:'photo', left:5.5,  top:34,  w:14.5, ratio:'3/4' },
+  // Cargo: à direita da foto
+  f_cargo:    { card:'F', left:24,  top:35,  size:1.15, bold:true,  color:'#1a2a6e', upper:true },
+  // Nome: linha abaixo do cargo
+  f_nome:     { card:'F', left:24,  top:44,  size:1.25, bold:true,  color:'#111', upper:true },
+  // Linha inferior: matrícula | CPF | data expedição
+  f_mat:      { card:'F', left:5.5, top:67,  size:1.0,  bold:true,  color:'#111', upper:false },
+  f_cpf:      { card:'F', left:24,  top:67,  size:1.0,  bold:true,  color:'#111', upper:false },
+  f_emissao:  { card:'F', left:60,  top:67,  size:1.0,  bold:true,  color:'#111', upper:false },
+  // Hash abaixo
+  f_hash:     { card:'F', left:24,  top:75,  size:0.85, bold:false, color:'#333', upper:false },
   /* ── VERSO ── */
-  v_filiacao: { card:'V', left:34,  top:25,  size:1.0, bold:false, color:'#111', upper:false },
-  v_nasc:     { card:'V', left:34,  top:37,  size:1.1, bold:true,  color:'#111', upper:false },
-  v_admissao: { card:'V', left:66,  top:37,  size:1.1, bold:true,  color:'#111', upper:false },
-  v_naturalidade:{ card:'V', left:34, top:48, size:1.1, bold:true, color:'#111', upper:true  },
-  v_validade: { card:'V', left:66,  top:48,  size:1.1, bold:true,  color:'#cc0000', upper:false },
-  v_municipio:{ card:'V', left:66,  top:57,  size:1.1, bold:true,  color:'#111', upper:true  },
-  v_situacao: { card:'V', left:25,  top:62,  size:1.2, bold:true,  color:'#111', upper:true  },
-  v_qr:       { card:'V', type:'qr', left:3,  top:22, qrSize:14 },
+  // QR menor, canto esq sem cobrir campos
+  v_qr:       { card:'V', type:'qr', left:2.5, top:24, qrSize:9 },
+  // Filiação — valor (não label)
+  v_filiacao: { card:'V', left:33,  top:27,  size:0.9,  bold:false, color:'#111', upper:false },
+  // Data nascimento | Data admissão
+  v_nasc:     { card:'V', left:33,  top:37,  size:1.05, bold:true,  color:'#111', upper:false },
+  v_admissao: { card:'V', left:64,  top:37,  size:1.05, bold:true,  color:'#111', upper:false },
+  // Naturalidade | Validade
+  v_naturalidade:{ card:'V', left:33, top:47, size:1.05, bold:true, color:'#111', upper:true },
+  v_validade: { card:'V', left:64,  top:47,  size:1.05, bold:true,  color:'#cc0000', upper:false },
+  // Município
+  v_municipio:{ card:'V', left:64,  top:57,  size:1.05, bold:true,  color:'#111', upper:true },
+  // Situação funcional — centralizada
+  v_situacao: { card:'V', left:33,  top:63,  size:1.2,  bold:true,  color:'#111', upper:true },
 };
 
 const LABELS = {
