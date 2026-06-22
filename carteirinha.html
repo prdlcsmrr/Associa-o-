@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Carteirinha</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -11,211 +11,234 @@
 body {
   background:#1a1a2e;
   font-family:'Arial Narrow',Arial,sans-serif;
+  min-height:100vh;
   display:flex; flex-direction:column; align-items:center;
-  padding:16px; min-height:100vh;
+  padding:0 0 32px;
 }
 
-/* ── BARRA CONTROLE ── */
-.controls {
-  background:linear-gradient(135deg,#1a2a5e,#0f1a3d);
-  border:1px solid rgba(201,151,42,0.35);
-  border-radius:14px; padding:11px 16px;
-  display:flex; gap:8px; align-items:center;
-  margin-bottom:18px; flex-wrap:wrap;
-  justify-content:center; width:100%; max-width:960px;
+/* ── TOPBAR ── */
+.topbar {
+  width:100%; background:linear-gradient(135deg,#1a2a5e,#0f1a3d);
+  border-bottom:3px solid #c9972a;
+  padding:12px 14px;
+  display:flex; align-items:center; gap:8px;
+  flex-wrap:wrap; justify-content:center;
+  position:sticky; top:0; z-index:100;
 }
-.controls h2 { color:#c9972a; font-size:13px; font-weight:900; letter-spacing:1px; }
-.btn {
-  padding:8px 14px; border-radius:7px; border:none;
-  font-size:11px; font-weight:800; cursor:pointer;
-  text-transform:uppercase; letter-spacing:0.5px; transition:all .2s;
-}
+.topbar-title { color:#c9972a; font-size:13px; font-weight:900; letter-spacing:1px; }
+.btn { padding:9px 16px; border-radius:8px; border:none; font-size:11px; font-weight:800;
+  cursor:pointer; text-transform:uppercase; letter-spacing:.5px; transition:all .2s; }
+.btn-navy  { background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.2); }
+.btn-navy:hover { background:rgba(255,255,255,.2); }
 .btn-gold  { background:#c9972a; color:#000; }
 .btn-gold:hover { background:#e8b84a; }
-.btn-navy  { background:rgba(255,255,255,.1); color:#fff; border:1px solid rgba(255,255,255,.2); }
-.btn-navy:hover { background:rgba(255,255,255,.18); }
 .btn-green { background:#1a7a3a; color:#fff; }
 .btn-green:hover { background:#22a04e; }
-.btn-edit  { background:#7c3aed; color:#fff; }
-.btn-edit:hover { background:#6d28d9; }
-.mode-badge {
-  font-size:9px; font-weight:800; letter-spacing:1.5px; padding:4px 10px;
-  border-radius:20px; text-transform:uppercase;
-}
-.mode-badge.edit   { background:rgba(124,58,237,.25); border:1px solid rgba(124,58,237,.6); color:#a78bfa; }
-.mode-badge.normal { background:rgba(26,122,58,.2);   border:1px solid rgba(26,122,58,.5);   color:#4ade80; }
+.btn-purple{ background:#7c3aed; color:#fff; }
+.btn-purple:hover{ background:#6d28d9; }
 
-/* ── WRAPPER HORIZONTAL ── */
-#carteirinha {
-  display:flex; flex-direction:row; gap:0;
-  width:100%; max-width:960px;
-  border-radius:6px; overflow:hidden;
-  box-shadow:0 12px 48px rgba(0,0,0,.65);
+/* ── TABS FRENTE / VERSO ── */
+.tabs {
+  width:100%; max-width:640px;
+  display:flex; margin:14px 14px 0;
+  border-radius:12px; overflow:hidden;
+  border:1.5px solid rgba(201,151,42,.3);
 }
+.tab {
+  flex:1; padding:12px; text-align:center;
+  font-size:12px; font-weight:800; cursor:pointer;
+  text-transform:uppercase; letter-spacing:1px;
+  transition:all .2s; color:rgba(255,255,255,.5);
+  background:rgba(255,255,255,.04);
+}
+.tab.active { background:#c9972a; color:#000; }
+.tab:first-child { border-right:1px solid rgba(201,151,42,.3); }
 
-/* ── CADA FACE ── */
+/* ── CARD CONTAINER ── */
+.card-wrap {
+  width:100%; max-width:640px;
+  padding:12px 14px 0;
+}
 .card {
   position:relative;
-  width:50%;
-  flex-shrink:0;
+  width:100%;
+  border-radius:6px;
   overflow:hidden;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
   container-type:inline-size;
-  container-name:card;
 }
-.card-bg {
-  width:100%; display:block;
-  pointer-events:none;
+.card img.bg {
+  width:100%; display:block; pointer-events:none;
 }
-.overlay {
-  position:absolute;
-  top:0; left:0; width:100%; height:100%;
-}
+.overlay { position:absolute; top:0; left:0; width:100%; height:100%; }
 
-/* ── CAMPOS SOBREPOSTOS ── */
+/* ── CAMPOS ── */
 .campo {
   position:absolute;
   line-height:1.2;
   white-space:nowrap;
+  font-family:'Arial Narrow',Arial,sans-serif;
   pointer-events:none;
 }
 .campo.drag {
   cursor:move; pointer-events:all;
-  outline:1.5px dashed rgba(139,92,246,.85);
-  background:rgba(0,0,0,.4);
+  outline:2px dashed rgba(139,92,246,.9);
+  background:rgba(0,0,0,.45);
   padding:2px 5px; border-radius:3px;
   color:#fff !important;
   z-index:20;
 }
-.campo.drag:hover { outline-color:#a78bfa; background:rgba(60,0,140,.6); }
+.campo.drag:hover { outline-color:#a78bfa; }
 
-/* ── FOTO ── */
 .f-photo {
   position:absolute;
   overflow:hidden; background:#ccc;
   display:flex; align-items:center; justify-content:center;
   pointer-events:none;
 }
-.f-photo.drag { cursor:move; pointer-events:all; outline:1.5px dashed rgba(139,92,246,.85); z-index:20; }
+.f-photo.drag { cursor:move; pointer-events:all; outline:2px dashed rgba(139,92,246,.9); z-index:20; }
 .f-photo img { width:100%; height:100%; object-fit:cover; }
-.f-photo-ph  { font-size:8px; color:#888; text-align:center; }
+.f-photo-ph { font-size:8px; color:#888; text-align:center; }
 
-/* ── QR ── */
-.v-qr {
-  position:absolute; pointer-events:none;
-}
-.v-qr.drag { cursor:move; pointer-events:all; outline:1.5px dashed rgba(139,92,246,.85); z-index:20; }
-.v-qr img  { display:block; }
-
-/* ── PAINEL EDITOR ── */
-#editor-panel {
-  display:none; width:100%; max-width:960px;
+/* ── EDITOR PANEL ── */
+.editor-panel {
+  display:none; width:100%; max-width:640px;
   background:linear-gradient(135deg,#1a2a5e,#0f1a3d);
   border:1px solid rgba(201,151,42,.3);
-  border-radius:14px; padding:16px; margin-top:14px;
+  border-radius:12px; padding:14px; margin:10px 14px 0;
 }
-#editor-panel.open { display:block; }
-.ep-title { color:#c9972a; font-size:10px; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; }
-.ep-grid  { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:8px; }
-.ep-item  {
-  background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
-  border-radius:8px; padding:10px; color:#fff;
-}
-.ep-item > label { font-size:9px; color:rgba(255,255,255,.45); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:6px; }
-.ep-row   { display:flex; gap:6px; margin-bottom:6px; }
+.editor-panel.open { display:block; }
+.ep-title { color:#c9972a; font-size:9px; font-weight:900; text-transform:uppercase;
+  letter-spacing:2px; margin-bottom:10px; }
+.ep-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px; }
+.ep-item { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
+  border-radius:8px; padding:9px; color:#fff; }
+.ep-item > label { font-size:8px; color:rgba(255,255,255,.4); text-transform:uppercase;
+  letter-spacing:1px; display:block; margin-bottom:5px; }
+.ep-row { display:flex; gap:5px; margin-bottom:5px; }
 .ep-row > div { flex:1; }
-.ep-row label { font-size:8px; color:rgba(255,255,255,.35); display:block; margin-bottom:3px; }
-.ep-row input { width:100%; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); border-radius:5px; padding:5px 7px; color:#fff; font-size:12px; font-weight:700; }
-.ep-extra { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
-.ep-extra > div label { font-size:8px; color:rgba(255,255,255,.35); display:block; margin-bottom:3px; }
-.ep-extra input { width:100%; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); border-radius:5px; padding:5px 7px; color:#fff; font-size:12px; }
-.ep-actions { display:flex; gap:8px; margin-top:14px; justify-content:flex-end; flex-wrap:wrap; }
+.ep-row label { font-size:7px; color:rgba(255,255,255,.3); display:block; margin-bottom:2px; }
+.ep-row input, .ep-extra input { width:100%; background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.15); border-radius:5px;
+  padding:5px 7px; color:#fff; font-size:11px; font-weight:700; }
+.ep-extra { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-top:4px; }
+.ep-extra label { font-size:7px; color:rgba(255,255,255,.3); display:block; margin-bottom:2px; }
+.ep-actions { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
 
-.loading { color:#c9972a; font-size:15px; padding:50px; text-align:center; }
+/* ── DOWNLOAD ACTIONS ── */
+.dl-actions {
+  width:100%; max-width:640px;
+  display:flex; gap:8px; padding:10px 14px 0; flex-wrap:wrap;
+}
+
+.loading { color:#c9972a; padding:50px; text-align:center; font-size:14px; }
 </style>
 </head>
 <body>
 
-<div class="controls">
-  <h2>🪪 CARTEIRINHA</h2>
-  <span class="mode-badge normal" id="mode-label">VISUALIZAÇÃO</span>
+<!-- Topbar -->
+<div class="topbar">
   <button class="btn btn-navy" onclick="window.location.href='https://prdlcsmrr.github.io/Associa-o-/'">← Voltar</button>
-  <button class="btn btn-edit" onclick="toggleEdit()">✦ Ajustar Layout</button>
-  <button class="btn btn-gold" onclick="downloadPNG()">⬇ PNG</button>
-  <button class="btn btn-green" onclick="downloadPDF()">📄 PDF</button>
+  <span class="topbar-title">🪪 CARTEIRINHA</span>
+  <button class="btn btn-purple" id="btn-edit" onclick="toggleEdit()">✦ Editar Layout</button>
 </div>
 
-<div id="app"><div class="loading">⏳ Carregando dados...</div></div>
+<!-- Tabs -->
+<div class="tabs" id="tabs">
+  <div class="tab active" id="tab-F" onclick="switchTab('F')">🪪 FRENTE</div>
+  <div class="tab"        id="tab-V" onclick="switchTab('V')">↩ VERSO</div>
+</div>
 
-<div id="editor-panel">
-  <div class="ep-title">✦ Modo Edição — Arraste os campos ou ajuste numericamente (% do card)</div>
+<!-- Card -->
+<div class="card-wrap">
+  <div id="app"><div class="loading">⏳ Carregando...</div></div>
+</div>
+
+<!-- Editor -->
+<div class="editor-panel" id="editor-panel">
+  <div class="ep-title" id="ep-title">✦ Editor — Frente</div>
   <div class="ep-grid" id="ep-grid"></div>
   <div class="ep-actions">
-    <button class="btn btn-navy" onclick="resetLayout()">↺ Padrão</button>
-    <button class="btn btn-gold" onclick="exportLayout()">⬇ JSON</button>
-    <button class="btn btn-green" onclick="saveLayout()">💾 Salvar</button>
+    <button class="btn btn-navy" style="font-size:10px;padding:7px 12px" onclick="resetLayout()">↺ Resetar</button>
+    <button class="btn btn-gold" style="font-size:10px;padding:7px 12px" onclick="exportLayout()">⬇ JSON</button>
+    <button class="btn btn-green" style="font-size:10px;padding:7px 12px" onclick="saveLayout()">💾 Salvar</button>
   </div>
 </div>
 
-<script>
-const DB      = 'https://prdlcsmrr.github.io/Associa-o-/db.json';
-const BIN     = '6a35c2ddda38895dfee044d5';
-const BASE    = 'https://prdlcsmrr.github.io/Associa-o-';
-const BINKEY  = ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
+<!-- Download -->
+<div class="dl-actions">
+  <button class="btn btn-gold" style="flex:1" onclick="downloadPNG()">⬇ PNG</button>
+  <button class="btn btn-green" style="flex:1" onclick="downloadPDF()">📄 PDF (2 faces)</button>
+</div>
 
-/* ─── LAYOUT PADRÃO — calibrado pelo modelo de referência (landscape) ───
-   Todas as posições em % relativo ao card de cada face (50% da largura total).
-   Tamanhos de fonte em vw (do viewport), bold e color ajustáveis.           */
-const DEFAULT = {
-  /* ── FRENTE (1132×645px) — coordenadas por análise de pixel ── */
-  f_photo:       { card:'F', type:'photo', left:1.3,  top:29.1, w:12.5, ratio:'3/4' },
-  f_cargo:       { card:'F', left:23.0, top:41.0, size:2.2,  bold:true,  color:'#1a2a6e', upper:true  },
-  f_nome:        { card:'F', left:23.0, top:55.5, size:2.2,  bold:true,  color:'#111',    upper:true  },
-  f_mat:         { card:'F', left:7.2,  top:68.0, size:1.8,  bold:true,  color:'#111',    upper:false },
-  f_cpf:         { card:'F', left:23.0, top:68.0, size:1.8,  bold:true,  color:'#111',    upper:false },
-  f_emissao:     { card:'F', left:62.0, top:68.0, size:1.8,  bold:true,  color:'#111',    upper:false },
-  f_hash:        { card:'F', left:23.0, top:76.0, size:1.6,  bold:false, color:'#333',    upper:false },
-  /* ── VERSO (1129×655px) — coordenadas por análise de pixel ── */
-  v_filiacao:    { card:'V', left:19.0, top:27.0, size:1.8,  bold:false, color:'#111',    upper:false },
-  v_nasc:        { card:'V', left:19.0, top:38.6, size:1.9,  bold:true,  color:'#111',    upper:false },
-  v_admissao:    { card:'V', left:52.5, top:38.6, size:1.9,  bold:true,  color:'#111',    upper:false },
-  v_naturalidade:{ card:'V', left:19.0, top:52.2, size:1.9,  bold:true,  color:'#111',    upper:true  },
-  v_validade:    { card:'V', left:52.5, top:52.2, size:1.9,  bold:true,  color:'#cc0000', upper:false },
-  v_municipio:   { card:'V', left:82.8, top:60.0, size:1.7,  bold:true,  color:'#111',    upper:true  },
-  v_situacao:    { card:'V', left:35.5, top:68.4, size:1.9,  bold:true,  color:'#111',    upper:true  },
+<script>
+const DB    = 'https://prdlcsmrr.github.io/Associa-o-/db.json';
+const BIN   = '6a35c2ddda38895dfee044d5';
+const BASE  = 'https://prdlcsmrr.github.io/Associa-o-';
+const BINKEY= ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
+
+/* ─── LAYOUTS PADRÃO SEPARADOS POR FACE ─── */
+const DEFAULT_F = {
+  f_photo: { type:'photo', left:2.5, top:30.5, w:13.5, ratio:'3/4' },
+  f_cargo: { left:23.0, top:35.5, size:2.2, bold:true,  color:'#1a2a6e', upper:true  },
+  f_nome:  { left:23.0, top:49.5, size:2.2, bold:true,  color:'#111',    upper:true  },
+  f_mat:   { left:7.2,  top:63.5, size:1.8, bold:true,  color:'#111',    upper:false },
+  f_cpf:   { left:23.0, top:63.5, size:1.8, bold:true,  color:'#111',    upper:false },
+  f_emissao:{ left:62.0, top:63.5, size:1.8, bold:true, color:'#111',    upper:false },
+  f_hash:  { left:23.0, top:72.0, size:1.6, bold:false, color:'#333',    upper:false },
+};
+
+const DEFAULT_V = {
+  v_filiacao:    { left:19.0, top:27.5, size:2.0, bold:false, color:'#111',    upper:false },
+  v_nasc:        { left:19.0, top:39.5, size:2.0, bold:true,  color:'#111',    upper:false },
+  v_admissao:    { left:52.5, top:39.5, size:2.0, bold:true,  color:'#111',    upper:false },
+  v_naturalidade:{ left:19.0, top:52.5, size:2.0, bold:true,  color:'#111',    upper:true  },
+  v_validade:    { left:52.5, top:52.5, size:2.0, bold:true,  color:'#cc0000', upper:false },
+  v_municipio:   { left:82.8, top:61.5, size:1.8, bold:true,  color:'#111',    upper:true  },
+  v_situacao:    { left:35.5, top:69.5, size:2.0, bold:true,  color:'#111',    upper:true  },
 };
 
 const LABELS = {
-  f_photo:'Foto', f_cargo:'Cargo', f_nome:'Nome', f_mat:'Matrícula',
-  f_cpf:'CPF', f_emissao:'Data Expedição', f_hash:'Código Hash',
-  v_filiacao:'Filiação', v_nasc:'Data Nascimento', v_admissao:'Data Admissão',
+  f_photo:'Foto', f_cargo:'Cargo', f_nome:'Nome',
+  f_mat:'Matrícula', f_cpf:'CPF', f_emissao:'Data Expedição', f_hash:'Hash',
+  v_filiacao:'Filiação', v_nasc:'Nasc.', v_admissao:'Admissão',
   v_naturalidade:'Naturalidade', v_validade:'Validade',
-  v_municipio:'Município', v_situacao:'Situação Funcional',
+  v_municipio:'Município', v_situacao:'Situação',
 };
 
-let layout   = {};
+let layoutF  = {}, layoutV  = {};
+let tab      = 'F';   // aba ativa
 let editMode = false;
 let membro   = null;
 
-function loadLayout() {
-  try { const s = localStorage.getItem('assoc_layout_v16'); if(s) return JSON.parse(s); } catch(e){}
-  return JSON.parse(JSON.stringify(DEFAULT));
+function loadLayouts(){
+  try{ const s=localStorage.getItem('cart_lF_v1'); if(s) layoutF=JSON.parse(s); else layoutF=JSON.parse(JSON.stringify(DEFAULT_F)); }catch(e){ layoutF=JSON.parse(JSON.stringify(DEFAULT_F)); }
+  try{ const s=localStorage.getItem('cart_lV_v1'); if(s) layoutV=JSON.parse(s); else layoutV=JSON.parse(JSON.stringify(DEFAULT_V)); }catch(e){ layoutV=JSON.parse(JSON.stringify(DEFAULT_V)); }
 }
-function saveLayout()  { localStorage.setItem('assoc_layout_v16', JSON.stringify(layout)); alert('✅ Layout salvo!'); }
-function resetLayout() { layout = JSON.parse(JSON.stringify(DEFAULT)); renderCard(); buildPanel(); }
+function saveLayout(){
+  localStorage.setItem('cart_lF_v1', JSON.stringify(layoutF));
+  localStorage.setItem('cart_lV_v1', JSON.stringify(layoutV));
+  alert('✅ Layout salvo!');
+}
+function resetLayout(){
+  if(tab==='F') layoutF=JSON.parse(JSON.stringify(DEFAULT_F));
+  else           layoutV=JSON.parse(JSON.stringify(DEFAULT_V));
+  renderCard(); buildPanel();
+}
 function exportLayout(){
-  const b = new Blob([JSON.stringify(layout,null,2)],{type:'application/json'});
-  const a = document.createElement('a'); a.href=URL.createObjectURL(b);
-  a.download='layout_v2.json'; a.click();
+  const data = tab==='F' ? layoutF : layoutV;
+  const b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b);
+  a.download=`layout_${tab}.json`; a.click();
 }
 
 function fmt(d){ if(!d)return'—'; return new Date(d+'T12:00').toLocaleDateString('pt-BR'); }
-function show(m){ document.getElementById('app').innerHTML='<div class="loading">'+m+'</div>'; }
 
 async function init(){
-  layout = loadLayout();
-  const id = new URLSearchParams(location.search).get('id');
-  if(!id){ show('❌ ID não fornecido'); return; }
-  let m = null;
+  loadLayouts();
+  const id=new URLSearchParams(location.search).get('id');
+  if(!id){ document.getElementById('app').innerHTML='<div class="loading">❌ ID não fornecido</div>'; return; }
+  let m=null;
   try{ const r=await fetch(DB+'?t='+Date.now()); if(r.ok){const d=await r.json();m=d.membros?.find(x=>x.numCred===id);} }catch(e){}
   if(!m){
     try{
@@ -223,107 +246,101 @@ async function init(){
       if(r.ok){const d=await r.json();m=d.membros?.find(x=>x.numCred===id);}
     }catch(e){}
   }
-  if(!m){ show('❌ Membro não encontrado'); return; }
-  membro = m;
+  if(!m){ document.getElementById('app').innerHTML='<div class="loading">❌ Membro não encontrado</div>'; return; }
+  membro=m;
   renderCard();
 }
 
 function getData(){
-  const m = membro;
-  const filiacao = [m.pai?'Pai: '+m.pai:'', m.mae?'Mãe: '+m.mae:''].filter(Boolean).join('  /  ')||'—';
+  const m=membro;
+  const filiacao=[m.pai?'Pai: '+m.pai:'',m.mae?'Mãe: '+m.mae:''].filter(Boolean).join(' / ')||'—';
   return {
-    f_cargo:       (m.cat||'').toUpperCase(),
-    f_nome:        m.nome,
-    f_mat:         m.numCred,
-    f_cpf:         m.cpf,
-    f_emissao:     fmt(m.emissao),
-    f_hash:        m.docId,
-    v_filiacao:    filiacao,
-    v_nasc:        fmt(m.nasc),
-    v_admissao:    fmt(m.emissao),
-    v_naturalidade:m.naturalidade||'BRASILEIRO',
-    v_validade:    fmt(m.validade),
-    v_cpfrg:       (m.cpf||'')+(m.rgUf?' / '+m.rgUf:''),
-    v_municipio:   m.municipio||'—',
-    v_situacao:    m.status==='Ativo'?'ATIVO':'INATIVO',
+    f_cargo:(m.cat||'').toUpperCase(), f_nome:m.nome,
+    f_mat:m.numCred, f_cpf:m.cpf, f_emissao:fmt(m.emissao), f_hash:m.docId,
+    v_filiacao:filiacao, v_nasc:fmt(m.nasc), v_admissao:fmt(m.emissao),
+    v_naturalidade:(m.naturalidade||'BRASILEIRO'),
+    v_validade:fmt(m.validade), v_municipio:(m.municipio||'—').toUpperCase(),
+    v_situacao:m.status==='Ativo'?'ATIVO':'INATIVO',
   };
 }
 
 function renderCard(){
-  const m   = membro;
-  const qrUrl = BASE+'/verificar.html?id='+encodeURIComponent(m.numCred);
-  const qrSrc = 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&color=cc0000&bgcolor=ffffff&data='+encodeURIComponent(qrUrl);
-  const data  = getData();
-  const D     = editMode ? ' drag' : '';
+  const m=membro;
+  const data=getData();
+  const D=editMode?' drag':'';
+  const layout=tab==='F'?layoutF:layoutV;
+  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=1782164756`:`${BASE}/verso.jpg?v=1782164756`;
 
-  function fields(card){
-    let h='';
-    for(const [key,cfg] of Object.entries(layout)){
-      if(cfg.card!==card) continue;
-      const id  = 'c_'+key;
-      const pos = `left:${cfg.left}%;top:${cfg.top}%;`;
-      if(cfg.type==='photo'){
-        h+=`<div id="${id}" class="f-photo${D}" style="${pos}width:${cfg.w}%;aspect-ratio:${cfg.ratio||'3/4'};">
-          ${m.foto?`<img src="${m.foto}" alt="">` : '<div class="f-photo-ph">👤</div>'}
-        </div>`;
-      } else if(cfg.type==='qr'){
-        const sz=(cfg.qrSize||13)+'vw';
-        h+=`<div id="${id}" class="v-qr${D}" style="${pos}">
-          <img src="${qrSrc}" style="width:${sz};height:${sz};" crossorigin="anonymous">
-        </div>`;
-      } else {
-        const val = data[key]||'—';
-        const fw  = cfg.bold?'800':'600';
-        const col = editMode?'' : `color:${(key==='v_situacao'&&val==='INATIVO')?'#cc0000':cfg.color||'#111'};`;
-        const up  = cfg.upper&&!editMode?val.toUpperCase():val;
-        h+=`<div id="${id}" class="campo${D}" style="${pos}font-size:${(cfg.size||1.2)*1.2}cqw;font-weight:${fw};${col}">${up}</div>`;
-      }
+  let fields='';
+  for(const [key,cfg] of Object.entries(layout)){
+    const id='c_'+key;
+    const pos=`left:${cfg.left}%;top:${cfg.top}%;`;
+    if(cfg.type==='photo'){
+      const foto=m?.foto;
+      fields+=`<div id="${id}" class="f-photo${D}" style="${pos}width:${cfg.w}%;aspect-ratio:${cfg.ratio||'3/4'};">
+        ${foto?`<img src="${foto}" alt="">` : '<div class="f-photo-ph">👤</div>'}
+      </div>`;
+    } else {
+      const val=data[key]||'—';
+      const fw=cfg.bold?'800':'600';
+      const col=editMode?'':  `color:${(key==='v_situacao'&&val==='INATIVO')?'#cc0000':cfg.color||'#111'};`;
+      const up=cfg.upper&&!editMode?val.toUpperCase():val;
+      // font-size em cqw (container query width)
+      fields+=`<div id="${id}" class="campo${D}"
+        style="${pos}font-size:${cfg.size||2.0}cqw;font-weight:${fw};${col}">${up}</div>`;
     }
-    return h;
   }
 
   document.getElementById('app').innerHTML=`
-  <div id="carteirinha">
-    <div class="card" id="card-F">
-      <img class="card-bg" src="${BASE}/frente.jpg?v=1782164557" crossorigin="anonymous">
-      <div class="overlay">${fields('F')}</div>
-    </div>
-    <div class="card" id="card-V">
-      <img class="card-bg" src="${BASE}/verso.jpg?v=1782164557" crossorigin="anonymous">
-      <div class="overlay">${fields('V')}</div>
-    </div>
-  </div>`;
+    <div class="card" id="the-card">
+      <img class="bg" src="${imgSrc}" crossorigin="anonymous">
+      <div class="overlay">${fields}</div>
+    </div>`;
 
   if(editMode) activateDrag();
+  if(editMode) buildPanel();
+}
+
+/* ─── TABS ─── */
+function switchTab(t){
+  tab=t;
+  document.getElementById('tab-F').className='tab'+(t==='F'?' active':'');
+  document.getElementById('tab-V').className='tab'+(t==='V'?' active':'');
+  renderCard();
+  if(editMode) buildPanel();
 }
 
 /* ─── DRAG ─── */
 function activateDrag(){
-  for(const [key,cfg] of Object.entries(layout)){
-    const el     = document.getElementById('c_'+key);
-    const cardEl = document.getElementById('card-'+cfg.card);
-    if(!el||!cardEl) continue;
-
-    const startDrag = (cx,cy) => {
-      const rect = cardEl.getBoundingClientRect();
-      const move = (mx,my)=>{
-        layout[key].left = Math.max(0,Math.min(98,+((mx-rect.left)/rect.width*100).toFixed(2)));
-        layout[key].top  = Math.max(0,Math.min(98,+((my-rect.top)/rect.height*100).toFixed(2)));
-        el.style.left = layout[key].left+'%';
-        el.style.top  = layout[key].top+'%';
+  const layout=tab==='F'?layoutF:layoutV;
+  const cardEl=document.getElementById('the-card');
+  if(!cardEl) return;
+  for(const [key] of Object.entries(layout)){
+    const el=document.getElementById('c_'+key);
+    if(!el) continue;
+    const drag=(cx,cy)=>{
+      const rect=cardEl.getBoundingClientRect();
+      const move=(mx,my)=>{
+        layout[key].left=Math.max(0,Math.min(98,+((mx-rect.left)/rect.width*100).toFixed(2)));
+        layout[key].top =Math.max(0,Math.min(98,+((my-rect.top) /rect.height*100).toFixed(2)));
+        el.style.left=layout[key].left+'%';
+        el.style.top =layout[key].top+'%';
         syncInputs(key);
       };
-      const mu=(e)=>{ const ev=e.touches?e.touches[0]:e; move(ev.clientX,ev.clientY); };
-      const up=()=>{ document.removeEventListener('mousemove',mu); document.removeEventListener('touchmove',mu); document.removeEventListener('mouseup',up); document.removeEventListener('touchend',up); };
-      document.addEventListener('mousemove',mu); document.addEventListener('touchmove',mu,{passive:true});
-      document.addEventListener('mouseup',up);   document.addEventListener('touchend',up);
+      const up=()=>{ document.removeEventListener('mousemove',mu); document.removeEventListener('mouseup',up);
+                      document.removeEventListener('touchmove',mu); document.removeEventListener('touchend',up); };
+      const mu=e=>{ const ev=e.touches?e.touches[0]:e; move(ev.clientX,ev.clientY); };
+      document.addEventListener('mousemove',mu);
+      document.addEventListener('touchmove',mu,{passive:true});
+      document.addEventListener('mouseup',up);
+      document.addEventListener('touchend',up);
     };
-    el.addEventListener('mousedown', e=>{ e.preventDefault(); startDrag(e.clientX,e.clientY); });
-    el.addEventListener('touchstart',e=>{ const t=e.touches[0]; startDrag(t.clientX,t.clientY); },{passive:true});
+    el.addEventListener('mousedown',e=>{ e.preventDefault(); drag(e.clientX,e.clientY); });
+    el.addEventListener('touchstart',e=>{ const t=e.touches[0]; drag(t.clientX,t.clientY); },{passive:true});
   }
 }
-
 function syncInputs(key){
+  const layout=tab==='F'?layoutF:layoutV;
   const li=document.getElementById('ep_l_'+key);
   const ti=document.getElementById('ep_t_'+key);
   if(li) li.value=layout[key].left;
@@ -332,24 +349,29 @@ function syncInputs(key){
 
 /* ─── PAINEL ─── */
 function buildPanel(){
+  const layout=tab==='F'?layoutF:layoutV;
+  document.getElementById('ep-title').textContent=`✦ Editor — ${tab==='F'?'Frente':'Verso'}`;
   const g=document.getElementById('ep-grid'); g.innerHTML='';
   for(const [key,cfg] of Object.entries(layout)){
     let extra='';
     if(cfg.type==='photo'){
-      extra=`<div class="ep-extra"><div><label>Largura %</label><input type="number" step=".5" value="${cfg.w||17}" oninput="layout['${key}'].w=+this.value;renderCard();buildPanel()"></div></div>`;
-    } else if(cfg.type==='qr'){
-      extra=`<div class="ep-extra"><div><label>Tamanho (vw)</label><input type="number" step=".5" value="${cfg.qrSize||13}" oninput="layout['${key}'].qrSize=+this.value;renderCard();buildPanel()"></div></div>`;
+      extra=`<div class="ep-extra"><div><label>Largura %</label>
+        <input type="number" step=".5" value="${cfg.w||13.5}" oninput="(tab==='F'?layoutF:layoutV)['${key}'].w=+this.value;renderCard();buildPanel()"></div></div>`;
     } else {
       extra=`<div class="ep-extra">
-        <div><label>Fonte (vw)</label><input type="number" step=".1" value="${cfg.size||1.2}" oninput="layout['${key}'].size=+this.value;renderCard();buildPanel()"></div>
-        <div><label>Cor</label><input type="color" value="${(cfg.color||'#111111').replace(/!important/,'')}" oninput="layout['${key}'].color=this.value;renderCard();buildPanel()"></div>
+        <div><label>Tamanho cqw</label>
+          <input type="number" step=".1" value="${cfg.size||2.0}" oninput="(tab==='F'?layoutF:layoutV)['${key}'].size=+this.value;renderCard();buildPanel()"></div>
+        <div><label>Cor</label>
+          <input type="color" value="${(cfg.color||'#111111').replace(/!important/,'')}" oninput="(tab==='F'?layoutF:layoutV)['${key}'].color=this.value;renderCard();buildPanel()"></div>
       </div>`;
     }
     g.innerHTML+=`<div class="ep-item">
-      <label>${LABELS[key]||key} <span style="opacity:.4">(${cfg.card==='F'?'Frente':'Verso'})</span></label>
+      <label>${LABELS[key]||key}</label>
       <div class="ep-row">
-        <div><label>Left %</label><input id="ep_l_${key}" type="number" step=".5" value="${cfg.left}" oninput="layout['${key}'].left=+this.value;const e=document.getElementById('c_${key}');if(e)e.style.left=this.value+'%'"></div>
-        <div><label>Top %</label><input id="ep_t_${key}" type="number" step=".5" value="${cfg.top}" oninput="layout['${key}'].top=+this.value;const e=document.getElementById('c_${key}');if(e)e.style.top=this.value+'%'"></div>
+        <div><label>Left %</label><input id="ep_l_${key}" type="number" step=".5" value="${cfg.left}"
+          oninput="(tab==='F'?layoutF:layoutV)['${key}'].left=+this.value;const e=document.getElementById('c_${key}');if(e)e.style.left=this.value+'%'"></div>
+        <div><label>Top %</label><input id="ep_t_${key}" type="number" step=".5" value="${cfg.top}"
+          oninput="(tab==='F'?layoutF:layoutV)['${key}'].top=+this.value;const e=document.getElementById('c_${key}');if(e)e.style.top=this.value+'%'"></div>
       </div>
       ${extra}
     </div>`;
@@ -358,34 +380,51 @@ function buildPanel(){
 
 function toggleEdit(){
   editMode=!editMode;
-  const badge=document.getElementById('mode-label');
+  const btn=document.getElementById('btn-edit');
   const panel=document.getElementById('editor-panel');
   if(editMode){
-    badge.textContent='EDIÇÃO'; badge.className='mode-badge edit';
-    panel.classList.add('open'); buildPanel();
+    btn.textContent='✕ Fechar Editor';
+    btn.style.background='#6d28d9';
+    panel.classList.add('open');
+    buildPanel();
   } else {
-    badge.textContent='VISUALIZAÇÃO'; badge.className='mode-badge normal';
+    btn.textContent='✦ Editar Layout';
+    btn.style.background='';
     panel.classList.remove('open');
   }
   renderCard();
 }
 
-/* ─── DOWNLOAD ─── */
+/* ─── DOWNLOADS ─── */
 async function downloadPNG(){
-  const el=document.getElementById('carteirinha');
+  const el=document.getElementById('the-card');
   const c=await html2canvas(el,{scale:3,useCORS:true,allowTaint:true,backgroundColor:null});
-  const a=document.createElement('a'); a.download='carteirinha_'+(membro?.numCred||'x')+'.png';
+  const a=document.createElement('a');
+  a.download=`carteirinha_${tab}_${membro?.numCred||'x'}.png`;
   a.href=c.toDataURL('image/png'); a.click();
 }
+
 async function downloadPDF(){
   const {jsPDF}=window.jspdf;
-  // Landscape A4: 297x210mm
   const pdf=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
-  const el=document.getElementById('carteirinha');
-  const c=await html2canvas(el,{scale:3,useCORS:true,allowTaint:true,backgroundColor:null});
-  const w=297, h=(c.height*297)/c.width;
-  pdf.addImage(c.toDataURL('image/png'),'PNG',0,(210-h)/2,w,h);
-  pdf.save('carteirinha_'+(membro?.numCred||'x')+'.pdf');
+  // Frente
+  const tabOrig=tab;
+  tab='F'; renderCard();
+  await new Promise(r=>setTimeout(r,300));
+  const elF=document.getElementById('the-card');
+  const cF=await html2canvas(elF,{scale:3,useCORS:true,allowTaint:true,backgroundColor:null});
+  // Verso
+  tab='V'; renderCard();
+  await new Promise(r=>setTimeout(r,300));
+  const elV=document.getElementById('the-card');
+  const cV=await html2canvas(elV,{scale:3,useCORS:true,allowTaint:true,backgroundColor:null});
+  // Montar PDF frente+verso lado a lado
+  const w=297, h=210;
+  const fW=w/2, fH=(cF.height*fW)/cF.width;
+  pdf.addImage(cF.toDataURL('image/png'),'PNG',0,(h-fH)/2,fW,fH);
+  pdf.addImage(cV.toDataURL('image/png'),'PNG',fW,(h-fH)/2,fW,fH);
+  pdf.save(`carteirinha_${membro?.numCred||'x'}.pdf`);
+  tab=tabOrig; renderCard();
 }
 
 init();
