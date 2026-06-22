@@ -164,15 +164,15 @@ const BINKEY  = ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn7
    Todas as posições em % relativo ao card de cada face (50% da largura total).
    Tamanhos de fonte em vw (do viewport), bold e color ajustáveis.           */
 const DEFAULT = {
-  /* ── FRENTE (557×341px) ──
+  /* ── FRENTE (1132×645px) ──
      Campos posicionados sobre os labels já impressos na imagem Canva */
-  f_photo:    { card:'F', type:'photo', left:2.7,  top:33.7, w:13.5, ratio:'3/4' },
-  f_cargo:    { card:'F', left:23.0, top:37.0, size:1.05, bold:true,  color:'#1a2a6e', upper:true  },
-  f_nome:     { card:'F', left:23.0, top:46.9, size:1.15, bold:true,  color:'#111',    upper:true  },
-  f_mat:      { card:'F', left:14.7, top:60.7, size:0.9,  bold:true,  color:'#111',    upper:false },
-  f_cpf:      { card:'F', left:23.0, top:60.7, size:0.9,  bold:true,  color:'#111',    upper:false },
-  f_emissao:  { card:'F', left:53.9, top:60.7, size:0.9,  bold:true,  color:'#111',    upper:false },
-  f_hash:     { card:'F', left:23.0, top:69.8, size:0.8,  bold:false, color:'#333',    upper:false },
+  f_photo:    { card:'F', type:'photo', left:2.5,  top:31.0, w:12.0, ratio:'3/4' },
+  f_cargo:    { card:'F', left:34.9, top:42.6, size:1.3,  bold:true,  color:'#1a2a6e', upper:true  },
+  f_nome:     { card:'F', left:34.9, top:55.0, size:1.4,  bold:true,  color:'#111',    upper:true  },
+  f_mat:      { card:'F', left:7.2,  top:68.2, size:1.2,  bold:true,  color:'#111',    upper:false },
+  f_cpf:      { card:'F', left:34.9, top:68.2, size:1.2,  bold:true,  color:'#111',    upper:false },
+  f_emissao:  { card:'F', left:67.1, top:68.2, size:1.2,  bold:true,  color:'#111',    upper:false },
+  f_hash:     { card:'F', left:34.9, top:78.3, size:1.1,  bold:false, color:'#333',    upper:false },
   /* ── VERSO (558×341px) ──
      QR já impresso no Canva — apenas dados sobrepostos nos campos certos */
   v_filiacao: { card:'V', left:19.0, top:29.8, size:1.2,  bold:false, color:'#111',    upper:false },
@@ -197,10 +197,10 @@ let editMode = false;
 let membro   = null;
 
 function loadLayout() {
-  try { const s = localStorage.getItem('assoc_layout_v5'); if(s) return JSON.parse(s); } catch(e){}
+  try { const s = localStorage.getItem('assoc_layout_v6'); if(s) return JSON.parse(s); } catch(e){}
   return JSON.parse(JSON.stringify(DEFAULT));
 }
-function saveLayout()  { localStorage.setItem('assoc_layout_v5', JSON.stringify(layout)); alert('✅ Layout salvo!'); }
+function saveLayout()  { localStorage.setItem('assoc_layout_v6', JSON.stringify(layout)); alert('✅ Layout salvo!'); }
 function resetLayout() { layout = JSON.parse(JSON.stringify(DEFAULT)); renderCard(); buildPanel(); }
 function exportLayout(){
   const b = new Blob([JSON.stringify(layout,null,2)],{type:'application/json'});
