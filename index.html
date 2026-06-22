@@ -122,7 +122,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 /* MODAL */
 .modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;padding:20px;overflow-y:auto; }
 .modal-overlay.open { display:flex; }
-.modal-inner { display:flex;flex-direction:column;align-items:center;width:100%;max-width:480px; }
+.modal-inner { display:flex;flex-direction:column;align-items:center;width:100%;max-width:900px; }
 
 /* CREDENTIAL CARD */
 .credential { background:#fff;width:100%;border-radius:4px;box-shadow:0 4px 24px rgba(0,0,0,0.3);overflow:hidden;position:relative; }
@@ -164,6 +164,38 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 .cfooter { background:var(--navy);padding:8px 18px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1; }
 .cft { font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:1px; }
 .modal-acts { display:flex;gap:10px;margin-top:14px;width:100%; }
+
+
+/* ── CARTEIRINHA PREVIEW NA MODAL ── */
+.cart-preview {
+  display:flex; flex-direction:row; width:100%;
+  border-radius:6px; overflow:hidden;
+  box-shadow:0 8px 36px rgba(0,0,0,0.55);
+}
+.cart-face {
+  position:relative; width:50%; flex-shrink:0; overflow:hidden;
+}
+.cart-face img.cart-bg { width:100%; display:block; pointer-events:none; }
+.cart-overlay { position:absolute; top:0;left:0;width:100%;height:100%; }
+.cp-campo {
+  position:absolute; line-height:1.2; white-space:nowrap;
+  font-family:'Arial Narrow',Arial,sans-serif;
+}
+.cp-photo {
+  position:absolute; overflow:hidden; background:#ccc;
+  display:flex;align-items:center;justify-content:center;
+}
+.cp-photo img { width:100%;height:100%;object-fit:cover; }
+.cp-photo-ph { font-size:7px;color:#888;text-align:center; }
+.cp-qr { position:absolute; }
+.cp-qr img { display:block; }
+.modal-status-bar {
+  display:flex;align-items:center;gap:10px;
+  padding:9px 16px; border-radius:6px; margin-bottom:10px;
+  font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;
+}
+.modal-status-bar.ativo { background:rgba(26,122,58,0.12);border:1px solid rgba(26,122,58,0.35);color:#1a7a3a; }
+.modal-status-bar.inativo { background:rgba(185,28,28,0.08);border:1px solid rgba(185,28,28,0.3);color:#b91c1c; }
 
 @media(max-width:660px){
   .form-grid{grid-template-columns:1fr;}
@@ -317,74 +349,44 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 <!-- MODAL CREDENCIAL -->
 <div class="modal-overlay" id="modal" onclick="closeM(event)">
   <div class="modal-inner">
-    <div class="credential" id="cred-card">
-      <div class="watermark">ASSOCIAÇÃO</div>
-      <div class="cred-header">
-        <div class="cred-emblem">🏛️</div>
-        <div class="ch-text">
-          <div class="ch1">Sistema Oficial de Verificação</div>
-          <div class="ch2">ASSOCIAÇÃO</div>
-          <div class="ch3">Verificação de Credencial Funcional</div>
+    <div id="modal-status-bar" class="modal-status-bar ativo" style="width:100%">
+      <span id="cs-icon">✅</span>
+      <span id="cs-badge">CREDENCIAL ATIVA</span>
+      <span style="margin-left:auto;opacity:.6;font-size:10px" id="c-footer">—</span>
+    </div>
+    <div class="cart-preview" id="cred-card">
+      <!-- FRENTE -->
+      <div class="cart-face" id="cart-frente">
+        <img class="cart-bg" src="https://prdlcsmrr.github.io/Associa-o-/frente.jpg" crossorigin="anonymous">
+        <div class="cart-overlay">
+          <div class="cp-photo" id="cp-photo" style="left:1.5%;top:26%;width:17%;aspect-ratio:3/4"><div class="cp-photo-ph">👤</div></div>
+          <div class="cp-campo" id="cp-cargo"  style="left:24%;top:29%;font-size:1.3vw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-nome"   style="left:24%;top:38%;font-size:1.4vw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-mat"    style="left:1.5%;top:55%;font-size:1.0vw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-cpf"    style="left:24%;top:55%;font-size:1.0vw;font-weight:700;color:#111"></div>
+          <div class="cp-campo" id="cp-emissao" style="left:57%;top:55%;font-size:1.0vw;font-weight:700;color:#111"></div>
+          <div class="cp-campo" id="cp-hash"   style="left:24%;top:63%;font-size:0.85vw;font-weight:600;color:#333"></div>
         </div>
       </div>
-      <div class="cstatus">
-        <span class="cstatus-icon" id="cs-icon">✅</span>
-        <span class="cstatus-lbl">Status da Credencial:</span>
-        <span class="cstatus-badge" id="cs-badge">CREDENCIAL ATIVA</span>
-      </div>
-      <div class="cmain">
-        <div class="cphoto" id="cphoto"></div>
-        <div class="cinfo">
-          <div class="ci-lbl">Nome</div>
-          <div class="ci-val" id="c-nome">—</div>
-          <div class="ci-lbl">Matrícula</div>
-          <div class="matbox" id="c-mat">—</div>
-          <div class="ci-lbl" style="margin-top:8px">Cargo / Categoria</div>
-          <div class="ci-val sm" id="c-cat">—</div>
-          <div class="ci-lbl">Situação Funcional</div>
-          <div class="ci-val" id="c-sit">—</div>
+      <!-- VERSO -->
+      <div class="cart-face" id="cart-verso">
+        <img class="cart-bg" src="https://prdlcsmrr.github.io/Associa-o-/verso.jpg" crossorigin="anonymous">
+        <div class="cart-overlay">
+          <div class="cp-qr" id="cp-qr" style="position:absolute;left:3%;top:22%"><img style="width:14vw;height:14vw" src="" alt=""></div>
+          <div class="cp-campo" id="cp-filiacao"    style="left:34%;top:25%;font-size:1.0vw;font-weight:600;color:#111"></div>
+          <div class="cp-campo" id="cp-nasc"        style="left:34%;top:37%;font-size:1.1vw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-admissao"    style="left:66%;top:37%;font-size:1.1vw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-naturalidade" style="left:34%;top:48%;font-size:1.1vw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-validade"    style="left:66%;top:48%;font-size:1.1vw;font-weight:800;color:#cc0000"></div>
+          <div class="cp-campo" id="cp-municipio"   style="left:66%;top:57%;font-size:1.1vw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-situacao"    style="left:25%;top:62%;font-size:1.2vw;font-weight:900;color:#111"></div>
         </div>
-      </div>
-      <div class="csection">
-        <div class="csh"><span>👤</span><span class="csh-ttl">Dados Pessoais</span></div>
-        <div class="cdg">
-          <div><div class="cdlbl">Nascimento</div><div class="cdval" id="c-nasc">—</div></div>
-          <div><div class="cdlbl">Sexo</div><div class="cdval" id="c-sexo">—</div></div>
-          <div><div class="cdlbl">CPF</div><div class="cdval" id="c-cpf">—</div></div>
-          <div><div class="cdlbl">Telefone</div><div class="cdval" id="c-tel">—</div></div>
-        </div>
-      </div>
-      <div class="csection">
-        <div class="csh"><span>🪪</span><span class="csh-ttl">Dados da Credencial</span></div>
-        <div class="cdg">
-          <div><div class="cdlbl">Número</div><div class="cdval xs" id="c-num">—</div></div>
-          <div><div class="cdlbl">Emissão</div><div class="cdval" id="c-emissao">—</div></div>
-          <div style="grid-column:1/-1"><div class="cdlbl">Validade</div><div class="cdval" id="c-validade">—</div></div>
-        </div>
-      </div>
-      <div class="csection">
-        <div class="csh"><span>▦</span><span class="csh-ttl">Código de Autenticação</span></div>
-        <div class="cauth">
-          <div style="flex:1">
-            <div class="cdlbl">ID Documentação</div>
-            <div class="cdval xs" id="c-docid">—</div>
-            <div class="cdlbl" style="margin-top:8px">Hash</div>
-            <div class="cdval xs" id="c-hash">—</div>
-          </div>
-          <div class="cqr" id="c-qr">
-            <div style="width:85px;height:85px;background:#f3f3f3"></div>
-            <div class="cqr-lbl">Base Legal</div>
-          </div>
-        </div>
-      </div>
-      <div class="cfooter">
-        <span class="cft">Documento gerado eletronicamente</span>
-        <span class="cft" id="c-footer">—</span>
       </div>
     </div>
     <div class="modal-acts">
       <button class="btn btn-outline" onclick="closeMD()" style="flex:1">✕ Fechar</button>
-      <button class="btn btn-navy" onclick="printCred()" style="flex:1">🖨️ Imprimir</button>
+      <button class="btn btn-navy" onclick="abrirCarteirinha()" style="flex:1">🪪 Carteirinha Completa</button>
+      <button class="btn btn-gold" onclick="downloadCarteirinhaModal()" style="flex:1">⬇ PNG</button>
     </div>
   </div>
 </div>
@@ -1208,36 +1210,72 @@ function renderList(){
 }
 
 // CREDENCIAL MODAL
+let _credAtualId=null;
+
 function openCred(id){
-  const m=members.find(x=>x.id===id);if(!m)return;
+  const m=members.find(x=>x.id===id); if(!m)return;
+  _credAtualId=m.numCred;
   const ativo=m.status==='Ativo';
+
+  // Status bar
+  const bar=document.getElementById('modal-status-bar');
+  bar.className='modal-status-bar '+(ativo?'ativo':'inativo');
   document.getElementById('cs-icon').textContent=ativo?'✅':'❌';
-  const b=document.getElementById('cs-badge');
-  b.textContent=ativo?'CREDENCIAL ATIVA':'CREDENCIAL INATIVA';
-  b.className='cstatus-badge '+(ativo?'ativo':'inativo');
-  document.getElementById('cphoto').innerHTML=m.foto?`<img src="${m.foto}" alt="">`:`<div class="cphoto-ph"><svg width="32" height="32" fill="none" stroke="#aaa" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Sem foto</span></div>`;
-  document.getElementById('c-nome').textContent=m.nome;
-  document.getElementById('c-mat').textContent=m.numCred;
-  document.getElementById('c-cat').textContent=m.cat;
-  const sit=document.getElementById('c-sit');
-  sit.textContent=ativo?'ATIVO':'INATIVO';
-  sit.className='ci-val '+(ativo?'green':'red');
-  document.getElementById('c-nasc').textContent=fmt(m.nasc);
-  document.getElementById('c-sexo').textContent=m.sexo||'—';
-  document.getElementById('c-cpf').textContent=m.cpf;
-  document.getElementById('c-tel').textContent=m.tel;
-  document.getElementById('c-num').textContent=m.numCred;
-  document.getElementById('c-emissao').textContent=fmt(m.emissao);
-  document.getElementById('c-validade').textContent=fmt(m.validade);
-  document.getElementById('c-docid').textContent=m.docId;
-  document.getElementById('c-hash').textContent=m.hash;
-  document.getElementById('c-footer').textContent='Emitido em '+m.dataCad;
+  document.getElementById('cs-badge').textContent=ativo?'CREDENCIAL ATIVA':'CREDENCIAL INATIVA';
+  document.getElementById('c-footer').textContent='Emitido em '+(m.dataCad||'—');
+
+  // FRENTE — foto
+  const ph=document.getElementById('cp-photo');
+  ph.innerHTML=m.foto?`<img src="${m.foto}" alt="">` : '<div class="cp-photo-ph">👤</div>';
+
+  // FRENTE — campos
+  document.getElementById('cp-cargo').textContent=(m.cat||'').toUpperCase();
+  document.getElementById('cp-nome').textContent=(m.nome||'').toUpperCase();
+  document.getElementById('cp-mat').textContent=m.numCred||'—';
+  document.getElementById('cp-cpf').textContent=m.cpf||'—';
+  document.getElementById('cp-emissao').textContent=fmt(m.emissao);
+  document.getElementById('cp-hash').textContent=m.docId||'—';
+
+  // VERSO — QR
   const qrUrl=BASE_URL+'?id='+encodeURIComponent(m.numCred);
-  document.getElementById('c-qr').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=85x85&data=${encodeURIComponent(qrUrl)}" alt="QR"><div class="cqr-lbl">Base Legal</div>`;
+  const qrImg=document.querySelector('#cp-qr img');
+  if(qrImg) qrImg.src='https://api.qrserver.com/v1/create-qr-code/?size=180x180&color=cc0000&bgcolor=ffffff&data='+encodeURIComponent(qrUrl);
+
+  // VERSO — campos
+  const filiacao=[m.pai?'Pai: '+m.pai:'',m.mae?'Mãe: '+m.mae:''].filter(Boolean).join(' / ')||'—';
+  document.getElementById('cp-filiacao').textContent=filiacao;
+  document.getElementById('cp-nasc').textContent=fmt(m.nasc);
+  document.getElementById('cp-admissao').textContent=fmt(m.emissao);
+  document.getElementById('cp-naturalidade').textContent=(m.naturalidade||'BRASILEIRO').toUpperCase();
+  document.getElementById('cp-validade').textContent=fmt(m.validade);
+  document.getElementById('cp-municipio').textContent=(m.municipio||'—').toUpperCase();
+  const sit=document.getElementById('cp-situacao');
+  sit.textContent=ativo?'ATIVO':'INATIVO';
+  sit.style.color=ativo?'#111':'#cc0000';
+
   document.getElementById('modal').classList.add('open');
 }
+
 function closeM(e){if(e.target===document.getElementById('modal'))closeMD();}
 function closeMD(){document.getElementById('modal').classList.remove('open');}
+
+function abrirCarteirinha(){
+  if(_credAtualId) gerarCarteirinha(_credAtualId);
+}
+
+async function downloadCarteirinhaModal(){
+  const el=document.getElementById('cred-card');
+  if(!window.html2canvas){
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    document.head.appendChild(s);
+    await new Promise(r=>s.onload=r);
+  }
+  const canvas=await html2canvas(el,{scale:3,useCORS:true,allowTaint:true,backgroundColor:null});
+  const a=document.createElement('a');
+  a.download='carteirinha_'+(_credAtualId||'download')+'.png';
+  a.href=canvas.toDataURL('image/png'); a.click();
+}
 
 function printCred(){
   const c=document.getElementById('cred-card').outerHTML;
@@ -1819,3 +1857,4 @@ document.getElementById('f-validade').value=ny.toISOString().split('T')[0];
 </script>
 </body>
 </html>
+
