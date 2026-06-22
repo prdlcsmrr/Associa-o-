@@ -21,228 +21,179 @@ body { background:#888; font-family:'Arial',sans-serif; display:flex; flex-direc
 .btn-navy { background:#fff; color:#1a2a5e; }
 .btn-green { background:#2a7a38; color:#fff; }
 
-#carteirinha { display:flex; gap:4px; }
+#carteirinha { display:flex; flex-direction:column; gap:6px; }
 
-/* ═══ CARD BASE ═══ */
+/* CARD com imagem de fundo */
 .card {
-  width: 500px;
-  height: 316px;
   position: relative;
+  width: 700px;
   overflow: hidden;
-  background: #f5f5f0;
-  font-family: Arial, sans-serif;
+}
+.card-bg {
+  width: 100%;
+  display: block;
 }
 
-/* FAIXA BANDEIRA */
-.flag-stripe {
+/* Dados sobrepostos — posicionados em % para escalar com a imagem */
+.overlay {
   position: absolute;
   top: 0; left: 0;
   width: 100%; height: 100%;
-  z-index: 0;
-  pointer-events: none;
-}
-.flag-stripe::before {
-  content: '';
-  position: absolute;
-  top: -60px; left: -60px;
-  width: 260px; height: 500px;
-  background: linear-gradient(
-    145deg,
-    rgba(0,160,60,0.55) 0%,
-    rgba(0,160,60,0.6) 20%,
-    rgba(255,220,0,0.55) 38%,
-    rgba(0,39,118,0.5) 55%,
-    rgba(100,160,255,0.3) 68%,
-    transparent 80%
-  );
-  transform: skewX(-8deg);
-}
-.flag-stripe::after {
-  content: '';
-  position: absolute;
-  top: -20px; left: 30px;
-  width: 180px; height: 420px;
-  background: linear-gradient(
-    145deg,
-    transparent 0%,
-    rgba(0,160,60,0.2) 15%,
-    rgba(255,220,0,0.2) 35%,
-    rgba(0,39,118,0.2) 55%,
-    transparent 70%
-  );
-  transform: skewX(-12deg);
-}
-
-/* MARCA D'ÁGUA TREM */
-.wm-trem {
-  position: absolute;
-  right: -10px; bottom: 20px;
-  font-size: 110px;
-  opacity: 0.05;
-  z-index: 0;
-  pointer-events: none;
-  transform: rotate(-5deg);
 }
 
 /* ═══ FRENTE ═══ */
-.f-header {
-  position: absolute;
-  top: 6px; left: 125px; right: 70px;
-  text-align: center;
-  z-index: 2;
-}
-.f-h1 { font-size: 8px; font-weight: 700; color: #111; letter-spacing: 0.5px; text-transform: uppercase; }
-.f-h2 { font-size: 15px; font-weight: 900; color: #cc0000; letter-spacing: 0.5px; text-transform: uppercase; line-height: 1.1; margin: 2px 0; }
-.f-h3 { font-size: 7px; font-weight: 700; color: #111; text-transform: uppercase; margin-top: 1px; }
-.f-h4 { font-size: 7px; font-weight: 700; color: #111; margin-top: 1px; }
-.f-h5 { font-size: 7px; color: #333; margin-top: 1px; }
-
-/* BRASÃO CANTO DIREITO */
-.f-brasao-dir {
-  position: absolute;
-  top: 5px; right: 5px;
-  width: 62px; height: 62px;
-  display: flex; align-items: center; justify-content: center;
-  z-index: 2;
-  opacity: 0.9;
-}
-.f-brasao-dir img { width: 100%; }
-
-/* FOTO */
 .f-photo {
   position: absolute;
-  left: 8px; top: 8px;
-  width: 105px; height: 138px;
+  left: 2.2%;
+  top: 12%;
+  width: 17%;
+  aspect-ratio: 3/4;
+  overflow: hidden;
   border: 1.5px solid #aaa;
   background: #ddd;
-  overflow: hidden;
   display: flex; align-items: center; justify-content: center;
-  z-index: 2;
 }
 .f-photo img { width:100%; height:100%; object-fit:cover; }
 .f-photo-ph { font-size:9px; color:#aaa; text-align:center; }
 
-/* MATRÍCULA */
-.f-mat {
+.f-mat-num {
   position: absolute;
-  left: 8px; top: 150px;
-  width: 110px;
-  text-align: center;
-  z-index: 2;
+  left: 3.5%;
+  top: 67%;
+  font-size: 1.8vw;
+  font-weight: 800;
+  color: #111;
 }
-.f-mat-lbl { font-size: 7px; font-weight: 700; color: #333; text-transform: uppercase; }
-.f-mat-num { font-size: 11px; font-weight: 800; color: #111; }
 
-/* LOGO + NOME */
-.f-logo {
+.f-cargo-val {
   position: absolute;
-  left: 8px; top: 180px;
-  width: 110px;
-  display: flex; align-items: center; gap: 4px;
-  z-index: 2;
+  left: 22%;
+  top: 34%;
+  font-size: 1.5vw;
+  font-weight: 800;
+  color: #111;
+  text-transform: uppercase;
 }
-.f-logo-img { width: 32px; height: 32px; object-fit: contain; }
-.f-logo-txt { font-size: 16px; font-weight: 900; color: #1a2a5e; letter-spacing: 0.5px; }
 
-/* DADOS FRENTE */
-.f-dados {
+.f-nome-val {
   position: absolute;
-  left: 122px; top: 68px; right: 8px;
-  z-index: 2;
+  left: 22%;
+  top: 44%;
+  font-size: 1.8vw;
+  font-weight: 900;
+  color: #111;
+  text-transform: uppercase;
 }
-.fd-lbl { font-size: 7px; font-weight: 700; color: #444; text-transform: uppercase; letter-spacing: 0.2px; margin-top: 7px; margin-bottom: 1px; }
-.fd-lbl:first-child { margin-top: 0; }
-.fd-val { font-size: 10px; font-weight: 800; color: #111; line-height: 1.2; }
-.fd-val.lg { font-size: 12px; }
-.fd-row { display: flex; gap: 16px; margin-top: 6px; }
-.fd-col { flex: 1; }
 
-/* RODAPÉ FRENTE */
-.f-footer {
+.f-cpf-val {
   position: absolute;
-  bottom: 5px; left: 8px; right: 8px;
-  text-align: center;
-  border-top: 0.5px solid #bbb;
-  padding-top: 4px;
-  z-index: 2;
+  left: 22%;
+  top: 57%;
+  font-size: 1.5vw;
+  font-weight: 700;
+  color: #111;
 }
-.f-footer p { font-size: 5.5px; color: #333; line-height: 1.5; font-weight: 600; }
+
+.f-exp-val {
+  position: absolute;
+  left: 57%;
+  top: 57%;
+  font-size: 1.5vw;
+  font-weight: 700;
+  color: #111;
+}
+
+.f-hash-val {
+  position: absolute;
+  left: 22%;
+  top: 66%;
+  font-size: 1.3vw;
+  font-weight: 700;
+  color: #111;
+}
 
 /* ═══ VERSO ═══ */
-.v-top {
+.v-filiacao-val {
   position: absolute;
-  top: 6px; left: 8px; right: 8px;
-  border-bottom: 0.5px solid #bbb;
-  padding-bottom: 5px;
-  z-index: 2;
-}
-.v-top p { font-size: 6px; color: #111; line-height: 1.5; font-weight: 600; }
-
-.v-dados {
-  position: absolute;
-  top: 44px; left: 8px; right: 140px;
-  z-index: 2;
-}
-.vd-lbl { font-size: 7px; font-weight: 700; color: #444; text-transform: uppercase; letter-spacing: 0.2px; margin-top: 6px; margin-bottom: 1px; }
-.vd-lbl:first-child { margin-top: 0; }
-.vd-val { font-size: 9.5px; font-weight: 700; color: #111; line-height: 1.3; }
-.v-row { display: flex; gap: 12px; margin-top: 6px; }
-.v-col { flex: 1; }
-
-/* DIGITAL */
-.v-digital {
-  position: absolute;
-  bottom: 42px; left: 8px;
-  width: 55px; height: 55px;
-  border: 1px solid #999;
-  background: #eee;
-  display: flex; align-items: center; justify-content: center;
-  z-index: 2;
-  font-size: 32px;
-  filter: grayscale(1) contrast(0.7);
+  left: 19%;
+  top: 17%;
+  font-size: 1.3vw;
+  font-weight: 700;
+  color: #111;
+  line-height: 1.4;
 }
 
-/* ASSINATURAS */
-.v-sigs {
+.v-naturalidade-val {
   position: absolute;
-  bottom: 25px; left: 68px; right: 145px;
-  z-index: 2;
+  left: 19%;
+  top: 33%;
+  font-size: 1.4vw;
+  font-weight: 800;
+  color: #111;
 }
-.v-sig { text-align: center; }
-.v-sig-line { border-bottom: 0.5px solid #555; height: 24px; margin-bottom: 2px; }
-.v-sig-cursive { font-size: 8px; color: #333; font-style: italic; font-family: Georgia, serif; margin-bottom: 2px; }
-.v-sig-lbl { font-size: 6px; color: #333; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
 
-/* QR CODE */
+.v-nasc-val {
+  position: absolute;
+  left: 19%;
+  top: 46%;
+  font-size: 1.4vw;
+  font-weight: 800;
+  color: #111;
+}
+
+.v-cpf-val {
+  position: absolute;
+  left: 19%;
+  top: 60%;
+  font-size: 1.4vw;
+  font-weight: 800;
+  color: #111;
+}
+
+.v-validade-val {
+  position: absolute;
+  left: 50%;
+  top: 33%;
+  font-size: 1.4vw;
+  font-weight: 800;
+  color: #111;
+}
+
+.v-admissao-val {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  font-size: 1.4vw;
+  font-weight: 800;
+  color: #111;
+}
+
+.v-municipio-val {
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  font-size: 1.4vw;
+  font-weight: 800;
+  color: #111;
+}
+
+.v-situacao-val {
+  position: absolute;
+  left: 35%;
+  top: 72%;
+  font-size: 1.6vw;
+  font-weight: 900;
+  color: #111;
+}
+
+/* QR Code - posicionado sobre o QR do verso */
 .v-qr {
   position: absolute;
-  top: 42px; right: 6px;
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  z-index: 2;
+  right: 3%;
+  top: 10%;
+  display: flex; flex-direction: column; align-items: center;
 }
-.v-qr img { width: 80px; height: 80px; }
-.v-qr-lbl { font-size: 6px; font-weight: 700; color: #555; text-transform: uppercase; }
-
-/* BRASÃO CIDADE */
-.v-brasao {
-  position: absolute;
-  bottom: 30px; right: 6px;
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  z-index: 2;
-}
-.v-brasao-img { width: 45px; height: 45px; object-fit: contain; }
-.v-cidade { font-size: 6.5px; font-weight: 700; color: #1a2a5e; text-transform: uppercase; text-align: center; }
-
-/* RODAPÉ VERSO */
-.v-footer {
-  position: absolute;
-  bottom: 5px; left: 8px; right: 8px;
-  text-align: center;
-  border-top: 0.5px solid #bbb;
-  padding-top: 3px;
-  z-index: 2;
-}
-.v-footer p { font-size: 5.5px; color: #333; line-height: 1.5; font-weight: 600; }
+.v-qr img { width: 13vw; height: 13vw; }
 
 .loading { color:#fff; font-size:16px; padding:40px; text-align:center; }
 </style>
@@ -261,11 +212,13 @@ body { background:#888; font-family:'Arial',sans-serif; display:flex; flex-direc
 <script>
 const DB = 'https://prdlcsmrr.github.io/Associa-o-/db.json';
 const BIN = '6a35c2ddda38895dfee044d5';
+const BASE = 'https://prdlcsmrr.github.io/Associa-o-';
+
 function fmt(d){if(!d)return'—';return new Date(d+'T12:00').toLocaleDateString('pt-BR');}
 
 async function init(){
   const id=new URLSearchParams(location.search).get('id');
-  if(!id){document.getElementById('app').innerHTML='<div class="loading">❌ ID não fornecido</div>';return;}
+  if(!id){show('❌ ID não fornecido');return;}
   let m=null;
   try{const r=await fetch(DB+'?t='+Date.now());if(r.ok){const d=await r.json();m=d.membros?.find(x=>x.numCred===id);}}catch(e){}
   if(!m){
@@ -275,162 +228,51 @@ async function init(){
       if(r.ok){const d=await r.json();m=d.membros?.find(x=>x.numCred===id);}
     }catch(e){}
   }
-  if(!m){document.getElementById('app').innerHTML='<div class="loading">❌ Membro não encontrado</div>';return;}
+  if(!m){show('❌ Membro não encontrado');return;}
   render(m);
 }
 
+function show(msg){document.getElementById('app').innerHTML='<div class="loading">'+msg+'</div>';}
+
 function render(m){
-  const cfg=JSON.parse(localStorage.getItem('assoc-config')||'{}');
-  const orgNome=cfg.assocNome||cfg.nomeAssoc||'ASSOCIAÇÃO';
-  const orgSub=cfg.assocCnpj?cfg.assocCnpj:'';
-  const orgSub2=cfg.assocEnd||'';
-  const diretor=cfg.assocDiretor||'';
-  const cidade=cfg.assocCidade||m.municipio||'—';
-  const logo=cfg.logo||null;
-  const legal=cfg.assocLegal||'TEM FÉ PÚBLICA E VALIDADE EM TODO O TERRITÓRIO NACIONAL\nART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020';
   const qrUrl='https://prdlcsmrr.github.io/Associa-o-/verificar.html?id='+encodeURIComponent(m.numCred);
-  const qrSrc='https://api.qrserver.com/v1/create-qr-code/?size=80x80&color=cc0000&bgcolor=ffffff&data='+encodeURIComponent(qrUrl);
-  const filiacao=[m.pai?'Pai: '+m.pai:'',m.mae?'Mãe: '+m.mae:''].filter(Boolean).join('<br>')||'—';
+  const qrSrc='https://api.qrserver.com/v1/create-qr-code/?size=120x120&color=cc0000&bgcolor=ffffff&data='+encodeURIComponent(qrUrl);
+  const filiacao=[m.pai?'Pai: '+m.pai:'', m.mae?'Mãe: '+m.mae:''].filter(Boolean).join('<br>')||'—';
 
   document.getElementById('app').innerHTML=`
   <div id="carteirinha">
 
     <!-- FRENTE -->
     <div class="card" id="card-frente">
-      <div class="flag-stripe"></div>
-      <div class="wm-trem">🚆</div>
-
-      <div class="f-header">
-        <div class="f-h1">República Federativa do Brasil</div>
-        <div class="f-h2">${orgNome}</div>
-        ${orgSub?`<div class="f-h3">${orgSub}</div>`:''}
-        ${orgSub2?`<div class="f-h4">${orgSub2}</div>`:''}
-      </div>
-
-      <div class="f-brasao-dir">
-        ${logo?`<img src="${logo}" style="width:50px;height:50px;object-fit:contain">`:'<div style="font-size:36px;opacity:0.4">🏛️</div>'}
-      </div>
-
-      <div class="f-photo">
-        ${m.foto?`<img src="${m.foto}" alt="">`:'<div class="f-photo-ph">👤<br>Sem foto</div>'}
-      </div>
-
-      <div class="f-mat">
-        <div class="f-mat-lbl">Matrícula</div>
-        <div class="f-mat-num">${m.numCred.replace('ASC-','')}</div>
-      </div>
-
-      <div class="f-logo">
-        ${logo?`<img class="f-logo-img" src="${logo}">`:'<span style="font-size:24px">🏛️</span>'}
-        <span class="f-logo-txt">${(orgNome||'ASSOC').split(' ')[0]}</span>
-      </div>
-
-      <div class="f-dados">
-        <div class="fd-lbl">Cargo</div>
-        <div class="fd-val lg">${m.cat.toUpperCase()}</div>
-
-        <div class="fd-lbl">Nome</div>
-        <div class="fd-val lg">${m.nome}</div>
-
-        <div class="fd-row">
-          <div class="fd-col">
-            <div class="fd-lbl">CPF</div>
-            <div class="fd-val">${m.cpf}</div>
-          </div>
-          <div class="fd-col">
-            <div class="fd-lbl">Data da Expedição</div>
-            <div class="fd-val">${fmt(m.emissao)}</div>
-          </div>
+      <img class="card-bg" src="${BASE}/frente.jpg" crossorigin="anonymous">
+      <div class="overlay">
+        <div class="f-photo">
+          ${m.foto?`<img src="${m.foto}" alt="">`:'<div class="f-photo-ph">👤</div>'}
         </div>
-
-        <div class="fd-lbl">Código Hash</div>
-        <div class="fd-val">${m.docId}</div>
-      </div>
-
-      <div class="f-footer">
-        <p>${legal.replace(/\n/g,'<br>')}</p>
+        <div class="f-mat-num">${m.numCred.replace('ASC-','')}</div>
+        <div class="f-cargo-val">${m.cat.toUpperCase()}</div>
+        <div class="f-nome-val">${m.nome}</div>
+        <div class="f-cpf-val">${m.cpf}</div>
+        <div class="f-exp-val">${fmt(m.emissao)}</div>
+        <div class="f-hash-val">${m.docId}</div>
       </div>
     </div>
 
     <!-- VERSO -->
     <div class="card" id="card-verso">
-      <div class="flag-stripe"></div>
-      <div class="wm-trem">🚆</div>
-
-      <div class="v-top">
-        <p>O TITULAR TEM LIVRE PORTE DE ARMA DE FOGO, COM VALIDADE EM ÂMBITO NACIONAL.<br>
-        DECRETO Nº 1.655 DE 1995, LEI Nº 12.696, DE 2003, ART. 30 DO DECRETO Nº 3.647, DE 2019.</p>
-      </div>
-
-      <div class="v-dados">
-        <div class="vd-lbl">Filiação</div>
-        <div class="vd-val">${filiacao}</div>
-
-        <div class="v-row">
-          <div class="v-col">
-            <div class="vd-lbl">Naturalidade</div>
-            <div class="vd-val">${m.naturalidade||'BRASILEIRO'}</div>
-          </div>
-          <div class="v-col">
-            <div class="vd-lbl">Validade</div>
-            <div class="vd-val">${fmt(m.validade)}</div>
-          </div>
+      <img class="card-bg" src="${BASE}/verso.jpg" crossorigin="anonymous">
+      <div class="overlay">
+        <div class="v-filiacao-val">${filiacao}</div>
+        <div class="v-naturalidade-val">${m.naturalidade||'BRASILEIRO'}</div>
+        <div class="v-nasc-val">${fmt(m.nasc)}</div>
+        <div class="v-cpf-val">${m.cpf} / ${m.rgUf||'—'}</div>
+        <div class="v-validade-val">${fmt(m.validade)}</div>
+        <div class="v-admissao-val">${fmt(m.emissao)}</div>
+        <div class="v-municipio-val">${m.municipio||'—'}</div>
+        <div class="v-situacao-val" style="color:${m.status==='Ativo'?'#000':'#cc0000'}">${m.status==='Ativo'?'ATIVO':'INATIVO'}</div>
+        <div class="v-qr">
+          <img src="${qrSrc}" crossorigin="anonymous">
         </div>
-
-        <div class="v-row">
-          <div class="v-col">
-            <div class="vd-lbl">Data de Nascimento</div>
-            <div class="vd-val">${fmt(m.nasc)}</div>
-          </div>
-          <div class="v-col">
-            <div class="vd-lbl">Data de Admissão</div>
-            <div class="vd-val">${fmt(m.emissao)}</div>
-          </div>
-        </div>
-
-        <div class="v-row">
-          <div class="v-col">
-            <div class="vd-lbl">CPF</div>
-            <div class="vd-val">${m.cpf} / ${m.sexo?m.sexo.charAt(0):'—'}</div>
-          </div>
-          <div class="v-col">
-            <div class="vd-lbl">Município</div>
-            <div class="vd-val">${m.municipio||cidade}</div>
-          </div>
-        </div>
-
-        <div style="margin-top:6px">
-          <div class="vd-lbl">Situação Funcional</div>
-          <div class="vd-val" style="color:${m.status==='Ativo'?'#2a7a38':'#cc0000'};font-size:11px;font-weight:900">${m.status==='Ativo'?'ATIVO':'INATIVO'}</div>
-        </div>
-      </div>
-
-      <div class="v-digital">👆</div>
-
-      <div class="v-sigs">
-        <div class="v-sig">
-          <div class="v-sig-cursive">Firma do Círculo do Brasil</div>
-          <div class="v-sig-line"></div>
-          <div class="v-sig-lbl">Diretor/Geral</div>
-        </div>
-        <div class="v-sig" style="margin-top:4px">
-          <div class="v-sig-line"></div>
-          <div class="v-sig-lbl">Assinatura</div>
-        </div>
-      </div>
-
-      <div class="v-qr">
-        <img src="${qrSrc}" alt="QR" crossorigin="anonymous">
-        <div class="v-qr-lbl">Base Legal</div>
-      </div>
-
-      <div class="v-brasao">
-        ${logo?`<img class="v-brasao-img" src="${logo}">`:'<div style="font-size:28px">🏛️</div>'}
-        <div class="v-cidade">${cidade}</div>
-      </div>
-
-      <div class="v-footer">
-        <p>${legal.replace(/\n/g,'<br>')}</p>
       </div>
     </div>
 
@@ -439,7 +281,7 @@ function render(m){
 
 async function downloadPNG(){
   const el=document.getElementById('carteirinha');
-  const canvas=await html2canvas(el,{scale:3,useCORS:true,backgroundColor:'#f5f5f0'});
+  const canvas=await html2canvas(el,{scale:3,useCORS:true,allowTaint:true});
   const a=document.createElement('a');
   a.download='carteirinha.png';
   a.href=canvas.toDataURL('image/png');
@@ -448,13 +290,16 @@ async function downloadPNG(){
 
 async function downloadPDF(){
   const {jsPDF}=window.jspdf;
-  const pdf=new jsPDF({orientation:'landscape',unit:'mm',format:[210,133]});
+  const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const f=document.getElementById('card-frente');
-  const c1=await html2canvas(f,{scale:3,useCORS:true,backgroundColor:'#f5f5f0'});
-  pdf.addImage(c1.toDataURL('image/png'),'PNG',0,0,105,66);
+  const c1=await html2canvas(f,{scale:3,useCORS:true,allowTaint:true});
+  const w=210, h1=(c1.height*210)/c1.width;
+  pdf.addImage(c1.toDataURL('image/png'),'PNG',0,0,w,h1);
   const v=document.getElementById('card-verso');
-  const c2=await html2canvas(v,{scale:3,useCORS:true,backgroundColor:'#f5f5f0'});
-  pdf.addImage(c2.toDataURL('image/png'),'PNG',105,0,105,66);
+  const c2=await html2canvas(v,{scale:3,useCORS:true,allowTaint:true});
+  const h2=(c2.height*210)/c2.width;
+  pdf.addPage();
+  pdf.addImage(c2.toDataURL('image/png'),'PNG',0,0,w,h2);
   pdf.save('carteirinha.pdf');
 }
 
