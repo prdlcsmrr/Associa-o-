@@ -164,35 +164,24 @@ const BINKEY  = ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn7
    Todas as posições em % relativo ao card de cada face (50% da largura total).
    Tamanhos de fonte em vw (do viewport), bold e color ajustáveis.           */
 const DEFAULT = {
-  /* ── FRENTE ── */
-  // Foto 3x4: canto esquerdo, abaixo do header, sem cobrir a área de texto
-  f_photo:    { card:'F', type:'photo', left:3.5,  top:32,  w:13.5, ratio:'3/4' },
-  // Cargo: começa após a foto (~21% da frente)
-  f_cargo:    { card:'F', left:21,  top:33,  size:1.1,  bold:true,  color:'#1a2a6e', upper:true },
-  // Nome: linha seguinte
-  f_nome:     { card:'F', left:21,  top:43,  size:1.2,  bold:true,  color:'#111',    upper:true },
-  // Linha de dados: Matrícula | CPF | Data Expedição
-  f_mat:      { card:'F', left:3.5, top:66,  size:0.95, bold:true,  color:'#111', upper:false },
-  f_cpf:      { card:'F', left:21,  top:66,  size:0.95, bold:true,  color:'#111', upper:false },
-  f_emissao:  { card:'F', left:59,  top:66,  size:0.95, bold:true,  color:'#111', upper:false },
-  // Código Hash — linha abaixo
-  f_hash:     { card:'F', left:21,  top:74,  size:0.82, bold:false, color:'#333', upper:false },
-  /* ── VERSO ── */
-  // QR menor, canto esq, abaixo do aviso de porte de arma
-  v_qr:       { card:'V', type:'qr', left:2.5, top:27,  qrSize:7 },
-  // Filiação valor — coluna dir do QR
-  v_filiacao: { card:'V', left:33,  top:25,  size:0.88, bold:false, color:'#111', upper:false },
-  // Data Nascimento | Data Admissão
-  v_nasc:     { card:'V', left:33,  top:36,  size:1.0,  bold:true,  color:'#111', upper:false },
-  v_admissao: { card:'V', left:66,  top:36,  size:1.0,  bold:true,  color:'#111', upper:false },
-  // Naturalidade | Validade
-  v_naturalidade:{ card:'V', left:33, top:46, size:1.0, bold:true,  color:'#111', upper:true },
-  v_validade: { card:'V', left:66,  top:46,  size:1.0,  bold:true,  color:'#cc0000', upper:false },
-  // CPF/RG | Município
-  v_cpfrg:    { card:'V', left:33,  top:56,  size:1.0,  bold:true,  color:'#111', upper:false },
-  v_municipio:{ card:'V', left:66,  top:56,  size:1.0,  bold:true,  color:'#111', upper:true },
-  // Situação Funcional — linha própria, centralizada
-  v_situacao: { card:'V', left:33,  top:65,  size:1.15, bold:true,  color:'#111', upper:true },
+  /* ── FRENTE (557×341px) ──
+     Campos posicionados sobre os labels já impressos na imagem Canva */
+  f_photo:    { card:'F', type:'photo', left:2.7,  top:33.7, w:13.5, ratio:'3/4' },
+  f_cargo:    { card:'F', left:23.0, top:37.0, size:1.05, bold:true,  color:'#1a2a6e', upper:true  },
+  f_nome:     { card:'F', left:23.0, top:46.9, size:1.15, bold:true,  color:'#111',    upper:true  },
+  f_mat:      { card:'F', left:14.7, top:60.7, size:0.9,  bold:true,  color:'#111',    upper:false },
+  f_cpf:      { card:'F', left:23.0, top:60.7, size:0.9,  bold:true,  color:'#111',    upper:false },
+  f_emissao:  { card:'F', left:53.9, top:60.7, size:0.9,  bold:true,  color:'#111',    upper:false },
+  f_hash:     { card:'F', left:23.0, top:69.8, size:0.8,  bold:false, color:'#333',    upper:false },
+  /* ── VERSO (558×341px) ──
+     QR já impresso no Canva — apenas dados sobrepostos nos campos certos */
+  v_filiacao: { card:'V', left:41.9, top:25.8, size:0.88, bold:false, color:'#111',    upper:false },
+  v_nasc:     { card:'V', left:41.9, top:38.7, size:0.95, bold:true,  color:'#111',    upper:false },
+  v_admissao: { card:'V', left:67.2, top:38.7, size:0.95, bold:true,  color:'#111',    upper:false },
+  v_naturalidade:{ card:'V', left:41.9, top:49.9, size:0.95, bold:true, color:'#111',  upper:true  },
+  v_validade: { card:'V', left:67.2, top:49.9, size:0.95, bold:true,  color:'#cc0000', upper:false },
+  v_municipio:{ card:'V', left:78.0, top:59.8, size:0.9,  bold:true,  color:'#111',    upper:true  },
+  v_situacao: { card:'V', left:50.2, top:61.6, size:1.05, bold:true,  color:'#111',    upper:true  },
 };
 
 const LABELS = {
@@ -200,7 +189,7 @@ const LABELS = {
   f_cpf:'CPF', f_emissao:'Data Expedição', f_hash:'Código Hash',
   v_filiacao:'Filiação', v_nasc:'Data Nascimento', v_admissao:'Data Admissão',
   v_naturalidade:'Naturalidade', v_validade:'Validade',
-  v_cpfrg:'CPF / UF', v_municipio:'Município', v_situacao:'Situação Funcional', v_qr:'QR Code',
+  v_municipio:'Município', v_situacao:'Situação Funcional',
 };
 
 let layout   = {};
@@ -208,10 +197,10 @@ let editMode = false;
 let membro   = null;
 
 function loadLayout() {
-  try { const s = localStorage.getItem('assoc_layout_v3'); if(s) return JSON.parse(s); } catch(e){}
+  try { const s = localStorage.getItem('assoc_layout_v4'); if(s) return JSON.parse(s); } catch(e){}
   return JSON.parse(JSON.stringify(DEFAULT));
 }
-function saveLayout()  { localStorage.setItem('assoc_layout_v3', JSON.stringify(layout)); alert('✅ Layout salvo!'); }
+function saveLayout()  { localStorage.setItem('assoc_layout_v4', JSON.stringify(layout)); alert('✅ Layout salvo!'); }
 function resetLayout() { layout = JSON.parse(JSON.stringify(DEFAULT)); renderCard(); buildPanel(); }
 function exportLayout(){
   const b = new Blob([JSON.stringify(layout,null,2)],{type:'application/json'});
