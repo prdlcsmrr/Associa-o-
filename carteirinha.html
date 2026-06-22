@@ -166,12 +166,12 @@ const BINKEY  = ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn7
 const DEFAULT = {
   /* ── FRENTE (1132×645px) — coordenadas por análise de pixel ── */
   f_photo:       { card:'F', type:'photo', left:1.3,  top:29.1, w:12.5, ratio:'3/4' },
-  f_cargo:       { card:'F', left:23.0, top:41.1, size:1.2,  bold:true,  color:'#1a2a6e', upper:true  },
-  f_nome:        { card:'F', left:23.0, top:52.9, size:1.25, bold:true,  color:'#111',    upper:true  },
-  f_mat:         { card:'F', left:7.2,  top:66.4, size:1.05, bold:true,  color:'#111',    upper:false },
-  f_cpf:         { card:'F', left:23.0, top:66.4, size:1.05, bold:true,  color:'#111',    upper:false },
-  f_emissao:     { card:'F', left:62.0, top:66.4, size:1.05, bold:true,  color:'#111',    upper:false },
-  f_hash:        { card:'F', left:23.0, top:71.3, size:0.95, bold:false, color:'#333',    upper:false },
+  f_cargo:       { card:'F', left:23.0, top:44.0, size:1.15, bold:true,  color:'#1a2a6e', upper:true  },
+  f_nome:        { card:'F', left:23.0, top:55.5, size:1.2,  bold:true,  color:'#111',    upper:true  },
+  f_mat:         { card:'F', left:7.2,  top:65.0, size:1.0,  bold:true,  color:'#111',    upper:false },
+  f_cpf:         { card:'F', left:23.0, top:65.0, size:1.0,  bold:true,  color:'#111',    upper:false },
+  f_emissao:     { card:'F', left:62.0, top:65.0, size:1.0,  bold:true,  color:'#111',    upper:false },
+  f_hash:        { card:'F', left:23.0, top:73.5, size:0.9,  bold:false, color:'#333',    upper:false },
   /* ── VERSO (1129×655px) — coordenadas por análise de pixel ── */
   v_filiacao:    { card:'V', left:19.0, top:27.0, size:1.2,  bold:false, color:'#111',    upper:false },
   v_nasc:        { card:'V', left:19.0, top:38.6, size:1.25, bold:true,  color:'#111',    upper:false },
@@ -195,10 +195,10 @@ let editMode = false;
 let membro   = null;
 
 function loadLayout() {
-  try { const s = localStorage.getItem('assoc_layout_v13'); if(s) return JSON.parse(s); } catch(e){}
+  try { const s = localStorage.getItem('assoc_layout_v14'); if(s) return JSON.parse(s); } catch(e){}
   return JSON.parse(JSON.stringify(DEFAULT));
 }
-function saveLayout()  { localStorage.setItem('assoc_layout_v13', JSON.stringify(layout)); alert('✅ Layout salvo!'); }
+function saveLayout()  { localStorage.setItem('assoc_layout_v14', JSON.stringify(layout)); alert('✅ Layout salvo!'); }
 function resetLayout() { layout = JSON.parse(JSON.stringify(DEFAULT)); renderCard(); buildPanel(); }
 function exportLayout(){
   const b = new Blob([JSON.stringify(layout,null,2)],{type:'application/json'});
@@ -283,11 +283,11 @@ function renderCard(){
   document.getElementById('app').innerHTML=`
   <div id="carteirinha">
     <div class="card" id="card-F">
-      <img class="card-bg" src="${BASE}/frente.jpg?v=1782163952" crossorigin="anonymous">
+      <img class="card-bg" src="${BASE}/frente.jpg?v=1782164079" crossorigin="anonymous">
       <div class="overlay">${fields('F')}</div>
     </div>
     <div class="card" id="card-V">
-      <img class="card-bg" src="${BASE}/verso.jpg?v=1782163952" crossorigin="anonymous">
+      <img class="card-bg" src="${BASE}/verso.jpg?v=1782164079" crossorigin="anonymous">
       <div class="overlay">${fields('V')}</div>
     </div>
   </div>`;
