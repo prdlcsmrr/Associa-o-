@@ -44,17 +44,33 @@ body { background:#888; font-family:'Arial',sans-serif; display:flex; flex-direc
 .flag-stripe::before {
   content: '';
   position: absolute;
-  top: -30px; left: -40px;
-  width: 220px; height: 400px;
+  top: -60px; left: -60px;
+  width: 260px; height: 500px;
   background: linear-gradient(
-    140deg,
-    rgba(0,150,57,0.35) 0%,
-    rgba(0,150,57,0.4) 25%,
-    rgba(255,220,0,0.35) 45%,
-    rgba(0,39,118,0.3) 65%,
+    145deg,
+    rgba(0,160,60,0.55) 0%,
+    rgba(0,160,60,0.6) 20%,
+    rgba(255,220,0,0.55) 38%,
+    rgba(0,39,118,0.5) 55%,
+    rgba(100,160,255,0.3) 68%,
     transparent 80%
   );
-  transform: skewX(-5deg);
+  transform: skewX(-8deg);
+}
+.flag-stripe::after {
+  content: '';
+  position: absolute;
+  top: -20px; left: 30px;
+  width: 180px; height: 420px;
+  background: linear-gradient(
+    145deg,
+    transparent 0%,
+    rgba(0,160,60,0.2) 15%,
+    rgba(255,220,0,0.2) 35%,
+    rgba(0,39,118,0.2) 55%,
+    transparent 70%
+  );
+  transform: skewX(-12deg);
 }
 
 /* MARCA D'ÁGUA TREM */
@@ -71,33 +87,33 @@ body { background:#888; font-family:'Arial',sans-serif; display:flex; flex-direc
 /* ═══ FRENTE ═══ */
 .f-header {
   position: absolute;
-  top: 8px; left: 130px; right: 80px;
+  top: 6px; left: 125px; right: 70px;
   text-align: center;
   z-index: 2;
 }
-.f-h1 { font-size: 7.5px; font-weight: 700; color: #111; letter-spacing: 0.3px; text-transform: uppercase; }
-.f-h2 { font-size: 13px; font-weight: 900; color: #cc0000; letter-spacing: 0.5px; text-transform: uppercase; line-height: 1.1; }
-.f-h3 { font-size: 6.5px; font-weight: 700; color: #111; text-transform: uppercase; margin-top: 1px; }
+.f-h1 { font-size: 8px; font-weight: 700; color: #111; letter-spacing: 0.5px; text-transform: uppercase; }
+.f-h2 { font-size: 15px; font-weight: 900; color: #cc0000; letter-spacing: 0.5px; text-transform: uppercase; line-height: 1.1; margin: 2px 0; }
+.f-h3 { font-size: 7px; font-weight: 700; color: #111; text-transform: uppercase; margin-top: 1px; }
 .f-h4 { font-size: 7px; font-weight: 700; color: #111; margin-top: 1px; }
 .f-h5 { font-size: 7px; color: #333; margin-top: 1px; }
 
 /* BRASÃO CANTO DIREITO */
 .f-brasao-dir {
   position: absolute;
-  top: 6px; right: 6px;
-  width: 55px; height: 55px;
+  top: 5px; right: 5px;
+  width: 62px; height: 62px;
   display: flex; align-items: center; justify-content: center;
   z-index: 2;
-  opacity: 0.85;
+  opacity: 0.9;
 }
 .f-brasao-dir img { width: 100%; }
 
 /* FOTO */
 .f-photo {
   position: absolute;
-  left: 10px; top: 8px;
-  width: 95px; height: 125px;
-  border: 1px solid #bbb;
+  left: 8px; top: 8px;
+  width: 105px; height: 138px;
+  border: 1.5px solid #aaa;
   background: #ddd;
   overflow: hidden;
   display: flex; align-items: center; justify-content: center;
@@ -109,8 +125,8 @@ body { background:#888; font-family:'Arial',sans-serif; display:flex; flex-direc
 /* MATRÍCULA */
 .f-mat {
   position: absolute;
-  left: 8px; top: 138px;
-  width: 108px;
+  left: 8px; top: 150px;
+  width: 110px;
   text-align: center;
   z-index: 2;
 }
@@ -120,8 +136,8 @@ body { background:#888; font-family:'Arial',sans-serif; display:flex; flex-direc
 /* LOGO + NOME */
 .f-logo {
   position: absolute;
-  left: 8px; top: 168px;
-  width: 108px;
+  left: 8px; top: 180px;
+  width: 110px;
   display: flex; align-items: center; gap: 4px;
   z-index: 2;
 }
@@ -131,7 +147,7 @@ body { background:#888; font-family:'Arial',sans-serif; display:flex; flex-direc
 /* DADOS FRENTE */
 .f-dados {
   position: absolute;
-  left: 118px; top: 72px; right: 8px;
+  left: 122px; top: 68px; right: 8px;
   z-index: 2;
 }
 .fd-lbl { font-size: 7px; font-weight: 700; color: #444; text-transform: uppercase; letter-spacing: 0.2px; margin-top: 7px; margin-bottom: 1px; }
