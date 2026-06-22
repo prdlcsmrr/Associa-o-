@@ -386,9 +386,78 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
   <div class="page" id="page-config">
     <div style="max-width:640px;margin:0 auto">
 
+      <!-- DADOS DA ASSOCIAÇÃO -->
+      <div class="box" style="margin-bottom:16px">
+        <div class="box-title">🏛️ Dados da Associação</div>
+        <div class="field">
+          <label>Nome completo da Associação</label>
+          <input type="text" id="cfg-assoc-nome" placeholder="Ex: ASSOCIAÇÃO BRASILEIRA DOS PROFISSIONAIS">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>CNPJ</label>
+            <input type="text" id="cfg-assoc-cnpj" placeholder="00.000.000/0001-00" maxlength="18">
+          </div>
+          <div class="field">
+            <label>Data de Fundação</label>
+            <input type="date" id="cfg-assoc-fundacao">
+          </div>
+        </div>
+        <div class="field">
+          <label>Nome do Diretor Geral</label>
+          <input type="text" id="cfg-assoc-diretor" placeholder="Nome completo do diretor">
+        </div>
+        <div class="field">
+          <label>Cargo do Responsável</label>
+          <input type="text" id="cfg-assoc-cargo" placeholder="Ex: Presidente / Diretor Geral">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Cidade</label>
+            <input type="text" id="cfg-assoc-cidade" placeholder="Ex: Nova Iguaçu">
+          </div>
+          <div class="field">
+            <label>UF</label>
+            <select id="cfg-assoc-uf">
+              <option value="">—</option>
+              <option>AC</option><option>AL</option><option>AM</option><option>AP</option>
+              <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+              <option>GO</option><option>MA</option><option>MG</option><option>MS</option>
+              <option>MT</option><option>PA</option><option>PB</option><option>PE</option>
+              <option>PI</option><option>PR</option><option>RJ</option><option>RN</option>
+              <option>RO</option><option>RR</option><option>RS</option><option>SC</option>
+              <option>SE</option><option>SP</option><option>TO</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Endereço</label>
+          <input type="text" id="cfg-assoc-end" placeholder="Rua, número, bairro">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Telefone</label>
+            <input type="tel" id="cfg-assoc-tel" placeholder="(21) 99999-9999">
+          </div>
+          <div class="field">
+            <label>E-mail institucional</label>
+            <input type="email" id="cfg-assoc-email" placeholder="contato@associacao.org.br">
+          </div>
+        </div>
+        <div class="field">
+          <label>Site / Domínio</label>
+          <input type="text" id="cfg-assoc-site" placeholder="www.associacao.org.br">
+        </div>
+        <div class="field">
+          <label>Texto Legal (rodapé das carteirinhas)</label>
+          <textarea id="cfg-assoc-legal" style="width:100%;background:#fafafa;border:1px solid #ddd;border-radius:8px;padding:11px 13px;font-size:13px;resize:vertical;min-height:60px" placeholder="TEM FÉ PÚBLICA E VALIDADE EM TODO O TERRITÓRIO NACIONAL...">TEM FÉ PÚBLICA E VALIDADE EM TODO O TERRITÓRIO NACIONAL
+ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020</textarea>
+        </div>
+      </div>
+
       <!-- Identidade -->
       <div class="box" style="margin-bottom:16px">
-        <div class="box-title">🏛️ Identidade da Associação</div>
+        <div class="box-title">🎨 Identidade Visual</div>
         <div class="field">
           <label>Nome da Associação</label>
           <input type="text" id="cfg-nome" placeholder="Ex: ASSOCIAÇÃO BRASILEIRA">
@@ -780,6 +849,15 @@ function uploadFoto(input){
 }
 
 // CPF MASK
+document.getElementById('cfg-assoc-cnpj')?.addEventListener('input',function(){
+  let v=this.value.replace(/\D/g,'').slice(0,14);
+  if(v.length>12) v=v.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2})/,'$1.$2.$3/$4-$5');
+  else if(v.length>8) v=v.replace(/(\d{2})(\d{3})(\d{3})(\d{0,4})/,'$1.$2.$3/$4');
+  else if(v.length>5) v=v.replace(/(\d{2})(\d{3})(\d{0,3})/,'$1.$2.$3');
+  else if(v.length>2) v=v.replace(/(\d{2})(\d{0,3})/,'$1.$2');
+  this.value=v;
+});
+
 document.getElementById('f-cpf').addEventListener('input',function(){
   let v=this.value.replace(/\D/g,'').slice(0,11);
   if(v.length>9) v=v.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/,'$1.$2.$3-$4');
@@ -1203,6 +1281,19 @@ function goToConfig(){
   document.getElementById('cfg-valor').value = cfg.valorMensalidade || '100';
   document.getElementById('cfg-venc').value = cfg.diaVencimento || '10';
   document.getElementById('cfg-pix').value = cfg.pixKey || '';
+  // Dados da Associação
+  document.getElementById('cfg-assoc-nome').value = cfg.assocNome || '';
+  document.getElementById('cfg-assoc-cnpj').value = cfg.assocCnpj || '';
+  document.getElementById('cfg-assoc-fundacao').value = cfg.assocFundacao || '';
+  document.getElementById('cfg-assoc-diretor').value = cfg.assocDiretor || '';
+  document.getElementById('cfg-assoc-cargo').value = cfg.assocCargo || '';
+  document.getElementById('cfg-assoc-cidade').value = cfg.assocCidade || '';
+  document.getElementById('cfg-assoc-uf').value = cfg.assocUf || '';
+  document.getElementById('cfg-assoc-end').value = cfg.assocEnd || '';
+  document.getElementById('cfg-assoc-tel').value = cfg.assocTel || '';
+  document.getElementById('cfg-assoc-email').value = cfg.assocEmail || '';
+  document.getElementById('cfg-assoc-site').value = cfg.assocSite || '';
+  document.getElementById('cfg-assoc-legal').value = cfg.assocLegal || 'TEM FÉ PÚBLICA E VALIDADE EM TODO O TERRITÓRIO NACIONAL\nART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020';
   // Verificação QR Code settings
   document.getElementById('cfg-ver-titulo').value = cfg.verTitulo || 'ASSOCIAÇÃO';
   document.getElementById('cfg-ver-linha1').value = cfg.verLinha1 || 'República Federativa do Brasil';
@@ -1307,6 +1398,19 @@ function saveConfig(){
     diaVencimento:document.getElementById('cfg-venc').value||'10',
     pixKey:document.getElementById('cfg-pix').value.trim(),
     logo:logo,
+    // Dados da Associação
+    assocNome:document.getElementById('cfg-assoc-nome').value.trim(),
+    assocCnpj:document.getElementById('cfg-assoc-cnpj').value.trim(),
+    assocFundacao:document.getElementById('cfg-assoc-fundacao').value,
+    assocDiretor:document.getElementById('cfg-assoc-diretor').value.trim(),
+    assocCargo:document.getElementById('cfg-assoc-cargo').value.trim(),
+    assocCidade:document.getElementById('cfg-assoc-cidade').value.trim(),
+    assocUf:document.getElementById('cfg-assoc-uf').value,
+    assocEnd:document.getElementById('cfg-assoc-end').value.trim(),
+    assocTel:document.getElementById('cfg-assoc-tel').value.trim(),
+    assocEmail:document.getElementById('cfg-assoc-email').value.trim(),
+    assocSite:document.getElementById('cfg-assoc-site').value.trim(),
+    assocLegal:document.getElementById('cfg-assoc-legal').value.trim(),
     // Verificação QR settings
     verTitulo:document.getElementById('cfg-ver-titulo').value.trim()||'ASSOCIAÇÃO',
     verLinha1:document.getElementById('cfg-ver-linha1').value.trim(),
