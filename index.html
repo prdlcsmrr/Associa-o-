@@ -232,10 +232,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
           </div>
           <div class="field"><label>Telefone *</label><input type="tel" id="f-tel" placeholder="(21) 99999-9999"></div>
           <div class="field"><label>E-mail</label><input type="email" id="f-email" placeholder="email@exemplo.com"></div>
-          <div class="field-row">
-            <div class="field"><label>RG</label><input type="text" id="f-rg" placeholder="00.000.000-0"></div>
-            <div class="field"><label>UF do RG</label><select id="f-rg-uf"><option value="">—</option><option>AC</option><option>AL</option><option>AM</option><option>AP</option><option>BA</option><option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MG</option><option>MS</option><option>MT</option><option>PA</option><option>PB</option><option>PE</option><option>PI</option><option>PR</option><option>RJ</option><option>RN</option><option>RO</option><option>RR</option><option>RS</option><option>SC</option><option>SE</option><option>SP</option><option>TO</option></select></div>
-          </div>
+
           <div class="field-row">
             <div class="field"><label>Naturalidade</label><input type="text" id="f-naturalidade" placeholder="Cidade de nascimento"></div>
             <div class="field"><label>Município (residência)</label><input type="text" id="f-municipio" placeholder="Cidade atual"></div>
@@ -988,8 +985,6 @@ async function salvar(){
     id:ts,nome,cpf,tel,
     nasc,sexo:document.getElementById('f-sexo').value,
     email:document.getElementById('f-email').value.trim(),
-    rg:document.getElementById('f-rg')?.value.trim()||'',
-    rgUf:document.getElementById('f-rg-uf')?.value||'',
     naturalidade:document.getElementById('f-naturalidade')?.value.trim()||'',
     municipio:document.getElementById('f-municipio')?.value.trim()||'',
     pai:document.getElementById('f-pai')?.value.trim()||'',
@@ -1062,7 +1057,7 @@ updateCount();
 }
 function showA(id){const e=document.getElementById(id);e.style.display='block';window.scrollTo(0,0);setTimeout(()=>e.style.display='none',4000);}
 function limpar(){
-  ['f-nome','f-cpf','f-tel','f-email','f-obs','f-rg','f-naturalidade','f-municipio','f-pai','f-mae'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
+  ['f-nome','f-cpf','f-tel','f-email','f-obs','f-naturalidade','f-municipio','f-pai','f-mae'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
   ['f-nasc','f-emissao','f-validade'].forEach(i=>document.getElementById(i).value='');
   document.getElementById('f-sexo').value='';
   document.getElementById('f-cat').value='Membro';
