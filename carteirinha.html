@@ -8,12 +8,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body { background:#888; font-family:'Arial',sans-serif; display:flex; flex-direction:column; align-items:center; padding:20px; min-height:100vh; }
+body { background:#888; font-family:'Arial',sans-serif; display:flex; flex-direction:column; align-items:center; padding:12px; min-height:100vh; overflow-x:hidden; }
 
 .controls {
-  background:#1a2a5e; border-radius:12px; padding:14px 20px;
-  display:flex; gap:10px; align-items:center; margin-bottom:20px;
-  flex-wrap:wrap; justify-content:center;
+  background:#1a2a5e; border-radius:12px; padding:12px 16px;
+  display:flex; gap:8px; align-items:center; margin-bottom:16px;
+  flex-wrap:wrap; justify-content:center; width:100%; max-width:700px;
 }
 .controls h2 { color:#c9972a; font-size:15px; font-weight:800; }
 .btn { padding:9px 18px; border-radius:8px; border:none; font-size:12px; font-weight:700; cursor:pointer; text-transform:uppercase; }
@@ -21,12 +21,13 @@ body { background:#888; font-family:'Arial',sans-serif; display:flex; flex-direc
 .btn-navy { background:#fff; color:#1a2a5e; }
 .btn-green { background:#2a7a38; color:#fff; }
 
-#carteirinha { display:flex; flex-direction:column; gap:6px; }
+#carteirinha { display:flex; flex-direction:column; gap:6px; width:100%; max-width:700px; }
 
 /* CARD com imagem de fundo */
 .card {
   position: relative;
-  width: 700px;
+  width: 100%;
+  max-width: 700px;
   overflow: hidden;
 }
 .card-bg {
@@ -202,7 +203,7 @@ body { background:#888; font-family:'Arial',sans-serif; display:flex; flex-direc
 
 <div class="controls">
   <h2>🪪 CARTEIRINHA FUNCIONAL</h2>
-  <button class="btn btn-navy" onclick="window.history.back()">← Voltar</button>
+  <button class="btn btn-navy" onclick="window.location.href='https://prdlcsmrr.github.io/Associa-o-/'">← Voltar</button>
   <button class="btn btn-gold" onclick="downloadPNG()">⬇ PNG</button>
   <button class="btn btn-green" onclick="downloadPDF()">📄 PDF</button>
 </div>
