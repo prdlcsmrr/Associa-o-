@@ -302,6 +302,37 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
         </div>
 
         <div class="box">
+          <div class="box-title">🏠 Endereço</div>
+          <div class="field">
+            <label>Logradouro</label>
+            <input type="text" id="f-rua" placeholder="Rua, Avenida, Travessa...">
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Número</label><input type="text" id="f-numero" placeholder="Nº"></div>
+            <div class="field"><label>Complemento</label><input type="text" id="f-complemento" placeholder="Apto, Bloco..."></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Bairro</label><input type="text" id="f-bairro" placeholder="Bairro"></div>
+            <div class="field"><label>CEP</label><input type="text" id="f-cep" placeholder="00000-000" maxlength="9" oninput="buscarCep(this.value)"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Cidade</label><input type="text" id="f-cidade" placeholder="Cidade"></div>
+            <div class="field"><label>UF</label>
+              <select id="f-uf">
+                <option value="">—</option>
+                <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
+                <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+                <option>GO</option><option>MA</option><option>MT</option><option>MS</option>
+                <option>MG</option><option>PA</option><option>PB</option><option>PR</option>
+                <option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
+                <option>RS</option><option>RO</option><option>RR</option><option>SC</option>
+                <option>SP</option><option>SE</option><option>TO</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="box">
           <div class="box-title">🪪 Dados da Credencial</div>
           <div class="field">
             <label>Categoria / Cargo</label>
@@ -1018,6 +1049,13 @@ async function salvar(){
     municipio:document.getElementById('f-municipio')?.value.trim()||'',
     pai:document.getElementById('f-pai')?.value.trim()||'',
     mae:document.getElementById('f-mae')?.value.trim()||'',
+    rua:document.getElementById('f-rua')?.value.trim()||'',
+    numero:document.getElementById('f-numero')?.value.trim()||'',
+    complemento:document.getElementById('f-complemento')?.value.trim()||'',
+    bairro:document.getElementById('f-bairro')?.value.trim()||'',
+    cep:document.getElementById('f-cep')?.value.trim()||'',
+    cidade:document.getElementById('f-cidade')?.value.trim()||'',
+    uf:document.getElementById('f-uf')?.value||'',
     cat:document.getElementById('f-cat').value,
     status:curStatus,
     emissao:document.getElementById('f-emissao').value,
@@ -1089,7 +1127,7 @@ updateCount();
 }
 function showA(id){const e=document.getElementById(id);e.style.display='block';window.scrollTo(0,0);setTimeout(()=>e.style.display='none',4000);}
 function limpar(){
-  ['f-nome','f-cpf','f-tel','f-email','f-obs','f-naturalidade','f-municipio','f-pai','f-mae'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
+  ['f-nome','f-cpf','f-tel','f-email','f-obs','f-naturalidade','f-municipio','f-pai','f-mae','f-rua','f-numero','f-complemento','f-bairro','f-cep','f-cidade'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
   ['f-nasc','f-emissao','f-validade'].forEach(i=>document.getElementById(i).value='');
   document.getElementById('f-sexo').value='';
   document.getElementById('f-cat').value='Membro';
@@ -1244,6 +1282,23 @@ function renderList(){
 let _credAtualId=null;
 
 
+
+// ════ BUSCA CEP (ViaCEP) ════
+async function buscarCep(val, prefix='f'){
+  const cep = val.replace(/\D/g,'');
+  if(cep.length !== 8) return;
+  try{
+    const r = await fetch('https://viacep.com.br/ws/'+cep+'/json/');
+    const d = await r.json();
+    if(d.erro) return;
+    const set = (id, v) => { const el=document.getElementById(prefix+'-'+id); if(el) el.value=v; };
+    set('rua',    d.logradouro||'');
+    set('bairro', d.bairro||'');
+    set('cidade', d.localidade||'');
+    set('uf',     d.uf||'');
+  } catch(e){}
+}
+
 // ════ EDIÇÃO DE MEMBRO ════
 let _editId = null;
 let _editFotoData = null;
@@ -1271,7 +1326,14 @@ function openEdit(id){
   document.getElementById('edit-validade').value    = m.validade||'';
   document.getElementById('edit-rgUf').value        = m.rgUf||'';
   document.getElementById('edit-numCred').value     = m.numCred||'';
-  document.getElementById('edit-formacao').value    = m.formacao||'';
+  document.getElementById('edit-rua').value          = m.rua||'';
+  document.getElementById('edit-numero').value       = m.numero||'';
+  document.getElementById('edit-complemento').value  = m.complemento||'';
+  document.getElementById('edit-bairro').value       = m.bairro||'';
+  document.getElementById('edit-cep').value          = m.cep||'';
+  document.getElementById('edit-cidade').value       = m.cidade||'';
+  document.getElementById('edit-uf').value           = m.uf||'';
+  document.getElementById('edit-formacao').value     = m.formacao||'';
   document.getElementById('edit-especializacao').value = m.especializacao||'';
   document.getElementById('edit-obs').value         = m.obs||'';
   document.getElementById('edit-foto-url').value    = '';
@@ -1341,6 +1403,13 @@ function saveEdit(){
     emissao:         document.getElementById('edit-emissao').value,
     validade:        document.getElementById('edit-validade').value,
     rgUf:            document.getElementById('edit-rgUf').value.trim(),
+    rua:             document.getElementById('edit-rua').value.trim(),
+    numero:          document.getElementById('edit-numero').value.trim(),
+    complemento:     document.getElementById('edit-complemento').value.trim(),
+    bairro:          document.getElementById('edit-bairro').value.trim(),
+    cep:             document.getElementById('edit-cep').value.trim(),
+    cidade:          document.getElementById('edit-cidade').value.trim(),
+    uf:              document.getElementById('edit-uf').value,
     formacao:        document.getElementById('edit-formacao').value.trim(),
     especializacao:  document.getElementById('edit-especializacao').value.trim(),
     obs:             document.getElementById('edit-obs').value.trim(),
@@ -1505,6 +1574,33 @@ body{background:#fff;display:flex;justify-content:center;padding:20px;font-famil
           <div class="edit-field"><label>Município (residência)</label><input type="text" id="edit-municipio"></div>
           <div class="edit-field"><label>Nome do Pai</label><input type="text" id="edit-pai"></div>
           <div class="edit-field"><label>Nome da Mãe</label><input type="text" id="edit-mae"></div>
+        </div>
+      </div>
+
+      <!-- Endereço -->
+      <div class="edit-section">
+        <div class="edit-section-title">🏠 Endereço</div>
+        <div class="edit-grid col1">
+          <div class="edit-field"><label>Logradouro</label><input type="text" id="edit-rua" placeholder="Rua, Avenida, Travessa..."></div>
+        </div>
+        <div class="edit-grid">
+          <div class="edit-field"><label>Número</label><input type="text" id="edit-numero" placeholder="Nº"></div>
+          <div class="edit-field"><label>Complemento</label><input type="text" id="edit-complemento" placeholder="Apto, Bloco..."></div>
+          <div class="edit-field"><label>Bairro</label><input type="text" id="edit-bairro" placeholder="Bairro"></div>
+          <div class="edit-field"><label>CEP</label><input type="text" id="edit-cep" placeholder="00000-000" maxlength="9" oninput="buscarCep(this.value,'edit')"></div>
+          <div class="edit-field"><label>Cidade</label><input type="text" id="edit-cidade" placeholder="Cidade"></div>
+          <div class="edit-field"><label>UF</label>
+            <select id="edit-uf">
+              <option value="">—</option>
+              <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
+              <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+              <option>GO</option><option>MA</option><option>MT</option><option>MS</option>
+              <option>MG</option><option>PA</option><option>PB</option><option>PR</option>
+              <option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
+              <option>RS</option><option>RO</option><option>RR</option><option>SC</option>
+              <option>SP</option><option>SE</option><option>TO</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -2140,6 +2236,33 @@ document.getElementById('f-validade').value=ny.toISOString().split('T')[0];
           <div class="edit-field"><label>Município (residência)</label><input type="text" id="edit-municipio"></div>
           <div class="edit-field"><label>Nome do Pai</label><input type="text" id="edit-pai"></div>
           <div class="edit-field"><label>Nome da Mãe</label><input type="text" id="edit-mae"></div>
+        </div>
+      </div>
+
+      <!-- Endereço -->
+      <div class="edit-section">
+        <div class="edit-section-title">🏠 Endereço</div>
+        <div class="edit-grid col1">
+          <div class="edit-field"><label>Logradouro</label><input type="text" id="edit-rua" placeholder="Rua, Avenida, Travessa..."></div>
+        </div>
+        <div class="edit-grid">
+          <div class="edit-field"><label>Número</label><input type="text" id="edit-numero" placeholder="Nº"></div>
+          <div class="edit-field"><label>Complemento</label><input type="text" id="edit-complemento" placeholder="Apto, Bloco..."></div>
+          <div class="edit-field"><label>Bairro</label><input type="text" id="edit-bairro" placeholder="Bairro"></div>
+          <div class="edit-field"><label>CEP</label><input type="text" id="edit-cep" placeholder="00000-000" maxlength="9" oninput="buscarCep(this.value,'edit')"></div>
+          <div class="edit-field"><label>Cidade</label><input type="text" id="edit-cidade" placeholder="Cidade"></div>
+          <div class="edit-field"><label>UF</label>
+            <select id="edit-uf">
+              <option value="">—</option>
+              <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
+              <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+              <option>GO</option><option>MA</option><option>MT</option><option>MS</option>
+              <option>MG</option><option>PA</option><option>PB</option><option>PR</option>
+              <option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
+              <option>RS</option><option>RO</option><option>RR</option><option>SC</option>
+              <option>SP</option><option>SE</option><option>TO</option>
+            </select>
+          </div>
         </div>
       </div>
 
