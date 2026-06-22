@@ -8,20 +8,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-:root {
-  --navy:#1a2a5e; --gold:#c9972a; --green:#1a7a3a; --purple:#7c3aed;
-}
-body { background:#1a1a2e; font-family:'Arial Narrow',Arial,sans-serif; min-height:100vh; }
+:root { --navy:#1a2a5e; --gold:#c9972a; --green:#1a7a3a; --purple:#7c3aed; }
+body { background:#1a1a2e; font-family:'Arial Narrow',Arial,sans-serif; min-height:100vh; display:flex; flex-direction:column; }
 
-/* ── TOPBAR ── */
+/* TOPBAR */
 .topbar {
   background:linear-gradient(135deg,var(--navy),#0f1a3d);
   border-bottom:3px solid var(--gold);
   padding:10px 12px;
-  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
-  position:sticky; top:0; z-index:200;
+  display:flex; align-items:center; gap:8px;
+  position:sticky; top:0; z-index:100;
 }
-.topbar-title { color:var(--gold); font-size:13px; font-weight:900; flex:1; text-align:center; }
+.topbar-title { color:var(--gold); font-size:13px; font-weight:900; flex:1; text-align:center; letter-spacing:.5px; }
 .btn { padding:8px 14px; border-radius:8px; border:none; font-size:11px; font-weight:800;
   cursor:pointer; text-transform:uppercase; letter-spacing:.4px; transition:all .15s; white-space:nowrap; }
 .btn-navy   { background:rgba(255,255,255,.1); color:#fff; border:1px solid rgba(255,255,255,.2); }
@@ -29,303 +27,197 @@ body { background:#1a1a2e; font-family:'Arial Narrow',Arial,sans-serif; min-heig
 .btn-green  { background:var(--green); color:#fff; }
 .btn-purple { background:var(--purple); color:#fff; }
 .btn-red    { background:#b91c1c; color:#fff; }
-.btn.active { box-shadow:0 0 0 2px #fff; }
+.btn-sm     { padding:6px 10px; font-size:10px; }
 
-/* ── TABS ── */
+/* TABS */
 .tabs { display:flex; margin:10px 12px 0; border-radius:10px; overflow:hidden; border:1.5px solid rgba(201,151,42,.35); }
 .tab { flex:1; padding:11px; text-align:center; font-size:12px; font-weight:800; cursor:pointer;
-  text-transform:uppercase; letter-spacing:.8px; transition:all .2s; color:rgba(255,255,255,.45);
-  background:rgba(255,255,255,.04); }
+  text-transform:uppercase; letter-spacing:.8px; transition:all .2s;
+  color:rgba(255,255,255,.45); background:rgba(255,255,255,.04); }
 .tab.active { background:var(--gold); color:#000; }
 .tab:first-child { border-right:1px solid rgba(201,151,42,.3); }
 
-/* ── CARD ── */
+/* CARD — sempre visível, nunca coberto */
 .card-wrap { padding:10px 12px 0; }
 .card {
   position:relative; width:100%; border-radius:6px; overflow:hidden;
   box-shadow:0 8px 32px rgba(0,0,0,.6);
-  user-select:none;
+  user-select:none; touch-action:none;
 }
 .card img.bg { width:100%; display:block; pointer-events:none; }
-.overlay { position:absolute; top:0; left:0; width:100%; height:100%; }
+.overlay { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
 
-/* ── GUIAS ── */
-.guide-h, .guide-v {
-  position:absolute; pointer-events:none; z-index:30;
-  background:rgba(255,100,100,.6);
-}
-.guide-h { left:0; right:0; height:1px; }
-.guide-v { top:0; bottom:0; width:1px; }
-.guide-center-h { background:rgba(100,255,100,.8); }
-.guide-center-v { background:rgba(100,255,100,.8); }
-
-/* ── GRID ── */
+/* GRADE */
 .grid-overlay {
   position:absolute; top:0; left:0; width:100%; height:100%;
   pointer-events:none; z-index:25; display:none;
   background-image:
-    repeating-linear-gradient(0deg,rgba(255,255,255,.08) 0px,rgba(255,255,255,.08) 1px,transparent 1px,transparent 10%),
-    repeating-linear-gradient(90deg,rgba(255,255,255,.08) 0px,rgba(255,255,255,.08) 1px,transparent 1px,transparent 10%);
+    repeating-linear-gradient(0deg,rgba(255,255,255,.1) 0,rgba(255,255,255,.1) 1px,transparent 1px,transparent 10%),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.1) 0,rgba(255,255,255,.1) 1px,transparent 1px,transparent 10%);
 }
 
-/* ── CAMPOS ── */
+/* GUIAS */
+.guide-line { position:absolute; pointer-events:none; z-index:30; }
+.guide-h { left:0; right:0; height:1px; }
+.guide-v { top:0; bottom:0; width:1px; }
+
+/* CAMPOS */
 .campo {
   position:absolute; line-height:1.2; white-space:nowrap;
   font-family:'Arial Narrow',Arial,sans-serif;
-  pointer-events:none; transform-origin:top left;
 }
-.campo.drag {
-  cursor:move; pointer-events:all;
-  outline:2px solid rgba(124,58,237,.9);
-  background:rgba(0,0,0,.4);
-  padding:2px 6px; border-radius:3px;
-  color:#fff !important; z-index:50;
+.campo.drag { cursor:move; pointer-events:all; }
+.campo.sel {
+  outline:2px solid var(--gold);
+  background:rgba(201,151,42,.15);
+  padding:1px 4px; border-radius:2px;
+  z-index:50;
 }
-.campo.drag.selected {
-  outline:2.5px solid #fff;
-  background:rgba(124,58,237,.5);
-}
-.campo.drag:hover { outline-color:#a78bfa; }
-
-.f-photo {
-  position:absolute; overflow:hidden; background:#ccc;
-  display:flex; align-items:center; justify-content:center; pointer-events:none;
-}
-.f-photo.drag { cursor:move; pointer-events:all; outline:2px solid rgba(124,58,237,.9); z-index:50; }
-.f-photo.drag.selected { outline:2.5px solid #fff; }
+.f-photo { position:absolute; overflow:hidden; background:#ccc;
+  display:flex; align-items:center; justify-content:center; }
+.f-photo.drag { cursor:move; pointer-events:all; }
+.f-photo.sel { outline:2px solid var(--gold); z-index:50; }
 .f-photo img { width:100%; height:100%; object-fit:cover; }
 .f-photo-ph { font-size:8px; color:#888; }
 
-/* ── PAINEL EDITOR LATERAL ── */
-.editor-sidebar {
-  display:none; position:fixed; right:0; top:0; bottom:0;
-  width:min(280px, 80vw); background:#0f1a3d;
-  border-left:2px solid var(--gold); z-index:300;
-  overflow-y:auto; padding:14px;
-  box-shadow:-8px 0 32px rgba(0,0,0,.6);
-}
-.editor-sidebar.open { display:block; }
-
-.es-header {
-  display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;
-}
-.es-title { color:var(--gold); font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:1.5px; }
-.es-close { background:none; border:none; color:#fff; font-size:20px; cursor:pointer; padding:4px; }
-
-.es-section { margin-bottom:16px; }
-.es-sec-title { font-size:9px; color:rgba(255,255,255,.4); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px; }
-
-/* Campo selecionado */
-.selected-label { color:var(--gold); font-size:12px; font-weight:800; margin-bottom:12px; text-align:center; }
-
-/* Controles de posição */
-.pos-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.pos-item label { font-size:8px; color:rgba(255,255,255,.4); display:block; margin-bottom:3px; }
-.pos-item input[type=number] {
-  width:100%; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.2);
-  border-radius:6px; padding:8px 10px; color:#fff; font-size:14px; font-weight:700;
-  text-align:center;
-}
-.pos-item input[type=number]:focus { border-color:var(--gold); outline:none; background:rgba(255,255,255,.12); }
-
-/* Nudge buttons */
-.nudge-pad {
-  display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; margin-top:8px;
-}
-.nudge-btn {
-  padding:10px; border-radius:6px; border:1px solid rgba(255,255,255,.15);
-  background:rgba(255,255,255,.06); color:#fff; font-size:14px; cursor:pointer;
-  text-align:center; font-weight:800; transition:all .15s;
-}
-.nudge-btn:hover { background:rgba(255,255,255,.15); }
-.nudge-btn:active { transform:scale(.92); }
-.nudge-center { background:rgba(201,151,42,.1) !important; color:var(--gold); font-size:10px; font-weight:800; }
-
-/* Fonte */
-.font-row { display:flex; align-items:center; gap:8px; }
-.font-row input[type=range] { flex:1; accent-color:var(--gold); }
-.font-val { color:#fff; font-size:14px; font-weight:800; min-width:36px; text-align:center; }
-
-/* Alinhamento */
-.align-row { display:flex; gap:6px; }
-.align-btn {
-  flex:1; padding:8px; border-radius:6px; border:1px solid rgba(255,255,255,.15);
-  background:rgba(255,255,255,.06); color:#fff; font-size:16px; cursor:pointer;
-  text-align:center; transition:all .15s;
-}
-.align-btn:hover, .align-btn.active { background:rgba(201,151,42,.3); border-color:var(--gold); }
-
-/* Cor */
-.color-row { display:flex; gap:8px; align-items:center; }
-.color-row input[type=color] { width:44px; height:36px; border:none; border-radius:6px; cursor:pointer; padding:2px; }
-.color-presets { display:flex; gap:4px; flex-wrap:wrap; }
-.color-preset { width:24px; height:24px; border-radius:4px; cursor:pointer; border:2px solid transparent; }
-.color-preset:hover, .color-preset.active { border-color:#fff; }
-
-/* Lista de campos */
-.fields-list { display:flex; flex-direction:column; gap:4px; }
-.field-item {
-  padding:8px 10px; border-radius:7px; border:1px solid rgba(255,255,255,.1);
-  background:rgba(255,255,255,.05); color:rgba(255,255,255,.7); font-size:11px;
-  cursor:pointer; transition:all .15s; display:flex; align-items:center; gap:8px;
-}
-.field-item:hover { background:rgba(255,255,255,.1); color:#fff; }
-.field-item.active { background:rgba(201,151,42,.2); border-color:var(--gold); color:var(--gold); }
-.field-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-
-/* Toolbar de edição */
-.edit-toolbar {
+/* PAINEL EDITOR — ABAIXO DO CARD, SEMPRE VISÍVEL */
+.editor-panel {
   display:none; margin:8px 12px 0;
-  background:rgba(124,58,237,.15); border:1px solid rgba(124,58,237,.4);
-  border-radius:10px; padding:8px 12px;
-  flex-wrap:wrap; gap:6px; align-items:center;
+  background:linear-gradient(135deg,#1a2a5e,#0f1a3d);
+  border:1.5px solid rgba(201,151,42,.35);
+  border-radius:12px; overflow:hidden;
 }
-.edit-toolbar.open { display:flex; }
-.et-label { color:rgba(255,255,255,.5); font-size:10px; font-weight:700; text-transform:uppercase; flex:1; }
+.editor-panel.open { display:block; }
 
-/* Download */
-.dl-actions { display:flex; gap:8px; padding:10px 12px 0; }
+/* Tab campos / controles */
+.ep-tabs { display:flex; border-bottom:1px solid rgba(255,255,255,.1); }
+.ep-tab { flex:1; padding:9px; text-align:center; font-size:10px; font-weight:800;
+  text-transform:uppercase; letter-spacing:.8px; cursor:pointer;
+  color:rgba(255,255,255,.4); transition:all .2s; }
+.ep-tab.active { color:var(--gold); border-bottom:2px solid var(--gold); }
 
-/* Overlay escuro quando sidebar aberta */
-.sidebar-overlay {
-  display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:250;
+/* Lista de campos compacta */
+.fields-scroll { display:flex; gap:6px; padding:10px 12px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.fields-scroll::-webkit-scrollbar { display:none; }
+.field-chip {
+  flex-shrink:0; padding:6px 12px; border-radius:20px;
+  border:1.5px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.06); color:rgba(255,255,255,.6);
+  font-size:10px; font-weight:700; cursor:pointer; white-space:nowrap;
+  transition:all .15s;
 }
-.sidebar-overlay.open { display:block; }
+.field-chip.active { background:rgba(201,151,42,.25); border-color:var(--gold); color:var(--gold); }
+
+/* Painel de controles do campo selecionado */
+.ctrl-panel { padding:10px 12px 12px; border-top:1px solid rgba(255,255,255,.08); }
+.ctrl-row { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.ctrl-label { font-size:9px; color:rgba(255,255,255,.4); text-transform:uppercase; letter-spacing:1px; min-width:36px; }
+.ctrl-val { font-size:16px; font-weight:800; color:#fff; min-width:42px; text-align:center; }
+
+/* Nudge grandes e acessíveis */
+.nudge-wrap { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.nudge-row  { display:flex; gap:4px; align-items:center; }
+.nb { /* nudge button */
+  width:52px; height:44px; border-radius:10px;
+  border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.08); color:#fff;
+  font-size:20px; font-weight:800; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .1s; -webkit-tap-highlight-color:transparent;
+}
+.nb:active { transform:scale(.9); background:rgba(255,255,255,.2); }
+.nb-ctr { width:52px; height:44px; background:rgba(201,151,42,.15) !important;
+  border-color:rgba(201,151,42,.4) !important; color:var(--gold) !important;
+  font-size:9px !important; font-weight:900 !important; letter-spacing:.5px; }
+.nb-step { /* step size button */
+  padding:6px 10px; border-radius:8px; border:1px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.06); color:rgba(255,255,255,.6);
+  font-size:9px; font-weight:800; cursor:pointer;
+}
+.nb-step.active { background:rgba(201,151,42,.2); border-color:var(--gold); color:var(--gold); }
+
+/* Controles inline */
+.inline-ctrl { display:flex; align-items:center; gap:6px; }
+.ic-btn { width:36px; height:36px; border-radius:8px; border:1px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.06); color:#fff; font-size:16px; font-weight:800;
+  cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.ic-btn.active { background:rgba(201,151,42,.25); border-color:var(--gold); }
+.ic-slider { flex:1; accent-color:var(--gold); cursor:pointer; }
+.color-presets { display:flex; gap:5px; flex-wrap:wrap; }
+.cp { width:28px; height:28px; border-radius:6px; cursor:pointer; border:2px solid transparent; flex-shrink:0; }
+.cp.active, .cp:hover { border-color:#fff; transform:scale(1.1); }
+
+/* Botões de ação */
+.action-row { display:flex; gap:6px; padding:0 12px 12px; }
+
+/* Downloads */
+.dl-actions { display:flex; gap:8px; padding:10px 12px 16px; }
 
 .loading { color:var(--gold); padding:50px; text-align:center; font-size:14px; }
+.no-sel { color:rgba(255,255,255,.3); font-size:11px; text-align:center; padding:16px; }
 </style>
 </head>
 <body>
 
+<!-- Topbar -->
 <div class="topbar">
-  <button class="btn btn-navy" onclick="history.back()">← Voltar</button>
+  <button class="btn btn-navy btn-sm" onclick="history.back()">← Voltar</button>
   <span class="topbar-title">🪪 CARTEIRINHA</span>
-  <button class="btn btn-purple" id="btn-edit" onclick="toggleEdit()">✦ Editor</button>
+  <button class="btn btn-purple btn-sm" id="btn-edit" onclick="toggleEdit()">✦ Editar</button>
 </div>
 
+<!-- Tabs -->
 <div class="tabs">
   <div class="tab active" id="tab-F" onclick="switchTab('F')">🪪 FRENTE</div>
   <div class="tab"        id="tab-V" onclick="switchTab('V')">↩ VERSO</div>
 </div>
 
-<!-- Toolbar de edição -->
-<div class="edit-toolbar" id="edit-toolbar">
-  <span class="et-label" id="et-sel">Selecione um campo</span>
-  <button class="btn btn-navy" style="font-size:10px;padding:6px 10px" onclick="toggleGrid()" id="btn-grid">⊞ Grade</button>
-  <button class="btn btn-navy" style="font-size:10px;padding:6px 10px" onclick="toggleGuides()" id="btn-guides">⊕ Guias</button>
-  <button class="btn btn-green" style="font-size:10px;padding:6px 10px" onclick="saveLayout()">💾 Salvar</button>
-  <button class="btn btn-navy" style="font-size:10px;padding:6px 10px" onclick="resetLayout()">↺ Reset</button>
-</div>
-
+<!-- CARD — sempre visível -->
 <div class="card-wrap">
   <div id="app"><div class="loading">⏳ Carregando...</div></div>
 </div>
 
-<div class="dl-actions">
-  <button class="btn btn-gold" style="flex:1" onclick="downloadPNG()">⬇ PNG</button>
-  <button class="btn btn-green" style="flex:1" onclick="downloadPDF()">📄 PDF (2 faces)</button>
+<!-- EDITOR ABAIXO DO CARD -->
+<div class="editor-panel" id="editor-panel">
+  <div class="ep-tabs">
+    <div class="ep-tab active" id="ept-campos" onclick="switchEpTab('campos')">📋 Campos</div>
+    <div class="ep-tab"        id="ept-ctrl"   onclick="switchEpTab('ctrl')">🎛 Controles</div>
+    <div class="ep-tab"        id="ept-view"   onclick="switchEpTab('view')">👁 Visão</div>
+  </div>
+
+  <!-- Tab: Campos -->
+  <div id="ep-campos">
+    <div class="fields-scroll" id="fields-scroll"></div>
+  </div>
+
+  <!-- Tab: Controles (campo selecionado) -->
+  <div id="ep-ctrl" style="display:none">
+    <div class="ctrl-panel" id="ctrl-panel">
+      <div class="no-sel">Selecione um campo acima</div>
+    </div>
+  </div>
+
+  <!-- Tab: Visão -->
+  <div id="ep-view" style="display:none">
+    <div style="padding:10px 12px; display:flex; flex-direction:column; gap:8px;">
+      <button class="btn btn-navy" style="width:100%" onclick="toggleGrid()" id="btn-grid">⊞ Grade de referência</button>
+      <button class="btn btn-navy" style="width:100%" onclick="toggleGuides()" id="btn-guides">⊕ Linhas guia</button>
+      <button class="btn btn-gold" style="width:100%" onclick="saveLayout()">💾 Salvar layout</button>
+      <button class="btn btn-navy" style="width:100%" onclick="resetLayout()">↺ Resetar para padrão</button>
+    </div>
+  </div>
+
+  <!-- Ações sempre visíveis -->
+  <div class="action-row">
+    <button class="btn btn-green btn-sm" style="flex:1" onclick="saveLayout()">💾 Salvar</button>
+    <button class="btn btn-navy btn-sm" style="flex:1" onclick="resetLayout()">↺ Reset</button>
+  </div>
 </div>
 
-<!-- Sidebar editor -->
-<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
-<div class="editor-sidebar" id="editor-sidebar">
-  <div class="es-header">
-    <span class="es-title">✦ Editor</span>
-    <button class="es-close" onclick="closeSidebar()">✕</button>
-  </div>
-
-  <!-- Lista de campos -->
-  <div class="es-section">
-    <div class="es-sec-title">Campos</div>
-    <div class="fields-list" id="fields-list"></div>
-  </div>
-
-  <!-- Campo selecionado -->
-  <div id="selected-panel" style="display:none">
-    <div class="selected-label" id="sel-label">—</div>
-
-    <!-- Posição -->
-    <div class="es-section">
-      <div class="es-sec-title">Posição (%)</div>
-      <div class="pos-grid">
-        <div class="pos-item">
-          <label>← Left →</label>
-          <input type="number" id="inp-left" step="0.5" min="0" max="99"
-            oninput="updateFromInput('left',+this.value)">
-        </div>
-        <div class="pos-item">
-          <label>↑ Top ↓</label>
-          <input type="number" id="inp-top" step="0.5" min="0" max="99"
-            oninput="updateFromInput('top',+this.value)">
-        </div>
-      </div>
-
-      <!-- Nudge pad -->
-      <div class="es-sec-title" style="margin-top:10px">Mover (0.5%)</div>
-      <div class="nudge-pad">
-        <div></div>
-        <button class="nudge-btn" onclick="nudge(0,-0.5)">▲</button>
-        <div></div>
-        <button class="nudge-btn" onclick="nudge(-0.5,0)">◄</button>
-        <button class="nudge-btn nudge-center" onclick="centerField()">CTR</button>
-        <button class="nudge-btn" onclick="nudge(0.5,0)">►</button>
-        <div></div>
-        <button class="nudge-btn" onclick="nudge(0,0.5)">▼</button>
-        <div></div>
-      </div>
-    </div>
-
-    <!-- Alinhamento -->
-    <div class="es-section">
-      <div class="es-sec-title">Alinhamento horizontal</div>
-      <div class="align-row">
-        <button class="align-btn" onclick="alignField('left')"   title="Alinhar à esquerda">⬛░░</button>
-        <button class="align-btn" onclick="alignField('center')" title="Centralizar">░⬛░</button>
-        <button class="align-btn" onclick="alignField('right')"  title="Alinhar à direita">░░⬛</button>
-      </div>
-    </div>
-
-    <!-- Fonte -->
-    <div class="es-section" id="font-section">
-      <div class="es-sec-title">Tamanho da fonte (vw)</div>
-      <div class="font-row">
-        <button class="nudge-btn" style="padding:6px 10px" onclick="adjustSize(-0.1)">−</button>
-        <input type="range" id="inp-size" min="0.5" max="8" step="0.1"
-          oninput="updateFromInput('size',+this.value)">
-        <button class="nudge-btn" style="padding:6px 10px" onclick="adjustSize(0.1)">+</button>
-        <span class="font-val" id="size-val">—</span>
-      </div>
-      <div style="margin-top:6px;text-align:center;color:rgba(255,255,255,.4);font-size:9px" id="font-preview-label">
-        Preview: <span id="font-px">—</span>px no mobile
-      </div>
-    </div>
-
-    <!-- Cor -->
-    <div class="es-section" id="color-section">
-      <div class="es-sec-title">Cor do texto</div>
-      <div class="color-row">
-        <input type="color" id="inp-color" oninput="updateFromInput('color',this.value)">
-        <div class="color-presets">
-          <div class="color-preset" style="background:#111111" onclick="setColor('#111111')"></div>
-          <div class="color-preset" style="background:#1a2a6e" onclick="setColor('#1a2a6e')"></div>
-          <div class="color-preset" style="background:#cc0000" onclick="setColor('#cc0000')"></div>
-          <div class="color-preset" style="background:#1a7a3a" onclick="setColor('#1a7a3a')"></div>
-          <div class="color-preset" style="background:#333333" onclick="setColor('#333333')"></div>
-          <div class="color-preset" style="background:#c9972a" onclick="setColor('#c9972a')"></div>
-          <div class="color-preset" style="background:#ffffff" onclick="setColor('#ffffff')"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bold -->
-    <div class="es-section">
-      <div class="es-sec-title">Estilo</div>
-      <div style="display:flex;gap:6px">
-        <button class="align-btn" id="btn-bold" onclick="toggleBold()"><b>B</b></button>
-        <button class="align-btn" id="btn-upper" onclick="toggleUpper()">AA</button>
-      </div>
-    </div>
-  </div>
+<!-- Downloads -->
+<div class="dl-actions">
+  <button class="btn btn-gold" style="flex:1" onclick="downloadPNG()">⬇ PNG</button>
+  <button class="btn btn-green" style="flex:1" onclick="downloadPDF()">📄 PDF</button>
 </div>
 
 <script>
@@ -335,13 +227,13 @@ const BASE  = 'https://prdlcsmrr.github.io/Associa-o-';
 const BINKEY= ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
 
 const DEFAULT_F = {
-  f_photo: { type:'photo', left:2.5,  top:30.5, w:13.5, ratio:'3/4' },
-  f_cargo: { left:23.0, top:38.5, size:2.8, bold:true,  color:'#1a2a6e', upper:true  },
-  f_nome:  { left:23.0, top:54.5, size:2.8, bold:true,  color:'#111',    upper:true  },
-  f_mat:   { left:7.2,  top:70.5, size:2.2, bold:true,  color:'#111',    upper:false },
-  f_cpf:   { left:23.0, top:70.5, size:2.2, bold:true,  color:'#111',    upper:false },
-  f_emissao:{ left:62.0, top:70.5, size:2.2, bold:true, color:'#111',    upper:false },
-  f_hash:  { left:23.0, top:83.5, size:2.0, bold:false, color:'#333',    upper:false },
+  f_photo:  { type:'photo', left:2.5,  top:30.5, w:13.5, ratio:'3/4' },
+  f_cargo:  { left:23.0, top:38.5, size:2.8, bold:true,  color:'#1a2a6e', upper:true  },
+  f_nome:   { left:23.0, top:54.5, size:2.8, bold:true,  color:'#111',    upper:true  },
+  f_mat:    { left:7.2,  top:70.5, size:2.2, bold:true,  color:'#111',    upper:false },
+  f_cpf:    { left:23.0, top:70.5, size:2.2, bold:true,  color:'#111',    upper:false },
+  f_emissao:{ left:62.0, top:70.5, size:2.2, bold:true,  color:'#111',    upper:false },
+  f_hash:   { left:23.0, top:83.5, size:2.0, bold:false, color:'#333',    upper:false },
 };
 const DEFAULT_V = {
   v_filiacao:    { left:19.0, top:27.5, size:3.0, bold:false, color:'#111',    upper:false },
@@ -354,41 +246,49 @@ const DEFAULT_V = {
 };
 const LABELS = {
   f_photo:'Foto', f_cargo:'Cargo', f_nome:'Nome', f_mat:'Matrícula',
-  f_cpf:'CPF', f_emissao:'Data Expedição', f_hash:'Hash/DocID',
+  f_cpf:'CPF', f_emissao:'Expedição', f_hash:'Hash',
   v_filiacao:'Filiação', v_nasc:'Nasc.', v_admissao:'Admissão',
   v_naturalidade:'Naturalidade', v_validade:'Validade',
   v_municipio:'Município', v_situacao:'Situação',
 };
-const COLORS = { f_cargo:'#1a2a6e', f_nome:'#1a2a6e', f_mat:'#333', f_cpf:'#333', f_emissao:'#333', f_hash:'#555' };
+const DOT_COLORS = {
+  f_photo:'#888',f_cargo:'#1a2a6e',f_nome:'#333',f_mat:'#555',f_cpf:'#555',f_emissao:'#555',f_hash:'#888',
+  v_filiacao:'#111',v_nasc:'#333',v_admissao:'#333',v_naturalidade:'#333',v_validade:'#c00',v_municipio:'#333',v_situacao:'#333',
+};
 
 let layoutF={}, layoutV={}, tab='F', editMode=false;
-let selectedKey=null, membro=null, showGrid=false, showGuides=false;
+let selKey=null, membro=null, showGrid=false, showGuides=false;
+let nudgeStep=0.5, epTab='campos';
+
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+function layout(){ return tab==='F'?layoutF:layoutV; }
+function fmt(d){ if(!d)return'—'; return new Date(d+'T12:00').toLocaleDateString('pt-BR'); }
 
 function loadLayouts(){
-  try{ const s=localStorage.getItem('cart_lF_v6'); layoutF=s?JSON.parse(s):clone(DEFAULT_F); }catch(e){ layoutF=clone(DEFAULT_F); }
-  try{ const s=localStorage.getItem('cart_lV_v4'); layoutV=s?JSON.parse(s):clone(DEFAULT_V); }catch(e){ layoutV=clone(DEFAULT_V); }
+  try{ layoutF=JSON.parse(localStorage.getItem('cart_lF_v6')||'null')||clone(DEFAULT_F); }catch(e){ layoutF=clone(DEFAULT_F); }
+  try{ layoutV=JSON.parse(localStorage.getItem('cart_lV_v4')||'null')||clone(DEFAULT_V); }catch(e){ layoutV=clone(DEFAULT_V); }
 }
 function saveLayout(){
   localStorage.setItem('cart_lF_v6',JSON.stringify(layoutF));
   localStorage.setItem('cart_lV_v4',JSON.stringify(layoutV));
-  const t=document.createElement('div');
-  t.textContent='✅ Layout salvo!';
-  t.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a7a3a;color:#fff;padding:10px 20px;border-radius:20px;font-size:12px;font-weight:700;z-index:9999';
-  document.body.appendChild(t); setTimeout(()=>t.remove(),2000);
+  toast('✅ Layout salvo!','#1a7a3a');
 }
 function resetLayout(){
-  if(confirm('Resetar layout '+( tab==='F'?'da Frente':'do Verso')+'?')){
-    if(tab==='F') layoutF=clone(DEFAULT_F); else layoutV=clone(DEFAULT_V);
-    selectedKey=null; renderCard(); buildFieldsList();
-  }
+  if(!confirm('Resetar '+( tab==='F'?'Frente':'Verso')+'?')) return;
+  if(tab==='F') layoutF=clone(DEFAULT_F); else layoutV=clone(DEFAULT_V);
+  selKey=null; renderCard(); buildChips(); buildCtrlPanel();
 }
-function clone(o){ return JSON.parse(JSON.stringify(o)); }
-function fmt(d){ if(!d)return'—'; return new Date(d+'T12:00').toLocaleDateString('pt-BR'); }
+function toast(msg,bg='#1a7a3a'){
+  const t=document.createElement('div');
+  t.textContent=msg;
+  t.style.cssText=`position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:${bg};color:#fff;padding:10px 22px;border-radius:20px;font-size:12px;font-weight:800;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.4)`;
+  document.body.appendChild(t); setTimeout(()=>t.remove(),2200);
+}
 
 async function init(){
   loadLayouts();
   const id=new URLSearchParams(location.search).get('id');
-  if(!id){ document.getElementById('app').innerHTML='<div class="loading">❌ ID não encontrado.<br><small>Acesse pelo sistema principal.</small></div>'; return; }
+  if(!id){ document.getElementById('app').innerHTML='<div class="loading">❌ Acesse pelo sistema principal.</div>'; return; }
   let m=null;
   try{ const r=await fetch(DB+'?t='+Date.now()); if(r.ok){const d=await r.json();m=d.membros?.find(x=>x.numCred===id);} }catch(e){}
   if(!m){
@@ -408,24 +308,24 @@ function getData(){
     v_filiacao:fil, v_nasc:fmt(m.nasc), v_admissao:fmt(m.emissao),
     v_naturalidade:(m.naturalidade||'BRASILEIRO'),
     v_validade:fmt(m.validade), v_municipio:(m.municipio||'—').toUpperCase(),
-    v_situacao:m.status==='Ativo'?'ATIVO':'INATIVO',
+    v_situacao:membro.status==='Ativo'?'ATIVO':'INATIVO',
   };
 }
 
 function renderCard(){
-  const m=membro, data=getData();
-  const layout=tab==='F'?layoutF:layoutV;
-  const ts=Date.now();
+  const m=membro, data=getData(), L=layout();
   const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=1782164756`:`${BASE}/verso.jpg?v=1782164756`;
+  let fields='', guides='';
 
-  let fields='';
-  for(const [key,cfg] of Object.entries(layout)){
-    const id='c_'+key;
+  for(const [key,cfg] of Object.entries(L)){
+    const sel=selKey===key;
+    const drag=editMode?' drag':'';
+    const selCls=sel?' sel':'';
     const pos=`left:${cfg.left}%;top:${cfg.top}%;`;
-    const sel=selectedKey===key;
+
     if(cfg.type==='photo'){
-      fields+=`<div id="${id}" class="f-photo${editMode?' drag':''}${sel?' selected':''}"
-        style="${pos}width:${cfg.w}%;aspect-ratio:${cfg.ratio||'3/4'};">
+      fields+=`<div id="c_${key}" class="f-photo${drag}${selCls}"
+        style="${pos}width:${cfg.w}%;aspect-ratio:${cfg.ratio||'3/4'};pointer-events:${editMode?'all':'none'}">
         ${m?.foto?`<img src="${m.foto}" alt="">` : '<div class="f-photo-ph">👤</div>'}
       </div>`;
     } else {
@@ -433,262 +333,301 @@ function renderCard(){
       const fw=cfg.bold?'800':'600';
       const col=editMode?'' : `color:${key==='v_situacao'&&val==='INATIVO'?'#cc0000':cfg.color||'#111'};`;
       const up=cfg.upper&&!editMode?val.toUpperCase():val;
-      fields+=`<div id="${id}" class="campo${editMode?' drag':''}${sel?' selected':''}"
-        style="${pos}font-size:${cfg.size||2.8}vw;font-weight:${fw};${col}">${up}</div>`;
+      fields+=`<div id="c_${key}" class="campo${drag}${selCls}"
+        style="${pos}font-size:${cfg.size||2.8}vw;font-weight:${fw};${col}pointer-events:${editMode?'all':'none'}">${up}</div>`;
     }
   }
 
-  // Guias
-  let guides='';
   if(showGuides){
-    guides+=`<div class="guide-h guide-center-h" style="top:50%"></div>`;
-    guides+=`<div class="guide-v guide-center-v" style="left:50%"></div>`;
-    if(selectedKey && layout[selectedKey]){
-      const c=layout[selectedKey];
-      guides+=`<div class="guide-h" style="top:${c.top}%"></div>`;
-      guides+=`<div class="guide-v" style="left:${c.left}%"></div>`;
+    // Centro verde
+    guides+=`<div class="guide-line guide-h" style="top:50%;background:rgba(0,220,80,.7)"></div>`;
+    guides+=`<div class="guide-line guide-v" style="left:50%;background:rgba(0,220,80,.7)"></div>`;
+    if(selKey && L[selKey]){
+      const c=L[selKey];
+      guides+=`<div class="guide-line guide-h" style="top:${c.top}%;background:rgba(255,180,0,.8)"></div>`;
+      guides+=`<div class="guide-line guide-v" style="left:${c.left}%;background:rgba(255,180,0,.8)"></div>`;
     }
   }
 
   document.getElementById('app').innerHTML=`
     <div class="card" id="the-card">
       <img class="bg" src="${imgSrc}" crossorigin="anonymous">
-      <div class="grid-overlay" id="grid-overlay" ${showGrid?'style="display:block"':''}></div>
-      <div class="overlay">${fields}${guides}</div>
+      <div class="grid-overlay" id="grid-overlay" style="display:${showGrid?'block':'none'}"></div>
+      <div class="overlay" style="pointer-events:${editMode?'all':'none'}">${fields}${guides}</div>
     </div>`;
 
-  if(editMode){ activateDrag(); buildFieldsList(); }
+  if(editMode) bindDrag();
 }
 
-/* ── DRAG ── */
-function activateDrag(){
-  const layout=tab==='F'?layoutF:layoutV;
-  const cardEl=document.getElementById('the-card');
+/* DRAG */
+function bindDrag(){
+  const L=layout(), cardEl=document.getElementById('the-card');
   if(!cardEl) return;
-  for(const key of Object.keys(layout)){
+  for(const key of Object.keys(L)){
     const el=document.getElementById('c_'+key);
     if(!el) continue;
-    el.addEventListener('click', e=>{ e.stopPropagation(); selectField(key); });
-    el.addEventListener('mousedown', e=>{ e.preventDefault(); selectField(key); startDrag(e.clientX,e.clientY,key,cardEl); });
-    el.addEventListener('touchstart', e=>{ const t=e.touches[0]; selectField(key); startDrag(t.clientX,t.clientY,key,cardEl); },{passive:true});
+    // Tap = selecionar
+    el.addEventListener('click',e=>{ e.stopPropagation(); selectField(key); });
+    // Drag
+    el.addEventListener('mousedown', e=>{ e.preventDefault(); selectField(key); doDrag(e.clientX,e.clientY,key,cardEl); });
+    el.addEventListener('touchstart', e=>{ selectField(key); doDrag(e.touches[0].clientX,e.touches[0].clientY,key,cardEl); },{passive:true});
   }
-  document.getElementById('the-card').addEventListener('click', ()=>{ if(selectedKey){ selectedKey=null; renderCard(); updateSidebarSelected(); }});
+  document.getElementById('the-card').addEventListener('click',()=>{ selKey=null; renderCard(); buildChips(); buildCtrlPanel(); });
 }
 
-function startDrag(cx,cy,key,cardEl){
-  const layout=tab==='F'?layoutF:layoutV;
-  const rect=cardEl.getBoundingClientRect();
-  const move=(mx,my)=>{
-    const nl=Math.max(0,Math.min(99,+((mx-rect.left)/rect.width*100).toFixed(1)));
-    const nt=Math.max(0,Math.min(99,+((my-rect.top)/rect.height*100).toFixed(1)));
-    layout[key].left=nl; layout[key].top=nt;
+function doDrag(sx,sy,key,cardEl){
+  const L=layout(), rect=cardEl.getBoundingClientRect();
+  const mu=e=>{
+    const ev=e.touches?e.touches[0]:e;
+    L[key].left=Math.max(0,Math.min(99,+((ev.clientX-rect.left)/rect.width*100).toFixed(1)));
+    L[key].top =Math.max(0,Math.min(99,+((ev.clientY-rect.top)/rect.height*100).toFixed(1)));
     const el=document.getElementById('c_'+key);
-    if(el){ el.style.left=nl+'%'; el.style.top=nt+'%'; }
-    updateSidebarInputs();
+    if(el){ el.style.left=L[key].left+'%'; el.style.top=L[key].top+'%'; }
+    buildCtrlPanel();
     if(showGuides) renderCard();
   };
-  const mu=e=>{ const ev=e.touches?e.touches[0]:e; move(ev.clientX,ev.clientY); };
-  const up=()=>{ document.removeEventListener('mousemove',mu); document.removeEventListener('mouseup',up);
-                  document.removeEventListener('touchmove',mu); document.removeEventListener('touchend',up); };
+  const up=()=>{
+    document.removeEventListener('mousemove',mu); document.removeEventListener('mouseup',up);
+    document.removeEventListener('touchmove',mu); document.removeEventListener('touchend',up);
+  };
   document.addEventListener('mousemove',mu);
   document.addEventListener('touchmove',mu,{passive:true});
   document.addEventListener('mouseup',up);
   document.addEventListener('touchend',up);
 }
 
-/* ── SELEÇÃO E SIDEBAR ── */
+/* SELEÇÃO */
 function selectField(key){
-  selectedKey=key;
-  const el=document.getElementById('c_'+key);
-  document.querySelectorAll('.campo.drag,.f-photo.drag').forEach(e=>e.classList.remove('selected'));
-  if(el) el.classList.add('selected');
-  openSidebar();
-  updateSidebarSelected();
-  if(showGuides) renderCard();
+  selKey=key;
+  renderCard();
+  buildChips();
+  buildCtrlPanel();
+  // Ir para tab controles automaticamente
+  switchEpTab('ctrl');
 }
 
-function openSidebar(){
-  document.getElementById('editor-sidebar').classList.add('open');
-  document.getElementById('sidebar-overlay').classList.add('open');
-}
-function closeSidebar(){
-  document.getElementById('editor-sidebar').classList.remove('open');
-  document.getElementById('sidebar-overlay').classList.remove('open');
-}
-
-function updateSidebarSelected(){
-  const layout=tab==='F'?layoutF:layoutV;
-  const panel=document.getElementById('selected-panel');
-  if(!selectedKey||!layout[selectedKey]){ panel.style.display='none'; return; }
-  panel.style.display='block';
-  const cfg=layout[selectedKey];
-  document.getElementById('sel-label').textContent=LABELS[selectedKey]||selectedKey;
-  updateSidebarInputs();
-  const isPhoto=cfg.type==='photo';
-  document.getElementById('font-section').style.display=isPhoto?'none':'block';
-  document.getElementById('color-section').style.display=isPhoto?'none':'block';
-  if(!isPhoto){
-    document.getElementById('btn-bold').classList.toggle('active',!!cfg.bold);
-    document.getElementById('btn-upper').classList.toggle('active',!!cfg.upper);
+/* CHIPS de campos */
+function buildChips(){
+  const L=layout(), sc=document.getElementById('fields-scroll');
+  if(!sc) return;
+  sc.innerHTML='';
+  for(const key of Object.keys(L)){
+    const chip=document.createElement('div');
+    chip.className='field-chip'+(selKey===key?' active':'');
+    chip.innerHTML=`<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${DOT_COLORS[key]||'#555'};margin-right:5px;vertical-align:middle"></span>${LABELS[key]||key}`;
+    chip.onclick=()=>selectField(key);
+    sc.appendChild(chip);
   }
 }
 
-function updateSidebarInputs(){
-  const layout=tab==='F'?layoutF:layoutV;
-  if(!selectedKey) return;
-  const cfg=layout[selectedKey];
-  document.getElementById('inp-left').value=cfg.left;
-  document.getElementById('inp-top').value=cfg.top;
-  if(!cfg.type){
-    document.getElementById('inp-size').value=cfg.size||2.8;
-    document.getElementById('size-val').textContent=(cfg.size||2.8).toFixed(1);
-    document.getElementById('inp-color').value=(cfg.color||'#111111').replace(/!important/,'');
-    const vw=cfg.size||2.8;
-    document.getElementById('font-px').textContent=Math.round(vw*3.9);
-  }
+/* PAINEL DE CONTROLES */
+function buildCtrlPanel(){
+  const L=layout(), panel=document.getElementById('ctrl-panel');
+  if(!panel) return;
+  if(!selKey||!L[selKey]){ panel.innerHTML='<div class="no-sel">Selecione um campo acima</div>'; return; }
+  const cfg=L[selKey], isPhoto=cfg.type==='photo';
+
+  panel.innerHTML=`
+    <div style="color:var(--gold);font-size:12px;font-weight:900;margin-bottom:10px;text-align:center">
+      ${LABELS[selKey]||selKey}
+    </div>
+
+    <!-- Step -->
+    <div class="ctrl-row" style="justify-content:center;margin-bottom:8px">
+      <span class="ctrl-label">Passo:</span>
+      <div style="display:flex;gap:4px">
+        <button class="nb-step${nudgeStep===0.5?' active':''}" onclick="setStep(0.5)">0.5%</button>
+        <button class="nb-step${nudgeStep===1?' active':''}" onclick="setStep(1)">1%</button>
+        <button class="nb-step${nudgeStep===2?' active':''}" onclick="setStep(2)">2%</button>
+        <button class="nb-step${nudgeStep===5?' active':''}" onclick="setStep(5)">5%</button>
+      </div>
+    </div>
+
+    <!-- Posição numérica -->
+    <div class="ctrl-row">
+      <span class="ctrl-label">Left</span>
+      <input type="number" step="0.1" value="${cfg.left}"
+        style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:6px 10px;color:#fff;font-size:14px;font-weight:800;width:80px;text-align:center"
+        oninput="moveField('left',+this.value)">
+      <span class="ctrl-label" style="margin-left:8px">Top</span>
+      <input type="number" step="0.1" value="${cfg.top}"
+        style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:6px 10px;color:#fff;font-size:14px;font-weight:800;width:80px;text-align:center"
+        oninput="moveField('top',+this.value)">
+    </div>
+
+    <!-- Nudge pad -->
+    <div class="nudge-wrap" style="margin:6px 0">
+      <div class="nudge-row">
+        <button class="nb" onclick="nudge(0,-nudgeStep)">▲</button>
+      </div>
+      <div class="nudge-row">
+        <button class="nb" onclick="nudge(-nudgeStep,0)">◄</button>
+        <button class="nb nb-ctr" onclick="centerH()">CTR<br>H</button>
+        <button class="nb" onclick="nudge(nudgeStep,0)">►</button>
+      </div>
+      <div class="nudge-row">
+        <button class="nb" onclick="nudge(0,nudgeStep)">▼</button>
+      </div>
+    </div>
+
+    ${!isPhoto ? `
+    <!-- Fonte -->
+    <div class="ctrl-row">
+      <span class="ctrl-label">Fonte</span>
+      <button class="nb" style="width:36px;height:36px;font-size:18px" onclick="adjSize(-0.2)">−</button>
+      <span class="ctrl-val" id="size-disp">${(cfg.size||2.8).toFixed(1)}</span>
+      <button class="nb" style="width:36px;height:36px;font-size:18px" onclick="adjSize(0.2)">+</button>
+      <span style="color:rgba(255,255,255,.3);font-size:9px">≈${Math.round((cfg.size||2.8)*3.9)}px mobile</span>
+    </div>
+    <div class="ctrl-row" style="margin-top:2px">
+      <span class="ctrl-label"></span>
+      <input type="range" class="ic-slider" min="0.5" max="8" step="0.1" value="${cfg.size||2.8}"
+        oninput="adjSizeDirect(+this.value)" style="flex:1;accent-color:var(--gold)">
+    </div>
+
+    <!-- Cor -->
+    <div class="ctrl-row">
+      <span class="ctrl-label">Cor</span>
+      <div class="color-presets">
+        ${[['#111111','⬛'],['#1a2a6e','🔵'],['#cc0000','🔴'],['#1a7a3a','🟢'],['#333333','◾'],['#c9972a','🟡'],['#ffffff','⬜']].map(([c,e])=>
+          `<div class="cp${cfg.color===c?' active':''}" style="background:${c}" onclick="setColor('${c}')" title="${c}"></div>`
+        ).join('')}
+        <input type="color" value="${(cfg.color||'#111111').replace(/!important/,'')}"
+          style="width:28px;height:28px;border:none;border-radius:6px;cursor:pointer;padding:1px"
+          oninput="setColor(this.value)">
+      </div>
+    </div>
+
+    <!-- Bold / Upper -->
+    <div class="ctrl-row">
+      <span class="ctrl-label">Estilo</span>
+      <button class="ic-btn${cfg.bold?' active':''}" onclick="toggleBold()"><b>B</b></button>
+      <button class="ic-btn${cfg.upper?' active':''}" onclick="toggleUpper()" style="font-size:11px">AA</button>
+    </div>
+    ` : `
+    <!-- Largura da foto -->
+    <div class="ctrl-row">
+      <span class="ctrl-label">Largura</span>
+      <button class="nb" style="width:36px;height:36px;font-size:18px" onclick="adjPhotoW(-0.5)">−</button>
+      <span class="ctrl-val">${cfg.w||13.5}%</span>
+      <button class="nb" style="width:36px;height:36px;font-size:18px" onclick="adjPhotoW(0.5)">+</button>
+    </div>
+    `}
+  `;
 }
 
-function buildFieldsList(){
-  const layout=tab==='F'?layoutF:layoutV;
-  const list=document.getElementById('fields-list');
-  list.innerHTML='';
-  const dotColors={
-    f_photo:'#888',f_cargo:'#1a2a6e',f_nome:'#111',f_mat:'#555',
-    f_cpf:'#555',f_emissao:'#555',f_hash:'#888',
-    v_filiacao:'#111',v_nasc:'#111',v_admissao:'#111',
-    v_naturalidade:'#111',v_validade:'#cc0000',v_municipio:'#111',v_situacao:'#111',
-  };
-  for(const key of Object.keys(layout)){
-    const item=document.createElement('div');
-    item.className='field-item'+(selectedKey===key?' active':'');
-    item.innerHTML=`<div class="field-dot" style="background:${dotColors[key]||'#555'}"></div>${LABELS[key]||key}`;
-    item.onclick=()=>selectField(key);
-    list.appendChild(item);
-  }
+/* AÇÕES */
+function setStep(s){ nudgeStep=s; buildCtrlPanel(); }
+
+function nudge(dl,dt){
+  const L=layout(); if(!selKey) return;
+  L[selKey].left=Math.max(0,Math.min(99,+(L[selKey].left+dl).toFixed(1)));
+  L[selKey].top =Math.max(0,Math.min(99,+(L[selKey].top +dt).toFixed(1)));
+  applyPos(); buildCtrlPanel(); if(showGuides) renderCard();
 }
 
-/* ── CONTROLES ── */
-function updateFromInput(prop, val){
-  const layout=tab==='F'?layoutF:layoutV;
-  if(!selectedKey) return;
-  layout[selectedKey][prop]=val;
-  const el=document.getElementById('c_'+selectedKey);
-  if(el){
-    if(prop==='left') el.style.left=val+'%';
-    else if(prop==='top') el.style.top=val+'%';
-    else if(prop==='size'){
-      el.style.fontSize=val+'vw';
-      document.getElementById('size-val').textContent=val.toFixed(1);
-      document.getElementById('font-px').textContent=Math.round(val*3.9);
-    }
-    else if(prop==='color') el.style.color=val;
-  }
-  if(showGuides) renderCard();
+function moveField(prop,val){
+  const L=layout(); if(!selKey) return;
+  L[selKey][prop]=Math.max(0,Math.min(99,val));
+  applyPos(); if(showGuides) renderCard();
 }
 
-function nudge(dl, dt){
-  const layout=tab==='F'?layoutF:layoutV;
-  if(!selectedKey) return;
-  layout[selectedKey].left=Math.max(0,Math.min(99,+(layout[selectedKey].left+dl).toFixed(1)));
-  layout[selectedKey].top =Math.max(0,Math.min(99,+(layout[selectedKey].top+dt).toFixed(1)));
-  const el=document.getElementById('c_'+selectedKey);
-  if(el){ el.style.left=layout[selectedKey].left+'%'; el.style.top=layout[selectedKey].top+'%'; }
-  updateSidebarInputs();
-  if(showGuides) renderCard();
+function centerH(){
+  const L=layout(); if(!selKey) return;
+  L[selKey].left=50; applyPos(); buildCtrlPanel();
 }
 
-function centerField(){
-  const layout=tab==='F'?layoutF:layoutV;
-  if(!selectedKey) return;
-  layout[selectedKey].left=50;
-  const el=document.getElementById('c_'+selectedKey);
-  if(el) el.style.left='50%';
-  updateSidebarInputs();
+function applyPos(){
+  const L=layout(); if(!selKey) return;
+  const el=document.getElementById('c_'+selKey);
+  if(el){ el.style.left=L[selKey].left+'%'; el.style.top=L[selKey].top+'%'; }
 }
 
-function alignField(dir){
-  const layout=tab==='F'?layoutF:layoutV;
-  if(!selectedKey) return;
-  const vals={left:0,center:50,right:98};
-  layout[selectedKey].left=vals[dir];
-  const el=document.getElementById('c_'+selectedKey);
-  if(el) el.style.left=vals[dir]+'%';
-  updateSidebarInputs();
+function adjSize(d){
+  const L=layout(); if(!selKey||L[selKey].type) return;
+  L[selKey].size=Math.max(0.5,Math.min(8,+(L[selKey].size+d).toFixed(1)));
+  const el=document.getElementById('c_'+selKey);
+  if(el) el.style.fontSize=L[selKey].size+'vw';
+  buildCtrlPanel();
 }
-
-function adjustSize(delta){
-  const layout=tab==='F'?layoutF:layoutV;
-  if(!selectedKey||layout[selectedKey].type) return;
-  const newSize=Math.max(0.5,Math.min(8,+(layout[selectedKey].size+delta).toFixed(1)));
-  layout[selectedKey].size=newSize;
-  document.getElementById('inp-size').value=newSize;
-  updateFromInput('size',newSize);
+function adjSizeDirect(v){
+  const L=layout(); if(!selKey||L[selKey].type) return;
+  L[selKey].size=v;
+  const el=document.getElementById('c_'+selKey);
+  if(el) el.style.fontSize=v+'vw';
+  document.getElementById('size-disp') && (document.getElementById('size-disp').textContent=v.toFixed(1));
 }
 
 function setColor(c){
-  const layout=tab==='F'?layoutF:layoutV;
-  if(!selectedKey||layout[selectedKey].type) return;
-  layout[selectedKey].color=c;
-  document.getElementById('inp-color').value=c;
-  updateFromInput('color',c);
+  const L=layout(); if(!selKey||L[selKey].type) return;
+  L[selKey].color=c;
+  const el=document.getElementById('c_'+selKey);
+  if(el) el.style.color=c;
+  buildCtrlPanel();
 }
-
 function toggleBold(){
-  const layout=tab==='F'?layoutF:layoutV;
-  if(!selectedKey) return;
-  layout[selectedKey].bold=!layout[selectedKey].bold;
-  const el=document.getElementById('c_'+selectedKey);
-  if(el) el.style.fontWeight=layout[selectedKey].bold?'800':'600';
-  document.getElementById('btn-bold').classList.toggle('active',layout[selectedKey].bold);
+  const L=layout(); if(!selKey||L[selKey].type) return;
+  L[selKey].bold=!L[selKey].bold;
+  const el=document.getElementById('c_'+selKey);
+  if(el) el.style.fontWeight=L[selKey].bold?'800':'600';
+  buildCtrlPanel();
 }
-
 function toggleUpper(){
-  const layout=tab==='F'?layoutF:layoutV;
-  if(!selectedKey) return;
-  layout[selectedKey].upper=!layout[selectedKey].upper;
-  document.getElementById('btn-upper').classList.toggle('active',layout[selectedKey].upper);
-  renderCard(); activateDrag(); buildFieldsList();
-  if(selectedKey) selectField(selectedKey);
+  const L=layout(); if(!selKey||L[selKey].type) return;
+  L[selKey].upper=!L[selKey].upper;
+  renderCard(); bindDrag(); buildChips(); buildCtrlPanel();
+}
+function adjPhotoW(d){
+  const L=layout(); if(!selKey) return;
+  L[selKey].w=Math.max(5,Math.min(50,+(L[selKey].w+d).toFixed(1)));
+  const el=document.getElementById('c_'+selKey);
+  if(el) el.style.width=L[selKey].w+'%';
+  buildCtrlPanel();
 }
 
-function toggleGrid(){
-  showGrid=!showGrid;
-  document.getElementById('btn-grid').classList.toggle('active',showGrid);
-  const g=document.getElementById('grid-overlay');
-  if(g) g.style.display=showGrid?'block':'none';
-}
-
-function toggleGuides(){
-  showGuides=!showGuides;
-  document.getElementById('btn-guides').classList.toggle('active',showGuides);
-  renderCard(); if(editMode){ activateDrag(); buildFieldsList(); if(selectedKey) selectField(selectedKey); }
-}
-
+/* TABS */
 function switchTab(t){
-  tab=t; selectedKey=null;
+  tab=t; selKey=null;
   document.getElementById('tab-F').className='tab'+(t==='F'?' active':'');
   document.getElementById('tab-V').className='tab'+(t==='V'?' active':'');
-  renderCard();
-  if(editMode){ buildFieldsList(); updateSidebarSelected(); }
+  renderCard(); buildChips(); buildCtrlPanel();
+}
+function switchEpTab(t){
+  epTab=t;
+  ['campos','ctrl','view'].forEach(id=>{
+    document.getElementById('ept-'+id).className='ep-tab'+(t===id?' active':'');
+    document.getElementById('ep-'+id).style.display=t===id?'block':'none';
+  });
 }
 
 function toggleEdit(){
   editMode=!editMode;
   const btn=document.getElementById('btn-edit');
-  const tb=document.getElementById('edit-toolbar');
+  const panel=document.getElementById('editor-panel');
   if(editMode){
-    btn.textContent='✕ Sair Editor'; btn.className='btn btn-red';
-    tb.classList.add('open');
-    renderCard(); buildFieldsList();
-    openSidebar();
+    btn.textContent='✕ Sair'; btn.className='btn btn-red btn-sm';
+    panel.classList.add('open');
+    renderCard(); buildChips(); buildCtrlPanel();
   } else {
-    btn.textContent='✦ Editor'; btn.className='btn btn-purple';
-    tb.classList.remove('open');
-    selectedKey=null; closeSidebar();
-    renderCard();
+    btn.textContent='✦ Editar'; btn.className='btn btn-purple btn-sm';
+    panel.classList.remove('open');
+    selKey=null; renderCard();
   }
 }
 
+function toggleGrid(){
+  showGrid=!showGrid;
+  document.getElementById('btn-grid').className='btn btn-navy'+(showGrid?' active':'');
+  const g=document.getElementById('grid-overlay');
+  if(g) g.style.display=showGrid?'block':'none';
+}
+function toggleGuides(){
+  showGuides=!showGuides;
+  document.getElementById('btn-guides').className='btn btn-navy'+(showGuides?' active':'');
+  renderCard(); if(editMode){ bindDrag(); buildChips(); }
+}
+
+/* DOWNLOADS */
 async function downloadPNG(){
   const el=document.getElementById('the-card');
   const c=await html2canvas(el,{scale:3,useCORS:true,allowTaint:true,backgroundColor:null});
@@ -696,7 +635,6 @@ async function downloadPNG(){
   a.download=`carteirinha_${tab}_${membro?.numCred||'x'}.png`;
   a.href=c.toDataURL('image/png'); a.click();
 }
-
 async function downloadPDF(){
   const {jsPDF}=window.jspdf;
   const pdf=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
@@ -705,8 +643,7 @@ async function downloadPDF(){
   const cF=await html2canvas(document.getElementById('the-card'),{scale:3,useCORS:true,allowTaint:true,backgroundColor:null});
   tab='V'; renderCard(); await new Promise(r=>setTimeout(r,400));
   const cV=await html2canvas(document.getElementById('the-card'),{scale:3,useCORS:true,allowTaint:true,backgroundColor:null});
-  const w=297,h=210,hw=w/2;
-  const fh=(cF.height*hw)/cF.width;
+  const w=297,h=210,hw=w/2,fh=(cF.height*hw)/cF.width;
   pdf.addImage(cF.toDataURL('image/png'),'PNG',0,(h-fh)/2,hw,fh);
   pdf.addImage(cV.toDataURL('image/png'),'PNG',hw,(h-fh)/2,hw,fh);
   pdf.save(`carteirinha_${membro?.numCred||'x'}.pdf`);
