@@ -180,12 +180,12 @@ const BINKEY= ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77D
 /* ─── LAYOUTS PADRÃO SEPARADOS POR FACE ─── */
 const DEFAULT_F = {
   f_photo: { type:'photo', left:2.5, top:30.5, w:13.5, ratio:'3/4' },
-  f_cargo: { left:23.0, top:41.0, size:3.0, bold:true,  color:'#1a2a6e', upper:true  },
-  f_nome:  { left:23.0, top:57.0, size:3.0, bold:true,  color:'#111',    upper:true  },
-  f_mat:   { left:7.2,  top:72.0, size:2.4, bold:true,  color:'#111',    upper:false },
-  f_cpf:   { left:23.0, top:72.0, size:2.4, bold:true,  color:'#111',    upper:false },
-  f_emissao:{ left:62.0, top:72.0, size:2.4, bold:true, color:'#111',    upper:false },
-  f_hash:  { left:23.0, top:82.0, size:2.1, bold:false, color:'#333',    upper:false },
+  f_cargo: { left:23.0, top:36.9, size:3.0, bold:true,  color:'#1a2a6e', upper:true  },
+  f_nome:  { left:23.0, top:53.8, size:3.0, bold:true,  color:'#111',    upper:true  },
+  f_mat:   { left:7.2,  top:68.4, size:2.4, bold:true,  color:'#111',    upper:false },
+  f_cpf:   { left:23.0, top:68.4, size:2.4, bold:true,  color:'#111',    upper:false },
+  f_emissao:{ left:62.0, top:68.4, size:2.4, bold:true, color:'#111',    upper:false },
+  f_hash:  { left:23.0, top:80.9, size:2.1, bold:false, color:'#333',    upper:false },
 };
 
 const DEFAULT_V = {
@@ -212,11 +212,11 @@ let editMode = false;
 let membro   = null;
 
 function loadLayouts(){
-  try{ const s=localStorage.getItem('cart_lF_v4'); if(s) layoutF=JSON.parse(s); else layoutF=JSON.parse(JSON.stringify(DEFAULT_F)); }catch(e){ layoutF=JSON.parse(JSON.stringify(DEFAULT_F)); }
+  try{ const s=localStorage.getItem('cart_lF_v5'); if(s) layoutF=JSON.parse(s); else layoutF=JSON.parse(JSON.stringify(DEFAULT_F)); }catch(e){ layoutF=JSON.parse(JSON.stringify(DEFAULT_F)); }
   try{ const s=localStorage.getItem('cart_lV_v4'); if(s) layoutV=JSON.parse(s); else layoutV=JSON.parse(JSON.stringify(DEFAULT_V)); }catch(e){ layoutV=JSON.parse(JSON.stringify(DEFAULT_V)); }
 }
 function saveLayout(){
-  localStorage.setItem('cart_lF_v4', JSON.stringify(layoutF));
+  localStorage.setItem('cart_lF_v5', JSON.stringify(layoutF));
   localStorage.setItem('cart_lV_v4', JSON.stringify(layoutV));
   alert('✅ Layout salvo!');
 }
@@ -273,7 +273,7 @@ function renderCard(){
   const data=getData();
   const D=editMode?' drag':'';
   const layout=tab==='F'?layoutF:layoutV;
-  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=1782165120`:`${BASE}/verso.jpg?v=1782165120`;
+  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=1782165357`:`${BASE}/verso.jpg?v=1782165120`;
 
   let fields='';
   for(const [key,cfg] of Object.entries(layout)){
