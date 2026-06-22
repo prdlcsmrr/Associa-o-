@@ -590,6 +590,93 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
         <p style="font-size:11px;color:#9ca3af;margin-top:4px">Deixe nova senha em branco para manter a atual.</p>
       </div>
 
+      <!-- DADOS BANCÁRIOS -->
+      <div class="box" style="margin-bottom:16px">
+        <div class="box-title">🏦 Dados Bancários</div>
+
+        <div class="field">
+          <label>Banco</label>
+          <select id="cfg-banco">
+            <option value="">Selecione o banco</option>
+            <option value="001">001 — Banco do Brasil</option>
+            <option value="033">033 — Santander</option>
+            <option value="077">077 — Banco Inter</option>
+            <option value="104">104 — Caixa Econômica Federal</option>
+            <option value="237">237 — Bradesco</option>
+            <option value="341">341 — Itaú</option>
+            <option value="208">208 — BTG Pactual</option>
+            <option value="260">260 — Nubank</option>
+            <option value="290">290 — PagBank</option>
+            <option value="336">336 — C6 Bank</option>
+            <option value="748">748 — Sicredi</option>
+            <option value="756">756 — Sicoob</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+
+        <div class="field" id="banco-outro-field" style="display:none">
+          <label>Nome do Banco (outro)</label>
+          <input type="text" id="cfg-banco-outro" placeholder="Nome do banco">
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Agência</label>
+            <input type="text" id="cfg-agencia" placeholder="0000">
+          </div>
+          <div class="field">
+            <label>Conta</label>
+            <input type="text" id="cfg-conta" placeholder="00000-0">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Tipo de Conta</label>
+            <select id="cfg-tipo-conta">
+              <option value="">Selecione</option>
+              <option>Conta Corrente</option>
+              <option>Conta Poupança</option>
+              <option>Conta de Pagamento</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Titular da Conta</label>
+            <input type="text" id="cfg-titular" placeholder="Nome ou razão social">
+          </div>
+        </div>
+
+        <div style="background:#f0f4ff;border:1px solid #c0ceff;border-radius:8px;padding:14px;margin-top:4px;margin-bottom:14px">
+          <div style="font-size:11px;font-weight:800;color:#1a2a5e;margin-bottom:10px">💚 Dados PIX</div>
+          <div class="field">
+            <label>Tipo de Chave PIX</label>
+            <select id="cfg-pix-tipo" onchange="updatePixPlaceholder()">
+              <option value="">Selecione o tipo</option>
+              <option value="cpf">CPF</option>
+              <option value="cnpj">CNPJ</option>
+              <option value="email">E-mail</option>
+              <option value="telefone">Telefone</option>
+              <option value="aleatoria">Chave Aleatória</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Chave PIX</label>
+            <input type="text" id="cfg-pix-chave" placeholder="Digite a chave PIX">
+          </div>
+          <div class="field">
+            <label>Nome do favorecido (aparece no PIX)</label>
+            <input type="text" id="cfg-pix-favorecido" placeholder="Nome que aparece na transferência">
+          </div>
+        </div>
+
+        <div style="background:#f0fff4;border:1px solid #bbf0bb;border-radius:8px;padding:12px">
+          <div style="font-size:11px;font-weight:800;color:#2a7a38;margin-bottom:6px">📋 Dados para Transferência</div>
+          <div id="dados-bancarios-preview" style="font-size:12px;color:#333;line-height:1.8;font-family:monospace">
+            Preencha os campos acima para ver o resumo
+          </div>
+        </div>
+      </div>
+
       <!-- Mensalidade -->
       <div class="box" style="margin-bottom:16px">
         <div class="box-title">💰 Configurações de Cobrança</div>
@@ -906,7 +993,43 @@ async function salvar(){
 
   // Save to localStorage immediately
   localStorage.setItem('members',JSON.stringify(members));
-  updateCount();
+  function updatePixPlaceholder(){
+  const tipo = document.getElementById('cfg-pix-tipo').value;
+  const field = document.getElementById('cfg-pix-chave');
+  const placeholders = {
+    cpf:'000.000.000-00', cnpj:'00.000.000/0001-00',
+    email:'contato@associacao.org.br', telefone:'+55 (21) 99999-9999',
+    aleatoria:'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+  };
+  field.placeholder = placeholders[tipo] || 'Digite a chave PIX';
+  updateDadosBancariosPreview();
+}
+
+function updateDadosBancariosPreview(){
+  const banco = document.getElementById('cfg-banco');
+  const bancoNome = banco.value === 'outro'
+    ? document.getElementById('cfg-banco-outro').value
+    : banco.options[banco.selectedIndex]?.text || '—';
+  const agencia = document.getElementById('cfg-agencia').value || '—';
+  const conta = document.getElementById('cfg-conta').value || '—';
+  const tipo = document.getElementById('cfg-tipo-conta').value || '—';
+  const titular = document.getElementById('cfg-titular').value || '—';
+  const pixTipo = document.getElementById('cfg-pix-tipo').value || '—';
+  const pixChave = document.getElementById('cfg-pix-chave').value || '—';
+
+  document.getElementById('dados-bancarios-preview').innerHTML =
+    `Banco: <strong>${bancoNome}</strong><br>` +
+    `Agência: <strong>${agencia}</strong> | Conta: <strong>${conta}</strong> (${tipo})<br>` +
+    `Titular: <strong>${titular}</strong><br>` +
+    `PIX (${pixTipo}): <strong>${pixChave}</strong>`;
+}
+
+document.getElementById('cfg-banco')?.addEventListener('change', function(){
+  document.getElementById('banco-outro-field').style.display = this.value==='outro'?'block':'none';
+  updateDadosBancariosPreview();
+});
+
+updateCount();
   showA('aok');
   limpar();
 
@@ -990,6 +1113,42 @@ function savePag(){
 
 function closePag(e){ if(e.target===document.getElementById('modal-pag')) closePagDirect(); }
 function closePagDirect(){ document.getElementById('modal-pag').classList.remove('open'); pagAtualId=null; }
+
+function updatePixPlaceholder(){
+  const tipo = document.getElementById('cfg-pix-tipo').value;
+  const field = document.getElementById('cfg-pix-chave');
+  const placeholders = {
+    cpf:'000.000.000-00', cnpj:'00.000.000/0001-00',
+    email:'contato@associacao.org.br', telefone:'+55 (21) 99999-9999',
+    aleatoria:'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+  };
+  field.placeholder = placeholders[tipo] || 'Digite a chave PIX';
+  updateDadosBancariosPreview();
+}
+
+function updateDadosBancariosPreview(){
+  const banco = document.getElementById('cfg-banco');
+  const bancoNome = banco.value === 'outro'
+    ? document.getElementById('cfg-banco-outro').value
+    : banco.options[banco.selectedIndex]?.text || '—';
+  const agencia = document.getElementById('cfg-agencia').value || '—';
+  const conta = document.getElementById('cfg-conta').value || '—';
+  const tipo = document.getElementById('cfg-tipo-conta').value || '—';
+  const titular = document.getElementById('cfg-titular').value || '—';
+  const pixTipo = document.getElementById('cfg-pix-tipo').value || '—';
+  const pixChave = document.getElementById('cfg-pix-chave').value || '—';
+
+  document.getElementById('dados-bancarios-preview').innerHTML =
+    `Banco: <strong>${bancoNome}</strong><br>` +
+    `Agência: <strong>${agencia}</strong> | Conta: <strong>${conta}</strong> (${tipo})<br>` +
+    `Titular: <strong>${titular}</strong><br>` +
+    `PIX (${pixTipo}): <strong>${pixChave}</strong>`;
+}
+
+document.getElementById('cfg-banco')?.addEventListener('change', function(){
+  document.getElementById('banco-outro-field').style.display = this.value==='outro'?'block':'none';
+  updateDadosBancariosPreview();
+});
 
 updateCount();}
 function updateCount(){const n=members.length;document.getElementById('hcount').textContent=n+(n===1?' membro':' membros');}
@@ -1153,7 +1312,43 @@ async function reloadMembers(){
     }
   }
 
-  updateCount();
+  function updatePixPlaceholder(){
+  const tipo = document.getElementById('cfg-pix-tipo').value;
+  const field = document.getElementById('cfg-pix-chave');
+  const placeholders = {
+    cpf:'000.000.000-00', cnpj:'00.000.000/0001-00',
+    email:'contato@associacao.org.br', telefone:'+55 (21) 99999-9999',
+    aleatoria:'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+  };
+  field.placeholder = placeholders[tipo] || 'Digite a chave PIX';
+  updateDadosBancariosPreview();
+}
+
+function updateDadosBancariosPreview(){
+  const banco = document.getElementById('cfg-banco');
+  const bancoNome = banco.value === 'outro'
+    ? document.getElementById('cfg-banco-outro').value
+    : banco.options[banco.selectedIndex]?.text || '—';
+  const agencia = document.getElementById('cfg-agencia').value || '—';
+  const conta = document.getElementById('cfg-conta').value || '—';
+  const tipo = document.getElementById('cfg-tipo-conta').value || '—';
+  const titular = document.getElementById('cfg-titular').value || '—';
+  const pixTipo = document.getElementById('cfg-pix-tipo').value || '—';
+  const pixChave = document.getElementById('cfg-pix-chave').value || '—';
+
+  document.getElementById('dados-bancarios-preview').innerHTML =
+    `Banco: <strong>${bancoNome}</strong><br>` +
+    `Agência: <strong>${agencia}</strong> | Conta: <strong>${conta}</strong> (${tipo})<br>` +
+    `Titular: <strong>${titular}</strong><br>` +
+    `PIX (${pixTipo}): <strong>${pixChave}</strong>`;
+}
+
+document.getElementById('cfg-banco')?.addEventListener('change', function(){
+  document.getElementById('banco-outro-field').style.display = this.value==='outro'?'block':'none';
+  updateDadosBancariosPreview();
+});
+
+updateCount();
   renderList();
   if(btn){ btn.textContent='✅'; setTimeout(()=>{btn.textContent='🔄';btn.disabled=false;},1500); }
 }
@@ -1193,7 +1388,43 @@ async function loadFromCloud(){
     }catch(e2){}
   }
 
-  updateCount();
+  function updatePixPlaceholder(){
+  const tipo = document.getElementById('cfg-pix-tipo').value;
+  const field = document.getElementById('cfg-pix-chave');
+  const placeholders = {
+    cpf:'000.000.000-00', cnpj:'00.000.000/0001-00',
+    email:'contato@associacao.org.br', telefone:'+55 (21) 99999-9999',
+    aleatoria:'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+  };
+  field.placeholder = placeholders[tipo] || 'Digite a chave PIX';
+  updateDadosBancariosPreview();
+}
+
+function updateDadosBancariosPreview(){
+  const banco = document.getElementById('cfg-banco');
+  const bancoNome = banco.value === 'outro'
+    ? document.getElementById('cfg-banco-outro').value
+    : banco.options[banco.selectedIndex]?.text || '—';
+  const agencia = document.getElementById('cfg-agencia').value || '—';
+  const conta = document.getElementById('cfg-conta').value || '—';
+  const tipo = document.getElementById('cfg-tipo-conta').value || '—';
+  const titular = document.getElementById('cfg-titular').value || '—';
+  const pixTipo = document.getElementById('cfg-pix-tipo').value || '—';
+  const pixChave = document.getElementById('cfg-pix-chave').value || '—';
+
+  document.getElementById('dados-bancarios-preview').innerHTML =
+    `Banco: <strong>${bancoNome}</strong><br>` +
+    `Agência: <strong>${agencia}</strong> | Conta: <strong>${conta}</strong> (${tipo})<br>` +
+    `Titular: <strong>${titular}</strong><br>` +
+    `PIX (${pixTipo}): <strong>${pixChave}</strong>`;
+}
+
+document.getElementById('cfg-banco')?.addEventListener('change', function(){
+  document.getElementById('banco-outro-field').style.display = this.value==='outro'?'block':'none';
+  updateDadosBancariosPreview();
+});
+
+updateCount();
   const lista = document.getElementById('page-lista');
   if(lista && lista.classList.contains('active')) renderList();
 }
@@ -1281,6 +1512,18 @@ function goToConfig(){
   document.getElementById('cfg-valor').value = cfg.valorMensalidade || '100';
   document.getElementById('cfg-venc').value = cfg.diaVencimento || '10';
   document.getElementById('cfg-pix').value = cfg.pixKey || '';
+  // Dados bancários
+  document.getElementById('cfg-banco').value = cfg.banco || '';
+  document.getElementById('cfg-banco-outro').value = cfg.bancoOutro || '';
+  if(cfg.banco === 'outro') document.getElementById('banco-outro-field').style.display='block';
+  document.getElementById('cfg-agencia').value = cfg.agencia || '';
+  document.getElementById('cfg-conta').value = cfg.conta || '';
+  document.getElementById('cfg-tipo-conta').value = cfg.tipoConta || '';
+  document.getElementById('cfg-titular').value = cfg.titular || '';
+  document.getElementById('cfg-pix-tipo').value = cfg.pixTipo || '';
+  document.getElementById('cfg-pix-chave').value = cfg.pixChave || '';
+  document.getElementById('cfg-pix-favorecido').value = cfg.pixFavorecido || '';
+  updateDadosBancariosPreview();
   // Dados da Associação
   document.getElementById('cfg-assoc-nome').value = cfg.assocNome || '';
   document.getElementById('cfg-assoc-cnpj').value = cfg.assocCnpj || '';
@@ -1397,6 +1640,15 @@ function saveConfig(){
     valorMensalidade:document.getElementById('cfg-valor').value||'100',
     diaVencimento:document.getElementById('cfg-venc').value||'10',
     pixKey:document.getElementById('cfg-pix').value.trim(),
+    banco:document.getElementById('cfg-banco').value,
+    bancoOutro:document.getElementById('cfg-banco-outro').value.trim(),
+    agencia:document.getElementById('cfg-agencia').value.trim(),
+    conta:document.getElementById('cfg-conta').value.trim(),
+    tipoConta:document.getElementById('cfg-tipo-conta').value,
+    titular:document.getElementById('cfg-titular').value.trim(),
+    pixTipo:document.getElementById('cfg-pix-tipo').value,
+    pixChave:document.getElementById('cfg-pix-chave').value.trim(),
+    pixFavorecido:document.getElementById('cfg-pix-favorecido').value.trim(),
     logo:logo,
     // Dados da Associação
     assocNome:document.getElementById('cfg-assoc-nome').value.trim(),
@@ -1511,6 +1763,42 @@ function savePag(){
 
 function closePag(e){ if(e.target===document.getElementById('modal-pag')) closePagDirect(); }
 function closePagDirect(){ document.getElementById('modal-pag').classList.remove('open'); pagAtualId=null; }
+
+function updatePixPlaceholder(){
+  const tipo = document.getElementById('cfg-pix-tipo').value;
+  const field = document.getElementById('cfg-pix-chave');
+  const placeholders = {
+    cpf:'000.000.000-00', cnpj:'00.000.000/0001-00',
+    email:'contato@associacao.org.br', telefone:'+55 (21) 99999-9999',
+    aleatoria:'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+  };
+  field.placeholder = placeholders[tipo] || 'Digite a chave PIX';
+  updateDadosBancariosPreview();
+}
+
+function updateDadosBancariosPreview(){
+  const banco = document.getElementById('cfg-banco');
+  const bancoNome = banco.value === 'outro'
+    ? document.getElementById('cfg-banco-outro').value
+    : banco.options[banco.selectedIndex]?.text || '—';
+  const agencia = document.getElementById('cfg-agencia').value || '—';
+  const conta = document.getElementById('cfg-conta').value || '—';
+  const tipo = document.getElementById('cfg-tipo-conta').value || '—';
+  const titular = document.getElementById('cfg-titular').value || '—';
+  const pixTipo = document.getElementById('cfg-pix-tipo').value || '—';
+  const pixChave = document.getElementById('cfg-pix-chave').value || '—';
+
+  document.getElementById('dados-bancarios-preview').innerHTML =
+    `Banco: <strong>${bancoNome}</strong><br>` +
+    `Agência: <strong>${agencia}</strong> | Conta: <strong>${conta}</strong> (${tipo})<br>` +
+    `Titular: <strong>${titular}</strong><br>` +
+    `PIX (${pixTipo}): <strong>${pixChave}</strong>`;
+}
+
+document.getElementById('cfg-banco')?.addEventListener('change', function(){
+  document.getElementById('banco-outro-field').style.display = this.value==='outro'?'block':'none';
+  updateDadosBancariosPreview();
+});
 
 updateCount();
 const today=new Date().toISOString().split('T')[0];
