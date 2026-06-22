@@ -197,6 +197,34 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 .modal-status-bar.ativo { background:rgba(26,122,58,0.12);border:1px solid rgba(26,122,58,0.35);color:#1a7a3a; }
 .modal-status-bar.inativo { background:rgba(185,28,28,0.08);border:1px solid rgba(185,28,28,0.3);color:#b91c1c; }
 
+
+/* ── MODAL EDIÇÃO ── */
+#modal-edit { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:2000;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto; }
+#modal-edit.open { display:flex; }
+.edit-card { background:#fff;width:100%;max-width:680px;border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.35);margin:auto; }
+.edit-header { background:var(--navy);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:4px solid var(--gold); }
+.edit-header h3 { color:#fff;font-size:15px;font-weight:900;letter-spacing:0.5px; }
+.edit-close { background:rgba(255,255,255,0.12);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center; }
+.edit-body { padding:20px; }
+.edit-section { margin-bottom:20px; }
+.edit-section-title { font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:var(--navy);border-bottom:2px solid var(--gold);padding-bottom:5px;margin-bottom:14px; }
+.edit-grid { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
+.edit-grid.col3 { grid-template-columns:1fr 1fr 1fr; }
+.edit-grid.col1 { grid-template-columns:1fr; }
+.edit-field label { display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#666;margin-bottom:5px; }
+.edit-field input, .edit-field select, .edit-field textarea {
+  width:100%;background:#f8f9fa;border:1.5px solid #e0e0e0;border-radius:8px;
+  padding:9px 12px;font-size:13px;font-weight:600;color:var(--navy);
+  transition:border-color .2s;outline:none;
+}
+.edit-field input:focus, .edit-field select:focus, .edit-field textarea:focus { border-color:var(--navy);background:#fff; }
+.edit-field textarea { min-height:70px;resize:vertical;font-family:inherit; }
+.edit-foto-row { display:flex;align-items:center;gap:14px;margin-bottom:14px; }
+.edit-foto-preview { width:72px;height:90px;border:2px solid #ddd;border-radius:6px;overflow:hidden;background:#f0f0f0;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:24px; }
+.edit-foto-preview img { width:100%;height:100%;object-fit:cover; }
+.edit-footer { padding:16px 20px;border-top:1px solid #e8e8e8;display:flex;gap:10px;justify-content:flex-end; }
+@media(max-width:520px){ .edit-grid{grid-template-columns:1fr;} .edit-grid.col3{grid-template-columns:1fr 1fr;} }
+
 @media(max-width:660px){
   .form-grid{grid-template-columns:1fr;}
   .content{padding:16px;}
@@ -995,6 +1023,9 @@ async function salvar(){
     emissao:document.getElementById('f-emissao').value,
     validade:document.getElementById('f-validade').value,
     obs:document.getElementById('f-obs').value.trim(),
+    formacao:'',
+    especializacao:'',
+    rgUf:'',
     foto:photo||null,numCred,docId,
     hash:genHash(docId),
     dataCad:new Date().toLocaleDateString('pt-BR'),
@@ -1195,6 +1226,7 @@ function renderList(){
           <div style="position:relative" id="menu-wrap-${m.id}">
             <button onclick="toggleMenu(${m.id},event)" style="width:36px;height:34px;border-radius:8px;border:1px solid #e0e0e0;background:#f9f9f9;cursor:pointer;font-size:18px;font-weight:900;color:#555;display:flex;align-items:center;justify-content:center" title="Mais opções">⋯</button>
             <div id="dd-${m.id}" style="display:none;position:absolute;bottom:42px;right:0;background:#fff;border:1px solid #e0e0e0;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.15);min-width:195px;z-index:999;overflow:hidden">
+              <div onclick="openEdit(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">✏️ Editar Cadastro</div>
               <div onclick="gerarCarteirinha('${m.numCred}');closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">🖨️ Gerar Carteirinha</div>
               <div onclick="gerarCobranca('${m.numCred}');closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">💰 Cobrança / Carnê</div>
               <div onclick="openPag(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">📋 Pagamentos</div>
@@ -1210,6 +1242,123 @@ function renderList(){
 
 // CREDENCIAL MODAL
 let _credAtualId=null;
+
+
+// ════ EDIÇÃO DE MEMBRO ════
+let _editId = null;
+let _editFotoData = null;
+
+function openEdit(id){
+  const m = members.find(x=>x.id===id);
+  if(!m) return;
+  _editId = id;
+  _editFotoData = m.foto || null;
+
+  // Preencher campos
+  document.getElementById('edit-nome').value        = m.nome||'';
+  document.getElementById('edit-cpf').value         = m.cpf||'';
+  document.getElementById('edit-nasc').value        = m.nasc||'';
+  document.getElementById('edit-sexo').value        = m.sexo||'';
+  document.getElementById('edit-tel').value         = m.tel||'';
+  document.getElementById('edit-email').value       = m.email||'';
+  document.getElementById('edit-naturalidade').value= m.naturalidade||'';
+  document.getElementById('edit-municipio').value   = m.municipio||'';
+  document.getElementById('edit-pai').value         = m.pai||'';
+  document.getElementById('edit-mae').value         = m.mae||'';
+  document.getElementById('edit-cat').value         = m.cat||'Funcionário';
+  document.getElementById('edit-status').value      = m.status||'Ativo';
+  document.getElementById('edit-emissao').value     = m.emissao||'';
+  document.getElementById('edit-validade').value    = m.validade||'';
+  document.getElementById('edit-rgUf').value        = m.rgUf||'';
+  document.getElementById('edit-numCred').value     = m.numCred||'';
+  document.getElementById('edit-formacao').value    = m.formacao||'';
+  document.getElementById('edit-especializacao').value = m.especializacao||'';
+  document.getElementById('edit-obs').value         = m.obs||'';
+  document.getElementById('edit-foto-url').value    = '';
+
+  // Preview foto
+  const prev = document.getElementById('edit-foto-preview');
+  prev.innerHTML = m.foto ? `<img src="${m.foto}" alt="">` : '👤';
+
+  document.getElementById('modal-edit').classList.add('open');
+}
+
+function closeEdit(e){ if(e.target===document.getElementById('modal-edit')) closeEditDirect(); }
+function closeEditDirect(){ document.getElementById('modal-edit').classList.remove('open'); _editId=null; _editFotoData=null; }
+
+function editFotoUpload(input){
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    _editFotoData = e.target.result;
+    document.getElementById('edit-foto-preview').innerHTML = `<img src="${_editFotoData}" alt="">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function editRemoveFoto(){
+  _editFotoData = null;
+  document.getElementById('edit-foto-preview').innerHTML = '👤';
+  document.getElementById('edit-foto-url').value = '';
+}
+
+function saveEdit(){
+  const idx = members.findIndex(x=>x.id===_editId);
+  if(idx<0){ alert('Membro não encontrado'); return; }
+
+  const nome = document.getElementById('edit-nome').value.trim();
+  const cpf  = document.getElementById('edit-cpf').value.trim();
+  if(!nome||!cpf){ alert('Nome e CPF são obrigatórios'); return; }
+
+  // Foto: prioridade — arquivo carregado > URL digitada > manter existente
+  const fotoUrl = document.getElementById('edit-foto-url').value.trim();
+  const fotoFinal = _editFotoData || (fotoUrl||null) || members[idx].foto || null;
+
+  // Preservar campos imutáveis
+  const keep = {
+    id:       members[idx].id,
+    numCred:  members[idx].numCred,
+    docId:    members[idx].docId,
+    hash:     members[idx].hash,
+    dataCad:  members[idx].dataCad,
+    pagamentos: members[idx].pagamentos||[],
+    qrUrl:    members[idx].qrUrl,
+  };
+
+  members[idx] = {
+    ...keep,
+    nome, cpf,
+    nasc:            document.getElementById('edit-nasc').value,
+    sexo:            document.getElementById('edit-sexo').value,
+    tel:             document.getElementById('edit-tel').value.trim(),
+    email:           document.getElementById('edit-email').value.trim(),
+    naturalidade:    document.getElementById('edit-naturalidade').value.trim(),
+    municipio:       document.getElementById('edit-municipio').value.trim(),
+    pai:             document.getElementById('edit-pai').value.trim(),
+    mae:             document.getElementById('edit-mae').value.trim(),
+    cat:             document.getElementById('edit-cat').value,
+    status:          document.getElementById('edit-status').value,
+    emissao:         document.getElementById('edit-emissao').value,
+    validade:        document.getElementById('edit-validade').value,
+    rgUf:            document.getElementById('edit-rgUf').value.trim(),
+    formacao:        document.getElementById('edit-formacao').value.trim(),
+    especializacao:  document.getElementById('edit-especializacao').value.trim(),
+    obs:             document.getElementById('edit-obs').value.trim(),
+    foto:            fotoFinal,
+  };
+
+  localStorage.setItem('members', JSON.stringify(members));
+  save(); // sinc JSONBin
+  renderList();
+  closeEditDirect();
+
+  // Feedback
+  const toast = document.createElement('div');
+  toast.textContent = '✅ Cadastro atualizado!';
+  toast.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a7a3a;color:#fff;padding:12px 24px;border-radius:30px;font-size:13px;font-weight:700;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.25)';
+  document.body.appendChild(toast);
+  setTimeout(()=>toast.remove(), 2500);
+}
 
 function openCred(id){
   const m=members.find(x=>x.id===id); if(!m)return;
@@ -1311,7 +1460,100 @@ body{background:#fff;display:flex;justify-content:center;padding:20px;font-famil
 .cfooter{background:var(--navy);padding:8px 18px;display:flex;align-items:center;justify-content:space-between;}
 .cft{font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:1px;}
 .cphoto-ph{display:flex;flex-direction:column;align-items:center;gap:5px;color:#999;font-size:10px;}
-</style></head><body>${c}</body></html>`);
+</style></head><body>${c}
+<!-- ── MODAL EDIÇÃO DE MEMBRO ── -->
+<div id="modal-edit" onclick="closeEdit(event)">
+  <div class="edit-card">
+    <div class="edit-header">
+      <h3>✏️ Editar Cadastro</h3>
+      <button class="edit-close" onclick="closeEditDirect()">✕</button>
+    </div>
+    <div class="edit-body">
+
+      <!-- Foto -->
+      <div class="edit-section">
+        <div class="edit-section-title">📷 Foto</div>
+        <div class="edit-foto-row">
+          <div class="edit-foto-preview" id="edit-foto-preview">👤</div>
+          <div style="flex:1">
+            <div class="edit-field">
+              <label>URL da foto ou selecionar arquivo</label>
+              <input type="url" id="edit-foto-url" placeholder="https://... ou use o botão abaixo">
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn btn-navy" style="font-size:11px;padding:7px 14px" onclick="document.getElementById('edit-foto-file').click()">📂 Selecionar arquivo</button>
+              <input type="file" id="edit-foto-file" accept="image/*" style="display:none" onchange="editFotoUpload(this)">
+              <button class="btn btn-outline" style="font-size:11px;padding:7px 14px;color:#b91c1c;border-color:#b91c1c" onclick="editRemoveFoto()">🗑️ Remover</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dados Pessoais -->
+      <div class="edit-section">
+        <div class="edit-section-title">👤 Dados Pessoais</div>
+        <div class="edit-grid">
+          <div class="edit-field" style="grid-column:1/-1"><label>Nome Completo *</label><input type="text" id="edit-nome"></div>
+          <div class="edit-field"><label>CPF *</label><input type="text" id="edit-cpf" maxlength="14" placeholder="000.000.000-00"></div>
+          <div class="edit-field"><label>Data de Nascimento</label><input type="date" id="edit-nasc"></div>
+          <div class="edit-field"><label>Sexo</label>
+            <select id="edit-sexo"><option value="">—</option><option>Masculino</option><option>Feminino</option><option>Outro</option></select>
+          </div>
+          <div class="edit-field"><label>Telefone</label><input type="tel" id="edit-tel" placeholder="(21) 99999-9999"></div>
+          <div class="edit-field"><label>E-mail</label><input type="email" id="edit-email"></div>
+          <div class="edit-field"><label>Naturalidade</label><input type="text" id="edit-naturalidade" placeholder="Cidade de nascimento"></div>
+          <div class="edit-field"><label>Município (residência)</label><input type="text" id="edit-municipio"></div>
+          <div class="edit-field"><label>Nome do Pai</label><input type="text" id="edit-pai"></div>
+          <div class="edit-field"><label>Nome da Mãe</label><input type="text" id="edit-mae"></div>
+        </div>
+      </div>
+
+      <!-- Dados Funcionais -->
+      <div class="edit-section">
+        <div class="edit-section-title">🪪 Dados Funcionais</div>
+        <div class="edit-grid">
+          <div class="edit-field"><label>Cargo / Categoria</label>
+            <select id="edit-cat">
+              <option value="Funcionário">Funcionário</option>
+              <option value="Agente">Agente</option>
+              <option value="Inspetor">Inspetor</option>
+              <option value="Supervisor">Supervisor</option>
+              <option value="Coordenador">Coordenador</option>
+              <option value="Gerente">Gerente</option>
+              <option value="Diretor">Diretor</option>
+              <option value="Associado">Associado</option>
+              <option value="Colaborador">Colaborador</option>
+            </select>
+          </div>
+          <div class="edit-field"><label>Status</label>
+            <select id="edit-status"><option value="Ativo">Ativo</option><option value="Inativo">Inativo</option></select>
+          </div>
+          <div class="edit-field"><label>Emissão</label><input type="date" id="edit-emissao"></div>
+          <div class="edit-field"><label>Validade</label><input type="date" id="edit-validade"></div>
+          <div class="edit-field"><label>RG / UF</label><input type="text" id="edit-rgUf" placeholder="Ex: 12345678 / RJ"></div>
+          <div class="edit-field"><label>Matrícula</label><input type="text" id="edit-numCred" readonly style="opacity:.6;cursor:not-allowed" title="Matrícula gerada automaticamente"></div>
+        </div>
+      </div>
+
+      <!-- Formações e Informações Adicionais -->
+      <div class="edit-section">
+        <div class="edit-section-title">📚 Formações / Observações</div>
+        <div class="edit-grid col1">
+          <div class="edit-field"><label>Formação Acadêmica</label><input type="text" id="edit-formacao" placeholder="Ex: Bacharel em Direito — UFRJ"></div>
+          <div class="edit-field"><label>Especialização / Cursos</label><input type="text" id="edit-especializacao" placeholder="Ex: Pós-graduação em Segurança Pública"></div>
+          <div class="edit-field"><label>Observações</label><textarea id="edit-obs" placeholder="Informações adicionais, anotações..."></textarea></div>
+        </div>
+      </div>
+
+    </div>
+    <div class="edit-footer">
+      <button class="btn btn-outline" onclick="closeEditDirect()">✕ Cancelar</button>
+      <button class="btn btn-green" onclick="saveEdit()">💾 Salvar Alterações</button>
+    </div>
+  </div>
+</div>
+
+</body></html>`);
   w.document.close();setTimeout(()=>w.print(),800);
 }
 
@@ -1853,6 +2095,99 @@ document.getElementById('f-emissao').value=today;
 const ny=new Date();ny.setFullYear(ny.getFullYear()+1);
 document.getElementById('f-validade').value=ny.toISOString().split('T')[0];
 </script>
+
+<!-- ── MODAL EDIÇÃO DE MEMBRO ── -->
+<div id="modal-edit" onclick="closeEdit(event)">
+  <div class="edit-card">
+    <div class="edit-header">
+      <h3>✏️ Editar Cadastro</h3>
+      <button class="edit-close" onclick="closeEditDirect()">✕</button>
+    </div>
+    <div class="edit-body">
+
+      <!-- Foto -->
+      <div class="edit-section">
+        <div class="edit-section-title">📷 Foto</div>
+        <div class="edit-foto-row">
+          <div class="edit-foto-preview" id="edit-foto-preview">👤</div>
+          <div style="flex:1">
+            <div class="edit-field">
+              <label>URL da foto ou selecionar arquivo</label>
+              <input type="url" id="edit-foto-url" placeholder="https://... ou use o botão abaixo">
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn btn-navy" style="font-size:11px;padding:7px 14px" onclick="document.getElementById('edit-foto-file').click()">📂 Selecionar arquivo</button>
+              <input type="file" id="edit-foto-file" accept="image/*" style="display:none" onchange="editFotoUpload(this)">
+              <button class="btn btn-outline" style="font-size:11px;padding:7px 14px;color:#b91c1c;border-color:#b91c1c" onclick="editRemoveFoto()">🗑️ Remover</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dados Pessoais -->
+      <div class="edit-section">
+        <div class="edit-section-title">👤 Dados Pessoais</div>
+        <div class="edit-grid">
+          <div class="edit-field" style="grid-column:1/-1"><label>Nome Completo *</label><input type="text" id="edit-nome"></div>
+          <div class="edit-field"><label>CPF *</label><input type="text" id="edit-cpf" maxlength="14" placeholder="000.000.000-00"></div>
+          <div class="edit-field"><label>Data de Nascimento</label><input type="date" id="edit-nasc"></div>
+          <div class="edit-field"><label>Sexo</label>
+            <select id="edit-sexo"><option value="">—</option><option>Masculino</option><option>Feminino</option><option>Outro</option></select>
+          </div>
+          <div class="edit-field"><label>Telefone</label><input type="tel" id="edit-tel" placeholder="(21) 99999-9999"></div>
+          <div class="edit-field"><label>E-mail</label><input type="email" id="edit-email"></div>
+          <div class="edit-field"><label>Naturalidade</label><input type="text" id="edit-naturalidade" placeholder="Cidade de nascimento"></div>
+          <div class="edit-field"><label>Município (residência)</label><input type="text" id="edit-municipio"></div>
+          <div class="edit-field"><label>Nome do Pai</label><input type="text" id="edit-pai"></div>
+          <div class="edit-field"><label>Nome da Mãe</label><input type="text" id="edit-mae"></div>
+        </div>
+      </div>
+
+      <!-- Dados Funcionais -->
+      <div class="edit-section">
+        <div class="edit-section-title">🪪 Dados Funcionais</div>
+        <div class="edit-grid">
+          <div class="edit-field"><label>Cargo / Categoria</label>
+            <select id="edit-cat">
+              <option value="Funcionário">Funcionário</option>
+              <option value="Agente">Agente</option>
+              <option value="Inspetor">Inspetor</option>
+              <option value="Supervisor">Supervisor</option>
+              <option value="Coordenador">Coordenador</option>
+              <option value="Gerente">Gerente</option>
+              <option value="Diretor">Diretor</option>
+              <option value="Associado">Associado</option>
+              <option value="Colaborador">Colaborador</option>
+            </select>
+          </div>
+          <div class="edit-field"><label>Status</label>
+            <select id="edit-status"><option value="Ativo">Ativo</option><option value="Inativo">Inativo</option></select>
+          </div>
+          <div class="edit-field"><label>Emissão</label><input type="date" id="edit-emissao"></div>
+          <div class="edit-field"><label>Validade</label><input type="date" id="edit-validade"></div>
+          <div class="edit-field"><label>RG / UF</label><input type="text" id="edit-rgUf" placeholder="Ex: 12345678 / RJ"></div>
+          <div class="edit-field"><label>Matrícula</label><input type="text" id="edit-numCred" readonly style="opacity:.6;cursor:not-allowed" title="Matrícula gerada automaticamente"></div>
+        </div>
+      </div>
+
+      <!-- Formações e Informações Adicionais -->
+      <div class="edit-section">
+        <div class="edit-section-title">📚 Formações / Observações</div>
+        <div class="edit-grid col1">
+          <div class="edit-field"><label>Formação Acadêmica</label><input type="text" id="edit-formacao" placeholder="Ex: Bacharel em Direito — UFRJ"></div>
+          <div class="edit-field"><label>Especialização / Cursos</label><input type="text" id="edit-especializacao" placeholder="Ex: Pós-graduação em Segurança Pública"></div>
+          <div class="edit-field"><label>Observações</label><textarea id="edit-obs" placeholder="Informações adicionais, anotações..."></textarea></div>
+        </div>
+      </div>
+
+    </div>
+    <div class="edit-footer">
+      <button class="btn btn-outline" onclick="closeEditDirect()">✕ Cancelar</button>
+      <button class="btn btn-green" onclick="saveEdit()">💾 Salvar Alterações</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
 
