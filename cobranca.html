@@ -220,8 +220,11 @@ const BIN_ID  = '6a35c2ddda38895dfee044d5';
 const BINKEY  = ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
 const MESES   = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 let MEMBRO    = null;
-let VALOR_MES = 100.00;
-let PIX_KEY   = 'simulacao@associacao.com.br';
+let VALOR_MES = VALOR_MES_CFG || 100.00;
+// Carregar configurações do sistema
+const _cfg = JSON.parse(localStorage.getItem('assoc-config') || '{}');
+let PIX_KEY   = _cfg.pixChave || '67.134.819/0001-12';
+let VALOR_MES_CFG = parseFloat(_cfg.valorMensalidade || '100');
 
 function fmt(d){ if(!d)return'—'; return new Date(d+'T12:00').toLocaleDateString('pt-BR'); }
 function venc(mes,ano){ return `10/${String(mes+1).padStart(2,'0')}/${ano}`; }
