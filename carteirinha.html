@@ -165,41 +165,42 @@ const BINKEY  = ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn7
    Tamanhos de fonte em vw (do viewport), bold e color ajustáveis.           */
 const DEFAULT = {
   /* ── FRENTE ── */
-  // Foto: canto esq, abaixo do header institucional
-  f_photo:    { card:'F', type:'photo', left:5.5,  top:34,  w:14.5, ratio:'3/4' },
-  // Cargo: à direita da foto
-  f_cargo:    { card:'F', left:24,  top:35,  size:1.15, bold:true,  color:'#1a2a6e', upper:true },
-  // Nome: linha abaixo do cargo
-  f_nome:     { card:'F', left:24,  top:44,  size:1.25, bold:true,  color:'#111', upper:true },
-  // Linha inferior: matrícula | CPF | data expedição
-  f_mat:      { card:'F', left:5.5, top:67,  size:1.0,  bold:true,  color:'#111', upper:false },
-  f_cpf:      { card:'F', left:24,  top:67,  size:1.0,  bold:true,  color:'#111', upper:false },
-  f_emissao:  { card:'F', left:60,  top:67,  size:1.0,  bold:true,  color:'#111', upper:false },
-  // Hash abaixo
-  f_hash:     { card:'F', left:24,  top:75,  size:0.85, bold:false, color:'#333', upper:false },
+  // Foto 3x4: canto esquerdo, abaixo do header, sem cobrir a área de texto
+  f_photo:    { card:'F', type:'photo', left:3.5,  top:32,  w:13.5, ratio:'3/4' },
+  // Cargo: começa após a foto (~21% da frente)
+  f_cargo:    { card:'F', left:21,  top:33,  size:1.1,  bold:true,  color:'#1a2a6e', upper:true },
+  // Nome: linha seguinte
+  f_nome:     { card:'F', left:21,  top:43,  size:1.2,  bold:true,  color:'#111',    upper:true },
+  // Linha de dados: Matrícula | CPF | Data Expedição
+  f_mat:      { card:'F', left:3.5, top:66,  size:0.95, bold:true,  color:'#111', upper:false },
+  f_cpf:      { card:'F', left:21,  top:66,  size:0.95, bold:true,  color:'#111', upper:false },
+  f_emissao:  { card:'F', left:59,  top:66,  size:0.95, bold:true,  color:'#111', upper:false },
+  // Código Hash — linha abaixo
+  f_hash:     { card:'F', left:21,  top:74,  size:0.82, bold:false, color:'#333', upper:false },
   /* ── VERSO ── */
-  // QR menor, canto esq sem cobrir campos
-  v_qr:       { card:'V', type:'qr', left:2.5, top:24, qrSize:9 },
-  // Filiação — valor (não label)
-  v_filiacao: { card:'V', left:33,  top:27,  size:0.9,  bold:false, color:'#111', upper:false },
-  // Data nascimento | Data admissão
-  v_nasc:     { card:'V', left:33,  top:37,  size:1.05, bold:true,  color:'#111', upper:false },
-  v_admissao: { card:'V', left:64,  top:37,  size:1.05, bold:true,  color:'#111', upper:false },
+  // QR menor, canto esq, abaixo do aviso de porte de arma
+  v_qr:       { card:'V', type:'qr', left:2.5, top:27,  qrSize:7 },
+  // Filiação valor — coluna dir do QR
+  v_filiacao: { card:'V', left:33,  top:25,  size:0.88, bold:false, color:'#111', upper:false },
+  // Data Nascimento | Data Admissão
+  v_nasc:     { card:'V', left:33,  top:36,  size:1.0,  bold:true,  color:'#111', upper:false },
+  v_admissao: { card:'V', left:66,  top:36,  size:1.0,  bold:true,  color:'#111', upper:false },
   // Naturalidade | Validade
-  v_naturalidade:{ card:'V', left:33, top:47, size:1.05, bold:true, color:'#111', upper:true },
-  v_validade: { card:'V', left:64,  top:47,  size:1.05, bold:true,  color:'#cc0000', upper:false },
-  // Município
-  v_municipio:{ card:'V', left:64,  top:57,  size:1.05, bold:true,  color:'#111', upper:true },
-  // Situação funcional — centralizada
-  v_situacao: { card:'V', left:33,  top:63,  size:1.2,  bold:true,  color:'#111', upper:true },
+  v_naturalidade:{ card:'V', left:33, top:46, size:1.0, bold:true,  color:'#111', upper:true },
+  v_validade: { card:'V', left:66,  top:46,  size:1.0,  bold:true,  color:'#cc0000', upper:false },
+  // CPF/RG | Município
+  v_cpfrg:    { card:'V', left:33,  top:56,  size:1.0,  bold:true,  color:'#111', upper:false },
+  v_municipio:{ card:'V', left:66,  top:56,  size:1.0,  bold:true,  color:'#111', upper:true },
+  // Situação Funcional — linha própria, centralizada
+  v_situacao: { card:'V', left:33,  top:65,  size:1.15, bold:true,  color:'#111', upper:true },
 };
 
 const LABELS = {
   f_photo:'Foto', f_cargo:'Cargo', f_nome:'Nome', f_mat:'Matrícula',
   f_cpf:'CPF', f_emissao:'Data Expedição', f_hash:'Código Hash',
   v_filiacao:'Filiação', v_nasc:'Data Nascimento', v_admissao:'Data Admissão',
-  v_naturalidade:'Naturalidade', v_validade:'Validade', v_municipio:'Município',
-  v_situacao:'Situação Funcional', v_qr:'QR Code',
+  v_naturalidade:'Naturalidade', v_validade:'Validade',
+  v_cpfrg:'CPF / UF', v_municipio:'Município', v_situacao:'Situação Funcional', v_qr:'QR Code',
 };
 
 let layout   = {};
@@ -207,10 +208,10 @@ let editMode = false;
 let membro   = null;
 
 function loadLayout() {
-  try { const s = localStorage.getItem('assoc_layout_v2'); if(s) return JSON.parse(s); } catch(e){}
+  try { const s = localStorage.getItem('assoc_layout_v3'); if(s) return JSON.parse(s); } catch(e){}
   return JSON.parse(JSON.stringify(DEFAULT));
 }
-function saveLayout()  { localStorage.setItem('assoc_layout_v2', JSON.stringify(layout)); alert('✅ Layout salvo!'); }
+function saveLayout()  { localStorage.setItem('assoc_layout_v3', JSON.stringify(layout)); alert('✅ Layout salvo!'); }
 function resetLayout() { layout = JSON.parse(JSON.stringify(DEFAULT)); renderCard(); buildPanel(); }
 function exportLayout(){
   const b = new Blob([JSON.stringify(layout,null,2)],{type:'application/json'});
@@ -253,6 +254,7 @@ function getData(){
     v_admissao:    fmt(m.emissao),
     v_naturalidade:m.naturalidade||'BRASILEIRO',
     v_validade:    fmt(m.validade),
+    v_cpfrg:       (m.cpf||'')+(m.rgUf?' / '+m.rgUf:''),
     v_municipio:   m.municipio||'—',
     v_situacao:    m.status==='Ativo'?'ATIVO':'INATIVO',
   };
