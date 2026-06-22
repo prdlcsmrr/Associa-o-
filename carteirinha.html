@@ -3,305 +3,481 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Carteirinha Funcional</title>
+<title>Carteirinha</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body { background:#888; font-family:'Arial',sans-serif; display:flex; flex-direction:column; align-items:center; padding:12px; min-height:100vh; overflow-x:hidden; }
-
-.controls {
-  background:#1a2a5e; border-radius:12px; padding:12px 16px;
-  display:flex; gap:8px; align-items:center; margin-bottom:16px;
-  flex-wrap:wrap; justify-content:center; width:100%; max-width:700px;
+body {
+  background:#1a1a2e;
+  font-family:'Segoe UI',Arial,sans-serif;
+  display:flex; flex-direction:column; align-items:center;
+  padding:16px; min-height:100vh;
 }
-.controls h2 { color:#c9972a; font-size:15px; font-weight:800; }
-.btn { padding:9px 18px; border-radius:8px; border:none; font-size:12px; font-weight:700; cursor:pointer; text-transform:uppercase; }
-.btn-gold { background:#c9972a; color:#000; }
-.btn-navy { background:#fff; color:#1a2a5e; }
-.btn-green { background:#2a7a38; color:#fff; }
 
-#carteirinha { display:flex; flex-direction:column; gap:6px; width:100%; max-width:700px; }
+/* ── BARRA DE CONTROLE ── */
+.controls {
+  background:linear-gradient(135deg,#1a2a5e,#0f1a3d);
+  border:1px solid rgba(201,151,42,0.3);
+  border-radius:14px; padding:12px 18px;
+  display:flex; gap:8px; align-items:center;
+  margin-bottom:18px; flex-wrap:wrap;
+  justify-content:center; width:100%; max-width:760px;
+}
+.controls h2 { color:#c9972a; font-size:14px; font-weight:900; letter-spacing:1px; flex:1; }
+.btn {
+  padding:9px 16px; border-radius:8px; border:none;
+  font-size:11px; font-weight:800; cursor:pointer;
+  text-transform:uppercase; letter-spacing:0.5px;
+  transition:all 0.2s;
+}
+.btn-gold  { background:#c9972a; color:#000; }
+.btn-gold:hover  { background:#e8b84a; }
+.btn-navy  { background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); }
+.btn-navy:hover  { background:rgba(255,255,255,0.18); }
+.btn-green { background:#1a7a3a; color:#fff; }
+.btn-green:hover { background:#22a04e; }
+.btn-edit  { background:#7c3aed; color:#fff; }
+.btn-edit:hover  { background:#6d28d9; }
+.btn-sm    { padding:6px 12px; font-size:10px; }
 
-/* CARD com imagem de fundo */
+/* ── MODO TOGGLE ── */
+.mode-badge {
+  background:rgba(124,58,237,0.2); border:1px solid rgba(124,58,237,0.5);
+  color:#a78bfa; font-size:10px; font-weight:700;
+  padding:4px 10px; border-radius:20px; letter-spacing:1px;
+}
+.mode-badge.normal { background:rgba(26,122,58,0.2); border-color:rgba(26,122,58,0.5); color:#4ade80; }
+
+/* ── CARD CONTAINER ── */
+#carteirinha {
+  display:flex; flex-direction:column; gap:8px;
+  width:100%; max-width:760px;
+}
+
 .card {
-  position: relative;
-  width: 100%;
-  max-width: 700px;
-  overflow: hidden;
+  position:relative;
+  width:100%;
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  user-select:none;
 }
 .card-bg {
-  width: 100%;
-  display: block;
+  width:100%;
+  display:block;
+  pointer-events:none;
 }
-
-/* Dados sobrepostos — posicionados em % para escalar com a imagem */
 .overlay {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  position:absolute;
+  top:0; left:0; width:100%; height:100%;
 }
 
-/* ═══ FRENTE ═══ */
+/* ── CAMPO OVERLAY (posicionável) ── */
+.campo {
+  position:absolute;
+  cursor:default;
+  line-height:1.2;
+  white-space:nowrap;
+  pointer-events:none;
+}
+.campo.draggable {
+  cursor:move;
+  pointer-events:all;
+  outline:1.5px dashed rgba(124,58,237,0.7);
+  background:rgba(0,0,0,0.35);
+  padding:2px 5px;
+  border-radius:3px;
+  color:#fff !important;
+  z-index:10;
+}
+.campo.draggable:hover {
+  outline-color:#a78bfa;
+  background:rgba(60,0,120,0.55);
+}
+
+/* ── FOTO ── */
 .f-photo {
-  position: absolute;
-  left: 2.2%;
-  top: 12%;
-  width: 17%;
-  aspect-ratio: 3/4;
-  overflow: hidden;
-  border: 1.5px solid #aaa;
-  background: #ddd;
-  display: flex; align-items: center; justify-content: center;
+  position:absolute;
+  overflow:hidden;
+  background:#ddd;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none;
+}
+.f-photo.draggable {
+  cursor:move; pointer-events:all;
+  outline:1.5px dashed rgba(124,58,237,0.7);
+  z-index:10;
 }
 .f-photo img { width:100%; height:100%; object-fit:cover; }
 .f-photo-ph { font-size:9px; color:#aaa; text-align:center; }
 
-.f-mat-num {
-  position: absolute;
-  left: 3.5%;
-  top: 67%;
-  font-size: 1.8vw;
-  font-weight: 800;
-  color: #111;
-}
-
-.f-cargo-val {
-  position: absolute;
-  left: 22%;
-  top: 34%;
-  font-size: 1.5vw;
-  font-weight: 800;
-  color: #111;
-  text-transform: uppercase;
-}
-
-.f-nome-val {
-  position: absolute;
-  left: 22%;
-  top: 44%;
-  font-size: 1.8vw;
-  font-weight: 900;
-  color: #111;
-  text-transform: uppercase;
-}
-
-.f-cpf-val {
-  position: absolute;
-  left: 22%;
-  top: 57%;
-  font-size: 1.5vw;
-  font-weight: 700;
-  color: #111;
-}
-
-.f-exp-val {
-  position: absolute;
-  left: 57%;
-  top: 57%;
-  font-size: 1.5vw;
-  font-weight: 700;
-  color: #111;
-}
-
-.f-hash-val {
-  position: absolute;
-  left: 22%;
-  top: 66%;
-  font-size: 1.3vw;
-  font-weight: 700;
-  color: #111;
-}
-
-/* ═══ VERSO ═══ */
-.v-filiacao-val {
-  position: absolute;
-  left: 19%;
-  top: 17%;
-  font-size: 1.3vw;
-  font-weight: 700;
-  color: #111;
-  line-height: 1.4;
-}
-
-.v-naturalidade-val {
-  position: absolute;
-  left: 19%;
-  top: 33%;
-  font-size: 1.4vw;
-  font-weight: 800;
-  color: #111;
-}
-
-.v-nasc-val {
-  position: absolute;
-  left: 19%;
-  top: 46%;
-  font-size: 1.4vw;
-  font-weight: 800;
-  color: #111;
-}
-
-.v-cpf-val {
-  position: absolute;
-  left: 19%;
-  top: 60%;
-  font-size: 1.4vw;
-  font-weight: 800;
-  color: #111;
-}
-
-.v-validade-val {
-  position: absolute;
-  left: 50%;
-  top: 33%;
-  font-size: 1.4vw;
-  font-weight: 800;
-  color: #111;
-}
-
-.v-admissao-val {
-  position: absolute;
-  left: 50%;
-  top: 46%;
-  font-size: 1.4vw;
-  font-weight: 800;
-  color: #111;
-}
-
-.v-municipio-val {
-  position: absolute;
-  left: 50%;
-  top: 60%;
-  font-size: 1.4vw;
-  font-weight: 800;
-  color: #111;
-}
-
-.v-situacao-val {
-  position: absolute;
-  left: 35%;
-  top: 72%;
-  font-size: 1.6vw;
-  font-weight: 900;
-  color: #111;
-}
-
-/* QR Code - posicionado sobre o QR do verso */
+/* ── QR ── */
 .v-qr {
-  position: absolute;
-  right: 3%;
-  top: 10%;
-  display: flex; flex-direction: column; align-items: center;
+  position:absolute;
+  display:flex; flex-direction:column; align-items:center;
+  pointer-events:none;
 }
-.v-qr img { width: 13vw; height: 13vw; }
+.v-qr.draggable { cursor:move; pointer-events:all; outline:1.5px dashed rgba(124,58,237,0.7); z-index:10; }
+.v-qr img { display:block; }
 
-.loading { color:#fff; font-size:16px; padding:40px; text-align:center; }
+/* ── PAINEL EDITOR ── */
+#editor-panel {
+  display:none;
+  width:100%; max-width:760px;
+  background:linear-gradient(135deg,#1a2a5e,#0f1a3d);
+  border:1px solid rgba(201,151,42,0.3);
+  border-radius:14px; padding:16px;
+  margin-top:12px; color:#fff;
+}
+#editor-panel.open { display:block; }
+.ep-title { color:#c9972a; font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:2px; margin-bottom:12px; }
+.ep-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px; }
+.ep-item { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:10px; }
+.ep-item label { font-size:9px; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:6px; }
+.ep-coords { display:flex; gap:6px; }
+.ep-coords input { flex:1; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:5px; padding:6px 8px; color:#fff; font-size:12px; font-weight:700; width:60px; }
+.ep-style { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px; }
+.ep-style input { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:5px; padding:6px 8px; color:#fff; font-size:12px; }
+.ep-style label { font-size:9px; color:rgba(255,255,255,0.4); display:block; margin-bottom:3px; }
+.ep-actions { display:flex; gap:8px; margin-top:14px; justify-content:flex-end; }
+
+.loading { color:#c9972a; font-size:15px; padding:40px; text-align:center; }
 </style>
 </head>
 <body>
 
 <div class="controls">
-  <h2>🪪 CARTEIRINHA FUNCIONAL</h2>
-  <button class="btn btn-navy" onclick="window.location.href='https://prdlcsmrr.github.io/Associa-o-/'">← Voltar</button>
-  <button class="btn btn-gold" onclick="downloadPNG()">⬇ PNG</button>
-  <button class="btn btn-green" onclick="downloadPDF()">📄 PDF</button>
+  <h2>🪪 CARTEIRINHA</h2>
+  <span class="mode-badge normal" id="mode-label">VISUALIZAÇÃO</span>
+  <button class="btn btn-navy btn-sm" onclick="window.location.href='https://prdlcsmrr.github.io/Associa-o-/'">← Voltar</button>
+  <button class="btn btn-edit btn-sm" onclick="toggleEdit()">✦ Ajustar Layout</button>
+  <button class="btn btn-gold btn-sm" onclick="downloadPNG()">⬇ PNG</button>
+  <button class="btn btn-green btn-sm" onclick="downloadPDF()">📄 PDF</button>
 </div>
 
 <div id="app"><div class="loading">⏳ Carregando...</div></div>
 
+<div id="editor-panel">
+  <div class="ep-title">✦ Editor de Posicionamento — arraste os campos ou ajuste manualmente</div>
+  <div class="ep-grid" id="ep-grid"></div>
+  <div class="ep-actions">
+    <button class="btn btn-navy btn-sm" onclick="resetLayout()">↺ Resetar padrão</button>
+    <button class="btn btn-gold btn-sm" onclick="exportLayout()">⬇ Exportar JSON</button>
+    <button class="btn btn-green btn-sm" onclick="saveLayout()">💾 Salvar no localStorage</button>
+  </div>
+</div>
+
 <script>
-const DB = 'https://prdlcsmrr.github.io/Associa-o-/db.json';
-const BIN = '6a35c2ddda38895dfee044d5';
+const DB   = 'https://prdlcsmrr.github.io/Associa-o-/db.json';
+const BIN  = '6a35c2ddda38895dfee044d5';
 const BASE = 'https://prdlcsmrr.github.io/Associa-o-';
+const BINKEY = ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
 
-function fmt(d){if(!d)return'—';return new Date(d+'T12:00').toLocaleDateString('pt-BR');}
+// ─── LAYOUT PADRÃO (% do card width/height) ───
+const DEFAULT_LAYOUT = {
+  /* FRENTE */
+  f_photo:      { left:2.2,  top:12,   w:17, h_ratio:'3/4', card:'frente', type:'photo' },
+  f_mat:        { left:3.5,  top:67,   size:1.9, bold:true,  color:'#111', card:'frente' },
+  f_cargo:      { left:22,   top:34,   size:1.6, bold:true,  color:'#111', card:'frente' },
+  f_nome:       { left:22,   top:44,   size:1.9, bold:true,  color:'#111', card:'frente' },
+  f_cpf:        { left:22,   top:57,   size:1.5, bold:true,  color:'#111', card:'frente' },
+  f_emissao:    { left:57,   top:57,   size:1.5, bold:true,  color:'#111', card:'frente' },
+  f_hash:       { left:22,   top:66,   size:1.3, bold:true,  color:'#111', card:'frente' },
+  /* VERSO */
+  v_filiacao:   { left:19,   top:17,   size:1.3, bold:false, color:'#111', card:'verso'  },
+  v_naturalidade:{ left:19,  top:33,   size:1.4, bold:true,  color:'#111', card:'verso'  },
+  v_nasc:       { left:19,   top:46,   size:1.4, bold:true,  color:'#111', card:'verso'  },
+  v_cpf:        { left:19,   top:60,   size:1.4, bold:true,  color:'#111', card:'verso'  },
+  v_validade:   { left:50,   top:33,   size:1.4, bold:true,  color:'#111', card:'verso'  },
+  v_admissao:   { left:50,   top:46,   size:1.4, bold:true,  color:'#111', card:'verso'  },
+  v_municipio:  { left:50,   top:60,   size:1.4, bold:true,  color:'#111', card:'verso'  },
+  v_situacao:   { left:35,   top:72,   size:1.7, bold:true,  color:'#111', card:'verso'  },
+  v_qr:         { left:84,   top:8,    qrSize:13, card:'verso', type:'qr'  },
+};
 
-async function init(){
-  const id=new URLSearchParams(location.search).get('id');
-  if(!id){show('❌ ID não fornecido');return;}
-  let m=null;
-  try{const r=await fetch(DB+'?t='+Date.now());if(r.ok){const d=await r.json();m=d.membros?.find(x=>x.numCred===id);}}catch(e){}
-  if(!m){
-    try{
-      const k=['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
-      const r=await fetch('https://api.jsonbin.io/v3/b/'+BIN+'/latest',{headers:{'X-Master-Key':k,'X-Bin-Meta':'false'}});
-      if(r.ok){const d=await r.json();m=d.membros?.find(x=>x.numCred===id);}
-    }catch(e){}
-  }
-  if(!m){show('❌ Membro não encontrado');return;}
-  render(m);
+const LABELS = {
+  f_photo:'Foto', f_mat:'Matrícula', f_cargo:'Cargo/Categoria',
+  f_nome:'Nome', f_cpf:'CPF', f_emissao:'Emissão', f_hash:'Código Doc',
+  v_filiacao:'Filiação', v_naturalidade:'Naturalidade', v_nasc:'Nascimento',
+  v_cpf:'CPF/RG', v_validade:'Validade', v_admissao:'Admissão',
+  v_municipio:'Município', v_situacao:'Situação', v_qr:'QR Code',
+};
+
+let layout = {};
+let editMode = false;
+let membro = null;
+
+function loadLayout() {
+  try {
+    const saved = localStorage.getItem('assoc_cart_layout');
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_LAYOUT));
 }
-
-function show(msg){document.getElementById('app').innerHTML='<div class="loading">'+msg+'</div>';}
-
-function render(m){
-  const qrUrl='https://prdlcsmrr.github.io/Associa-o-/verificar.html?id='+encodeURIComponent(m.numCred);
-  const qrSrc='https://api.qrserver.com/v1/create-qr-code/?size=120x120&color=cc0000&bgcolor=ffffff&data='+encodeURIComponent(qrUrl);
-  const filiacao=[m.pai?'Pai: '+m.pai:'', m.mae?'Mãe: '+m.mae:''].filter(Boolean).join('<br>')||'—';
-
-  document.getElementById('app').innerHTML=`
-  <div id="carteirinha">
-
-    <!-- FRENTE -->
-    <div class="card" id="card-frente">
-      <img class="card-bg" src="${BASE}/frente.jpg" crossorigin="anonymous">
-      <div class="overlay">
-        <div class="f-photo">
-          ${m.foto?`<img src="${m.foto}" alt="">`:'<div class="f-photo-ph">👤</div>'}
-        </div>
-        <div class="f-mat-num">${m.numCred.replace('ASC-','')}</div>
-        <div class="f-cargo-val">${m.cat.toUpperCase()}</div>
-        <div class="f-nome-val">${m.nome}</div>
-        <div class="f-cpf-val">${m.cpf}</div>
-        <div class="f-exp-val">${fmt(m.emissao)}</div>
-        <div class="f-hash-val">${m.docId}</div>
-      </div>
-    </div>
-
-    <!-- VERSO -->
-    <div class="card" id="card-verso">
-      <img class="card-bg" src="${BASE}/verso.jpg" crossorigin="anonymous">
-      <div class="overlay">
-        <div class="v-filiacao-val">${filiacao}</div>
-        <div class="v-naturalidade-val">${m.naturalidade||'BRASILEIRO'}</div>
-        <div class="v-nasc-val">${fmt(m.nasc)}</div>
-        <div class="v-cpf-val">${m.cpf} / ${m.rgUf||'—'}</div>
-        <div class="v-validade-val">${fmt(m.validade)}</div>
-        <div class="v-admissao-val">${fmt(m.emissao)}</div>
-        <div class="v-municipio-val">${m.municipio||'—'}</div>
-        <div class="v-situacao-val" style="color:${m.status==='Ativo'?'#000':'#cc0000'}">${m.status==='Ativo'?'ATIVO':'INATIVO'}</div>
-        <div class="v-qr">
-          <img src="${qrSrc}" crossorigin="anonymous">
-        </div>
-      </div>
-    </div>
-
-  </div>`;
+function saveLayout() {
+  localStorage.setItem('assoc_cart_layout', JSON.stringify(layout));
+  alert('✅ Layout salvo!');
 }
-
-async function downloadPNG(){
-  const el=document.getElementById('carteirinha');
-  const canvas=await html2canvas(el,{scale:3,useCORS:true,allowTaint:true});
-  const a=document.createElement('a');
-  a.download='carteirinha.png';
-  a.href=canvas.toDataURL('image/png');
+function resetLayout() {
+  layout = JSON.parse(JSON.stringify(DEFAULT_LAYOUT));
+  renderCard();
+  buildEditorPanel();
+}
+function exportLayout() {
+  const blob = new Blob([JSON.stringify(layout, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'layout_carteirinha.json';
   a.click();
 }
 
-async function downloadPDF(){
-  const {jsPDF}=window.jspdf;
-  const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  const f=document.getElementById('card-frente');
-  const c1=await html2canvas(f,{scale:3,useCORS:true,allowTaint:true});
-  const w=210, h1=(c1.height*210)/c1.width;
-  pdf.addImage(c1.toDataURL('image/png'),'PNG',0,0,w,h1);
-  const v=document.getElementById('card-verso');
-  const c2=await html2canvas(v,{scale:3,useCORS:true,allowTaint:true});
-  const h2=(c2.height*210)/c2.width;
+function fmt(d) {
+  if (!d) return '—';
+  return new Date(d + 'T12:00').toLocaleDateString('pt-BR');
+}
+
+function show(msg) {
+  document.getElementById('app').innerHTML = '<div class="loading">' + msg + '</div>';
+}
+
+async function init() {
+  layout = loadLayout();
+  const id = new URLSearchParams(location.search).get('id');
+  if (!id) { show('❌ ID não fornecido'); return; }
+
+  let m = null;
+  try {
+    const r = await fetch(DB + '?t=' + Date.now());
+    if (r.ok) { const d = await r.json(); m = d.membros?.find(x => x.numCred === id); }
+  } catch(e) {}
+  if (!m) {
+    try {
+      const r = await fetch('https://api.jsonbin.io/v3/b/' + BIN + '/latest', {
+        headers: { 'X-Master-Key': BINKEY, 'X-Bin-Meta': 'false' }
+      });
+      if (r.ok) { const d = await r.json(); m = d.membros?.find(x => x.numCred === id); }
+    } catch(e) {}
+  }
+  if (!m) { show('❌ Membro não encontrado'); return; }
+  membro = m;
+  renderCard();
+}
+
+function renderCard() {
+  const m = membro;
+  const qrUrl  = BASE + '/verificar.html?id=' + encodeURIComponent(m.numCred);
+  const qrSrc  = 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&color=cc0000&bgcolor=ffffff&data=' + encodeURIComponent(qrUrl);
+  const filiacao = [m.pai ? 'Pai: '+m.pai : '', m.mae ? 'Mãe: '+m.mae : ''].filter(Boolean).join(' / ') || '—';
+
+  const DATA = {
+    f_mat:         m.numCred.replace('ASC-',''),
+    f_cargo:       (m.cat||'').toUpperCase(),
+    f_nome:        m.nome,
+    f_cpf:         m.cpf,
+    f_emissao:     fmt(m.emissao),
+    f_hash:        m.docId,
+    v_filiacao:    filiacao,
+    v_naturalidade:m.naturalidade || 'BRASILEIRO',
+    v_nasc:        fmt(m.nasc),
+    v_cpf:         (m.cpf||'') + (m.rgUf ? ' / '+m.rgUf : ''),
+    v_validade:    fmt(m.validade),
+    v_admissao:    fmt(m.emissao),
+    v_municipio:   m.municipio || '—',
+    v_situacao:    m.status === 'Ativo' ? 'ATIVO' : 'INATIVO',
+  };
+
+  // ─ Gera os campos para um card ─
+  function makeFields(cardId) {
+    let html = '';
+    for (const [key, cfg] of Object.entries(layout)) {
+      if (cfg.card !== cardId) continue;
+
+      const drag = editMode ? ' draggable' : '';
+      const id   = 'campo_' + key;
+      const lStyle = `left:${cfg.left}%;top:${cfg.top}%;`;
+
+      if (cfg.type === 'photo') {
+        const photoH = cfg.h_ratio ? '' : '';
+        html += `<div id="${id}" class="f-photo${drag}"
+          style="${lStyle}width:${cfg.w}%;aspect-ratio:${cfg.h_ratio||'3/4'};">
+          ${m.foto ? `<img src="${m.foto}" alt="">` : '<div class="f-photo-ph">👤</div>'}
+        </div>`;
+      } else if (cfg.type === 'qr') {
+        const sz = (cfg.qrSize || 13) + 'vw';
+        html += `<div id="${id}" class="v-qr${drag}" style="${lStyle}">
+          <img src="${qrSrc}" style="width:${sz};height:${sz};" crossorigin="anonymous">
+        </div>`;
+      } else {
+        const val  = DATA[key] || '—';
+        const color = editMode ? '' : `color:${cfg.color||'#111'};`;
+        const fw   = cfg.bold ? '800' : '600';
+        const sitColor = (key==='v_situacao' && val==='INATIVO') ? 'color:#cc0000!important;' : '';
+        html += `<div id="${id}" class="campo${drag}"
+          style="${lStyle}font-size:${cfg.size||1.5}vw;font-weight:${fw};${color}${sitColor}"
+          >${val}</div>`;
+      }
+    }
+    return html;
+  }
+
+  document.getElementById('app').innerHTML = `
+  <div id="carteirinha">
+    <div class="card" id="card-frente">
+      <img class="card-bg" src="${BASE}/frente.jpg" crossorigin="anonymous">
+      <div class="overlay">${makeFields('frente')}</div>
+    </div>
+    <div class="card" id="card-verso">
+      <img class="card-bg" src="${BASE}/verso.jpg" crossorigin="anonymous">
+      <div class="overlay">${makeFields('verso')}</div>
+    </div>
+  </div>`;
+
+  if (editMode) activateDrag();
+}
+
+// ─── DRAG & DROP ───
+function activateDrag() {
+  for (const [key, cfg] of Object.entries(layout)) {
+    const el = document.getElementById('campo_' + key);
+    if (!el) continue;
+    const cardEl = document.getElementById('card-' + cfg.card);
+
+    el.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      const rect = cardEl.getBoundingClientRect();
+
+      const onMove = (ev) => {
+        const x = ((ev.clientX - rect.left) / rect.width) * 100;
+        const y = ((ev.clientY - rect.top)  / rect.height) * 100;
+        layout[key].left = Math.max(0, Math.min(95, +x.toFixed(2)));
+        layout[key].top  = Math.max(0, Math.min(95, +y.toFixed(2)));
+        el.style.left = layout[key].left + '%';
+        el.style.top  = layout[key].top  + '%';
+        updateEditorInputs(key);
+      };
+      const onUp = () => {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup',   onUp);
+      };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup',   onUp);
+    });
+
+    // Touch support
+    el.addEventListener('touchstart', (e) => {
+      const rect = cardEl.getBoundingClientRect();
+      const onMove = (ev) => {
+        const t = ev.touches[0];
+        const x = ((t.clientX - rect.left) / rect.width) * 100;
+        const y = ((t.clientY - rect.top)  / rect.height) * 100;
+        layout[key].left = Math.max(0, Math.min(95, +x.toFixed(2)));
+        layout[key].top  = Math.max(0, Math.min(95, +y.toFixed(2)));
+        el.style.left = layout[key].left + '%';
+        el.style.top  = layout[key].top  + '%';
+        updateEditorInputs(key);
+      };
+      const onEnd = () => {
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend',  onEnd);
+      };
+      document.addEventListener('touchmove', onMove, {passive:true});
+      document.addEventListener('touchend',  onEnd);
+    });
+  }
+}
+
+function updateEditorInputs(key) {
+  const li = document.getElementById('ep_left_' + key);
+  const ti = document.getElementById('ep_top_' + key);
+  if (li) li.value = layout[key].left;
+  if (ti) ti.value = layout[key].top;
+}
+
+// ─── PAINEL EDITOR ───
+function buildEditorPanel() {
+  const grid = document.getElementById('ep-grid');
+  grid.innerHTML = '';
+  for (const [key, cfg] of Object.entries(layout)) {
+    const extraFields = cfg.type === 'qr' ? `
+      <div class="ep-style">
+        <div><label>Tamanho QR (vw)</label>
+        <input type="number" step="0.5" value="${cfg.qrSize||13}"
+          oninput="layout['${key}'].qrSize=+this.value;renderCard();buildEditorPanel();"></div>
+      </div>` :
+      cfg.type === 'photo' ? `
+      <div class="ep-style">
+        <div><label>Largura (%)</label>
+        <input type="number" step="0.5" value="${cfg.w||17}"
+          oninput="layout['${key}'].w=+this.value;renderCard();buildEditorPanel();"></div>
+      </div>` : `
+      <div class="ep-style">
+        <div><label>Tamanho (vw)</label>
+        <input type="number" step="0.1" value="${cfg.size||1.5}"
+          oninput="layout['${key}'].size=+this.value;renderCard();buildEditorPanel();"></div>
+        <div><label>Cor</label>
+        <input type="color" value="${cfg.color||'#111111'}"
+          oninput="layout['${key}'].color=this.value;renderCard();buildEditorPanel();"></div>
+      </div>`;
+
+    grid.innerHTML += `
+      <div class="ep-item">
+        <label>${LABELS[key] || key}</label>
+        <div class="ep-coords">
+          <div><label style="font-size:8px;color:#777">Left %</label>
+          <input id="ep_left_${key}" type="number" step="0.5" value="${cfg.left}"
+            oninput="layout['${key}'].left=+this.value;
+              const el=document.getElementById('campo_${key}');if(el)el.style.left=this.value+'%'"></div>
+          <div><label style="font-size:8px;color:#777">Top %</label>
+          <input id="ep_top_${key}" type="number" step="0.5" value="${cfg.top}"
+            oninput="layout['${key}'].top=+this.value;
+              const el=document.getElementById('campo_${key}');if(el)el.style.top=this.value+'%'"></div>
+        </div>
+        ${extraFields}
+      </div>`;
+  }
+}
+
+function toggleEdit() {
+  editMode = !editMode;
+  const badge = document.getElementById('mode-label');
+  const panel = document.getElementById('editor-panel');
+  if (editMode) {
+    badge.textContent = 'EDIÇÃO';
+    badge.className = 'mode-badge';
+    panel.classList.add('open');
+    buildEditorPanel();
+  } else {
+    badge.textContent = 'VISUALIZAÇÃO';
+    badge.className = 'mode-badge normal';
+    panel.classList.remove('open');
+  }
+  renderCard();
+}
+
+// ─── DOWNLOAD ───
+async function downloadPNG() {
+  const el = document.getElementById('carteirinha');
+  const canvas = await html2canvas(el, { scale:3, useCORS:true, allowTaint:true });
+  const a = document.createElement('a');
+  a.download = 'carteirinha_' + (membro?.numCred||'download') + '.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+}
+
+async function downloadPDF() {
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+  const f  = document.getElementById('card-frente');
+  const c1 = await html2canvas(f, { scale:3, useCORS:true, allowTaint:true });
+  const w  = 210, h1 = (c1.height * 210) / c1.width;
+  pdf.addImage(c1.toDataURL('image/png'), 'PNG', 0, 0, w, h1);
+  const v  = document.getElementById('card-verso');
+  const c2 = await html2canvas(v, { scale:3, useCORS:true, allowTaint:true });
+  const h2 = (c2.height * 210) / c2.width;
   pdf.addPage();
-  pdf.addImage(c2.toDataURL('image/png'),'PNG',0,0,w,h2);
-  pdf.save('carteirinha.pdf');
+  pdf.addImage(c2.toDataURL('image/png'), 'PNG', 0, 0, w, h2);
+  pdf.save('carteirinha_' + (membro?.numCred||'download') + '.pdf');
 }
 
 init();
