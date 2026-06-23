@@ -6,7 +6,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Carteirinha v1782251546</title>
+<title>Carteirinha v1782251670</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -304,19 +304,26 @@ function layout(){ return tab==='F'?layoutF:layoutV; }
 function fmt(d){ if(!d)return'—'; return new Date(d+'T12:00').toLocaleDateString('pt-BR'); }
 
 function loadLayouts(){
-  // Limpar versões antigas do localStorage
-  // Limpar TODAS versões antigas incluindo v11
-  ['v1','v2','v3','v4','v5','v6','v7','v8','v9','v10','v11','v12','v13'].forEach(v=>{
-    localStorage.removeItem('cart_lF_'+v);
-    localStorage.removeItem('cart_lV_'+v);
-  });
-  // Forçar limpeza direta
-  localStorage.removeItem('cart_lF_v11');
-  localStorage.removeItem('cart_lV_v11');
-  localStorage.removeItem('cart_lF_v12');
-  localStorage.removeItem('cart_lV_v12');
-  localStorage.removeItem('cart_lF_v13');
-  localStorage.removeItem('cart_lV_v13');
+  // Limpar TODAS versões antigas
+  for(let i=1;i<=13;i++){
+    localStorage.removeItem('cart_lF_v'+i);
+    localStorage.removeItem('cart_lV_v'+i);
+  }
+
+  // Versão do DEFAULT atual — muda quando o padrão muda
+  const LAYOUT_VERSION = 'v14_20250623';
+  const savedVersion = localStorage.getItem('cart_layout_version');
+
+  // Se versão salva é diferente da atual, resetar layouts
+  if(savedVersion !== LAYOUT_VERSION){
+    localStorage.removeItem('cart_lF_v14');
+    localStorage.removeItem('cart_lV_v14');
+    localStorage.setItem('cart_layout_version', LAYOUT_VERSION);
+    layoutF = clone(DEFAULT_F);
+    layoutV = clone(DEFAULT_V);
+    return;
+  }
+
   try{ layoutF=JSON.parse(localStorage.getItem('cart_lF_v14')||'null')||clone(DEFAULT_F); }catch(e){ layoutF=clone(DEFAULT_F); }
   try{ layoutV=JSON.parse(localStorage.getItem('cart_lV_v14')||'null')||clone(DEFAULT_V); }catch(e){ layoutV=clone(DEFAULT_V); }
 }
