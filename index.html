@@ -1227,7 +1227,7 @@ function renderList(){
           <button class="mcard-btn mcard-btn-cred" onclick="openCred(${m.id})" style="flex:1;padding:8px">🪪 Ver Credencial</button>
           <div style="position:relative" id="menu-wrap-${m.id}">
             <button onclick="toggleMenu(${m.id},event)" style="width:36px;height:34px;border-radius:8px;border:1px solid #e0e0e0;background:#f9f9f9;cursor:pointer;font-size:18px;font-weight:900;color:#555;display:flex;align-items:center;justify-content:center" title="Mais opções">⋯</button>
-            <div id="dd-${m.id}" style="display:none;position:fixed;background:#fff;border:1px solid #e0e0e0;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.35);min-width:210px;z-index:9999;overflow:hidden">
+            <div onclick="event.stopPropagation()" id="dd-${m.id}" style="display:none;position:fixed;background:#fff;border:1px solid #e0e0e0;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.35);min-width:210px;z-index:9999;overflow:hidden">
               <div onclick="openEdit(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">✏️ Editar Cadastro</div>
               <div onclick="gerarCarteirinha('${m.numCred}');closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">🖨️ Gerar Carteirinha</div>
               <div onclick="gerarCobranca('${m.numCred}');closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">💰 Cobrança / Carnê</div>
@@ -1793,29 +1793,57 @@ async function syncToCloud(){
   }
 }
 
+let _menuOpen = null;
+
 function toggleMenu(id, e){
   e.stopPropagation();
-  closeMenus();
+  e.preventDefault();
+  
+  // Fechar qualquer menu aberto (exceto o atual)
+  if(_menuOpen && _menuOpen !== id){
+    const old = document.getElementById('dd-'+_menuOpen);
+    if(old) old.style.display='none';
+  }
+  
   const dd = document.getElementById('dd-'+id);
   if(!dd) return;
-  if(dd.style.display==='block'){ dd.style.display='none'; return; }
-  // Posicionar com fixed baseado na posição do botão
+  
+  // Toggle
+  const isOpen = dd.style.display === 'block';
+  if(isOpen){ 
+    dd.style.display='none'; 
+    _menuOpen = null;
+    return; 
+  }
+  
+  // Posicionar
   const btn = e.currentTarget || e.target;
   const rect = btn.getBoundingClientRect();
-  dd.style.display = 'block';
-  // Posicionar abaixo do botão, alinhado à direita
-  let top = rect.bottom + 4;
-  let left = rect.right - 210; // 210 = largura do dropdown
-  // Não deixar sair da tela
+  
+  let top = rect.bottom + 6;
+  let left = rect.right - 215;
   if(left < 8) left = 8;
-  if(top + 300 > window.innerHeight) top = rect.top - 305; // abre para cima se não couber
+  if(top + 320 > window.innerHeight) top = rect.top - 325;
+  
   dd.style.top = top + 'px';
   dd.style.left = left + 'px';
+  dd.style.display = 'block';
+  _menuOpen = id;
 }
+
 function closeMenus(){
   document.querySelectorAll('[id^="dd-"]').forEach(d=>d.style.display='none');
+  _menuOpen = null;
 }
-document.addEventListener('click', closeMenus);
+
+// Fechar ao clicar fora — com delay para não interferir no clique do item
+document.addEventListener('click', function(e){
+  if(_menuOpen === null) return;
+  const dd = document.getElementById('dd-'+_menuOpen);
+  if(dd && !dd.contains(e.target)){
+    closeMenus();
+  }
+});
 
 function gerarCobranca(numCred){
   window.open('https://prdlcsmrr.github.io/Associa-o-/cobranca.html?id='+encodeURIComponent(numCred),'_blank');
