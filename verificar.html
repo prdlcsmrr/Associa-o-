@@ -89,7 +89,7 @@ body { background:#c8c8c8; font-family:'Roboto',Arial,sans-serif; min-height:100
 <script>
 
 function fmt(d){if(!d)return'—';return new Date(d+'T12:00').toLocaleDateString('pt-BR');}
-const DB_GITHUB='https://prdlcsmrr.github.io/Associa-o-/db.json';
+const DB_GITHUB='https://ubapff.org.br/db.json';
 const BIN_ID='6a35c2ddda38895dfee044d5';
 
 function shadeHex(color, pct){
@@ -157,7 +157,7 @@ function render(m){
 
   const ativo=m.status==='Ativo';
   const statusColor = ativo ? verAtivo : verInativo;
-  const qrUrl='https://prdlcsmrr.github.io/Associa-o-/verificar.html?id='+encodeURIComponent(m.numCred);
+  const qrUrl='https://ubapff.org.br/verificar.html?id='+encodeURIComponent(m.numCred);
   document.getElementById('app').innerHTML=`
     <div class="header" style="background:linear-gradient(180deg,${verCor1} 0%,${shadeHex(verCor1,-15)} 100%);border-bottom-color:${verCor2}">
       <div class="brasao">
