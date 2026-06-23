@@ -1074,43 +1074,8 @@ async function salvar(){
 
   // Save to localStorage immediately
   localStorage.setItem('members',JSON.stringify(members));
-  function updatePixPlaceholder(){
-  const tipo = document.getElementById('cfg-pix-tipo').value;
-  const field = document.getElementById('cfg-pix-chave');
-  const placeholders = {
-    cpf:'000.000.000-00', cnpj:'00.000.000/0001-00',
-    email:'contato@associacao.org.br', telefone:'+55 (21) 99999-9999',
-    aleatoria:'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
-  };
-  field.placeholder = placeholders[tipo] || 'Digite a chave PIX';
-  updateDadosBancariosPreview();
-}
 
-function updateDadosBancariosPreview(){
-  const banco = document.getElementById('cfg-banco');
-  const bancoNome = banco.value === 'outro'
-    ? document.getElementById('cfg-banco-outro').value
-    : banco.options[banco.selectedIndex]?.text || '—';
-  const agencia = document.getElementById('cfg-agencia').value || '—';
-  const conta = document.getElementById('cfg-conta').value || '—';
-  const tipo = document.getElementById('cfg-tipo-conta').value || '—';
-  const titular = document.getElementById('cfg-titular').value || '—';
-  const pixTipo = document.getElementById('cfg-pix-tipo').value || '—';
-  const pixChave = document.getElementById('cfg-pix-chave').value || '—';
-
-  document.getElementById('dados-bancarios-preview').innerHTML =
-    `Banco: <strong>${bancoNome}</strong><br>` +
-    `Agência: <strong>${agencia}</strong> | Conta: <strong>${conta}</strong> (${tipo})<br>` +
-    `Titular: <strong>${titular}</strong><br>` +
-    `PIX (${pixTipo}): <strong>${pixChave}</strong>`;
-}
-
-document.getElementById('cfg-banco')?.addEventListener('change', function(){
-  document.getElementById('banco-outro-field').style.display = this.value==='outro'?'block':'none';
-  updateDadosBancariosPreview();
-});
-
-updateCount();
+  updateCount();
   showA('aok');
   limpar();
 
@@ -1263,7 +1228,7 @@ function renderList(){
           <button class="mcard-btn mcard-btn-cred" onclick="openCred(${m.id})" style="flex:1;padding:8px">🪪 Ver Credencial</button>
           <div style="position:relative" id="menu-wrap-${m.id}">
             <button onclick="toggleMenu(${m.id},event)" style="width:36px;height:34px;border-radius:8px;border:1px solid #e0e0e0;background:#f9f9f9;cursor:pointer;font-size:18px;font-weight:900;color:#555;display:flex;align-items:center;justify-content:center" title="Mais opções">⋯</button>
-            <div id="dd-${m.id}" style="display:none;position:absolute;bottom:42px;right:0;background:#fff;border:1px solid #e0e0e0;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.15);min-width:195px;z-index:999;overflow:hidden">
+            <div id="dd-${m.id}" style="display:none;position:absolute;top:38px;right:0;background:#fff;border:1px solid #e0e0e0;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.2);min-width:200px;z-index:1000;overflow:hidden">
               <div onclick="openEdit(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">✏️ Editar Cadastro</div>
               <div onclick="gerarCarteirinha('${m.numCred}');closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">🖨️ Gerar Carteirinha</div>
               <div onclick="gerarCobranca('${m.numCred}');closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">💰 Cobrança / Carnê</div>
