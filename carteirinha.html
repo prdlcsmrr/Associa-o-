@@ -352,11 +352,11 @@ async function init(){
 
 function getData(){
   const m=membro;
-  const fil=[m.pai?'Pai: '+m.pai:'',m.mae?'Mãe: '+m.mae:''].filter(Boolean).join(' / ')||'—';
+  const fil=[m.pai||'',m.mae||''].filter(Boolean).join('\n')||'—';
   return {
     f_cargo:(m.cat||'').toUpperCase(), f_nome:m.nome,
     f_mat:m.numCred, f_cpf:m.cpf, f_emissao:fmt(m.emissao), f_hash:m.docId,
-    v_filiacao:fil, v_nasc:fmt(m.nasc), v_admissao:fmt(m.emissao),
+    v_filiacao:fil.replace(/\n/g,'<br>'), v_nasc:fmt(m.nasc), v_admissao:fmt(m.emissao),
     v_naturalidade:(m.naturalidade||'BRASILEIRO'),
     v_validade:fmt(m.validade), v_municipio:(m.municipio||'—').toUpperCase(),
     v_situacao:membro.status==='Ativo'?'ATIVO':'INATIVO',
@@ -365,7 +365,7 @@ function getData(){
 
 function renderCard(){
   const m=membro, data=getData(), L=layout();
-  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=1782180774`:`${BASE}/verso.jpg?v=1782180774`;
+  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=1782181003`:`${BASE}/verso.jpg?v=1782181003`;
   let fields='', guides='';
 
   for(const [key,cfg] of Object.entries(L)){
