@@ -267,7 +267,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo" style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:4px">
-      <img src="https://ubapff.org.br/logo.png" style="width:80px;height:80px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.9)) drop-shadow(0 0 6px rgba(255,255,255,0.15)) drop-shadow(0 2px 4px rgba(0,0,0,0.8))">
+      <img src="https://prdlcsmrr.github.io/Associa-o-/logo.png" style="width:80px;height:80px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.9)) drop-shadow(0 0 6px rgba(255,255,255,0.15)) drop-shadow(0 2px 4px rgba(0,0,0,0.8))">
       <span style="font-size:20px;font-weight:900;letter-spacing:2px;color:#c9972a;text-shadow:0 2px 8px rgba(0,0,0,0.8)">A.A.F.F - UBAPFF</span>
     </div>
     <div class="login-sub">Sistema Oficial de Credencial</div>
@@ -283,7 +283,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 <div class="app-header">
   <div class="header-inner">
     <div class="hlogo">
-      <div class="hemblem"><img src="https://ubapff.org.br/logo.png" style="width:58px;height:58px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.9)) drop-shadow(0 0 6px rgba(255,255,255,0.15)) drop-shadow(0 2px 4px rgba(0,0,0,0.8))" id="hemblem-img"></div>
+      <div class="hemblem"><img src="https://prdlcsmrr.github.io/Associa-o-/logo.png" style="width:58px;height:58px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.9)) drop-shadow(0 0 6px rgba(255,255,255,0.15)) drop-shadow(0 2px 4px rgba(0,0,0,0.8))" id="hemblem-img"></div>
       <div class="htitles">
         <div class="horg">Sistema Oficial</div>
         <div class="hname">A.A.F.F - UBAPFF</div>
@@ -449,7 +449,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
     <div class="cart-preview" id="cred-card">
       <!-- FRENTE -->
       <div class="cart-face" id="cart-frente">
-        <img class="cart-bg" src="https://ubapff.org.br/frente.jpg?v=1782205274" crossorigin="anonymous">
+        <img class="cart-bg" src="https://prdlcsmrr.github.io/Associa-o-/frente.jpg?v=1782205274" crossorigin="anonymous">
         <div class="cart-overlay">
           <div class="cp-photo" id="cp-photo" style="left:3.5%;top:58%;width:12%;aspect-ratio:3/4"><div class="cp-photo-ph">👤</div></div>
           <div class="cp-campo" id="cp-cargo"   style="left:34.5%;top:41.9%;font-size:2vw;font-weight:800;color:#1a2a6e"></div>
@@ -462,7 +462,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
       </div>
       <!-- VERSO -->
       <div class="cart-face" id="cart-verso">
-        <img class="cart-bg" src="https://ubapff.org.br/verso.jpg?v=1782205274" crossorigin="anonymous">
+        <img class="cart-bg" src="https://prdlcsmrr.github.io/Associa-o-/verso.jpg?v=1782205274" crossorigin="anonymous">
         <div class="cart-overlay">
           <div class="cp-campo" id="cp-filiacao"     style="left:19%;top:28.2%;font-size:1.8vw;font-weight:700;color:#111;line-height:1.5;white-space:normal;max-width:50%"></div>
           <div class="cp-campo" id="cp-admissao"     style="left:52.4%;top:28.2%;font-size:1.8vw;font-weight:800;color:#111"></div>
@@ -957,8 +957,19 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
 </div>
 
 <script>
+// ══════════════════════════════════════════════════
+// CONFIGURAÇÃO DE DOMÍNIO
+// Em produção: mudar PRODUCTION_DOMAIN para true
+// e registrar ubapff.org.br apontando para este repo
+// ══════════════════════════════════════════════════
+const PRODUCTION_DOMAIN = false;
+const DOMAIN_PROD  = 'https://registro.ubapff.org.br';
+const DOMAIN_DEV   = 'https://prdlcsmrr.github.io/Associa-o-';
+const BASE_DOMAIN  = PRODUCTION_DOMAIN ? DOMAIN_PROD : DOMAIN_DEV;
+
+
 const LUSER='admin', LPASS='1234';
-const BASE_URL='https://ubapff.org.br/verificar.html';
+const BASE_URL=BASE_DOMAIN+'/verificar.html';
 const ORG_PRE='ASC';
 
 // LOGIN
@@ -1775,7 +1786,7 @@ async function loadFromCloud(){
   // Fallback: GitHub db.json
   if(!loaded){
     try{
-      const r2=await fetch('https://ubapff.org.br/db.json?t='+Date.now());
+      const r2=await fetch(BASE_DOMAIN+'/db.json?t='+Date.now());
       if(r2.ok){
         const data2=await r2.json();
         members=data2.membros||[];
@@ -1846,11 +1857,11 @@ document.addEventListener('click', function(e){
 });
 
 function gerarCobranca(numCred){
-  window.open('https://ubapff.org.br/cobranca.html?id='+encodeURIComponent(numCred),'_blank');
+  window.open(BASE_DOMAIN+'/cobranca.html?id='+encodeURIComponent(numCred),'_blank');
 }
 
 function gerarCarteirinha(numCred){
-  window.open('https://ubapff.org.br/carteirinha.html?id='+encodeURIComponent(numCred),'_blank');
+  window.open(BASE_DOMAIN+'/carteirinha.html?id='+encodeURIComponent(numCred),'_blank');
 }
 
 function del(id){if(!confirm('Excluir?'))return;members=members.filter(m=>m.id!==id);save();renderList();}
@@ -1907,7 +1918,7 @@ function loadConfig(){
   if(cfg.subAssoc) document.querySelectorAll('.hsub').forEach(e=>e.textContent=cfg.subAssoc);
   else document.querySelectorAll('.hsub').forEach(e=>e.textContent='União Brasileira dos Agentes da P.F.F');
   // Logo: usa cfg.logo se configurado, senão usa logo.png padrão
-  const _logoSrc = cfg.logo || 'https://ubapff.org.br/logo.png';
+  const _logoSrc = cfg.logo || BASE_DOMAIN+'/logo.png';
   document.querySelectorAll('.hemblem').forEach(e=>{
     e.innerHTML='<img src="'+_logoSrc+'" style="width:58px;height:58px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.9)) drop-shadow(0 0 6px rgba(255,255,255,0.15)) drop-shadow(0 2px 4px rgba(0,0,0,0.8))">';
   });
