@@ -279,12 +279,12 @@ function layout(){ return tab==='F'?layoutF:layoutV; }
 function fmt(d){ if(!d)return'—'; return new Date(d+'T12:00').toLocaleDateString('pt-BR'); }
 
 function loadLayouts(){
-  try{ layoutF=JSON.parse(localStorage.getItem('cart_lF_v7')||'null')||clone(DEFAULT_F); }catch(e){ layoutF=clone(DEFAULT_F); }
-  try{ layoutV=JSON.parse(localStorage.getItem('cart_lV_v5')||'null')||clone(DEFAULT_V); }catch(e){ layoutV=clone(DEFAULT_V); }
+  try{ layoutF=JSON.parse(localStorage.getItem('cart_lF_v8')||'null')||clone(DEFAULT_F); }catch(e){ layoutF=clone(DEFAULT_F); }
+  try{ layoutV=JSON.parse(localStorage.getItem('cart_lV_v6')||'null')||clone(DEFAULT_V); }catch(e){ layoutV=clone(DEFAULT_V); }
 }
 function saveLayout(){
-  localStorage.setItem('cart_lF_v7',JSON.stringify(layoutF));
-  localStorage.setItem('cart_lV_v5',JSON.stringify(layoutV));
+  localStorage.setItem('cart_lF_v8',JSON.stringify(layoutF));
+  localStorage.setItem('cart_lV_v6',JSON.stringify(layoutV));
   toast('✅ Layout salvo!','#1a7a3a');
 }
 function resetLayout(){
@@ -365,7 +365,7 @@ function getData(){
 
 function renderCard(){
   const m=membro, data=getData(), L=layout();
-  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=1782180010`:`${BASE}/verso.jpg?v=1782180010`;
+  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=1782180774`:`${BASE}/verso.jpg?v=1782180774`;
   let fields='', guides='';
 
   for(const [key,cfg] of Object.entries(L)){
@@ -434,25 +434,37 @@ function bindDrag(){
   });
 }
 
-function doDrag(sx,sy,key,cardEl){
+function doDrag(startX,startY,key,cardEl){
   const L=layout(), rect=cardEl.getBoundingClientRect();
-  let _dragPushed=false;
+  let _dragging=false, _pushed=false;
+  
   const mu=e=>{
-    if(!_dragPushed){ pushHistory(); _dragPushed=true; }
     const ev=e.touches?e.touches[0]:e;
-    L[key].left=Math.max(0,Math.min(99,+((ev.clientX-rect.left)/rect.width*100).toFixed(1)));
-    L[key].top =Math.max(0,Math.min(99,+((ev.clientY-rect.top)/rect.height*100).toFixed(1)));
+    const dx=ev.clientX-startX, dy=ev.clientY-startY;
+    
+    // Só começa a mover após 6px de movimento (distingue click de drag)
+    if(!_dragging && Math.sqrt(dx*dx+dy*dy) < 6) return;
+    _dragging=true;
+    
+    if(!_pushed){ pushHistory(); _pushed=true; }
+    
+    // Calcular posição relativa ao card
+    const newLeft=Math.max(0,Math.min(98,+((ev.clientX-rect.left)/rect.width*100).toFixed(1)));
+    const newTop =Math.max(0,Math.min(98,+((ev.clientY-rect.top) /rect.height*100).toFixed(1)));
+    
+    L[key].left=newLeft; L[key].top=newTop;
     const el=document.getElementById('c_'+key);
-    if(el){ el.style.left=L[key].left+'%'; el.style.top=L[key].top+'%'; }
+    if(el){ el.style.left=newLeft+'%'; el.style.top=newTop+'%'; }
     buildCtrlPanel();
     if(showGuides) updateGuides();
   };
+  
   const up=()=>{
     document.removeEventListener('mousemove',mu); document.removeEventListener('mouseup',up);
     document.removeEventListener('touchmove',mu); document.removeEventListener('touchend',up);
   };
   document.addEventListener('mousemove',mu);
-  document.addEventListener('touchmove',mu,{passive:true});
+  document.addEventListener('touchmove',mu,{passive:false});
   document.addEventListener('mouseup',up);
   document.addEventListener('touchend',up);
 }
