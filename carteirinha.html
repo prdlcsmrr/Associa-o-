@@ -228,13 +228,13 @@ const BASE  = 'https://prdlcsmrr.github.io/Associa-o-';
 const BINKEY= ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
 
 const DEFAULT_F = {
-  f_photo:  { type:'photo', left:2.5,  top:30.5, w:13.5, ratio:'3/4' },
-  f_cargo:  { left:23.0, top:38.5, size:2.8, bold:true,  color:'#1a2a6e', upper:true  },
-  f_nome:   { left:23.0, top:54.5, size:2.8, bold:true,  color:'#111',    upper:true  },
-  f_mat:    { left:7.2,  top:70.5, size:2.2, bold:true,  color:'#111',    upper:false },
-  f_cpf:    { left:23.0, top:70.5, size:2.2, bold:true,  color:'#111',    upper:false },
-  f_emissao:{ left:62.0, top:70.5, size:2.2, bold:true,  color:'#111',    upper:false },
-  f_hash:   { left:23.0, top:83.5, size:2.0, bold:false, color:'#333',    upper:false },
+  f_photo:  { type:'photo', left:3.5,  top:58.0, w:12.0, ratio:'3/4' },
+  f_cargo:  { left:34.5, top:41.9, size:2.8, bold:true,  color:'#1a2a6e', upper:true  },
+  f_nome:   { left:34.5, top:53.9, size:2.8, bold:true,  color:'#111',    upper:true  },
+  f_mat:    { left:7.6,  top:67.3, size:2.2, bold:true,  color:'#111',    upper:false },
+  f_cpf:    { left:34.6, top:67.3, size:2.2, bold:true,  color:'#111',    upper:false },
+  f_emissao:{ left:68.3, top:67.3, size:2.2, bold:true,  color:'#111',    upper:false },
+  f_hash:   { left:34.6, top:79.5, size:2.0, bold:false, color:'#333',    upper:false },
 };
 const DEFAULT_V = {
   v_filiacao:    { left:19.0, top:27.5, size:3.0, bold:false, color:'#111',    upper:false },
@@ -266,11 +266,11 @@ function layout(){ return tab==='F'?layoutF:layoutV; }
 function fmt(d){ if(!d)return'—'; return new Date(d+'T12:00').toLocaleDateString('pt-BR'); }
 
 function loadLayouts(){
-  try{ layoutF=JSON.parse(localStorage.getItem('cart_lF_v6')||'null')||clone(DEFAULT_F); }catch(e){ layoutF=clone(DEFAULT_F); }
+  try{ layoutF=JSON.parse(localStorage.getItem('cart_lF_v7')||'null')||clone(DEFAULT_F); }catch(e){ layoutF=clone(DEFAULT_F); }
   try{ layoutV=JSON.parse(localStorage.getItem('cart_lV_v4')||'null')||clone(DEFAULT_V); }catch(e){ layoutV=clone(DEFAULT_V); }
 }
 function saveLayout(){
-  localStorage.setItem('cart_lF_v6',JSON.stringify(layoutF));
+  localStorage.setItem('cart_lF_v7',JSON.stringify(layoutF));
   localStorage.setItem('cart_lV_v4',JSON.stringify(layoutV));
   toast('✅ Layout salvo!','#1a7a3a');
 }
@@ -352,7 +352,7 @@ function getData(){
 
 function renderCard(){
   const m=membro, data=getData(), L=layout();
-  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=1782164756`:`${BASE}/verso.jpg?v=1782164756`;
+  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=1782179379`:`${BASE}/verso.jpg?v=1782164756`;
   let fields='', guides='';
 
   for(const [key,cfg] of Object.entries(L)){
