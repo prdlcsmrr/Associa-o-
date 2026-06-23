@@ -365,7 +365,7 @@ function getData(){
 
 function renderCard(){
   const m=membro, data=getData(), L=layout();
-  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=1782181003`:`${BASE}/verso.jpg?v=1782181003`;
+  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=1782181182`:`${BASE}/verso.jpg?v=1782181182`;
   let fields='', guides='';
 
   for(const [key,cfg] of Object.entries(L)){
@@ -630,14 +630,14 @@ function nudge(dl,dt){
   const L=layout(); if(!selKey) return;
   L[selKey].left=Math.max(0,Math.min(99,+(L[selKey].left+dl).toFixed(1)));
   L[selKey].top =Math.max(0,Math.min(99,+(L[selKey].top +dt).toFixed(1)));
-  applyPos(); buildCtrlPanel()if(showGuides) updateGuides(););
+  applyPos(); buildCtrlPanel(); if(showGuides) updateGuides();
 }
 
 function moveField(prop,val){
   pushHistory();
   const L=layout(); if(!selKey) return;
   L[selKey][prop]=Math.max(0,Math.min(99,val));
-  applyPos(); if(showGuides) renderCard();
+  applyPos(); if(showGuides) updateGuides();
 }
 
 function centerH(){
