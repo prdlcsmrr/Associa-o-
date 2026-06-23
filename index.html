@@ -236,8 +236,11 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo">◆ ASSOC</div>
-    <div class="login-sub">Sistema de Credencial</div>
+    <div class="login-logo" style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:4px">
+      <img src="https://prdlcsmrr.github.io/Associa-o-/logo.png" style="width:80px;height:80px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.9)) drop-shadow(0 0 6px rgba(255,255,255,0.15)) drop-shadow(0 2px 4px rgba(0,0,0,0.8))">
+      <span style="font-size:20px;font-weight:900;letter-spacing:2px;color:#c9972a;text-shadow:0 2px 8px rgba(0,0,0,0.8)">A.A.F.F - UBAPFF</span>
+    </div>
+    <div class="login-sub">Sistema Oficial de Credencial</div>
     <div class="lerr" id="lerr">✗ Usuário ou senha incorretos</div>
     <div class="lf"><label>Usuário</label><input id="lu" type="text" onkeydown="if(event.key==='Enter')login()"></div>
     <div class="lf"><label>Senha</label><input id="lp" type="password" onkeydown="if(event.key==='Enter')login()"></div>
@@ -250,11 +253,11 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 <div class="app-header">
   <div class="header-inner">
     <div class="hlogo">
-      <div class="hemblem"><img src="https://prdlcsmrr.github.io/Associa-o-/logo.png" style="width:54px;height:54px;object-fit:contain;filter:drop-shadow(0 2px 5px rgba(0,0,0,0.5)) brightness(1.05)" id="hemblem-img"></div>
+      <div class="hemblem"><img src="https://prdlcsmrr.github.io/Associa-o-/logo.png" style="width:58px;height:58px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.9)) drop-shadow(0 0 6px rgba(255,255,255,0.15)) drop-shadow(0 2px 4px rgba(0,0,0,0.8))" id="hemblem-img"></div>
       <div class="htitles">
         <div class="horg">Sistema Oficial</div>
-        <div class="hname">ASSOCIAÇÃO</div>
-        <div class="hsub">Sistema de Verificação de Credencial</div>
+        <div class="hname">A.A.F.F - UBAPFF</div>
+        <div class="hsub">União Brasileira dos Agentes da P.F.F</div>
       </div>
     </div>
     <div class="hright">
@@ -1787,7 +1790,7 @@ let cfg = JSON.parse(localStorage.getItem('assoc-config') || '{}');
 function loadConfig(){
   const _cfgSaved = localStorage.getItem('assoc-config');
   const _cfgDefaults = {
-    nomeAssoc:     'UBAPFF',
+    nomeAssoc:     'A.A.F.F - UBAPFF',
     subAssoc:      'União Brasileira dos Agentes da Policia Ferroviária Federal',
     assocNome:     'ASSOCIAÇÃO DOS AGENTES FERROVIÁRIOS FEDERAIS DO MUNICÍPIO DE NOVA IGUAÇU RJ',
     assocCnpj:     '67.134.819/0001-12',
@@ -1826,7 +1829,7 @@ function loadConfig(){
   // Logo: usa cfg.logo se configurado, senão usa logo.png padrão
   const _logoSrc = cfg.logo || 'https://prdlcsmrr.github.io/Associa-o-/logo.png';
   document.querySelectorAll('.hemblem').forEach(e=>{
-    e.innerHTML='<img src="'+_logoSrc+'" style="width:54px;height:54px;object-fit:contain;filter:drop-shadow(0 2px 5px rgba(0,0,0,0.5))">';
+    e.innerHTML='<img src="'+_logoSrc+'" style="width:58px;height:58px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.9)) drop-shadow(0 0 6px rgba(255,255,255,0.15)) drop-shadow(0 2px 4px rgba(0,0,0,0.8))">';
   });
 }
 
@@ -1843,7 +1846,7 @@ function shadeColor(color, percent){
 function goToConfig(){
   const _cfgSaved = localStorage.getItem('assoc-config');
   const _cfgDefaults = {
-    nomeAssoc:     'UBAPFF',
+    nomeAssoc:     'A.A.F.F - UBAPFF',
     subAssoc:      'União Brasileira dos Agentes da Policia Ferroviária Federal',
     assocNome:     'ASSOCIAÇÃO DOS AGENTES FERROVIÁRIOS FEDERAIS DO MUNICÍPIO DE NOVA IGUAÇU RJ',
     assocCnpj:     '67.134.819/0001-12',
