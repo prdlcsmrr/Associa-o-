@@ -161,7 +161,7 @@ body { background:#1a1a2e; font-family:'Arial Narrow',Arial,sans-serif; min-heig
 
 <!-- Topbar -->
 <div class="topbar">
-  <button class="btn btn-navy btn-sm" onclick="history.back()">← Voltar</button>
+  <button class="btn btn-navy btn-sm" onclick="window.opener?window.close():window.location.href='https://prdlcsmrr.github.io/Associa-o-'">← Voltar</button>
   <span class="topbar-title">🪪 CARTEIRINHA</span>
   <button class="btn btn-purple btn-sm" id="btn-edit" onclick="toggleEdit()">✦ Editar</button>
 </div>
@@ -352,7 +352,7 @@ function getData(){
 
 function renderCard(){
   const m=membro, data=getData(), L=layout();
-  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=1782179656`:`${BASE}/verso.jpg?v=1782179656`;
+  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=1782180010`:`${BASE}/verso.jpg?v=1782180010`;
   let fields='', guides='';
 
   for(const [key,cfg] of Object.entries(L)){
