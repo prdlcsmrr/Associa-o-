@@ -963,13 +963,13 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
 // e registrar ubapff.org.br apontando para este repo
 // ══════════════════════════════════════════════════
 const PRODUCTION_DOMAIN = false;
-const DOMAIN_PROD  = 'https://registro.ubapff.org.br';
+const DOMAIN_PROD  = 'https://ubapff.org.br';
 const DOMAIN_DEV   = 'https://prdlcsmrr.github.io/Associa-o-';
 const BASE_DOMAIN  = PRODUCTION_DOMAIN ? DOMAIN_PROD : DOMAIN_DEV;
 
 
 const LUSER='admin', LPASS='1234';
-const BASE_URL=BASE_DOMAIN+'/verificar.html';
+const BASE_URL=PRODUCTION_DOMAIN ? BASE_DOMAIN+'/registrofuncional' : BASE_DOMAIN+'/verificar.html';
 const ORG_PRE='ASC';
 
 // LOGIN
