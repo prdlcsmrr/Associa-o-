@@ -1712,6 +1712,9 @@ async function loadFromCloud(){
   }
 
 
+  renderList();
+  updateCount();
+
 async function syncToCloud(){
   const si=document.getElementById('sync-ind');
   if(si){si.style.display='flex';si.textContent='\u23f3 Sincronizando...';}
