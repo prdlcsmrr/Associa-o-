@@ -253,6 +253,7 @@ const DEFAULT_F = {
   f_hash:   { left:34.6, top:79.5, size:2.0, bold:false, color:'#333',    upper:false },
 };
 const DEFAULT_V = {
+  v_qr:          { type:'qr',   left:73.0, top:72.0, w:20.0 },
   v_filiacao:    { left:19.0, top:28.2, size:2.8, bold:true,  color:'#111',    upper:false },
   v_admissao:    { left:52.4, top:28.2, size:2.8, bold:true,  color:'#111',    upper:false },
   v_nasc:        { left:19.0, top:42.5, size:2.8, bold:true,  color:'#111',    upper:false },
@@ -282,12 +283,12 @@ function layout(){ return tab==='F'?layoutF:layoutV; }
 function fmt(d){ if(!d)return'—'; return new Date(d+'T12:00').toLocaleDateString('pt-BR'); }
 
 function loadLayouts(){
-  try{ layoutF=JSON.parse(localStorage.getItem('cart_lF_v8')||'null')||clone(DEFAULT_F); }catch(e){ layoutF=clone(DEFAULT_F); }
-  try{ layoutV=JSON.parse(localStorage.getItem('cart_lV_v6')||'null')||clone(DEFAULT_V); }catch(e){ layoutV=clone(DEFAULT_V); }
+  try{ layoutF=JSON.parse(localStorage.getItem('cart_lF_v9')||'null')||clone(DEFAULT_F); }catch(e){ layoutF=clone(DEFAULT_F); }
+  try{ layoutV=JSON.parse(localStorage.getItem('cart_lV_v7')||'null')||clone(DEFAULT_V); }catch(e){ layoutV=clone(DEFAULT_V); }
 }
 function saveLayout(){
-  localStorage.setItem('cart_lF_v8',JSON.stringify(layoutF));
-  localStorage.setItem('cart_lV_v6',JSON.stringify(layoutV));
+  localStorage.setItem('cart_lF_v9',JSON.stringify(layoutF));
+  localStorage.setItem('cart_lV_v7',JSON.stringify(layoutV));
   toast('✅ Layout salvo!','#1a7a3a');
 }
 function resetLayout(){
@@ -376,7 +377,7 @@ function getData(){
 
 function renderCard(){
   const m=membro, data=getData(), L=layout();
-  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=1782181182`:`${BASE}/verso.jpg?v=1782181182`;
+  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=1782204317`:`${BASE}/verso.jpg?v=1782204317`;
   let fields='', guides='';
 
   for(const [key,cfg] of Object.entries(L)){
