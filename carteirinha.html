@@ -6,7 +6,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Carteirinha v1782228985</title>
+<title>Carteirinha v1782229204</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -245,7 +245,6 @@ const BINKEY= ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77D
 
 const DEFAULT_F = {
   f_photo:  { type:'photo', left:3.5,  top:58.0, w:12.0, ratio:'3/4' },
-  f_logo:   { type:'logo',  left:78.5, top:2.5,  w:18.0 },
   f_cargo:  { left:34.9, top:39.6, size:2.8, bold:true,  color:'#1a2a6e', upper:true  },
   f_nome:   { left:35.0, top:51.9, size:2.8, bold:true,  color:'#111',    upper:true  },
   f_mat:    { left:12.6, top:64.2, size:2.2, bold:true,  color:'#111',    upper:false },
@@ -265,14 +264,14 @@ const DEFAULT_V = {
   v_municipio:     { left:83.8, top:62.0, size:2.2, bold:true,  color:'#111',    upper:true  },
 };
 const LABELS = {
-  f_photo:'Foto', f_logo:'Logo', f_cargo:'Cargo', f_nome:'Nome', f_mat:'Matrícula',
+  f_photo:'Foto', f_cargo:'Cargo', f_nome:'Nome', f_mat:'Matrícula',
   f_cpf:'CPF', f_emissao:'Expedição', f_hash:'Hash',
   v_filiacao_pai:'Pai', v_filiacao_mae:'Mãe', v_nasc:'Nasc.', v_admissao:'Admissão',
   v_naturalidade:'Naturalidade', v_validade:'Validade',
   v_municipio:'Município', v_situacao:'Situação',
 };
 const DOT_COLORS = {
-  f_photo:'#888',f_logo:'#c9972a',f_cargo:'#1a2a6e',f_nome:'#333',f_mat:'#555',f_cpf:'#555',f_emissao:'#555',f_hash:'#888',
+  f_photo:'#888',f_cargo:'#1a2a6e',f_nome:'#333',f_mat:'#555',f_cpf:'#555',f_emissao:'#555',f_hash:'#888',
   v_filiacao_pai:'#111',v_filiacao_mae:'#111',v_nasc:'#333',v_admissao:'#333',v_naturalidade:'#333',v_validade:'#c00',v_municipio:'#333',v_situacao:'#333',
 };
 
@@ -402,16 +401,6 @@ function renderCard(){
         style="${pos}width:${cfg.w}%;aspect-ratio:${cfg.ratio||'3/4'};pointer-events:${editMode?'all':'none'}">
         ${m?.foto?`<img src="${m.foto}" alt="">` : '<div class="f-photo-ph">👤</div>'}
       </div>`;
-    } else if(cfg.type==='logo'){
-      const _cfgSys=JSON.parse(localStorage.getItem('assoc-config')||'{}');
-      const _logoSrc=_cfgSys.logo||null;
-      fields+=`<div id="c_${key}" class="f-photo${drag}${selCls}"
-        style="${pos}width:${cfg.w}%;aspect-ratio:1;pointer-events:${editMode?'all':'none'};background:transparent;overflow:visible">
-        ${_logoSrc
-          ? `<img src="${_logoSrc}" alt="Logo" style="width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.55)) drop-shadow(0 0 2px rgba(255,255,255,0.3));display:block">`
-          : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);font-size:10px;text-align:center">Logo<br>(configurar)</div>`
-        }
-      </div>`;
     } else if(cfg.type==='qr'){
       const _qUrl=`https://prdlcsmrr.github.io/Associa-o-/verificar.html?id=${encodeURIComponent(m.numCred)}`;
       const _qColor=(cfg.color||'#1a2a5e').replace('#','');
@@ -441,11 +430,18 @@ function renderCard(){
     }
   }
 
+  const _logoFixed = tab==='F' ? `
+    <img src="https://prdlcsmrr.github.io/Associa-o-/logo.png?v=1"
+      style="position:absolute;right:1.5%;top:1.5%;width:17%;aspect-ratio:1;
+             object-fit:contain;pointer-events:none;z-index:10;
+             filter:drop-shadow(0 3px 8px rgba(0,0,0,0.7)) drop-shadow(0 0 3px rgba(255,255,255,0.2))">
+  ` : '';
   document.getElementById('app').innerHTML=`
     <div class="card" id="the-card">
       <img class="bg" src="${imgSrc}" crossorigin="anonymous">
       <div class="grid-overlay" id="grid-overlay" style="display:${showGrid?'block':'none'}"></div>
       <div class="overlay" style="pointer-events:${editMode?'all':'none'}">${fields}${guides}</div>
+      ${_logoFixed}
     </div>`;
 
   if(editMode) bindDrag();
@@ -617,18 +613,7 @@ function buildCtrlPanel(){
       </div>
     </div>
 
-    ${(cfg.type==='logo') ? `
-    <!-- Controles Logo -->
-    <div class="ctrl-row">
-      <span class="ctrl-label">Tamanho</span>
-      <button class="nb" style="width:36px;height:36px;font-size:18px" onclick="adjPhotoW(-1)">−</button>
-      <span class="ctrl-val">${cfg.w||18}%</span>
-      <button class="nb" style="width:36px;height:36px;font-size:18px" onclick="adjPhotoW(1)">+</button>
-    </div>
-    <div style="color:rgba(255,255,255,.4);font-size:10px;text-align:center;margin-top:8px">
-      Logo sem fundo — transparente<br>Configure o logo em Configurações
-    </div>
-    ` : isQr ? `
+    ${isQr ? `
     <!-- Controles QR -->
     <div class="ctrl-row">
       <span class="ctrl-label">Tamanho</span>
@@ -785,11 +770,15 @@ function toggleUpper(){
 function adjPhotoW(d){
   pushHistory();
   const L=layout(); if(!selKey) return;
-  // Garantir que w existe
-  if(!L[selKey].w) L[selKey].w = L[selKey].type==='qr' ? 20 : (L[selKey].type==='logo' ? 18 : 13.5);
+  if(!L[selKey].w) L[selKey].w = L[selKey].type==='qr' ? 20 : 13.5;
   L[selKey].w = Math.max(5, Math.min(60, +(L[selKey].w + d).toFixed(1)));
-  const el = document.getElementById('c_'+selKey);
-  if(el) el.style.width = L[selKey].w + '%';
+  // Para QR: re-renderizar para atualizar URL e tamanho visual
+  if(L[selKey].type==='qr'){
+    renderCard(); if(editMode){ bindDrag(); buildChips(); selectField(selKey); }
+  } else {
+    const el = document.getElementById('c_'+selKey);
+    if(el) el.style.width = L[selKey].w + '%';
+  }
   buildCtrlPanel();
   saveLayoutSilent(); // auto-save
 }
