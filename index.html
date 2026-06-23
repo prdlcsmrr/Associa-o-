@@ -1715,6 +1715,8 @@ async function loadFromCloud(){
   renderList();
   updateCount();
 
+}
+
 async function syncToCloud(){
   const si=document.getElementById('sync-ind');
   if(si){si.style.display='flex';si.textContent='\u23f3 Sincronizando...';}
@@ -2180,8 +2182,6 @@ const today=new Date().toISOString().split('T')[0];
 document.getElementById('f-emissao').value=today;
 const ny=new Date();ny.setFullYear(ny.getFullYear()+1);
 document.getElementById('f-validade').value=ny.toISOString().split('T')[0];
-
-}
 
 loadFromCloud();
 </script>
