@@ -6,7 +6,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Carteirinha v1782255278</title>
+<title>Carteirinha v1782255382</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -313,42 +313,54 @@ function layout(){ return tab==='F'?layoutF:layoutV; }
 function fmt(d){ if(!d)return'—'; return new Date(d+'T12:00').toLocaleDateString('pt-BR'); }
 
 function loadLayouts(){
-  // Limpar TODAS versões antigas incluindo v14 se layout version mudou
-  for(let i=1;i<=14;i++){
+  // Limpar TUDO do localStorage de carteirinha sempre
+  for(let i=1;i<=20;i++){
     localStorage.removeItem('cart_lF_v'+i);
     localStorage.removeItem('cart_lV_v'+i);
   }
+  localStorage.removeItem('cart_layout_version');
+  localStorage.removeItem('cart_lF_v14');
+  localStorage.removeItem('cart_lV_v14');
 
-  // Versão do DEFAULT atual — muda quando o padrão muda
-  const LAYOUT_VERSION = 'v14_3768e28f';
-  const savedVersion = localStorage.getItem('cart_layout_version');
+  // Só carregar layout salvo se usuário explicitamente salvou (flag user_saved)
+  const userSavedF = localStorage.getItem('cart_userSaved_F');
+  const userSavedV = localStorage.getItem('cart_userSaved_V');
 
-  // Se versão salva é diferente da atual, resetar layouts
-  if(savedVersion !== LAYOUT_VERSION){
-    localStorage.removeItem('cart_lF_v14');
-    localStorage.removeItem('cart_lV_v14');
-    localStorage.setItem('cart_layout_version', LAYOUT_VERSION);
+  if(userSavedF){
+    try{ layoutF = JSON.parse(userSavedF); }catch(e){ layoutF = clone(DEFAULT_F); }
+  } else {
     layoutF = clone(DEFAULT_F);
-    layoutV = clone(DEFAULT_V);
-    return;
   }
 
-  try{ layoutF=JSON.parse(localStorage.getItem('cart_lF_v14')||'null')||clone(DEFAULT_F); }catch(e){ layoutF=clone(DEFAULT_F); }
-  try{ layoutV=JSON.parse(localStorage.getItem('cart_lV_v14')||'null')||clone(DEFAULT_V); }catch(e){ layoutV=clone(DEFAULT_V); }
+  if(userSavedV){
+    try{ layoutV = JSON.parse(userSavedV); }catch(e){ layoutV = clone(DEFAULT_V); }
+  } else {
+    layoutV = clone(DEFAULT_V);
+  }
 }
 function saveLayout(){
-  localStorage.setItem('cart_lF_v14',JSON.stringify(layoutF));
-  localStorage.setItem('cart_lV_v14',JSON.stringify(layoutV));
+  // Salvar com flag de que o usuário salvou explicitamente
+  localStorage.setItem('cart_userSaved_F', JSON.stringify(layoutF));
+  localStorage.setItem('cart_userSaved_V', JSON.stringify(layoutV));
   toast('✅ Layout salvo!','#1a7a3a');
 }
 function saveLayoutSilent(){
-  localStorage.setItem('cart_lF_v14',JSON.stringify(layoutF));
-  localStorage.setItem('cart_lV_v14',JSON.stringify(layoutV));
+  // Auto-save silencioso — NÃO sobrescreve o layout do usuário
+  // Apenas salva temporariamente para não perder durante a sessão
+  sessionStorage.setItem('cart_session_F', JSON.stringify(layoutF));
+  sessionStorage.setItem('cart_session_V', JSON.stringify(layoutV));
 }
 function resetLayout(){
-  if(!confirm('Resetar '+( tab==='F'?'Frente':'Verso')+'?')) return;
-  if(tab==='F') layoutF=clone(DEFAULT_F); else layoutV=clone(DEFAULT_V);
-  selKey=null; renderCard(); buildChips(); buildCtrlPanel();
+  if(!confirm('Resetar layout para o padrão original?')) return;
+  localStorage.removeItem('cart_userSaved_F');
+  localStorage.removeItem('cart_userSaved_V');
+  sessionStorage.removeItem('cart_session_F');
+  sessionStorage.removeItem('cart_session_V');
+  layoutF = clone(DEFAULT_F);
+  layoutV = clone(DEFAULT_V);
+  renderCard();
+  if(editMode){ bindDrag(); buildChips(); }
+  toast('↺ Layout resetado para o padrão!','#1a2a5e');
 }
 function toast(msg,bg='#1a7a3a'){
   const t=document.createElement('div');
