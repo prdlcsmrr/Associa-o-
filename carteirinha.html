@@ -66,16 +66,28 @@ body { background:#1a1a2e; font-family:'Arial Narrow',Arial,sans-serif; min-heig
   position:absolute; line-height:1.2; white-space:nowrap;
   font-family:'Arial Narrow',Arial,sans-serif;
 }
-.campo.drag { cursor:move; pointer-events:all; }
+.campo.drag {
+  cursor:move; pointer-events:all;
+  background:rgba(255,255,255,.75);
+  padding:2px 6px; border-radius:3px;
+  outline:1.5px dashed rgba(124,58,237,.5);
+  z-index:40;
+  text-shadow:none;
+}
 .campo.sel {
-  outline:2px solid var(--gold);
-  background:rgba(201,151,42,.15);
-  padding:1px 4px; border-radius:2px;
+  outline:2.5px solid var(--gold) !important;
+  background:rgba(255,255,255,.92) !important;
+  padding:2px 6px; border-radius:3px;
   z-index:50;
+  box-shadow:0 2px 8px rgba(0,0,0,.25);
 }
 .f-photo { position:absolute; overflow:hidden; background:#ccc;
   display:flex; align-items:center; justify-content:center; }
-.f-photo.drag { cursor:move; pointer-events:all; }
+.f-photo.drag {
+  cursor:move; pointer-events:all;
+  outline:1.5px dashed rgba(124,58,237,.5);
+  z-index:40;
+}
 .f-photo.sel { outline:2px solid var(--gold); z-index:50; }
 .f-photo img { width:100%; height:100%; object-fit:cover; }
 .f-photo-ph { font-size:8px; color:#888; }
@@ -164,6 +176,7 @@ body { background:#1a1a2e; font-family:'Arial Narrow',Arial,sans-serif; min-heig
   <button class="btn btn-navy btn-sm" onclick="window.opener?window.close():window.location.href='https://prdlcsmrr.github.io/Associa-o-'">← Voltar</button>
   <span class="topbar-title">🪪 CARTEIRINHA</span>
   <button class="btn btn-purple btn-sm" id="btn-edit" onclick="toggleEdit()">✦ Editar</button>
+  <div id="edit-indicator" style="display:none;background:rgba(124,58,237,.9);color:#fff;font-size:9px;font-weight:800;padding:3px 8px;border-radius:10px;letter-spacing:.5px">✏️ EDITANDO</div>
 </div>
 
 <!-- Tabs -->
@@ -369,8 +382,8 @@ function renderCard(){
     } else {
       const val=data[key]||'—';
       const fw=cfg.bold?'800':'600';
-      const col=editMode?'' : `color:${key==='v_situacao'&&val==='INATIVO'?'#cc0000':cfg.color||'#111'};`;
-      const up=cfg.upper&&!editMode?val.toUpperCase():val;
+      const col=`color:${key==='v_situacao'&&val==='INATIVO'?'#cc0000':cfg.color||'#111'};`;
+      const up=cfg.upper?val.toUpperCase():val;
       fields+=`<div id="c_${key}" class="campo${drag}${selCls}"
         style="${pos}font-size:${cfg.size||2.8}vw;font-weight:${fw};${col}pointer-events:${editMode?'all':'none'}">${up}</div>`;
     }
@@ -698,11 +711,13 @@ function toggleEdit(){
   if(editMode){
     btn.textContent='✕ Sair'; btn.className='btn btn-red btn-sm';
     panel.classList.add('open');
+    document.getElementById('edit-indicator').style.display='block';
     undoStack=[]; updateUndoBtn();
     renderCard(); buildChips(); buildCtrlPanel();
   } else {
     btn.textContent='✦ Editar'; btn.className='btn btn-purple btn-sm';
     panel.classList.remove('open');
+    document.getElementById('edit-indicator').style.display='none';
     selKey=null; renderCard();
   }
 }
