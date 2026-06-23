@@ -196,7 +196,7 @@ body { background:#1a1a2e; font-family:'Arial Narrow',Arial,sans-serif; min-heig
 
 <!-- Topbar -->
 <div class="topbar">
-  <button class="btn btn-navy btn-sm" onclick="window.opener?window.close():window.location.href='https://prdlcsmrr.github.io/Associa-o-'">← Voltar</button>
+  <button class="btn btn-navy btn-sm" onclick="window.opener?window.close():window.location.href='https://ubapff.org.br'">← Voltar</button>
   <span class="topbar-title">🪪 CARTEIRINHA</span>
   <button class="btn btn-purple btn-sm" id="btn-edit" onclick="toggleEdit()">✦ Editar</button>
   <div id="edit-indicator" style="display:none;background:rgba(124,58,237,.9);color:#fff;font-size:9px;font-weight:800;padding:3px 8px;border-radius:10px;letter-spacing:.5px">✏️ EDITANDO</div>
@@ -258,9 +258,9 @@ body { background:#1a1a2e; font-family:'Arial Narrow',Arial,sans-serif; min-heig
 </div>
 
 <script>
-const DB    = 'https://prdlcsmrr.github.io/Associa-o-/db.json';
+const DB    = 'https://ubapff.org.br/db.json';
 const BIN   = '6a35c2ddda38895dfee044d5';
-const BASE  = 'https://prdlcsmrr.github.io/Associa-o-';
+const BASE  = 'https://ubapff.org.br';
 const BINKEY= ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
 
 const DEFAULT_F = {
@@ -437,7 +437,7 @@ function renderCard(){
         ${m?.foto?`<img src="${m.foto}" alt="">` : '<div class="f-photo-ph">👤</div>'}
       </div>`;
     } else if(cfg.type==='qr'){
-      const _qUrl=`https://prdlcsmrr.github.io/Associa-o-/verificar.html?id=${encodeURIComponent(m.numCred)}`;
+      const _qUrl=`https://ubapff.org.br/verificar.html?id=${encodeURIComponent(m.numCred)}`;
       const _qColor=(cfg.color||'#1a2a5e').replace('#','');
       const _qImg=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(_qUrl)}&margin=4&color=${_qColor}`;
       fields+=`<div id="c_${key}" class="f-photo${drag}${selCls}"
