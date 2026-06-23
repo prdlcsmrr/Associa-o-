@@ -229,6 +229,36 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
   .content{padding:16px;}
   .tabs,.header-inner{padding-left:16px;padding-right:16px;}
 }
+
+@media(max-width:520px){
+  /* Header mobile */
+  .header-inner { padding:10px 14px; gap:10px; }
+  .hemblem { width:42px!important; height:42px!important; }
+  .hemblem img { width:42px!important; height:42px!important; }
+  .hname { font-size:13px!important; letter-spacing:0; line-height:1.2; }
+  .htitles .horg { font-size:8px; }
+  .htitles .hsub { font-size:8px; display:none; }
+  .hright { gap:8px; }
+  .hcount { font-size:11px; padding:4px 8px; }
+  .hbtn { font-size:11px; padding:6px 10px; }
+
+  /* Nav tabs mobile — scroll horizontal */
+  .tabs { padding:0 10px; gap:0; overflow-x:auto; -webkit-overflow-scrolling:touch; flex-wrap:nowrap; scrollbar-width:none; }
+  .tabs::-webkit-scrollbar { display:none; }
+  .tab { padding:10px 12px; font-size:11px; white-space:nowrap; flex-shrink:0; }
+
+  /* Cards de membro */
+  .member-card { border-radius:10px; }
+  .member-photo { height:160px; }
+
+  /* Formulário */
+  .content { padding:12px; }
+  .form-section { padding:16px; }
+
+  /* Modal edição */
+  .edit-card { margin:10px; max-height:95vh; }
+  .edit-body { padding:16px; }
+}
 </style>
 </head>
 <body>
@@ -271,7 +301,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
   <div class="tab active" onclick="goTab('novo')">＋ Novo Cadastro</div>
   <div class="tab" onclick="goTab('lista')">☰ Membros</div>
   <div class="tab" onclick="goTab('config')">⚙️ Configurações</div>
-  <div class="tab" onclick="goTab('backup')">🛡️ Backups</div>
+  <div class="tab" onclick="goTab('backup')" title="Backup &amp; Restauração">🛡️ Backups</div>
 </div>
 
 <div class="content">
