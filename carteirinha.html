@@ -391,6 +391,13 @@ function renderCard(){
         style="${pos}width:${cfg.w}%;aspect-ratio:${cfg.ratio||'3/4'};pointer-events:${editMode?'all':'none'}">
         ${m?.foto?`<img src="${m.foto}" alt="">` : '<div class="f-photo-ph">👤</div>'}
       </div>`;
+    } else if(cfg.type==='qr'){
+      const _qUrl=`https://prdlcsmrr.github.io/Associa-o-/verificar.html?id=${encodeURIComponent(m.numCred)}`;
+      const _qImg=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(_qUrl)}&margin=4&color=1a2a5e`;
+      fields+=`<div id="c_${key}" class="f-photo${drag}${selCls}"
+        style="${pos}width:${cfg.w}%;aspect-ratio:1;pointer-events:${editMode?'all':'none'};background:#fff;padding:3px;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.2)">
+        <img src="${_qImg}" alt="QR" style="width:100%;display:block" crossorigin="anonymous">
+      </div>`;
     } else {
       const val=data[key]||'—';
       const fw=cfg.bold?'800':'600';
