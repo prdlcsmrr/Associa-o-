@@ -6,7 +6,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Carteirinha v1782249067</title>
+<title>Carteirinha v1782250690</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -168,6 +168,26 @@ body { background:#1a1a2e; font-family:'Arial Narrow',Arial,sans-serif; min-heig
 /* Downloads */
 .dl-actions { display:flex; gap:8px; padding:10px 12px 16px; }
 
+/* ── MOBILE RESPONSIVO ── */
+@media (max-width: 480px) {
+  body { background:#111827; }
+  .topbar { padding:8px 12px; }
+  .topbar-title { font-size:13px; }
+  .card-wrap { padding:8px 8px 0; }
+  .card { border-radius:4px; }
+  .dl-actions { padding:8px 8px 12px; gap:6px; }
+  .dl-actions .btn { font-size:13px; padding:10px 8px; font-weight:700; }
+  .tabs { padding:0 8px; gap:6px; }
+  .tab { font-size:11px; padding:8px 10px; }
+  .ctrl-panel { padding:10px 10px; }
+  .ctrl-label { font-size:10px; min-width:44px; }
+  .ctrl-val { font-size:12px; min-width:30px; }
+  .nb { width:32px!important; height:32px!important; font-size:16px!important; }
+  .topbar-btns button { font-size:11px; padding:6px 10px; }
+  #chip-list { gap:4px; }
+  .chip { font-size:10px; padding:3px 8px; }
+}
+
 .loading { color:var(--gold); padding:50px; text-align:center; font-size:14px; }
 .no-sel { color:rgba(255,255,255,.3); font-size:11px; text-align:center; padding:16px; }
 </style>
@@ -253,7 +273,7 @@ const DEFAULT_F = {
   f_hash:   { left:35.1, top:77.5, size:2.0, bold:false, color:'#333',    upper:false },
 };
 const DEFAULT_V = {
-  v_qr:            { type:'qr',   left:74.0, top:68.0, w:22.0, color:'#1a2a5e' },
+  v_qr:            { type:'qr',   left:74.0, top:63.0, w:21.0, color:'#1a2a5e' },
   v_filiacao_pai:  { left:19.0, top:26.0, size:2.0, bold:true,  color:'#111',    upper:false },
   v_filiacao_mae:  { left:19.0, top:33.5, size:2.0, bold:true,  color:'#111',    upper:false },
   v_admissao:      { left:55.0, top:26.0, size:2.0, bold:true,  color:'#111',    upper:false },
@@ -261,7 +281,7 @@ const DEFAULT_V = {
   v_validade:      { left:55.0, top:46.0, size:2.0, bold:true,  color:'#cc0000', upper:false },
   v_naturalidade:  { left:19.0, top:58.0, size:2.0, bold:true,  color:'#111',    upper:true  },
   v_situacao:      { left:55.0, top:58.0, size:2.0, bold:true,  color:'#111',    upper:true  },
-  v_municipio:     { left:75.0, top:65.0, size:2.0, bold:true,  color:'#111',    upper:true  },
+  v_municipio:     { left:72.0, top:62.0, size:2.0, bold:true,  color:'#111',    upper:true  },
 };
 const LABELS = {
   f_photo:'Foto', f_cargo:'Cargo', f_nome:'Nome', f_mat:'Matrícula',
@@ -286,24 +306,26 @@ function fmt(d){ if(!d)return'—'; return new Date(d+'T12:00').toLocaleDateStri
 function loadLayouts(){
   // Limpar versões antigas do localStorage
   // Limpar TODAS versões antigas incluindo v11
-  ['v1','v2','v3','v4','v5','v6','v7','v8','v9','v10','v11'].forEach(v=>{
+  ['v1','v2','v3','v4','v5','v6','v7','v8','v9','v10','v11','v12'].forEach(v=>{
     localStorage.removeItem('cart_lF_'+v);
     localStorage.removeItem('cart_lV_'+v);
   });
   // Forçar limpeza direta
   localStorage.removeItem('cart_lF_v11');
   localStorage.removeItem('cart_lV_v11');
-  try{ layoutF=JSON.parse(localStorage.getItem('cart_lF_v12')||'null')||clone(DEFAULT_F); }catch(e){ layoutF=clone(DEFAULT_F); }
-  try{ layoutV=JSON.parse(localStorage.getItem('cart_lV_v12')||'null')||clone(DEFAULT_V); }catch(e){ layoutV=clone(DEFAULT_V); }
+  localStorage.removeItem('cart_lF_v12');
+  localStorage.removeItem('cart_lV_v12');
+  try{ layoutF=JSON.parse(localStorage.getItem('cart_lF_v13')||'null')||clone(DEFAULT_F); }catch(e){ layoutF=clone(DEFAULT_F); }
+  try{ layoutV=JSON.parse(localStorage.getItem('cart_lV_v13')||'null')||clone(DEFAULT_V); }catch(e){ layoutV=clone(DEFAULT_V); }
 }
 function saveLayout(){
-  localStorage.setItem('cart_lF_v12',JSON.stringify(layoutF));
-  localStorage.setItem('cart_lV_v12',JSON.stringify(layoutV));
+  localStorage.setItem('cart_lF_v13',JSON.stringify(layoutF));
+  localStorage.setItem('cart_lV_v13',JSON.stringify(layoutV));
   toast('✅ Layout salvo!','#1a7a3a');
 }
 function saveLayoutSilent(){
-  localStorage.setItem('cart_lF_v12',JSON.stringify(layoutF));
-  localStorage.setItem('cart_lV_v12',JSON.stringify(layoutV));
+  localStorage.setItem('cart_lF_v13',JSON.stringify(layoutF));
+  localStorage.setItem('cart_lV_v13',JSON.stringify(layoutV));
 }
 function resetLayout(){
   if(!confirm('Resetar '+( tab==='F'?'Frente':'Verso')+'?')) return;
@@ -382,7 +404,7 @@ function getData(){
   return {
     f_cargo:(m.cat||'').toUpperCase(), f_nome:m.nome,
     f_mat:m.numCred, f_cpf:m.cpf, f_emissao:fmt(m.emissao), f_hash:m.docId,
-    v_filiacao_pai:(m.pai||'—'), v_filiacao_mae:(m.mae||''), v_nasc:fmt(m.nasc), v_admissao:fmt(m.emissao),
+    v_filiacao_pai:(m.pai||'Não informado'), v_filiacao_mae:(m.mae||''), v_nasc:fmt(m.nasc), v_admissao:fmt(m.emissao),
     v_naturalidade:(m.naturalidade||'BRASILEIRO'),
     v_validade:fmt(m.validade), v_municipio:(m.municipio||'—').toUpperCase(),
     v_situacao:membro.status==='Ativo'?'ATIVO':'INATIVO',
