@@ -209,8 +209,9 @@ body { background:#1a1a2e; font-family:'Arial Narrow',Arial,sans-serif; min-heig
 
   <!-- Ações sempre visíveis -->
   <div class="action-row">
+    <button id="btn-undo" class="btn btn-purple btn-sm" style="flex:1;opacity:.4" onclick="undoLast()" disabled>↩ Desfazer</button>
     <button class="btn btn-green btn-sm" style="flex:1" onclick="saveLayout()">💾 Salvar</button>
-    <button class="btn btn-navy btn-sm" style="flex:1" onclick="resetLayout()">↺ Reset</button>
+    <button class="btn btn-navy btn-sm" onclick="resetLayout()" style="padding:6px 8px;font-size:10px">↺</button>
   </div>
 </div>
 
@@ -284,6 +285,43 @@ function toast(msg,bg='#1a7a3a'){
   t.style.cssText=`position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:${bg};color:#fff;padding:10px 22px;border-radius:20px;font-size:12px;font-weight:800;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.4)`;
   document.body.appendChild(t); setTimeout(()=>t.remove(),2200);
 }
+
+// ════ HISTÓRICO DE AÇÕES (UNDO) ════
+const HISTORY_MAX = 30;
+let undoStack = [];
+
+function pushHistory(){
+  undoStack.push({
+    lF: JSON.parse(JSON.stringify(layoutF)),
+    lV: JSON.parse(JSON.stringify(layoutV)),
+    tab: tab,
+    selKey: selKey,
+  });
+  if(undoStack.length > HISTORY_MAX) undoStack.shift();
+  updateUndoBtn();
+}
+
+function undoLast(){
+  if(undoStack.length === 0){ toast('Nada para desfazer','#b91c1c'); return; }
+  const prev = undoStack.pop();
+  layoutF  = prev.lF;
+  layoutV  = prev.lV;
+  // não mudar tab/selKey para não confundir
+  renderCard();
+  buildChips();
+  buildCtrlPanel();
+  updateUndoBtn();
+  toast('↩ Desfeito','#7c3aed');
+}
+
+function updateUndoBtn(){
+  const btn = document.getElementById('btn-undo');
+  if(!btn) return;
+  btn.disabled = undoStack.length === 0;
+  btn.style.opacity = undoStack.length === 0 ? '0.4' : '1';
+  btn.title = undoStack.length > 0 ? `Desfazer (${undoStack.length} passos)` : 'Nada para desfazer';
+}
+
 
 async function init(){
   loadLayouts();
@@ -372,12 +410,22 @@ function bindDrag(){
     el.addEventListener('mousedown', e=>{ e.preventDefault(); selectField(key); doDrag(e.clientX,e.clientY,key,cardEl); });
     el.addEventListener('touchstart', e=>{ selectField(key); doDrag(e.touches[0].clientX,e.touches[0].clientY,key,cardEl); },{passive:true});
   }
-  document.getElementById('the-card').addEventListener('click',()=>{ selKey=null; renderCard(); buildChips(); buildCtrlPanel(); });
+  document.getElementById('the-card').addEventListener('click',(e)=>{
+    // só deseleciona se clicou direto na imagem/overlay, não num campo
+    if(e.target===document.getElementById('the-card')||
+       e.target.classList.contains('bg')||
+       e.target.classList.contains('overlay')||
+       e.target.classList.contains('grid-overlay')){
+      selKey=null; renderCard(); buildChips(); buildCtrlPanel();
+    }
+  });
 }
 
 function doDrag(sx,sy,key,cardEl){
   const L=layout(), rect=cardEl.getBoundingClientRect();
+  let _dragPushed=false;
   const mu=e=>{
+    if(!_dragPushed){ pushHistory(); _dragPushed=true; }
     const ev=e.touches?e.touches[0]:e;
     L[key].left=Math.max(0,Math.min(99,+((ev.clientX-rect.left)/rect.width*100).toFixed(1)));
     L[key].top =Math.max(0,Math.min(99,+((ev.clientY-rect.top)/rect.height*100).toFixed(1)));
@@ -520,6 +568,7 @@ function buildCtrlPanel(){
 function setStep(s){ nudgeStep=s; buildCtrlPanel(); }
 
 function nudge(dl,dt){
+  pushHistory();
   const L=layout(); if(!selKey) return;
   L[selKey].left=Math.max(0,Math.min(99,+(L[selKey].left+dl).toFixed(1)));
   L[selKey].top =Math.max(0,Math.min(99,+(L[selKey].top +dt).toFixed(1)));
@@ -527,12 +576,14 @@ function nudge(dl,dt){
 }
 
 function moveField(prop,val){
+  pushHistory();
   const L=layout(); if(!selKey) return;
   L[selKey][prop]=Math.max(0,Math.min(99,val));
   applyPos(); if(showGuides) renderCard();
 }
 
 function centerH(){
+  pushHistory();
   const L=layout(); if(!selKey) return;
   L[selKey].left=50; applyPos(); buildCtrlPanel();
 }
@@ -544,6 +595,7 @@ function applyPos(){
 }
 
 function adjSize(d){
+  pushHistory();
   const L=layout(); if(!selKey||L[selKey].type) return;
   L[selKey].size=Math.max(0.5,Math.min(8,+(L[selKey].size+d).toFixed(1)));
   const el=document.getElementById('c_'+selKey);
@@ -551,6 +603,7 @@ function adjSize(d){
   buildCtrlPanel();
 }
 function adjSizeDirect(v){
+  pushHistory();
   const L=layout(); if(!selKey||L[selKey].type) return;
   L[selKey].size=v;
   const el=document.getElementById('c_'+selKey);
@@ -559,6 +612,7 @@ function adjSizeDirect(v){
 }
 
 function setColor(c){
+  pushHistory();
   const L=layout(); if(!selKey||L[selKey].type) return;
   L[selKey].color=c;
   const el=document.getElementById('c_'+selKey);
@@ -566,6 +620,7 @@ function setColor(c){
   buildCtrlPanel();
 }
 function toggleBold(){
+  pushHistory();
   const L=layout(); if(!selKey||L[selKey].type) return;
   L[selKey].bold=!L[selKey].bold;
   const el=document.getElementById('c_'+selKey);
@@ -573,11 +628,13 @@ function toggleBold(){
   buildCtrlPanel();
 }
 function toggleUpper(){
+  pushHistory();
   const L=layout(); if(!selKey||L[selKey].type) return;
   L[selKey].upper=!L[selKey].upper;
   renderCard(); bindDrag(); buildChips(); buildCtrlPanel();
 }
 function adjPhotoW(d){
+  pushHistory();
   const L=layout(); if(!selKey) return;
   L[selKey].w=Math.max(5,Math.min(50,+(L[selKey].w+d).toFixed(1)));
   const el=document.getElementById('c_'+selKey);
@@ -607,6 +664,7 @@ function toggleEdit(){
   if(editMode){
     btn.textContent='✕ Sair'; btn.className='btn btn-red btn-sm';
     panel.classList.add('open');
+    undoStack=[]; updateUndoBtn();
     renderCard(); buildChips(); buildCtrlPanel();
   } else {
     btn.textContent='✦ Editar'; btn.className='btn btn-purple btn-sm';
