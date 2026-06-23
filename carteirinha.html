@@ -6,7 +6,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Carteirinha v1782250690</title>
+<title>Carteirinha v1782251546</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -264,24 +264,24 @@ const BASE  = 'https://prdlcsmrr.github.io/Associa-o-';
 const BINKEY= ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
 
 const DEFAULT_F = {
-  f_photo:  { type:'photo', left:3.5,  top:58.0, w:12.0, ratio:'3/4' },
-  f_cargo:  { left:34.9, top:39.6, size:2.8, bold:true,  color:'#1a2a6e', upper:true  },
-  f_nome:   { left:35.0, top:51.9, size:2.8, bold:true,  color:'#111',    upper:true  },
+  f_photo:  { type:'photo', left:13.4, top:31.7, w:12.0, ratio:'3/4' },
+  f_cargo:  { left:34.9, top:39.6, size:2.2, bold:true,  color:'#1a2a6e', upper:true  },
+  f_nome:   { left:35.0, top:51.9, size:2.2, bold:true,  color:'#111',    upper:true  },
   f_mat:    { left:12.6, top:64.2, size:2.2, bold:true,  color:'#111',    upper:false },
   f_cpf:    { left:35.1, top:65.3, size:2.2, bold:true,  color:'#111',    upper:false },
   f_emissao:{ left:67.3, top:65.8, size:2.2, bold:true,  color:'#111',    upper:false },
   f_hash:   { left:35.1, top:77.5, size:2.0, bold:false, color:'#333',    upper:false },
 };
 const DEFAULT_V = {
-  v_qr:            { type:'qr',   left:74.0, top:63.0, w:21.0, color:'#1a2a5e' },
-  v_filiacao_pai:  { left:19.0, top:26.0, size:2.0, bold:true,  color:'#111',    upper:false },
-  v_filiacao_mae:  { left:19.0, top:33.5, size:2.0, bold:true,  color:'#111',    upper:false },
-  v_admissao:      { left:55.0, top:26.0, size:2.0, bold:true,  color:'#111',    upper:false },
-  v_nasc:          { left:19.0, top:46.0, size:2.0, bold:true,  color:'#111',    upper:false },
-  v_validade:      { left:55.0, top:46.0, size:2.0, bold:true,  color:'#cc0000', upper:false },
-  v_naturalidade:  { left:19.0, top:58.0, size:2.0, bold:true,  color:'#111',    upper:true  },
-  v_situacao:      { left:55.0, top:58.0, size:2.0, bold:true,  color:'#111',    upper:true  },
-  v_municipio:     { left:72.0, top:62.0, size:2.0, bold:true,  color:'#111',    upper:true  },
+  v_qr:            { type:'qr',   left:3.4,  top:22.4, w:14.0, color:'#cc0000' },
+  v_filiacao_pai:  { left:18.9, top:24.6, size:1.6, bold:true,  color:'#111',    upper:false },
+  v_filiacao_mae:  { left:19.0, top:29.8, size:1.6, bold:true,  color:'#111',    upper:false },
+  v_admissao:      { left:52.5, top:25.5, size:2.0, bold:true,  color:'#111',    upper:false },
+  v_nasc:          { left:19.0, top:39.7, size:2.0, bold:true,  color:'#111',    upper:false },
+  v_validade:      { left:52.9, top:39.5, size:2.0, bold:true,  color:'#cc0000', upper:false },
+  v_naturalidade:  { left:19.2, top:51.6, size:2.0, bold:true,  color:'#111',    upper:true  },
+  v_situacao:      { left:53.0, top:52.0, size:2.0, bold:true,  color:'#111',    upper:true  },
+  v_municipio:     { left:84.0, top:60.0, size:2.0, bold:true,  color:'#111',    upper:true  },
 };
 const LABELS = {
   f_photo:'Foto', f_cargo:'Cargo', f_nome:'Nome', f_mat:'Matrícula',
@@ -306,7 +306,7 @@ function fmt(d){ if(!d)return'—'; return new Date(d+'T12:00').toLocaleDateStri
 function loadLayouts(){
   // Limpar versões antigas do localStorage
   // Limpar TODAS versões antigas incluindo v11
-  ['v1','v2','v3','v4','v5','v6','v7','v8','v9','v10','v11','v12'].forEach(v=>{
+  ['v1','v2','v3','v4','v5','v6','v7','v8','v9','v10','v11','v12','v13'].forEach(v=>{
     localStorage.removeItem('cart_lF_'+v);
     localStorage.removeItem('cart_lV_'+v);
   });
@@ -315,17 +315,19 @@ function loadLayouts(){
   localStorage.removeItem('cart_lV_v11');
   localStorage.removeItem('cart_lF_v12');
   localStorage.removeItem('cart_lV_v12');
-  try{ layoutF=JSON.parse(localStorage.getItem('cart_lF_v13')||'null')||clone(DEFAULT_F); }catch(e){ layoutF=clone(DEFAULT_F); }
-  try{ layoutV=JSON.parse(localStorage.getItem('cart_lV_v13')||'null')||clone(DEFAULT_V); }catch(e){ layoutV=clone(DEFAULT_V); }
+  localStorage.removeItem('cart_lF_v13');
+  localStorage.removeItem('cart_lV_v13');
+  try{ layoutF=JSON.parse(localStorage.getItem('cart_lF_v14')||'null')||clone(DEFAULT_F); }catch(e){ layoutF=clone(DEFAULT_F); }
+  try{ layoutV=JSON.parse(localStorage.getItem('cart_lV_v14')||'null')||clone(DEFAULT_V); }catch(e){ layoutV=clone(DEFAULT_V); }
 }
 function saveLayout(){
-  localStorage.setItem('cart_lF_v13',JSON.stringify(layoutF));
-  localStorage.setItem('cart_lV_v13',JSON.stringify(layoutV));
+  localStorage.setItem('cart_lF_v14',JSON.stringify(layoutF));
+  localStorage.setItem('cart_lV_v14',JSON.stringify(layoutV));
   toast('✅ Layout salvo!','#1a7a3a');
 }
 function saveLayoutSilent(){
-  localStorage.setItem('cart_lF_v13',JSON.stringify(layoutF));
-  localStorage.setItem('cart_lV_v13',JSON.stringify(layoutV));
+  localStorage.setItem('cart_lF_v14',JSON.stringify(layoutF));
+  localStorage.setItem('cart_lV_v14',JSON.stringify(layoutV));
 }
 function resetLayout(){
   if(!confirm('Resetar '+( tab==='F'?'Frente':'Verso')+'?')) return;
