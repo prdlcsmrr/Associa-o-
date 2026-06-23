@@ -1062,7 +1062,6 @@ async function salvar(){
     obs:document.getElementById('f-obs').value.trim(),
     formacao:'',
     especializacao:'',
-    rgUf:'',
     foto:photo||null,numCred,docId,
     hash:genHash(docId),
     dataCad:new Date().toLocaleDateString('pt-BR'),
@@ -1288,7 +1287,6 @@ function openEdit(id){
   document.getElementById('edit-status').value      = m.status||'Ativo';
   document.getElementById('edit-emissao').value     = m.emissao||'';
   document.getElementById('edit-validade').value    = m.validade||'';
-  document.getElementById('edit-rgUf').value        = m.rgUf||'';
   document.getElementById('edit-numCred').value     = m.numCred||'';
   document.getElementById('edit-rua').value          = m.rua||'';
   document.getElementById('edit-numero').value       = m.numero||'';
@@ -1366,7 +1364,6 @@ function saveEdit(){
     status:          document.getElementById('edit-status').value,
     emissao:         document.getElementById('edit-emissao').value,
     validade:        document.getElementById('edit-validade').value,
-    rgUf:            document.getElementById('edit-rgUf').value.trim(),
     rua:             document.getElementById('edit-rua').value.trim(),
     numero:          document.getElementById('edit-numero').value.trim(),
     complemento:     document.getElementById('edit-complemento').value.trim(),
@@ -1598,7 +1595,6 @@ body{background:#fff;display:flex;justify-content:center;padding:20px;font-famil
           </div>
           <div class="edit-field"><label>Emissão</label><input type="date" id="edit-emissao"></div>
           <div class="edit-field"><label>Validade</label><input type="date" id="edit-validade"></div>
-          <div class="edit-field"><label>RG / UF</label><input type="text" id="edit-rgUf" placeholder="Ex: 12345678 / RJ"></div>
           <div class="edit-field"><label>Matrícula</label><input type="text" id="edit-numCred" readonly style="opacity:.6;cursor:not-allowed" title="Matrícula gerada automaticamente"></div>
         </div>
       </div>
@@ -2137,46 +2133,6 @@ function savePag(){
   alert('✅ Pagamentos salvos com sucesso!');
 }
 
-function closePag(e){ if(e.target===document.getElementById('modal-pag')) closePagDirect(); }
-function closePagDirect(){ document.getElementById('modal-pag').classList.remove('open'); pagAtualId=null; }
-
-function updatePixPlaceholder(){
-  const tipo = document.getElementById('cfg-pix-tipo').value;
-  const field = document.getElementById('cfg-pix-chave');
-  const placeholders = {
-    cpf:'000.000.000-00', cnpj:'00.000.000/0001-00',
-    email:'contato@associacao.org.br', telefone:'+55 (21) 99999-9999',
-    aleatoria:'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
-  };
-  field.placeholder = placeholders[tipo] || 'Digite a chave PIX';
-  updateDadosBancariosPreview();
-}
-
-function updateDadosBancariosPreview(){
-  const banco = document.getElementById('cfg-banco');
-  const bancoNome = banco.value === 'outro'
-    ? document.getElementById('cfg-banco-outro').value
-    : banco.options[banco.selectedIndex]?.text || '—';
-  const agencia = document.getElementById('cfg-agencia').value || '—';
-  const conta = document.getElementById('cfg-conta').value || '—';
-  const tipo = document.getElementById('cfg-tipo-conta').value || '—';
-  const titular = document.getElementById('cfg-titular').value || '—';
-  const pixTipo = document.getElementById('cfg-pix-tipo').value || '—';
-  const pixChave = document.getElementById('cfg-pix-chave').value || '—';
-
-  document.getElementById('dados-bancarios-preview').innerHTML =
-    `Banco: <strong>${bancoNome}</strong><br>` +
-    `Agência: <strong>${agencia}</strong> | Conta: <strong>${conta}</strong> (${tipo})<br>` +
-    `Titular: <strong>${titular}</strong><br>` +
-    `PIX (${pixTipo}): <strong>${pixChave}</strong>`;
-}
-
-document.getElementById('cfg-banco')?.addEventListener('change', function(){
-  document.getElementById('banco-outro-field').style.display = this.value==='outro'?'block':'none';
-  updateDadosBancariosPreview();
-});
-
-updateCount();
 const today=new Date().toISOString().split('T')[0];
 document.getElementById('f-emissao').value=today;
 const ny=new Date();ny.setFullYear(ny.getFullYear()+1);
@@ -2185,125 +2141,6 @@ document.getElementById('f-validade').value=ny.toISOString().split('T')[0];
 loadFromCloud();
 </script>
 
-<!-- ── MODAL EDIÇÃO DE MEMBRO ── -->
-<div id="modal-edit" onclick="closeEdit(event)">
-  <div class="edit-card">
-    <div class="edit-header">
-      <h3>✏️ Editar Cadastro</h3>
-      <button class="edit-close" onclick="closeEditDirect()">✕</button>
-    </div>
-    <div class="edit-body">
-
-      <!-- Foto -->
-      <div class="edit-section">
-        <div class="edit-section-title">📷 Foto</div>
-        <div class="edit-foto-row">
-          <div class="edit-foto-preview" id="edit-foto-preview">👤</div>
-          <div style="flex:1">
-            <div class="edit-field">
-              <label>URL da foto ou selecionar arquivo</label>
-              <input type="url" id="edit-foto-url" placeholder="https://... ou use o botão abaixo">
-            </div>
-            <div style="display:flex;gap:8px;margin-top:8px">
-              <button class="btn btn-navy" style="font-size:11px;padding:7px 14px" onclick="document.getElementById('edit-foto-file').click()">📂 Selecionar arquivo</button>
-              <input type="file" id="edit-foto-file" accept="image/*" style="display:none" onchange="editFotoUpload(this)">
-              <button class="btn btn-outline" style="font-size:11px;padding:7px 14px;color:#b91c1c;border-color:#b91c1c" onclick="editRemoveFoto()">🗑️ Remover</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Dados Pessoais -->
-      <div class="edit-section">
-        <div class="edit-section-title">👤 Dados Pessoais</div>
-        <div class="edit-grid">
-          <div class="edit-field" style="grid-column:1/-1"><label>Nome Completo *</label><input type="text" id="edit-nome"></div>
-          <div class="edit-field"><label>CPF *</label><input type="text" id="edit-cpf" maxlength="14" placeholder="000.000.000-00"></div>
-          <div class="edit-field"><label>Data de Nascimento</label><input type="date" id="edit-nasc"></div>
-          <div class="edit-field"><label>Sexo</label>
-            <select id="edit-sexo"><option value="">—</option><option>Masculino</option><option>Feminino</option><option>Outro</option></select>
-          </div>
-          <div class="edit-field"><label>Telefone</label><input type="tel" id="edit-tel" placeholder="(21) 99999-9999"></div>
-          <div class="edit-field"><label>E-mail</label><input type="email" id="edit-email"></div>
-          <div class="edit-field"><label>Naturalidade</label><input type="text" id="edit-naturalidade" placeholder="Cidade de nascimento"></div>
-          <div class="edit-field"><label>Município (residência)</label><input type="text" id="edit-municipio"></div>
-          <div class="edit-field"><label>Nome do Pai</label><input type="text" id="edit-pai"></div>
-          <div class="edit-field"><label>Nome da Mãe</label><input type="text" id="edit-mae"></div>
-        </div>
-      </div>
-
-      <!-- Endereço -->
-      <div class="edit-section">
-        <div class="edit-section-title">🏠 Endereço</div>
-        <div class="edit-grid col1">
-          <div class="edit-field"><label>Logradouro</label><input type="text" id="edit-rua" placeholder="Rua, Avenida, Travessa..."></div>
-        </div>
-        <div class="edit-grid">
-          <div class="edit-field"><label>Número</label><input type="text" id="edit-numero" placeholder="Nº"></div>
-          <div class="edit-field"><label>Complemento</label><input type="text" id="edit-complemento" placeholder="Apto, Bloco..."></div>
-          <div class="edit-field"><label>Bairro</label><input type="text" id="edit-bairro" placeholder="Bairro"></div>
-          <div class="edit-field"><label>CEP</label><input type="text" id="edit-cep" placeholder="00000-000" maxlength="9" oninput="buscarCep(this.value,'edit')"></div>
-          <div class="edit-field"><label>Cidade</label><input type="text" id="edit-cidade" placeholder="Cidade"></div>
-          <div class="edit-field"><label>UF</label>
-            <select id="edit-uf">
-              <option value="">—</option>
-              <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
-              <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
-              <option>GO</option><option>MA</option><option>MT</option><option>MS</option>
-              <option>MG</option><option>PA</option><option>PB</option><option>PR</option>
-              <option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
-              <option>RS</option><option>RO</option><option>RR</option><option>SC</option>
-              <option>SP</option><option>SE</option><option>TO</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- Dados Funcionais -->
-      <div class="edit-section">
-        <div class="edit-section-title">🪪 Dados Funcionais</div>
-        <div class="edit-grid">
-          <div class="edit-field"><label>Cargo / Categoria</label>
-            <select id="edit-cat">
-              <option value="Funcionário">Funcionário</option>
-              <option value="Agente">Agente</option>
-              <option value="Inspetor">Inspetor</option>
-              <option value="Supervisor">Supervisor</option>
-              <option value="Coordenador">Coordenador</option>
-              <option value="Gerente">Gerente</option>
-              <option value="Diretor">Diretor</option>
-              <option value="Associado">Associado</option>
-              <option value="Colaborador">Colaborador</option>
-            </select>
-          </div>
-          <div class="edit-field"><label>Status</label>
-            <select id="edit-status"><option value="Ativo">Ativo</option><option value="Inativo">Inativo</option></select>
-          </div>
-          <div class="edit-field"><label>Emissão</label><input type="date" id="edit-emissao"></div>
-          <div class="edit-field"><label>Validade</label><input type="date" id="edit-validade"></div>
-          <div class="edit-field"><label>RG / UF</label><input type="text" id="edit-rgUf" placeholder="Ex: 12345678 / RJ"></div>
-          <div class="edit-field"><label>Matrícula</label><input type="text" id="edit-numCred" readonly style="opacity:.6;cursor:not-allowed" title="Matrícula gerada automaticamente"></div>
-        </div>
-      </div>
-
-      <!-- Formações e Informações Adicionais -->
-      <div class="edit-section">
-        <div class="edit-section-title">📚 Formações / Observações</div>
-        <div class="edit-grid col1">
-          <div class="edit-field"><label>Formação Acadêmica</label><input type="text" id="edit-formacao" placeholder="Ex: Bacharel em Direito — UFRJ"></div>
-          <div class="edit-field"><label>Especialização / Cursos</label><input type="text" id="edit-especializacao" placeholder="Ex: Pós-graduação em Segurança Pública"></div>
-          <div class="edit-field"><label>Observações</label><textarea id="edit-obs" placeholder="Informações adicionais, anotações..."></textarea></div>
-        </div>
-      </div>
-
-    </div>
-    <div class="edit-footer">
-      <button class="btn btn-outline" onclick="closeEditDirect()">✕ Cancelar</button>
-      <button class="btn btn-green" onclick="saveEdit()">💾 Salvar Alterações</button>
-    </div>
-  </div>
-</div>
 
 </body>
 </html>
-
