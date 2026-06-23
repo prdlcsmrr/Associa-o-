@@ -245,22 +245,22 @@ const BINKEY= ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77D
 
 const DEFAULT_F = {
   f_photo:  { type:'photo', left:3.5,  top:58.0, w:12.0, ratio:'3/4' },
-  f_cargo:  { left:34.5, top:41.9, size:2.8, bold:true,  color:'#1a2a6e', upper:true  },
-  f_nome:   { left:34.5, top:53.9, size:2.8, bold:true,  color:'#111',    upper:true  },
-  f_mat:    { left:7.6,  top:67.3, size:2.2, bold:true,  color:'#111',    upper:false },
-  f_cpf:    { left:34.6, top:67.3, size:2.2, bold:true,  color:'#111',    upper:false },
-  f_emissao:{ left:68.3, top:67.3, size:2.2, bold:true,  color:'#111',    upper:false },
-  f_hash:   { left:34.6, top:79.5, size:2.0, bold:false, color:'#333',    upper:false },
+  f_cargo:  { left:34.9, top:39.6, size:2.8, bold:true,  color:'#1a2a6e', upper:true  },
+  f_nome:   { left:35.0, top:51.9, size:2.8, bold:true,  color:'#111',    upper:true  },
+  f_mat:    { left:12.6, top:64.2, size:2.2, bold:true,  color:'#111',    upper:false },
+  f_cpf:    { left:35.1, top:65.3, size:2.2, bold:true,  color:'#111',    upper:false },
+  f_emissao:{ left:67.3, top:65.8, size:2.2, bold:true,  color:'#111',    upper:false },
+  f_hash:   { left:35.1, top:77.5, size:2.0, bold:false, color:'#333',    upper:false },
 };
 const DEFAULT_V = {
   v_qr:          { type:'qr',   left:73.0, top:72.0, w:20.0 },
-  v_filiacao:    { left:19.0, top:28.2, size:2.8, bold:true,  color:'#111',    upper:false },
-  v_admissao:    { left:52.4, top:28.2, size:2.8, bold:true,  color:'#111',    upper:false },
-  v_nasc:        { left:19.0, top:42.5, size:2.8, bold:true,  color:'#111',    upper:false },
-  v_validade:    { left:52.4, top:42.5, size:2.8, bold:true,  color:'#cc0000', upper:false },
-  v_naturalidade:{ left:19.0, top:54.5, size:2.8, bold:true,  color:'#111',    upper:true  },
-  v_situacao:    { left:52.4, top:54.5, size:2.8, bold:true,  color:'#111',    upper:true  },
-  v_municipio:   { left:83.3, top:62.1, size:2.6, bold:true,  color:'#111',    upper:true  },
+  v_filiacao:    { left:19.0, top:24.7, size:2.2, bold:true,  color:'#111',    upper:false },
+  v_admissao:    { left:52.9, top:24.7, size:2.8, bold:true,  color:'#111',    upper:false },
+  v_nasc:        { left:19.0, top:39.0, size:2.2, bold:true,  color:'#111',    upper:false },
+  v_validade:    { left:52.9, top:39.5, size:2.2, bold:true,  color:'#cc0000', upper:false },
+  v_naturalidade:{ left:19.0, top:51.5, size:2.2, bold:true,  color:'#111',    upper:true  },
+  v_situacao:    { left:52.9, top:51.5, size:2.2, bold:true,  color:'#111',    upper:true  },
+  v_municipio:   { left:83.8, top:59.1, size:2.2, bold:true,  color:'#111',    upper:true  },
 };
 const LABELS = {
   f_photo:'Foto', f_cargo:'Cargo', f_nome:'Nome', f_mat:'Matrícula',
@@ -283,12 +283,12 @@ function layout(){ return tab==='F'?layoutF:layoutV; }
 function fmt(d){ if(!d)return'—'; return new Date(d+'T12:00').toLocaleDateString('pt-BR'); }
 
 function loadLayouts(){
-  try{ layoutF=JSON.parse(localStorage.getItem('cart_lF_v9')||'null')||clone(DEFAULT_F); }catch(e){ layoutF=clone(DEFAULT_F); }
-  try{ layoutV=JSON.parse(localStorage.getItem('cart_lV_v7')||'null')||clone(DEFAULT_V); }catch(e){ layoutV=clone(DEFAULT_V); }
+  try{ layoutF=JSON.parse(localStorage.getItem('cart_lF_v10')||'null')||clone(DEFAULT_F); }catch(e){ layoutF=clone(DEFAULT_F); }
+  try{ layoutV=JSON.parse(localStorage.getItem('cart_lV_v10')||'null')||clone(DEFAULT_V); }catch(e){ layoutV=clone(DEFAULT_V); }
 }
 function saveLayout(){
-  localStorage.setItem('cart_lF_v9',JSON.stringify(layoutF));
-  localStorage.setItem('cart_lV_v7',JSON.stringify(layoutV));
+  localStorage.setItem('cart_lF_v10',JSON.stringify(layoutF));
+  localStorage.setItem('cart_lV_v10',JSON.stringify(layoutV));
   toast('✅ Layout salvo!','#1a7a3a');
 }
 function resetLayout(){
