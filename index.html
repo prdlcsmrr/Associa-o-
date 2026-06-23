@@ -271,6 +271,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
   <div class="tab active" onclick="goTab('novo')">＋ Novo Cadastro</div>
   <div class="tab" onclick="goTab('lista')">☰ Membros</div>
   <div class="tab" onclick="goTab('config')">⚙️ Configurações</div>
+  <div class="tab" onclick="goTab('backup')">🛡️ Backups</div>
 </div>
 
 <div class="content">
@@ -850,6 +851,46 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
     </div>
   </div>
 
+  <!-- ── BACKUP & RESTAURAÇÃO ──────────────────────────── -->
+  <div class="page" id="page-backup">
+    <div style="max-width:640px;margin:0 auto">
+      <div class="cfg-section">
+        <div class="cfg-section-title">🛡️ Backup & Restauração</div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">
+          <button class="btn btn-gold" onclick="criarBackup('manual')" style="flex:1;min-width:140px">
+            📦 Criar Backup Agora
+          </button>
+          <button class="btn" onclick="exportarBackup()" style="flex:1;min-width:140px;background:#1a3a6e">
+            ⬇️ Exportar JSON
+          </button>
+          <label class="btn" style="flex:1;min-width:140px;background:#1a4a2e;cursor:pointer;display:flex;align-items:center;justify-content:center">
+            📂 Importar JSON
+            <input type="file" accept=".json" onchange="importarBackup(event)" style="display:none">
+          </label>
+        </div>
+
+        <div id="backup-status" style="margin-bottom:16px;font-size:12px;color:#c9972a;min-height:18px"></div>
+
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:12px;letter-spacing:1px;text-transform:uppercase">
+          Pontos de Restauração Salvos
+        </div>
+        <div id="backup-lista" style="display:flex;flex-direction:column;gap:8px">
+          <div style="color:rgba(255,255,255,0.3);font-size:13px;text-align:center;padding:20px">
+            Carregando backups...
+          </div>
+        </div>
+
+        <div style="margin-top:20px;padding:14px;background:rgba(255,255,255,0.04);border-radius:8px;font-size:11px;color:rgba(255,255,255,0.35);line-height:1.6">
+          ⚙️ Backups automáticos criados em: novo cadastro, edição de membro, pagamento registrado, e a cada 30 minutos.<br>
+          📦 Máximo de 20 pontos de restauração salvos localmente.<br>
+          ☁️ Exporte JSON periodicamente para backup externo seguro.
+        </div>
+      </div>
+    </div>
+  </div>
+
+
 <!-- MODAL PAGAMENTOS -->
 <div class="modal-overlay" id="modal-pag" onclick="closePag(event)">
   <div style="background:#fff;border-radius:16px;width:100%;max-width:500px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.3)">
@@ -911,6 +952,7 @@ let stream=null,photo=null,facing='user',curStatus='Ativo';
 
 // TABS
 function goTab(t){
+  if(t==='backup') setTimeout(renderBackupLista, 50);
   document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',(t==='novo'&&i===0)||(t==='lista'&&i===1)||(t==='config'&&i===2)));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+t).classList.add('active');
@@ -1071,6 +1113,7 @@ async function salvar(){
     pagamentos:[],
     qrUrl:BASE_URL+'?id='+encodeURIComponent(numCred)
   };
+  criarBackup('novo-cadastro');
   members.push(m);
 
   // Save to localStorage immediately
@@ -1151,6 +1194,7 @@ function updatePagSummary(pagos){
 }
 
 function savePag(){
+  criarBackup('pagamento-registrado');
   save();
   syncToCloud();
   closePagDirect();
@@ -1330,6 +1374,7 @@ function editRemoveFoto(){
 }
 
 function saveEdit(){
+  criarBackup('edicao-membro');
   const idx = members.findIndex(x=>x.id===_editId);
   if(idx<0){ alert('Membro não encontrado'); return; }
 
@@ -2134,6 +2179,7 @@ function updatePagSummary(pagos){
 }
 
 function savePag(){
+  criarBackup('pagamento-registrado');
   save();
   syncToCloud();
   closePagDirect();
@@ -2147,6 +2193,136 @@ const ny=new Date();ny.setFullYear(ny.getFullYear()+1);
 document.getElementById('f-validade').value=ny.toISOString().split('T')[0];
 
 loadFromCloud();
+
+// ══════════════════════════════════════════════════════════
+// SISTEMA DE BACKUP & RESTAURAÇÃO
+// ══════════════════════════════════════════════════════════
+const BACKUP_KEY  = 'assoc_backups_v1';
+const BACKUP_MAX  = 20;
+
+function getBackups(){
+  try{ return JSON.parse(localStorage.getItem(BACKUP_KEY)||'[]'); }
+  catch(e){ return []; }
+}
+
+function saveBackups(list){
+  localStorage.setItem(BACKUP_KEY, JSON.stringify(list));
+}
+
+function criarBackup(motivo){
+  const backups = getBackups();
+  const snapshot = {
+    id:        Date.now(),
+    motivo:    motivo || 'manual',
+    data:      new Date().toLocaleString('pt-BR'),
+    membros:   JSON.parse(JSON.stringify(members)),
+    config:    JSON.parse(localStorage.getItem('assoc-config')||'{}'),
+    total:     members.length
+  };
+  backups.unshift(snapshot);                       // mais recente primeiro
+  if(backups.length > BACKUP_MAX) backups.length = BACKUP_MAX;
+  saveBackups(backups);
+  renderBackupLista();
+  const el = document.getElementById('backup-status');
+  if(el) el.textContent = '✅ Backup "' + motivo + '" criado — ' + snapshot.data;
+  return snapshot;
+}
+
+function renderBackupLista(){
+  const lista = document.getElementById('backup-lista');
+  if(!lista) return;
+  const backups = getBackups();
+  if(!backups.length){
+    lista.innerHTML = '<div style="color:rgba(255,255,255,0.3);font-size:13px;text-align:center;padding:20px">Nenhum backup encontrado.</div>';
+    return;
+  }
+  lista.innerHTML = backups.map((b,i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(255,255,255,0.05);border-radius:8px;border:1px solid rgba(201,151,42,${i===0?'0.4':'0.1'})">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:700;color:${i===0?'#c9972a':'#fff'}">${i===0?'⭐ ':''}<span style="text-transform:capitalize">${b.motivo}</span></div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px">${b.data} · ${b.total} membros</div>
+      </div>
+      <button onclick="restaurarBackup(${b.id})" style="background:#1a3a6e;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">
+        ↩ Restaurar
+      </button>
+      <button onclick="excluirBackup(${b.id})" style="background:rgba(180,30,30,0.25);color:#ff6b6b;border:1px solid rgba(180,30,30,0.4);border-radius:6px;padding:6px 8px;font-size:11px;cursor:pointer">
+        🗑
+      </button>
+    </div>
+  `).join('');
+}
+
+function restaurarBackup(id){
+  const backups = getBackups();
+  const b = backups.find(x=>x.id===id);
+  if(!b){ alert('❌ Backup não encontrado.'); return; }
+  if(!confirm(`Restaurar backup de ${b.data}?\n${b.total} membros serão restaurados.\nUm backup do estado atual será criado antes.`)) return;
+  // Criar backup do estado atual antes de restaurar
+  criarBackup('antes-de-restaurar');
+  // Restaurar membros
+  members = JSON.parse(JSON.stringify(b.membros));
+  save();
+  syncToCloud();
+  // Restaurar configurações se existirem
+  if(b.config && Object.keys(b.config).length){
+    localStorage.setItem('assoc-config', JSON.stringify(b.config));
+    loadConfig();
+  }
+  renderList();
+  updateCount();
+  alert('✅ Backup restaurado com sucesso!\n' + b.data);
+  goTab('lista');
+}
+
+function excluirBackup(id){
+  if(!confirm('Excluir este backup?')) return;
+  const backups = getBackups().filter(x=>x.id!==id);
+  saveBackups(backups);
+  renderBackupLista();
+}
+
+function exportarBackup(){
+  const payload = {
+    exportado:  new Date().toLocaleString('pt-BR'),
+    membros:    members,
+    config:     JSON.parse(localStorage.getItem('assoc-config')||'{}'),
+    backups:    getBackups()
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'backup_ubapff_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+}
+
+function importarBackup(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const data = JSON.parse(e.target.result);
+      if(!data.membros) throw new Error('Arquivo inválido');
+      if(!confirm('Importar backup?\n' + (data.membros.length) + ' membros encontrados.\nEstado atual será preservado em backup.')) return;
+      criarBackup('antes-de-importar');
+      members = data.membros;
+      save();
+      syncToCloud();
+      if(data.config){ localStorage.setItem('assoc-config', JSON.stringify(data.config)); loadConfig(); }
+      if(data.backups){ saveBackups(data.backups); }
+      renderList(); updateCount(); renderBackupLista();
+      alert('✅ Backup importado com sucesso!');
+    }catch(err){
+      alert('❌ Erro ao importar: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// Backup automático a cada 30 minutos
+setInterval(()=>{ if(members.length>0) criarBackup('auto-30min'); }, 30*60*1000);
+
+
 </script>
 
 
