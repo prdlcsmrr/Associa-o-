@@ -734,9 +734,11 @@ function toggleUpper(){
 function adjPhotoW(d){
   pushHistory();
   const L=layout(); if(!selKey) return;
-  L[selKey].w=Math.max(5,Math.min(50,+(L[selKey].w+d).toFixed(1)));
-  const el=document.getElementById('c_'+selKey);
-  if(el) el.style.width=L[selKey].w+'%';
+  // Garantir que w existe
+  if(!L[selKey].w) L[selKey].w = L[selKey].type==='qr' ? 20 : 13.5;
+  L[selKey].w = Math.max(5, Math.min(60, +(L[selKey].w + d).toFixed(1)));
+  const el = document.getElementById('c_'+selKey);
+  if(el) el.style.width = L[selKey].w + '%';
   buildCtrlPanel();
 }
 
