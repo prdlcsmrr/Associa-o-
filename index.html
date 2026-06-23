@@ -1711,46 +1711,6 @@ async function loadFromCloud(){
     }catch(e2){}
   }
 
-  function updatePixPlaceholder(){
-  const tipo = document.getElementById('cfg-pix-tipo').value;
-  const field = document.getElementById('cfg-pix-chave');
-  const placeholders = {
-    cpf:'000.000.000-00', cnpj:'00.000.000/0001-00',
-    email:'contato@associacao.org.br', telefone:'+55 (21) 99999-9999',
-    aleatoria:'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
-  };
-  field.placeholder = placeholders[tipo] || 'Digite a chave PIX';
-  updateDadosBancariosPreview();
-}
-
-function updateDadosBancariosPreview(){
-  const banco = document.getElementById('cfg-banco');
-  const bancoNome = banco.value === 'outro'
-    ? document.getElementById('cfg-banco-outro').value
-    : banco.options[banco.selectedIndex]?.text || '—';
-  const agencia = document.getElementById('cfg-agencia').value || '—';
-  const conta = document.getElementById('cfg-conta').value || '—';
-  const tipo = document.getElementById('cfg-tipo-conta').value || '—';
-  const titular = document.getElementById('cfg-titular').value || '—';
-  const pixTipo = document.getElementById('cfg-pix-tipo').value || '—';
-  const pixChave = document.getElementById('cfg-pix-chave').value || '—';
-
-  document.getElementById('dados-bancarios-preview').innerHTML =
-    `Banco: <strong>${bancoNome}</strong><br>` +
-    `Agência: <strong>${agencia}</strong> | Conta: <strong>${conta}</strong> (${tipo})<br>` +
-    `Titular: <strong>${titular}</strong><br>` +
-    `PIX (${pixTipo}): <strong>${pixChave}</strong>`;
-}
-
-document.getElementById('cfg-banco')?.addEventListener('change', function(){
-  document.getElementById('banco-outro-field').style.display = this.value==='outro'?'block':'none';
-  updateDadosBancariosPreview();
-});
-
-updateCount();
-  const lista = document.getElementById('page-lista');
-  if(lista && lista.classList.contains('active')) renderList();
-}
 
 async function syncToCloud(){
   const si=document.getElementById('sync-ind');
