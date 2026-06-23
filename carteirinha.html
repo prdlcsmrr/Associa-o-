@@ -341,12 +341,20 @@ async function init(){
   const id=new URLSearchParams(location.search).get('id');
   if(!id){ document.getElementById('app').innerHTML='<div class="loading">❌ Acesse pelo sistema principal.</div>'; return; }
   let m=null;
-  try{ const r=await fetch(DB+'?t='+Date.now()); if(r.ok){const d=await r.json();m=d.membros?.find(x=>x.numCred===id);} }catch(e){}
+  // 1º tentar JSONBin (dados mais atualizados)
+  try{
+    const r=await fetch('https://api.jsonbin.io/v3/b/'+BIN+'/latest',{headers:{'X-Master-Key':BINKEY,'X-Bin-Meta':'false'}});
+    if(r.ok){const d=await r.json();m=d.membros?.find(x=>x.numCred===id);}
+  }catch(e){}
+  // 2º fallback: db.json (GitHub Pages)
   if(!m){
-    try{ const r=await fetch('https://api.jsonbin.io/v3/b/'+BIN+'/latest',{headers:{'X-Master-Key':BINKEY,'X-Bin-Meta':'false'}});
-      if(r.ok){const d=await r.json();m=d.membros?.find(x=>x.numCred===id);} }catch(e){}
+    try{ const r=await fetch(DB+'?t='+Date.now()); if(r.ok){const d=await r.json();m=d.membros?.find(x=>x.numCred===id);} }catch(e){}
   }
-  if(!m){ document.getElementById('app').innerHTML='<div class="loading">❌ Membro não encontrado</div>'; return; }
+  // 3º fallback: localStorage local
+  if(!m){
+    try{ const ls=JSON.parse(localStorage.getItem('members')||'[]'); m=ls.find(x=>x.numCred===id); }catch(e){}
+  }
+  if(!m){ document.getElementById('app').innerHTML='<div class="loading">❌ Membro não encontrado<br><small>ID: '+id+'</small></div>'; return; }
   membro=m; renderCard();
 }
 
