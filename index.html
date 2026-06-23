@@ -415,7 +415,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
     <div class="cart-preview" id="cred-card">
       <!-- FRENTE -->
       <div class="cart-face" id="cart-frente">
-        <img class="cart-bg" src="https://prdlcsmrr.github.io/Associa-o-/frente.jpg?v=1782180938" crossorigin="anonymous">
+        <img class="cart-bg" src="https://prdlcsmrr.github.io/Associa-o-/frente.jpg?v=1782181003" crossorigin="anonymous">
         <div class="cart-overlay">
                     <div class="cp-photo" id="cp-photo" style="left:1.3%;top:29.1%;width:12.5%;aspect-ratio:3/4"><div class="cp-photo-ph">👤</div></div>
           <div class="cp-campo" id="cp-cargo"  style="left:23%;top:41%;font-size:clamp(8px,1.8vw,15px);font-weight:800;color:#1a2a6e"></div>
@@ -428,9 +428,9 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
       </div>
       <!-- VERSO -->
       <div class="cart-face" id="cart-verso">
-        <img class="cart-bg" src="https://prdlcsmrr.github.io/Associa-o-/verso.jpg?v=1782180938" crossorigin="anonymous">
+        <img class="cart-bg" src="https://prdlcsmrr.github.io/Associa-o-/verso.jpg?v=1782181003" crossorigin="anonymous">
         <div class="cart-overlay">
-          <div class="cp-campo" id="cp-filiacao"     style="left:19%;top:28.2%;font-size:1.3vw;font-weight:700;color:#111"></div>
+          <div class="cp-campo" id="cp-filiacao"     style="left:19%;top:28.2%;font-size:1.3vw;font-weight:700;color:#111;line-height:1.4;white-space:normal;max-width:55%"></div>
           <div class="cp-campo" id="cp-admissao"     style="left:52.4%;top:28.2%;font-size:1.3vw;font-weight:800;color:#111"></div>
           <div class="cp-campo" id="cp-nasc"         style="left:19%;top:42.5%;font-size:1.3vw;font-weight:800;color:#111"></div>
           <div class="cp-campo" id="cp-validade"     style="left:52.4%;top:42.5%;font-size:1.3vw;font-weight:800;color:#cc0000"></div>
@@ -1423,8 +1423,16 @@ function openCred(id){
   // QR já está impresso na imagem Canva
 
   // VERSO — campos
-  const filiacao=[m.pai?'Pai: '+m.pai:'',m.mae?'Mãe: '+m.mae:''].filter(Boolean).join(' / ')||'—';
-  document.getElementById('cp-filiacao').textContent=filiacao;
+  // Filiação: pai e mãe em linhas separadas
+  const filPai = m.pai ? m.pai : '';
+  const filMae = m.mae ? m.mae : '';
+  const cpFil = document.getElementById('cp-filiacao');
+  if(cpFil){
+    cpFil.innerHTML = '';
+    if(filPai){ const d=document.createElement('div'); d.textContent=filPai; cpFil.appendChild(d); }
+    if(filMae){ const d=document.createElement('div'); d.textContent=filMae; cpFil.appendChild(d); }
+    if(!filPai && !filMae) cpFil.textContent='—';
+  }
   document.getElementById('cp-nasc').textContent=fmt(m.nasc);
   document.getElementById('cp-admissao').textContent=fmt(m.emissao);
   document.getElementById('cp-naturalidade').textContent=(m.naturalidade||'BRASILEIRO').toUpperCase();
