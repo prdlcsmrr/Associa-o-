@@ -1226,9 +1226,9 @@ function renderList(){
         <div class="mcard-status ${m.status==='Ativo'?'ativo':'inativo'}">● ${m.status==='Ativo'?'Credencial Ativa':'Credencial Inativa'}</div>
         <div style="display:flex;gap:8px;align-items:center">
           <button class="mcard-btn mcard-btn-cred" onclick="openCred(${m.id})" style="flex:1;padding:8px">🪪 Ver Credencial</button>
-          <div style="position:relative" id="menu-wrap-${m.id}">
+          <div style="position:relative;overflow:visible" id="menu-wrap-${m.id}">
             <button onclick="toggleMenu(${m.id},event)" style="width:36px;height:34px;border-radius:8px;border:1px solid #e0e0e0;background:#f9f9f9;cursor:pointer;font-size:18px;font-weight:900;color:#555;display:flex;align-items:center;justify-content:center" title="Mais opções">⋯</button>
-            <div onclick="event.stopPropagation()" id="dd-${m.id}" style="display:none;position:fixed;background:#fff;border:1px solid #e0e0e0;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.35);min-width:210px;z-index:9999;overflow:hidden">
+            <div onclick="event.stopPropagation()" id="dd-${m.id}" style="display:none;position:absolute;bottom:42px;right:0;background:#fff;border:1px solid #e0e0e0;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.35);min-width:210px;z-index:9999;overflow:hidden">
               <div onclick="openEdit(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">✏️ Editar Cadastro</div>
               <div onclick="gerarCarteirinha('${m.numCred}');closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">🖨️ Gerar Carteirinha</div>
               <div onclick="gerarCobranca('${m.numCred}');closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">💰 Cobrança / Carnê</div>
@@ -1807,37 +1807,25 @@ let _menuOpen = null;
 function toggleMenu(id, e){
   e.stopPropagation();
   e.preventDefault();
-  
-  // Fechar qualquer menu aberto (exceto o atual)
+
+  const dd = document.getElementById('dd-'+id);
+  if(!dd) return;
+
+  // Fechar outros menus abertos
   if(_menuOpen && _menuOpen !== id){
     const old = document.getElementById('dd-'+_menuOpen);
     if(old) old.style.display='none';
-  }
-  
-  const dd = document.getElementById('dd-'+id);
-  if(!dd) return;
-  
-  // Toggle
-  const isOpen = dd.style.display === 'block';
-  if(isOpen){ 
-    dd.style.display='none'; 
     _menuOpen = null;
-    return; 
   }
-  
-  // Posicionar
-  const btn = e.currentTarget || e.target;
-  const rect = btn.getBoundingClientRect();
-  
-  let top = rect.bottom + 6;
-  let left = rect.right - 215;
-  if(left < 8) left = 8;
-  if(top + 320 > window.innerHeight) top = rect.top - 325;
-  
-  dd.style.top = top + 'px';
-  dd.style.left = left + 'px';
-  dd.style.display = 'block';
-  _menuOpen = id;
+
+  // Toggle simples
+  if(dd.style.display === 'block'){
+    dd.style.display = 'none';
+    _menuOpen = null;
+  } else {
+    dd.style.display = 'block';
+    _menuOpen = id;
+  }
 }
 
 function closeMenus(){
@@ -1845,11 +1833,11 @@ function closeMenus(){
   _menuOpen = null;
 }
 
-// Fechar ao clicar fora — com delay para não interferir no clique do item
+// Fechar ao clicar em qualquer lugar fora
 document.addEventListener('click', function(e){
   if(_menuOpen === null) return;
-  const dd = document.getElementById('dd-'+_menuOpen);
-  if(dd && !dd.contains(e.target)){
+  const wrap = document.getElementById('menu-wrap-'+_menuOpen);
+  if(wrap && !wrap.contains(e.target)){
     closeMenus();
   }
 });
