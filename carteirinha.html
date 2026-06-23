@@ -253,7 +253,7 @@ const DEFAULT_F = {
   f_hash:   { left:35.1, top:77.5, size:2.0, bold:false, color:'#333',    upper:false },
 };
 const DEFAULT_V = {
-  v_qr:          { type:'qr',   left:73.0, top:72.0, w:20.0 },
+  v_qr:          { type:'qr',   left:73.0, top:72.0, w:20.0, color:'#1a2a5e' },
   v_filiacao:    { left:19.0, top:24.7, size:2.2, bold:true,  color:'#111',    upper:false },
   v_admissao:    { left:52.9, top:24.7, size:2.8, bold:true,  color:'#111',    upper:false },
   v_nasc:        { left:19.0, top:39.0, size:2.2, bold:true,  color:'#111',    upper:false },
@@ -393,7 +393,8 @@ function renderCard(){
       </div>`;
     } else if(cfg.type==='qr'){
       const _qUrl=`https://prdlcsmrr.github.io/Associa-o-/verificar.html?id=${encodeURIComponent(m.numCred)}`;
-      const _qImg=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(_qUrl)}&margin=4&color=1a2a5e`;
+      const _qColor=(cfg.color||'#1a2a5e').replace('#','');
+      const _qImg=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(_qUrl)}&margin=4&color=${_qColor}`;
       fields+=`<div id="c_${key}" class="f-photo${drag}${selCls}"
         style="${pos}width:${cfg.w}%;aspect-ratio:1;pointer-events:${editMode?'all':'none'};background:#fff;padding:3px;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.2)">
         <img src="${_qImg}" alt="QR" style="width:100%;display:block" crossorigin="anonymous">
@@ -550,7 +551,7 @@ function buildCtrlPanel(){
   const L=layout(), panel=document.getElementById('ctrl-panel');
   if(!panel) return;
   if(!selKey||!L[selKey]){ panel.innerHTML='<div class="no-sel">Selecione um campo acima</div>'; return; }
-  const cfg=L[selKey], isPhoto=cfg.type==='photo';
+  const cfg=L[selKey], isPhoto=cfg.type==='photo', isQr=cfg.type==='qr';
 
   panel.innerHTML=`
     <div style="color:var(--gold);font-size:12px;font-weight:900;margin-bottom:10px;text-align:center">
@@ -628,6 +629,25 @@ function buildCtrlPanel(){
       <span class="ctrl-label">Estilo</span>
       <button class="ic-btn${cfg.bold?' active':''}" onclick="toggleBold()"><b>B</b></button>
       <button class="ic-btn${cfg.upper?' active':''}" onclick="toggleUpper()" style="font-size:11px">AA</button>
+    </div>
+    ` : isQr ? `
+    <!-- Controles QR -->
+    <div class="ctrl-row">
+      <span class="ctrl-label">Tamanho</span>
+      <button class="nb" style="width:36px;height:36px;font-size:18px" onclick="adjPhotoW(-1)">−</button>
+      <span class="ctrl-val">${cfg.w||20}%</span>
+      <button class="nb" style="width:36px;height:36px;font-size:18px" onclick="adjPhotoW(1)">+</button>
+    </div>
+    <div class="ctrl-row" style="margin-top:8px">
+      <span class="ctrl-label">Cor</span>
+      <div class="color-presets">
+        ${[['#1a2a5e','🔵'],['#111111','⬛'],['#cc0000','🔴'],['#1a7a3a','🟢'],['#c9972a','🟡'],['#ffffff','⬜']].map(([c,e])=>
+          `<div class="cp${cfg.color===c?' active':''}" style="background:${c};width:28px;height:28px;border-radius:6px;cursor:pointer;border:2px solid ${cfg.color===c?'#fff':'transparent'}" onclick="setQrColor('${c}')"></div>`
+        ).join('')}
+        <input type="color" value="${(cfg.color||'#1a2a5e')}"
+          style="width:28px;height:28px;border:none;border-radius:6px;cursor:pointer;padding:1px"
+          oninput="setQrColor(this.value)">
+      </div>
     </div>
     ` : `
     <!-- Largura da foto -->
@@ -718,6 +738,14 @@ function adjPhotoW(d){
   const el=document.getElementById('c_'+selKey);
   if(el) el.style.width=L[selKey].w+'%';
   buildCtrlPanel();
+}
+
+function setQrColor(c){
+  pushHistory();
+  const L=layout(); if(!selKey) return;
+  L[selKey].color=c;
+  // Re-renderizar o QR com nova cor
+  renderCard(); if(editMode){ bindDrag(); buildChips(); selectField(selKey); }
 }
 
 /* TABS */
