@@ -284,17 +284,17 @@ function layout(){ return tab==='F'?layoutF:layoutV; }
 function fmt(d){ if(!d)return'—'; return new Date(d+'T12:00').toLocaleDateString('pt-BR'); }
 
 function loadLayouts(){
-  try{ layoutF=JSON.parse(localStorage.getItem('cart_lF_v10')||'null')||clone(DEFAULT_F); }catch(e){ layoutF=clone(DEFAULT_F); }
-  try{ layoutV=JSON.parse(localStorage.getItem('cart_lV_v10')||'null')||clone(DEFAULT_V); }catch(e){ layoutV=clone(DEFAULT_V); }
+  try{ layoutF=JSON.parse(localStorage.getItem('cart_lF_v11')||'null')||clone(DEFAULT_F); }catch(e){ layoutF=clone(DEFAULT_F); }
+  try{ layoutV=JSON.parse(localStorage.getItem('cart_lV_v11')||'null')||clone(DEFAULT_V); }catch(e){ layoutV=clone(DEFAULT_V); }
 }
 function saveLayout(){
-  localStorage.setItem('cart_lF_v10',JSON.stringify(layoutF));
-  localStorage.setItem('cart_lV_v10',JSON.stringify(layoutV));
+  localStorage.setItem('cart_lF_v11',JSON.stringify(layoutF));
+  localStorage.setItem('cart_lV_v11',JSON.stringify(layoutV));
   toast('✅ Layout salvo!','#1a7a3a');
 }
 function saveLayoutSilent(){
-  localStorage.setItem('cart_lF_v10',JSON.stringify(layoutF));
-  localStorage.setItem('cart_lV_v10',JSON.stringify(layoutV));
+  localStorage.setItem('cart_lF_v11',JSON.stringify(layoutF));
+  localStorage.setItem('cart_lV_v11',JSON.stringify(layoutV));
 }
 function resetLayout(){
   if(!confirm('Resetar '+( tab==='F'?'Frente':'Verso')+'?')) return;
@@ -622,7 +622,26 @@ function buildCtrlPanel(){
     <div style="color:rgba(255,255,255,.4);font-size:10px;text-align:center;margin-top:8px">
       Logo sem fundo — transparente<br>Configure o logo em Configurações
     </div>
-    ` : !isPhoto ? `
+    ` : isQr ? `
+    <!-- Controles QR -->
+    <div class="ctrl-row">
+      <span class="ctrl-label">Tamanho</span>
+      <button class="nb" style="width:36px;height:36px;font-size:18px" onclick="adjPhotoW(-1)">−</button>
+      <span class="ctrl-val">${cfg.w||20}%</span>
+      <button class="nb" style="width:36px;height:36px;font-size:18px" onclick="adjPhotoW(1)">+</button>
+    </div>
+    <div class="ctrl-row" style="margin-top:8px">
+      <span class="ctrl-label">Cor</span>
+      <div class="color-presets">
+        ${[['#1a2a5e','🔵'],['#111111','⬛'],['#cc0000','🔴'],['#1a7a3a','🟢'],['#c9972a','🟡'],['#ffffff','⬜']].map(([c,e])=>
+          `<div class="cp${cfg.color===c?' active':''}" style="background:${c};width:28px;height:28px;border-radius:6px;cursor:pointer;border:2px solid ${cfg.color===c?'#fff':'transparent'}" onclick="setQrColor('${c}')"></div>`
+        ).join('')}
+        <input type="color" value="${(cfg.color||'#1a2a5e')}"
+          style="width:28px;height:28px;border:none;border-radius:6px;cursor:pointer;padding:1px"
+          oninput="setQrColor(this.value)">
+      </div>
+    </div>
+    ` : (!isPhoto && !isQr) ? `
     <!-- Fonte -->
     <div class="ctrl-row">
       <span class="ctrl-label">Fonte</span>
@@ -656,8 +675,6 @@ function buildCtrlPanel(){
       <button class="ic-btn${cfg.bold?' active':''}" onclick="toggleBold()"><b>B</b></button>
       <button class="ic-btn${cfg.upper?' active':''}" onclick="toggleUpper()" style="font-size:11px">AA</button>
     </div>
-    ` : isQr ? `
-    <!-- Controles QR -->
     <div class="ctrl-row">
       <span class="ctrl-label">Tamanho</span>
       <button class="nb" style="width:36px;height:36px;font-size:18px" onclick="adjPhotoW(-1)">−</button>
