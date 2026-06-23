@@ -432,7 +432,7 @@ function doDrag(sx,sy,key,cardEl){
     const el=document.getElementById('c_'+key);
     if(el){ el.style.left=L[key].left+'%'; el.style.top=L[key].top+'%'; }
     buildCtrlPanel();
-    if(showGuides) renderCard();
+    if(showGuides) updateGuides();
   };
   const up=()=>{
     document.removeEventListener('mousemove',mu); document.removeEventListener('mouseup',up);
@@ -447,11 +447,44 @@ function doDrag(sx,sy,key,cardEl){
 /* SELEÇÃO */
 function selectField(key){
   selKey=key;
-  renderCard();
+  // NÃO renderizar tudo — apenas atualizar classes no DOM existente
+  document.querySelectorAll('.campo.drag, .f-photo.drag').forEach(el=>{
+    el.classList.remove('sel');
+  });
+  const selEl = document.getElementById('c_'+key);
+  if(selEl) selEl.classList.add('sel');
   buildChips();
   buildCtrlPanel();
+  // Atualizar guias sem re-renderizar tudo
+  if(showGuides) updateGuides();
   // Ir para tab controles automaticamente
   switchEpTab('ctrl');
+}
+
+/* GUIAS sem re-render */
+function updateGuides(){
+  const L=layout();
+  // Remover guias antigas
+  document.querySelectorAll('.guide-line').forEach(e=>e.remove());
+  if(!showGuides) return;
+  const overlay = document.querySelector('.overlay');
+  if(!overlay) return;
+  // Centro verde
+  const gh = document.createElement('div');
+  gh.className='guide-line guide-h'; gh.style.cssText='top:50%;background:rgba(0,220,80,.7)';
+  overlay.appendChild(gh);
+  const gv = document.createElement('div');
+  gv.className='guide-line guide-v'; gv.style.cssText='left:50%;background:rgba(0,220,80,.7)';
+  overlay.appendChild(gv);
+  if(selKey && L[selKey]){
+    const c=L[selKey];
+    const gh2=document.createElement('div');
+    gh2.className='guide-line guide-h'; gh2.style.cssText=`top:${c.top}%;background:rgba(255,180,0,.8)`;
+    overlay.appendChild(gh2);
+    const gv2=document.createElement('div');
+    gv2.className='guide-line guide-v'; gv2.style.cssText=`left:${c.left}%;background:rgba(255,180,0,.8)`;
+    overlay.appendChild(gv2);
+  }
 }
 
 /* CHIPS de campos */
@@ -572,7 +605,7 @@ function nudge(dl,dt){
   const L=layout(); if(!selKey) return;
   L[selKey].left=Math.max(0,Math.min(99,+(L[selKey].left+dl).toFixed(1)));
   L[selKey].top =Math.max(0,Math.min(99,+(L[selKey].top +dt).toFixed(1)));
-  applyPos(); buildCtrlPanel(); if(showGuides) renderCard();
+  applyPos(); buildCtrlPanel()if(showGuides) updateGuides(););
 }
 
 function moveField(prop,val){
@@ -592,6 +625,7 @@ function applyPos(){
   const L=layout(); if(!selKey) return;
   const el=document.getElementById('c_'+selKey);
   if(el){ el.style.left=L[selKey].left+'%'; el.style.top=L[selKey].top+'%'; }
+  if(showGuides) updateGuides();
 }
 
 function adjSize(d){
@@ -682,7 +716,7 @@ function toggleGrid(){
 function toggleGuides(){
   showGuides=!showGuides;
   document.getElementById('btn-guides').className='btn btn-navy'+(showGuides?' active':'');
-  renderCard(); if(editMode){ bindDrag(); buildChips(); }
+  if(editMode){ updateGuides(); } else { renderCard(); }
 }
 
 /* DOWNLOADS */
