@@ -6,7 +6,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Carteirinha v1782181539</title>
+<title>Carteirinha v1782228985</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -254,25 +254,26 @@ const DEFAULT_F = {
   f_hash:   { left:35.1, top:77.5, size:2.0, bold:false, color:'#333',    upper:false },
 };
 const DEFAULT_V = {
-  v_qr:          { type:'qr',   left:73.0, top:72.0, w:20.0, color:'#1a2a5e' },
-  v_filiacao:    { left:19.0, top:24.7, size:2.2, bold:true,  color:'#111',    upper:false },
-  v_admissao:    { left:52.9, top:24.7, size:2.8, bold:true,  color:'#111',    upper:false },
-  v_nasc:        { left:19.0, top:39.0, size:2.2, bold:true,  color:'#111',    upper:false },
-  v_validade:    { left:52.9, top:39.5, size:2.2, bold:true,  color:'#cc0000', upper:false },
-  v_naturalidade:{ left:19.0, top:51.5, size:2.2, bold:true,  color:'#111',    upper:true  },
-  v_situacao:    { left:52.9, top:51.5, size:2.2, bold:true,  color:'#111',    upper:true  },
-  v_municipio:   { left:83.8, top:59.1, size:2.2, bold:true,  color:'#111',    upper:true  },
+  v_qr:            { type:'qr',   left:73.0, top:72.0, w:20.0, color:'#1a2a5e' },
+  v_filiacao_pai:  { left:19.0, top:24.7, size:2.2, bold:true,  color:'#111',    upper:false },
+  v_filiacao_mae:  { left:19.0, top:31.0, size:2.2, bold:true,  color:'#111',    upper:false },
+  v_admissao:      { left:52.9, top:24.7, size:2.8, bold:true,  color:'#111',    upper:false },
+  v_nasc:          { left:19.0, top:42.0, size:2.2, bold:true,  color:'#111',    upper:false },
+  v_validade:      { left:52.9, top:42.0, size:2.2, bold:true,  color:'#cc0000', upper:false },
+  v_naturalidade:  { left:19.0, top:54.0, size:2.2, bold:true,  color:'#111',    upper:true  },
+  v_situacao:      { left:52.9, top:54.0, size:2.2, bold:true,  color:'#111',    upper:true  },
+  v_municipio:     { left:83.8, top:62.0, size:2.2, bold:true,  color:'#111',    upper:true  },
 };
 const LABELS = {
   f_photo:'Foto', f_logo:'Logo', f_cargo:'Cargo', f_nome:'Nome', f_mat:'Matrícula',
   f_cpf:'CPF', f_emissao:'Expedição', f_hash:'Hash',
-  v_filiacao:'Filiação', v_nasc:'Nasc.', v_admissao:'Admissão',
+  v_filiacao_pai:'Pai', v_filiacao_mae:'Mãe', v_nasc:'Nasc.', v_admissao:'Admissão',
   v_naturalidade:'Naturalidade', v_validade:'Validade',
   v_municipio:'Município', v_situacao:'Situação',
 };
 const DOT_COLORS = {
   f_photo:'#888',f_logo:'#c9972a',f_cargo:'#1a2a6e',f_nome:'#333',f_mat:'#555',f_cpf:'#555',f_emissao:'#555',f_hash:'#888',
-  v_filiacao:'#111',v_nasc:'#333',v_admissao:'#333',v_naturalidade:'#333',v_validade:'#c00',v_municipio:'#333',v_situacao:'#333',
+  v_filiacao_pai:'#111',v_filiacao_mae:'#111',v_nasc:'#333',v_admissao:'#333',v_naturalidade:'#333',v_validade:'#c00',v_municipio:'#333',v_situacao:'#333',
 };
 
 let layoutF={}, layoutV={}, tab='F', editMode=false;
@@ -284,6 +285,11 @@ function layout(){ return tab==='F'?layoutF:layoutV; }
 function fmt(d){ if(!d)return'—'; return new Date(d+'T12:00').toLocaleDateString('pt-BR'); }
 
 function loadLayouts(){
+  // Limpar versões antigas do localStorage
+  ['v1','v2','v3','v4','v5','v6','v7','v8','v9','v10'].forEach(v=>{
+    localStorage.removeItem('cart_lF_'+v);
+    localStorage.removeItem('cart_lV_'+v);
+  });
   try{ layoutF=JSON.parse(localStorage.getItem('cart_lF_v11')||'null')||clone(DEFAULT_F); }catch(e){ layoutF=clone(DEFAULT_F); }
   try{ layoutV=JSON.parse(localStorage.getItem('cart_lV_v11')||'null')||clone(DEFAULT_V); }catch(e){ layoutV=clone(DEFAULT_V); }
 }
@@ -373,7 +379,7 @@ function getData(){
   return {
     f_cargo:(m.cat||'').toUpperCase(), f_nome:m.nome,
     f_mat:m.numCred, f_cpf:m.cpf, f_emissao:fmt(m.emissao), f_hash:m.docId,
-    v_filiacao:fil.replace(/\n/g,'<br>'), v_nasc:fmt(m.nasc), v_admissao:fmt(m.emissao),
+    v_filiacao_pai:(m.pai||'—'), v_filiacao_mae:(m.mae||''), v_nasc:fmt(m.nasc), v_admissao:fmt(m.emissao),
     v_naturalidade:(m.naturalidade||'BRASILEIRO'),
     v_validade:fmt(m.validade), v_municipio:(m.municipio||'—').toUpperCase(),
     v_situacao:membro.status==='Ativo'?'ATIVO':'INATIVO',
