@@ -2180,6 +2180,10 @@ const today=new Date().toISOString().split('T')[0];
 document.getElementById('f-emissao').value=today;
 const ny=new Date();ny.setFullYear(ny.getFullYear()+1);
 document.getElementById('f-validade').value=ny.toISOString().split('T')[0];
+
+}
+
+loadFromCloud();
 </script>
 
 <!-- ── MODAL EDIÇÃO DE MEMBRO ── -->
