@@ -197,8 +197,8 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
   padding:9px 16px; border-radius:6px; margin-bottom:10px;
   font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;
 }
-.modal-status-bar.ativo { background:rgba(26,122,58,0.12);border:1px solid rgba(26,122,58,0.35);color:#1a7a3a; }
-.modal-status-bar.inativo { background:rgba(185,28,28,0.08);border:1px solid rgba(185,28,28,0.3);color:#b91c1c; }
+.modal-status-bar.ativo { background:#16a34a;border:1px solid #15803d;color:#fff;font-weight:700; }
+.modal-status-bar.inativo { background:#dc2626;border:1px solid #b91c1c;color:#fff;font-weight:700; }
 
 
 /* ── MODAL EDIÇÃO ── */
@@ -317,7 +317,7 @@ if('serviceWorker' in navigator){
     </div>
     <div class="hright">
       <div class="hcount" id="hcount">0 membros</div>
-      <button class="hbtn" onclick="logout()">Sair</button>
+      <button onclick="logout()" style="background:#cc0000;border:1px solid #aa0000;color:#fff;padding:7px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;letter-spacing:0.5px">Sair</button>
     </div>
   </div>
 </div>
