@@ -1233,7 +1233,9 @@ function openPag(id){
 
   document.getElementById('pag-meses').innerHTML = html;
   updatePagSummary(pagos);
-  document.getElementById('modal-pag').classList.add('open');
+  const _mpag = document.getElementById('modal-pag');
+  _mpag.style.display = '';
+  _mpag.classList.add('open');
 }
 
 function togglePag(mes){
@@ -1275,7 +1277,6 @@ function closePagDirect(){
   if(modal){
     modal.classList.remove('open');
     modal.style.display = 'none';
-    setTimeout(()=>{ modal.style.display = ''; }, 100);
   }
   pagAtualId = null;
 }
@@ -1571,7 +1572,7 @@ function openCred(id){
 }
 
 function closeM(e){if(e.target===document.getElementById('modal'))closeMD();}
-function closeMD(){document.getElementById('modal').classList.remove('open');}
+function closeMD(){document.getElementById('modal').classList.remove('open'); goTab('lista');}
 
 function abrirCarteirinha(){
   if(_credAtualId) gerarCarteirinha(_credAtualId);
@@ -2232,7 +2233,9 @@ function openPag(id){
 
   document.getElementById('pag-meses').innerHTML = html;
   updatePagSummary(pagos);
-  document.getElementById('modal-pag').classList.add('open');
+  const _mpag = document.getElementById('modal-pag');
+  _mpag.style.display = '';
+  _mpag.classList.add('open');
 }
 
 function togglePag(mes){
