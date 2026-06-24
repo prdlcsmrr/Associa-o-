@@ -2425,6 +2425,23 @@ if(typeof closeMenus!=="undefined") window.closeMenus=closeMenus;
 if(typeof gerarCobranca!=="undefined") window.gerarCobranca=gerarCobranca;
 if(typeof closePagDirect!=="undefined") window.closePagDirect=closePagDirect;
 if(typeof closeEditDirect!=="undefined") window.closeEditDirect=closeEditDirect;
+
+function savePagamentos(){
+  if(!pagAtualId) return;
+  const m = members.find(x=>x.id===pagAtualId);
+  if(!m){ alert('Membro não encontrado'); return; }
+  const pagos = [];
+  for(let i=0;i<12;i++){
+    const btn = document.getElementById('pag-mes-'+i);
+    if(btn && btn.dataset.pago==='1') pagos.push(i);
+  }
+  m.pagamentos = pagos;
+  localStorage.setItem('members', JSON.stringify(members));
+  closePagDirect();
+  renderList();
+  criarBackup('pagamento');
+  syncToCloud();
+}
 </script>
 
 
