@@ -284,97 +284,6 @@ if('serviceWorker' in navigator){
     })
     .catch(err => console.log('SW:', err));
 }
-
-// ══════════════════════════════════════
-// PAGAMENTOS — reescrito do zero
-// ══════════════════════════════════════
-const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-let _pagId = null;
-let _pagSelecionados = [];
-
-function abrirPagamentos(memberId){
-  const m = members.find(x => String(x.numCred) === String(memberId));
-  if(!m) return;
-  
-  _pagId = memberId;
-  _pagSelecionados = Array.isArray(m.pagamentos) ? [...m.pagamentos] : [];
-  
-  document.getElementById('pag-nome').textContent = m.nome || '—';
-  
-  const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  let html = '';
-  meses.forEach(function(mes, i){
-    const pago = _pagSelecionados.includes(i);
-    const borda = pago ? '#16a34a' : '#e0e0e0';
-    const bg = pago ? 'rgba(22,163,74,0.1)' : '#f9f9f9';
-    const cor = pago ? '#16a34a' : '#666';
-    const icone = pago ? '✅' : '○';
-    html += '<button onclick="toggleMesPag('+i+')" id="pmes-'+i+'" style="padding:10px 6px;border-radius:8px;border:2px solid '+borda+';background:'+bg+';color:'+cor+';font-size:11px;font-weight:700;cursor:pointer;text-align:center">'+icone+'<br><small>'+mes+'</small></button>';
-  });
-  document.getElementById('pag-meses').innerHTML = html;
-  atualizarResumoPag();
-  
-  var modal = document.getElementById('modal-pag');
-  modal.style.display = 'flex';
-  modal.style.alignItems = 'center';
-  modal.style.justifyContent = 'center';
-}
-
-function toggleMesPag(i){
-  const idx = _pagSelecionados.indexOf(i);
-  if(idx === -1) _pagSelecionados.push(i);
-  else _pagSelecionados.splice(idx, 1);
-  
-  const btn = document.getElementById('pmes-'+i);
-  const pago = _pagSelecionados.includes(i);
-  btn.style.border = `2px solid ${pago?'#16a34a':'#e0e0e0'}`;
-  btn.style.background = pago?'rgba(22,163,74,0.1)':'#f9f9f9';
-  btn.style.color = pago?'#16a34a':'#666';
-  btn.innerHTML = `${pago?'✅':'○'}<br><span style="font-size:9px">${MESES[i].slice(0,3)}</span>`;
-  
-  atualizarResumoPag();
-}
-
-function atualizarResumoPag(){
-  const cfg = JSON.parse(localStorage.getItem('assoc-config')||'{}');
-  const valor = parseFloat(cfg.valorMensalidade||'100');
-  const pagos = _pagSelecionados.length;
-  const pend = 12 - pagos;
-  document.getElementById('pag-summary').innerHTML = `
-    <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-      <span>Meses pagos:</span><strong style="color:#16a34a">${pagos}/12</strong>
-    </div>
-    <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-      <span>Total pago:</span><strong style="color:#1a2a5e">R$ ${(pagos*valor).toFixed(2).replace('.',',')}</strong>
-    </div>
-    <div style="display:flex;justify-content:space-between">
-      <span>Total pendente:</span><strong style="color:#dc2626">R$ ${(pend*valor).toFixed(2).replace('.',',')}</strong>
-    </div>`;
-}
-
-async function savePagamentos(){
-  if(_pagId === null) return;
-  const m = members.find(x => String(x.numCred) === String(_pagId));
-  if(!m) return;
-  m.pagamentos = [..._pagSelecionados];
-  localStorage.setItem('members', JSON.stringify(members));
-  fecharPagamentos();
-  renderList();
-  criarBackup('pagamento');
-  try{ await syncToCloud(); }catch(e){}
-}
-
-function fecharPagamentos(){
-  document.getElementById('modal-pag').style.display = 'none';
-  _pagId = null;
-}
-
-// Inicializar botão fechar após DOM carregar
-document.addEventListener('DOMContentLoaded', function(){
-  const btn = document.getElementById('pag-close-btn');
-  if(btn) btn.addEventListener('click', fecharPagamentos);
-});
-
 </script>
 </head>
 <body>
@@ -1039,23 +948,38 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
 
 
 <!-- MODAL PAGAMENTOS -->
-<div class="modal-overlay<div id="modal-pag" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2000;align-items:center;justify-content:center;padding:20px;overflow-y:auto">
-  <div style="background:#fff;border-radius:16px;width:100%;max-width:500px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.3)">
-    <div style="background:#1a2a5e;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #c9952a">
+<div class="modal-overlay" id="modal-pag" onclick="closePag(event)">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:500px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.3)" onclick="event.stopPropagation()">
+    <div style="background:var(--navy);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold)">
       <div>
         <div style="font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px">Controle de Pagamentos</div>
         <div style="font-size:16px;font-weight:800;color:#fff" id="pag-nome">—</div>
       </div>
-      <button id="pag-close-btn" style="background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.4);color:#fff;font-size:20px;cursor:pointer;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center">✕</button>
+      <button type="button" id="btn-close-pag" style="background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.4);color:#fff;font-size:20px;cursor:pointer;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:100;position:relative;touch-action:manipulation">×</button>
     </div>
-    <div style="padding:20px">
-      <div style="font-size:11px;font-weight:800;color:#1a2a5e;letter-spacing:1px;margin-bottom:12px">SELECIONE OS MESES PAGOS:</div>
-      <div id="pag-meses" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px"></div>
-      <div id="pag-summary" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px;margin-bottom:16px;font-size:13px"></div>
-      <button onclick="savePagamentos()" style="width:100%;background:#1a2a5e;color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;text-transform:uppercase">✓ Salvar Pagamentos</button>
+    <div style="padding:20px 24px">
+      <div style="font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px">
+        Selecione os meses pagos:
+      </div>
+      <div id="pag-meses" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px"></div>
+      <div style="background:#f0f9f0;border:1px solid #bbf0bb;border-radius:8px;padding:12px;margin-bottom:16px">
+        <div style="font-size:11px;font-weight:800;color:#2a7a38;margin-bottom:4px">📊 Resumo</div>
+        <div style="display:flex;justify-content:space-between;font-size:13px">
+          <span style="color:#555">Meses pagos:</span>
+          <span style="font-weight:800;color:#2a7a38" id="pag-count">0/12</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-top:4px">
+          <span style="color:#555">Total pago:</span>
+          <span style="font-weight:800;color:#1a2a5e" id="pag-total">R$ 0,00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-top:4px">
+          <span style="color:#555">Total pendente:</span>
+          <span style="font-weight:800;color:#b91c1c" id="pag-pend">R$ 1.200,00</span>
+        </div>
+      </div>
+      <button onclick="savePag()" style="width:100%;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;text-transform:uppercase">✓ Salvar Pagamentos</button>
     </div>
   </div>
-</div>
 </div>
 
 <script>
@@ -1286,12 +1210,57 @@ function limpar(){
   setStatus('Ativo');retake();
 }
 function save(){localStorage.setItem('members',JSON.stringify(members));// ── PAGAMENTOS ──────────────────────────────────────────────────────
+const MESES_NOME = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+let pagAtualId = null;
 
+function openPag(id){
+  const m = members.find(x=>x.id===id);
+  if(!m) return;
+  pagAtualId = id;
+  document.getElementById('pag-nome').textContent = m.nome;
+  const pagos = m.pagamentos || [];
+  const ano = new Date().getFullYear();
 
+  let html = '';
+  MESES_NOME.forEach((mes, i) => {
+    const pago = pagos.includes(i);
+    html += `<button onclick="togglePag(${i})" id="pag-mes-${i}" style="
+      padding:10px 6px; border-radius:8px; border:2px solid ${pago?'#2a7a38':'#e0e0e0'};
+      background:${pago?'rgba(26,122,58,0.1)':'#f9f9f9'}; color:${pago?'#2a7a38':'#666'};
+      font-size:11px; font-weight:700; cursor:pointer; transition:all 0.2s; text-align:center;
+    ">${pago?'✅':'○'}<br><span style="font-size:9px">${mes.slice(0,3)}</span></button>`;
+  });
 
+  document.getElementById('pag-meses').innerHTML = html;
+  updatePagSummary(pagos);
+  const _mpag = document.getElementById('modal-pag');
+  _mpag.style.display = '';
+  _mpag.classList.add('open');
+}
 
+function togglePag(mes){
+  const m = members.find(x=>x.id===pagAtualId);
+  if(!m) return;
+  if(!m.pagamentos) m.pagamentos = [];
+  const idx = m.pagamentos.indexOf(mes);
+  if(idx >= 0) m.pagamentos.splice(idx, 1);
+  else m.pagamentos.push(mes);
 
+  const pago = m.pagamentos.includes(mes);
+  const btn = document.getElementById('pag-mes-'+mes);
+  btn.style.border = '2px solid '+(pago?'#2a7a38':'#e0e0e0');
+  btn.style.background = pago?'rgba(26,122,58,0.1)':'#f9f9f9';
+  btn.style.color = pago?'#2a7a38':'#666';
+  btn.innerHTML = (pago?'✅':'○')+'<br><span style="font-size:9px">'+MESES_NOME[mes].slice(0,3)+'</span>';
+  updatePagSummary(m.pagamentos);
+}
 
+function updatePagSummary(pagos){
+  const n = pagos.length;
+  document.getElementById('pag-count').textContent = n+'/12';
+  document.getElementById('pag-total').textContent = 'R$ '+(n*100).toLocaleString('pt-BR',{minimumFractionDigits:2});
+  document.getElementById('pag-pend').textContent = 'R$ '+((12-n)*100).toLocaleString('pt-BR',{minimumFractionDigits:2});
+}
 
 function savePag(){
   criarBackup('pagamento-registrado');
@@ -1302,9 +1271,24 @@ function savePag(){
   alert('✅ Pagamentos salvos com sucesso!');
 }
 
-
-
-
+function closePag(e){ if(e.target===document.getElementById('modal-pag')) closePagDirect(); }
+function closePagDirect(){
+  const modal = document.getElementById('modal-pag');
+  if(modal){
+    modal.classList.remove('open');
+    modal.style.display = 'none';
+  }
+  pagAtualId = null;
+}
+function closePagNow(){
+  // Fecha de forma garantida
+  const m = document.getElementById('modal-pag');
+  if(!m) return;
+  m.className = m.className.replace('open','').trim();
+  m.style.cssText = 'display:none!important';
+  setTimeout(()=>{ m.style.cssText = ''; }, 200);
+  pagAtualId = null;
+}
 
 function updatePixPlaceholder(){
   const tipo = document.getElementById('cfg-pix-tipo').value;
@@ -1378,7 +1362,7 @@ function renderList(){
               <div onclick="openEdit(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">✏️ Editar Cadastro</div>
               <div onclick="gerarCarteirinha('${m.numCred}');closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">🖨️ Gerar Carteirinha</div>
               <div onclick="gerarCobranca('${m.numCred}');closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">💰 Cobrança / Carnê</div>
-              <div onclick="abrirPagamentos('${m.numCred}');closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">📋 Pagamentos</div>
+              <div onclick="openPag(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">📋 Pagamentos</div>
               <div onclick="toggleStatus(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;cursor:pointer;border-bottom:1px solid #f3f4f6;color:${m.status==='Ativo'?'#b91c1c':'#2a7a38'}" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''"> ${m.status==='Ativo'?'⛔ Desativar':'✅ Ativar'} Credencial</div>
               <div onclick="del(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#b91c1c;cursor:pointer" onmouseover="this.style.background='#fff5f5'" onmouseout="this.style.background=''">🗑️ Excluir Membro</div>
             </div>
@@ -1415,7 +1399,7 @@ let _editId = null;
 let _editFotoData = null;
 
 function openEdit(id){
-  const m = members.find(x=>String(x.id)===String(id));
+  const m = members.find(x=>x.id===id);
   if(!m) return;
   _editId = id;
   _editFotoData = m.foto || null;
