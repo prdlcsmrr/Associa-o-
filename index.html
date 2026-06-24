@@ -293,9 +293,10 @@ let _pagId = null;
 let _pagSelecionados = [];
 
 function abrirPagamentos(memberId){
+  alert('abrirPagamentos chamado: ' + memberId + ' | membros: ' + members.length);
   // Encontrar membro
   const m = members.find(x => String(x.id) === String(memberId) || String(x.numCred) === String(memberId));
-  if(!m){ alert('Membro não encontrado'); return; }
+  if(!m){ alert('Membro não encontrado. IDs: ' + members.map(x=>x.numCred).join(',')); return; }
   
   _pagId = m.id;
   _pagSelecionados = Array.isArray(m.pagamentos) ? [...m.pagamentos] : [];
