@@ -1,5 +1,5 @@
-// Service Worker UBAPFF v1782274124 — Force Fresh Always
-const CACHE_VERSION = 'ubapff-1782274124';
+// Service Worker UBAPFF v1782277777 — Force Fresh Always
+const CACHE_VERSION = 'ubapff-1782277777';
 
 self.addEventListener('install', e => {
   self.skipWaiting();
