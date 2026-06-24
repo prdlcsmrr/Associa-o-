@@ -285,6 +285,15 @@ if('serviceWorker' in navigator){
     .catch(err => console.log('SW:', err));
 }
 </script>
+<script>
+window.onerror = function(msg, src, line, col, err){
+  alert('ERRO JS:\n' + msg + '\nLinha: ' + line + '\n' + (err?err.stack:''));
+  return false;
+};
+window.addEventListener('unhandledrejection', function(e){
+  alert('ERRO PROMISE:\n' + e.reason);
+});
+</script>
 </head>
 <body>
 
