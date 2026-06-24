@@ -238,7 +238,7 @@ function render(m){
   const statusFinal = ativo && !expirada;
 
   const qrUrl = BASE_DOMAIN+(PRODUCTION_DOMAIN?'/registrofuncional':'/verificar.html')+'?id='+encodeURIComponent(m.numCred);
-  const qrImg = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrUrl)}&margin=4&color=1b2a5e`;
+  const qrImg = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='+encodeURIComponent(qrUrl)+'&margin=4&color=1b2a5e';
 
   document.getElementById('app').innerHTML = `
     <!-- HEADER OFICIAL -->
@@ -333,7 +333,7 @@ function render(m){
           <div class="campo-lbl">Emissão:</div>
           <div class="campo-val">${fmt(m.emissao)}</div>
         </div>
-        <div class="campo">
+        <div class="campo" style="grid-column:2">
           <div class="campo-lbl">Validade:</div>
           <div class="campo-val ${expirada?'vermelho':''}">${fmt(m.validade)}${expirada?' ⚠️ EXPIRADA':''}</div>
         </div>
