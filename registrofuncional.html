@@ -6,257 +6,371 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Registro Funcional — UBAPFF</title>
-<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cinzel:wght@400;700;900&family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<title>Verificação de Credencial — PFF</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body { background:#c8c8c8; font-family:'Roboto',Arial,sans-serif; min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:0 0 40px; }
-.wrap { width:100%; max-width:560px; background:#fff; box-shadow:0 2px 20px rgba(0,0,0,0.2); }
+body {
+  background:#f0f0f0;
+  font-family:'Arial',sans-serif;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding-bottom:40px;
+}
+.wrap {
+  width:100%;
+  max-width:600px;
+  background:#fff;
+  box-shadow:0 2px 20px rgba(0,0,0,0.15);
+  min-height:100vh;
+}
 
-/* HEADER */
-.header { background:linear-gradient(180deg,#1e3270 0%,#152058 100%); padding:14px 16px; display:flex; align-items:center; gap:14px; border-bottom:4px solid #c9952a; }
-.brasao { width:62px; height:62px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
-.brasao svg { width:62px; height:62px; }
-.hdiv { width:1px; height:58px; background:rgba(201,149,42,0.5); flex-shrink:0; }
-.htxt { flex:1; }
-.ht1 { font-family:'Roboto',sans-serif; font-size:9.5px; color:rgba(255,255,255,0.85); letter-spacing:1.2px; font-weight:700; text-transform:uppercase; margin-bottom:1px; }
-.ht2 { font-family:'Roboto',sans-serif; font-size:8.5px; color:rgba(255,255,255,0.65); letter-spacing:0.8px; font-weight:500; text-transform:uppercase; margin-bottom:6px; }
-.hline { height:1px; background:linear-gradient(90deg,#c9952a,#f0d060,#c9952a); margin-bottom:6px; }
-.ht3 { font-family:'Cinzel',Georgia,serif; font-size:17px; font-weight:700; color:#fff; letter-spacing:1.5px; margin-bottom:5px; }
-.ht4 { font-family:'IM Fell English',Georgia,serif; font-size:11px; color:rgba(255,255,255,0.65); font-style:italic; letter-spacing:0.3px; }
+/* STATUS BAR */
+.status-bar {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 16px;
+  border-bottom:1px solid #eee;
+}
+.status-label { font-size:12px; font-weight:700; color:#444; letter-spacing:0.5px; }
+.badge-ativo {
+  display:flex; align-items:center; gap:8px;
+  background:#2a7a38; color:#fff;
+  padding:8px 16px; border-radius:8px;
+  font-size:14px; font-weight:700; letter-spacing:1px;
+}
+.badge-inativo {
+  display:flex; align-items:center; gap:8px;
+  background:#b91c1c; color:#fff;
+  padding:8px 16px; border-radius:8px;
+  font-size:14px; font-weight:700; letter-spacing:1px;
+}
 
-/* STATUS */
-.sbar { display:flex; align-items:center; gap:10px; padding:10px 16px; background:#fff; border-bottom:1px solid #e0e0e0; }
-.slbl { font-family:'Roboto',sans-serif; font-size:13px; font-weight:800; color:#111; letter-spacing:0.3px; }
-.sbadge { margin-left:auto; display:flex; align-items:center; gap:8px; padding:9px 22px; border-radius:6px; font-family:'Roboto',sans-serif; font-size:14px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; }
-.sbadge.ativo { background:#2a7a38; color:#fff; }
-.sbadge.inativo { background:#b91c1c; color:#fff; }
-.sbadge-icon { font-size:18px; }
-
-/* MAIN */
-.main { display:flex; gap:16px; padding:16px; border-bottom:1px solid #e8e8e8; background:#fff; position:relative; overflow:hidden; }
-.main::before { content:''; position:absolute; right:-20px; top:50%; transform:translateY(-50%); width:200px; height:200px; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='90' fill='none' stroke='%23b0b8d0' stroke-width='5' opacity='0.12'/%3E%3Ccircle cx='100' cy='100' r='65' fill='none' stroke='%23b0b8d0' stroke-width='3' opacity='0.09'/%3E%3Ccircle cx='100' cy='100' r='40' fill='none' stroke='%23b0b8d0' stroke-width='2' opacity='0.07'/%3E%3C/svg%3E") no-repeat center; pointer-events:none; }
-.foto { width:115px; height:148px; border:1px solid #c0c0c0; background:#e8e8e8; flex-shrink:0; overflow:hidden; display:flex; align-items:center; justify-content:center; z-index:1; }
-.foto img { width:100%; height:100%; object-fit:cover; }
-.foto-ph { display:flex; flex-direction:column; align-items:center; gap:6px; color:#bbb; font-size:10px; }
-.info { flex:1; z-index:1; }
-.ilbl { font-family:'Roboto',sans-serif; font-size:10px; color:#666; text-transform:uppercase; letter-spacing:0.5px; font-weight:500; margin-top:10px; margin-bottom:1px; }
-.ilbl:first-child { margin-top:0; }
-.ival { font-family:'Roboto',sans-serif; font-size:16px; font-weight:800; color:#111; line-height:1.2; }
-.ival.xl { font-size:18px; }
-.ival.green { color:#2a7a38; font-size:14px; }
-.ival.red { color:#b91c1c; font-size:14px; }
-.mrow { display:flex; align-items:center; gap:10px; margin-top:3px; flex-wrap:wrap; }
-.mbox { background:#1e3270; color:#fff; font-family:'Roboto',sans-serif; font-size:12px; font-weight:700; padding:3px 10px; border-radius:2px; }
-.mporte { font-family:'Roboto',sans-serif; font-size:12px; color:#333; font-weight:400; }
-.mporte strong { font-weight:800; }
-.sitrow { margin-top:8px; font-family:'Roboto',sans-serif; font-size:14px; font-weight:800; color:#111; }
+/* PERFIL */
+.perfil {
+  display:flex;
+  gap:16px;
+  padding:16px;
+  border-bottom:1px solid #eee;
+}
+.perfil-foto {
+  width:130px;
+  min-height:160px;
+  flex-shrink:0;
+  border-radius:4px;
+  overflow:hidden;
+  border:1px solid #ddd;
+  background:#f5f5f5;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:6px;
+  color:#bbb;
+  font-size:11px;
+}
+.perfil-foto img { width:100%; height:100%; object-fit:cover; }
+.perfil-info { flex:1; display:flex; flex-direction:column; gap:6px; }
+.lbl { font-size:10px; font-weight:600; color:#888; letter-spacing:0.8px; text-transform:uppercase; }
+.nome { font-size:18px; font-weight:900; color:#111; line-height:1.2; margin-bottom:2px; }
+.mat-badge {
+  display:inline-block;
+  background:#1b2a5e;
+  color:#fff;
+  padding:3px 10px;
+  border-radius:4px;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:0.5px;
+}
+.porte { font-size:12px; color:#444; }
+.porte strong { color:#111; }
+.cargo-txt { font-size:13px; font-weight:700; color:#222; }
+.situacao {
+  font-size:13px; font-weight:700;
+}
+.situacao .ativo-txt { color:#2a7a38; }
+.situacao .inativo-txt { color:#b91c1c; }
 
 /* SEÇÕES */
-.sec { border-bottom:1px solid #e0e0e0; }
-.shead { display:flex; align-items:center; gap:8px; background:#e4e6ea; padding:7px 14px; border-radius:3px 3px 0 0; }
-.shead svg { width:16px; height:16px; flex-shrink:0; }
-.stitle { font-family:'Roboto',sans-serif; font-size:12px; font-weight:800; color:#111; letter-spacing:0.5px; text-transform:uppercase; }
-.sbody { padding:14px 16px; background:#fff; position:relative; overflow:hidden; }
-.sbody::after { content:''; position:absolute; right:-10px; top:-10px; width:130px; height:130px; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='85' fill='none' stroke='%23b0b8d0' stroke-width='5' opacity='0.1'/%3E%3C/svg%3E") no-repeat center; pointer-events:none; }
+.secao {
+  border-top:2px solid #e8e8e8;
+}
+.secao-titulo {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 16px;
+  background:#f5f5f5;
+  font-size:13px;
+  font-weight:900;
+  color:#222;
+  letter-spacing:0.5px;
+  text-transform:uppercase;
+  border-bottom:1px solid #e8e8e8;
+}
+.secao-body {
+  padding:14px 16px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px 16px;
+}
+.campo { display:flex; flex-direction:column; gap:2px; }
+.campo-lbl { font-size:10px; color:#888; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; }
+.campo-val { font-size:15px; font-weight:700; color:#111; }
+.campo-val.vermelho { color:#b91c1c; }
 
-.dpg { display:grid; grid-template-columns:1fr 1fr; gap:12px 16px; }
-.ditem { }
-.dlbl { font-family:'Roboto',sans-serif; font-size:10px; color:#666; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px; font-weight:500; }
-.dval { font-family:'Roboto',sans-serif; font-size:14px; font-weight:700; color:#111; line-height:1.3; }
-.dval.sm { font-size:13px; font-weight:400; }
-.dval.sm strong { font-weight:700; }
-.rgrow { display:flex; gap:16px; }
-.rgrow .ditem:first-child { flex:1; }
-.rgrow .ditem:last-child { flex:0 0 44px; }
-.dcg { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
-.arow { display:flex; gap:14px; align-items:flex-start; }
-.ainfo { flex:1; }
-.aitem { margin-bottom:12px; }
-.albl { font-family:'Roboto',sans-serif; font-size:10px; color:#666; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px; font-weight:500; }
-.aval { font-family:'Roboto',sans-serif; font-size:13px; font-weight:700; color:#111; word-break:break-all; }
-.qrcol { display:flex; flex-direction:column; align-items:center; gap:4px; }
-.qrcol img { width:105px; height:105px; }
-.qrlbl { font-family:'Roboto',sans-serif; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#555; }
-.loading { text-align:center; padding:80px 20px; color:#555; font-size:15px; }
-.errbox { padding:60px 24px; text-align:center; }
-.erri { font-size:48px; margin-bottom:12px; }
-.errt { font-size:18px; font-weight:700; color:#b91c1c; margin-bottom:8px; }
-.errm { font-size:14px; color:#666; }
+/* AUTENTICAÇÃO */
+.auth-body {
+  padding:14px 16px;
+  display:flex;
+  gap:16px;
+  align-items:flex-start;
+}
+.auth-info { flex:1; display:flex; flex-direction:column; gap:10px; }
+.auth-qr {
+  width:100px;
+  height:100px;
+  flex-shrink:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+}
+.auth-qr img { width:100%; border:1px solid #eee; border-radius:4px; }
+.auth-qr-label { font-size:9px; color:#888; font-weight:700; letter-spacing:0.5px; }
+
+/* MARCA D'ÁGUA */
+.watermark {
+  position:relative;
+  overflow:hidden;
+}
+.watermark::after {
+  content:'';
+  position:absolute;
+  right:-20px; top:50%;
+  transform:translateY(-50%);
+  width:200px; height:200px;
+  background:url('https://prdlcsmrr.github.io/Associa-o-/logo.png') center/contain no-repeat;
+  opacity:0.04;
+  pointer-events:none;
+}
+
+/* RODAPÉ */
+.rodape {
+  padding:12px 16px;
+  text-align:center;
+  font-size:10px;
+  color:#888;
+  border-top:1px solid #eee;
+  line-height:1.5;
+}
+
+/* LOADING / ERROR */
+.loading { padding:40px; text-align:center; color:#666; font-size:16px; }
+.error-box { padding:32px 20px; text-align:center; }
+.error-box h2 { color:#b91c1c; margin-bottom:8px; }
 </style>
-  <meta name="description" content="Verificação de Registro Funcional — União Brasileira dos Agentes da Polícia Ferroviária Federal">
-  <meta name="robots" content="noindex">
 </head>
 <body>
 <div class="wrap" id="app">
   <div class="loading">⏳ Verificando credencial...</div>
 </div>
-<script>
 
+<script>
 const PRODUCTION_DOMAIN = false;
 const BASE_DOMAIN = PRODUCTION_DOMAIN
   ? 'https://ubapff.org.br'
   : 'https://prdlcsmrr.github.io/Associa-o-';
 
+function fmt(d){ if(!d) return '—'; return new Date(d+'T12:00').toLocaleDateString('pt-BR'); }
+const DB_GITHUB = BASE_DOMAIN+'/db.json';
+const BIN_ID = '6a35c2ddda38895dfee044d5';
 
-function fmt(d){if(!d)return'—';return new Date(d+'T12:00').toLocaleDateString('pt-BR');}
-const DB_GITHUB=BASE_DOMAIN+'/db.json';
-const BIN_ID='6a35c2ddda38895dfee044d5';
-
-function shadeHex(color, pct){
-  try{
-    let R=parseInt(color.slice(1,3),16),G=parseInt(color.slice(3,5),16),B=parseInt(color.slice(5,7),16);
-    R=Math.min(255,Math.max(0,R+Math.round(R*pct/100)));
-    G=Math.min(255,Math.max(0,G+Math.round(G*pct/100)));
-    B=Math.min(255,Math.max(0,B+Math.round(B*pct/100)));
-    return '#'+R.toString(16).padStart(2,'0')+G.toString(16).padStart(2,'0')+B.toString(16).padStart(2,'0');
-  }catch(e){return color;}
+function showErr(title, msg){
+  document.getElementById('app').innerHTML = `
+    <img src="https://prdlcsmrr.github.io/Associa-o-/header-pff.jpg" style="width:100%;display:block">
+    <div class="error-box">
+      <h2>❌ ${title}</h2>
+      <p style="color:#666">${msg}</p>
+    </div>`;
 }
 
 async function init(){
-  const id=new URLSearchParams(location.search).get('id');
-  if(!id){showErr('QR Code inválido','Este código não contém identificador.');return;}
+  const id = new URLSearchParams(location.search).get('id');
+  if(!id){ showErr('QR Code inválido','Este código não contém identificador.'); return; }
 
-  // Try GitHub db.json first (works on all devices)
   try{
-    const r=await fetch(DB_GITHUB+'?t='+Date.now());
+    const r = await fetch(DB_GITHUB+'?t='+Date.now());
     if(r.ok){
-      const data=await r.json();
-      const membros=data.membros||[];
-      const m=membros.find(x=>x.numCred===id);
-      if(m){render(m);return;}
+      const data = await r.json();
+      const m = (data.membros||[]).find(x=>x.numCred===id);
+      if(m){ render(m); return; }
     }
   }catch(e){}
 
-  // Fallback: try JSONBin
   try{
-    const KEY=['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
-    const r=await fetch('https://api.jsonbin.io/v3/b/'+BIN_ID+'/latest',{
+    const KEY = ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
+    const r = await fetch('https://api.jsonbin.io/v3/b/'+BIN_ID+'/latest',{
       headers:{'X-Master-Key':KEY,'X-Bin-Meta':'false'}
     });
     if(r.ok){
-      const data=await r.json();
-      const membros=data.membros||[];
-      const m=membros.find(x=>x.numCred===id);
-      if(m){render(m);return;}
+      const data = await r.json();
+      const m = (data.membros||[]).find(x=>x.numCred===id);
+      if(m){ render(m); return; }
     }
   }catch(e){}
 
   showErr('Não encontrado','Nenhum membro com este código foi localizado.');
 }
-function render(m){
-  // Load config from localStorage (saved by admin in settings)
-  const cfg = JSON.parse(localStorage.getItem('assoc-config') || '{}');
-  const verTitulo = cfg.verTitulo || 'ASSOCIAÇÃO';
-  const verLinha1 = cfg.verLinha1 || 'República Federativa do Brasil';
-  const verLinha2 = cfg.verLinha2 || 'Sistema Oficial de Verificação';
-  const verSub = cfg.verSub || 'Sistema Oficial de Verificação de Credencial Funcional';
-  const verRodape = cfg.verRodape || 'TEM FÉ PÚBLICA E VALIDADE EM TODO O TERRITÓRIO NACIONAL';
-  const verCor1 = cfg.verCor1 || '#1b2a5e';
-  const verCor2 = cfg.verCor2 || '#c9952a';
-  const verAtivo = cfg.verAtivo || '#2a7a38';
-  const verInativo = cfg.verInativo || '#b91c1c';
-  const showNasc = cfg.ver_nasc !== false;
-  const showCpf = cfg.ver_cpf !== false;
-  const showTel = cfg.ver_tel !== false;
-  const showFiliacao = cfg.ver_filiacao !== false;
-  const showValidade = cfg.ver_validade !== false;
-  const showEmissao = cfg.ver_emissao !== false;
-  const showHash = cfg.ver_hash !== false;
-  const showPorte = cfg.ver_porte !== false;
-  const logo = cfg.logo || null;
 
-  const ativo=m.status==='Ativo';
-  const statusColor = ativo ? verAtivo : verInativo;
-  const qrUrl=BASE_DOMAIN+(PRODUCTION_DOMAIN?'/registrofuncional':'/verificar.html')+'?id='+encodeURIComponent(m.numCred);
-  document.getElementById('app').innerHTML=`
+function render(m){
+  const ativo = m.status === 'Ativo';
+
+  // Verificar se credencial está expirada
+  let expirada = false;
+  if(m.validade){
+    const valDate = new Date(m.validade+'T23:59:59');
+    expirada = valDate < new Date();
+  }
+  const statusFinal = ativo && !expirada;
+
+  const qrUrl = BASE_DOMAIN+(PRODUCTION_DOMAIN?'/registrofuncional':'/verificar.html')+'?id='+encodeURIComponent(m.numCred);
+  const qrImg = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrUrl)}&margin=4&color=1b2a5e`;
+
+  document.getElementById('app').innerHTML = `
+    <!-- HEADER OFICIAL -->
     <div style="width:100%;line-height:0">
-      <img src="https://prdlcsmrr.github.io/Associa-o-/header-pff.jpg" 
+      <img src="https://prdlcsmrr.github.io/Associa-o-/header-pff.jpg"
         style="width:100%;display:block;object-fit:cover"
-        alt="Polícia Ferroviária Federal — Sistema Oficial de Verificação de Credencial Funcional">
+        alt="Polícia Ferroviária Federal">
     </div>
 
-    <div class="sbar">
-      <span class="slbl">STATUS DA CREDENCIAL:</span>
-      <span class="sbadge ${ativo?'ativo':'inativo'}">
-        <span class="sbadge-icon">${ativo?'✅':'❌'}</span>
-        ${ativo?'ATIVA':'INATIVA'}
+    <!-- STATUS -->
+    <div class="status-bar">
+      <span class="status-label">STATUS DA CREDENCIAL:</span>
+      <span class="${statusFinal?'badge-ativo':'badge-inativo'}">
+        ${statusFinal?'✅':'❌'} ${statusFinal?'CREDENCIAL ATIVA':'CREDENCIAL INATIVA'}
       </span>
     </div>
 
-    <div class="main">
-      <div class="foto">
-        ${m.foto?`<img src="${m.foto}" alt="">`:'<div class="foto-ph"><svg width="42" height="42" fill="none" stroke="#ccc" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Sem foto</span></div>'}
+    <!-- PERFIL -->
+    <div class="perfil watermark">
+      <div class="perfil-foto">
+        ${m.foto
+          ? `<img src="${m.foto}" alt="${m.nome}">`
+          : `<svg width="48" height="48" fill="none" stroke="#ccc" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Sem foto</span>`
+        }
       </div>
-      <div class="info">
-        <div class="ilbl">NOME:</div>
-        <div class="ival xl">${m.nome}</div>
-        <div class="ilbl">MATRÍCULA FUNCIONAL:</div>
-        <div class="mrow">
-          <span class="mbox">${m.numCred}</span>
-          <span class="mporte">PORTE DE ARMA: <strong>HABILITADO</strong></span>
+      <div class="perfil-info">
+        <div>
+          <div class="lbl">Nome:</div>
+          <div class="nome">${(m.nome||'').toUpperCase()}</div>
         </div>
-        <div class="ilbl">CARGO:</div>
-        <div class="ival">${m.cat}</div>
-        <div class="sitrow">SITUAÇÃO FUNCIONAL: <span class="ival ${ativo?'green':'red'}">${ativo?'ATIVO':'INATIVO'}</span></div>
-      </div>
-    </div>
-
-    <div class="sec">
-      <div class="shead">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-        <span class="stitle">DADOS PESSOAIS</span>
-      </div>
-      <div class="sbody">
-        <div class="dpg">
-          <div>
-            ${showNasc?`<div class="ditem" style="margin-bottom:12px"><div class="dlbl">DATA DE NASCIMENTO:</div><div class="dval">${fmt(m.nasc)}</div></div>`:''}
-            ${showFiliacao?`<div class="ditem"><div class="dlbl">FILIAÇÃO:</div><div class="dval sm">${m.obs||'—'}</div></div>`:''}
-          </div>
-          <div>
-            <div class="ditem" style="margin-bottom:10px"><div class="dlbl">NACIONALIDADE:</div><div class="dval">BRASILEIRO</div></div>
-            ${showCpf?`<div class="ditem" style="margin-bottom:10px"><div class="dlbl">CPF:</div><div class="dval">${m.cpf}</div></div>`:''}
-            ${showTel?`<div class="ditem"><div class="dlbl">TELEFONE:</div><div class="dval">${m.tel}</div></div>`:''}
-          </div>
+        <div>
+          <div class="lbl">Matrícula Funcional:</div>
+          <span class="mat-badge">${m.numCred||'—'}</span>
+        </div>
+        <div class="porte">PORTE DE ARMA: <strong>HABILITADO</strong></div>
+        <div>
+          <div class="lbl">Cargo:</div>
+          <div class="cargo-txt">${(m.cat||'—').toUpperCase()}</div>
+        </div>
+        <div class="situacao">
+          SITUAÇÃO FUNCIONAL: <span class="${statusFinal?'ativo-txt':'inativo-txt'}">${statusFinal?'ATIVO':'INATIVO'}</span>
         </div>
       </div>
     </div>
 
-    <div class="sec">
-      <div class="shead">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 8h10M7 12h6"/></svg>
-        <span class="stitle">DADOS DA CREDENCIAL</span>
+    <!-- DADOS PESSOAIS -->
+    <div class="secao">
+      <div class="secao-titulo">👤 Dados Pessoais</div>
+      <div class="secao-body">
+        <div class="campo">
+          <div class="campo-lbl">Data de Nascimento:</div>
+          <div class="campo-val">${fmt(m.nasc)}</div>
+        </div>
+        <div class="campo">
+          <div class="campo-lbl">Nacionalidade:</div>
+          <div class="campo-val">${(m.naturalidade||'BRASILEIRO').toUpperCase()}</div>
+        </div>
+        <div class="campo" style="grid-column:1">
+          <div class="campo-lbl">Filiação:</div>
+          <div class="campo-val" style="font-size:13px">
+            ${m.pai ? `Pai: <strong>${m.pai}</strong>` : ''}
+            ${m.mae ? `<br>Mãe: <strong>${m.mae}</strong>` : ''}
+            ${!m.pai && !m.mae ? '—' : ''}
+          </div>
+        </div>
+        <div class="campo">
+          <div class="campo-lbl">CPF:</div>
+          <div class="campo-val">${m.cpf||'—'}</div>
+        </div>
+        ${m.municipio ? `
+        <div class="campo">
+          <div class="campo-lbl">Município:</div>
+          <div class="campo-val">${m.municipio.toUpperCase()}</div>
+        </div>` : ''}
+        ${m.tel ? `
+        <div class="campo">
+          <div class="campo-lbl">Telefone:</div>
+          <div class="campo-val">${m.tel}</div>
+        </div>` : ''}
       </div>
-      <div class="sbody">
-        <div class="dcg">
-          <div class="ditem"><div class="dlbl">NÚMERO:</div><div class="dval">${m.numCred}</div></div>
-          <div class="ditem"><div class="dlbl">EMISSÃO:</div><div class="dval">${fmt(m.emissao)}</div></div>
-          <div class="ditem"><div class="dlbl">VALIDADE:</div><div class="dval">${fmt(m.validade)}</div></div>
+    </div>
+
+    <!-- DADOS DA CREDENCIAL -->
+    <div class="secao">
+      <div class="secao-titulo">🪪 Dados da Credencial</div>
+      <div class="secao-body">
+        <div class="campo">
+          <div class="campo-lbl">Número:</div>
+          <div class="campo-val">${m.numCred||'—'}</div>
+        </div>
+        <div class="campo">
+          <div class="campo-lbl">Emissão:</div>
+          <div class="campo-val">${fmt(m.emissao)}</div>
+        </div>
+        <div class="campo" style="grid-column:2">
+          <div class="campo-lbl">Validade:</div>
+          <div class="campo-val ${expirada?'vermelho':''}">${fmt(m.validade)}${expirada?' ⚠️ EXPIRADA':''}</div>
         </div>
       </div>
     </div>
 
-    <div class="sec" style="border-bottom:none">
-      <div class="shead">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="4" height="4"/></svg>
-        <span class="stitle">CÓDIGO DE AUTENTICAÇÃO</span>
-      </div>
-      <div class="sbody">
-        <div class="arow">
-          <div class="ainfo">
-            <div class="aitem"><div class="albl">ID DOCUMENTAÇÃO:</div><div class="aval">${m.docId}</div></div>
-            <div class="aitem"><div class="albl">HASH:</div><div class="aval">${m.hash}</div></div>
+    <!-- CÓDIGO DE AUTENTICAÇÃO -->
+    <div class="secao">
+      <div class="secao-titulo">▦ Código de Autenticação</div>
+      <div class="auth-body">
+        <div class="auth-info">
+          <div class="campo">
+            <div class="campo-lbl">ID Documentação:</div>
+            <div class="campo-val" style="font-size:14px">${m.docId||'—'}</div>
           </div>
-          <div class="qrcol">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=105x105&color=1e3270&data=${encodeURIComponent(qrUrl)}" alt="QR">
-            <div class="qrlbl">BASE LEGAL</div>
+          <div class="campo">
+            <div class="campo-lbl">Hash:</div>
+            <div class="campo-val" style="font-size:14px">${(m.hash||m.docId||'—').toString().slice(0,8).toUpperCase()}</div>
           </div>
+          <div style="font-size:10px;color:#888;margin-top:4px">
+            Verificado em: ${new Date().toLocaleString('pt-BR')}
+          </div>
+        </div>
+        <div class="auth-qr">
+          <img src="${qrImg}" alt="QR Code">
+          <div class="auth-qr-label">BASE LEGAL</div>
         </div>
       </div>
     </div>
-  `;
+
+    <!-- RODAPÉ -->
+    <div class="rodape">
+      TEM FÉ PÚBLICA E VALIDADE EM TODO O TERRITÓRIO NACIONAL<br>
+      ART. 2º INCISO V DA LEI Nº 12.57 DE 2009 · ART. 2º INCISO V DA 10.266, DE 2020
+    </div>`;
 }
-function showErr(t,m){document.getElementById('app').innerHTML=`<div class="errbox"><div class="erri">❌</div><div class="errt">${t}</div><div class="errm">${m}</div></div>`;}
+
 init();
 </script>
 </body>
