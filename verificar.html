@@ -150,11 +150,11 @@ body {
 .watermark::after {
   content:'';
   position:absolute;
-  right:-20px; top:50%;
+  right:-10px; top:50%;
   transform:translateY(-50%);
-  width:200px; height:200px;
-  background:url('https://prdlcsmrr.github.io/Associa-o-/logo.png') center/contain no-repeat;
-  opacity:0.04;
+  width:220px; height:220px;
+  background:url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Coat_of_arms_of_Brazil.svg/200px-Coat_of_arms_of_Brazil.svg.png') center/contain no-repeat;
+  opacity:0.06;
   pointer-events:none;
 }
 
@@ -296,14 +296,7 @@ function render(m){
           <div class="campo-lbl">Nacionalidade:</div>
           <div class="campo-val">${(m.naturalidade||'BRASILEIRO').toUpperCase()}</div>
         </div>
-        <div class="campo" style="grid-column:1">
-          <div class="campo-lbl">Filiação:</div>
-          <div class="campo-val" style="font-size:13px">
-            ${m.pai ? `Pai: <strong>${m.pai}</strong>` : ''}
-            ${m.mae ? `<br>Mãe: <strong>${m.mae}</strong>` : ''}
-            ${!m.pai && !m.mae ? '—' : ''}
-          </div>
-        </div>
+
         <div class="campo">
           <div class="campo-lbl">CPF:</div>
           <div class="campo-val">${m.cpf||'—'}</div>
@@ -333,7 +326,7 @@ function render(m){
           <div class="campo-lbl">Emissão:</div>
           <div class="campo-val">${fmt(m.emissao)}</div>
         </div>
-        <div class="campo" style="grid-column:2">
+        <div class="campo">
           <div class="campo-lbl">Validade:</div>
           <div class="campo-val ${expirada?'vermelho':''}">${fmt(m.validade)}${expirada?' ⚠️ EXPIRADA':''}</div>
         </div>
