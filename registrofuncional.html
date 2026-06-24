@@ -170,17 +170,23 @@ function render(m){
   const statusColor = ativo ? verAtivo : verInativo;
   const qrUrl=BASE_DOMAIN+(PRODUCTION_DOMAIN?'/registrofuncional':'/verificar.html')+'?id='+encodeURIComponent(m.numCred);
   document.getElementById('app').innerHTML=`
-    <div class="header" style="background:linear-gradient(180deg,${verCor1} 0%,${shadeHex(verCor1,-15)} 100%);border-bottom-color:${verCor2}">
-      <div class="brasao">
-        ${logo ? `<img src="${logo}" style="width:60px;height:60px;object-fit:contain;border-radius:50%">` : `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="47" fill="#1a4a10" stroke="${verCor2}" stroke-width="3"/><circle cx="50" cy="50" r="36" fill="#0f3a08" stroke="${verCor2}" stroke-width="1.5"/><circle cx="50" cy="50" r="24" fill="#1055b0" stroke="#f0d060" stroke-width="1"/><text x="50" y="54" text-anchor="middle" font-size="12" fill="#f0d060" font-weight="bold">★</text></svg>`}
-      </div>
-      <div class="hdiv" style="background:rgba(201,149,42,0.5)"></div>
-      <div class="htxt">
-        <div class="ht1">${verLinha1}</div>
-        <div class="ht2">${verLinha2}</div>
-        <div class="hline" style="background:linear-gradient(90deg,${verCor2},#f0d060,${verCor2})"></div>
-        <div class="ht3">${verTitulo}</div>
-        <div class="ht4">${verSub}</div>
+    <div style="
+      width:100%;
+      background:linear-gradient(180deg, #1b2a5e 0%, #0f1f4a 100%);
+      border-bottom: 3px solid #c9952a;
+      display:flex;
+      align-items:center;
+      gap:18px;
+      padding:16px 20px 14px;
+    ">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Coat_of_arms_of_Brazil.svg/200px-Coat_of_arms_of_Brazil.svg.png"
+        style="width:62px;height:auto;flex-shrink:0;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.4))"
+        alt="Brasão da República">
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <div style="font-size:10px;font-weight:400;color:rgba(255,255,255,0.75);letter-spacing:0.5px;text-transform:uppercase">República Federativa do Brasil</div>
+        <div style="font-size:10px;font-weight:400;color:rgba(255,255,255,0.65);letter-spacing:0.3px;text-transform:uppercase">Ministério da Justiça e Segurança Pública</div>
+        <div style="font-size:20px;font-weight:700;color:#ffffff;letter-spacing:1px;margin-top:2px;text-transform:uppercase">Polícia Ferroviária Federal</div>
+        <div style="font-size:11px;font-weight:300;color:rgba(255,255,255,0.7);margin-top:1px;font-style:italic">Sistema Oficial de Verificação de Credencial Funcional</div>
       </div>
     </div>
 
