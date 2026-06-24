@@ -176,6 +176,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 .cart-face {
   position:relative; width:100%; overflow:hidden;
   border-radius:8px; box-shadow:0 6px 24px rgba(0,0,0,0.4);
+  container-type:inline-size;
 }
 .cart-face img.cart-bg { width:100%; display:block; pointer-events:none; }
 .cart-overlay { position:absolute; top:0;left:0;width:100%;height:100%; }
@@ -476,12 +477,12 @@ if('serviceWorker' in navigator){
         <img class="cart-bg" src="https://prdlcsmrr.github.io/Associa-o-/frente.jpg?v=1782205274" crossorigin="anonymous">
         <div class="cart-overlay">
           <div class="cp-photo" id="cp-photo" style="left:12.6%;top:28.8%;width:13.5%;aspect-ratio:3/4"><div class="cp-photo-ph">👤</div></div>
-          <div class="cp-campo" id="cp-cargo"   style="left:34.9%;top:39.6%;font-size:clamp(8px,2.2vw,13px);font-weight:800;color:#1a2a6e"></div>
-          <div class="cp-campo" id="cp-nome"    style="left:35%;top:51.9%;font-size:clamp(8px,2.2vw,13px);font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-mat"     style="left:12.6%;top:64.2%;font-size:clamp(7px,1.9vw,11px);font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-cpf"     style="left:35.1%;top:65.3%;font-size:clamp(7px,1.9vw,11px);font-weight:700;color:#111"></div>
-          <div class="cp-campo" id="cp-emissao" style="left:67.3%;top:65.8%;font-size:clamp(7px,1.9vw,11px);font-weight:700;color:#111"></div>
-          <div class="cp-campo" id="cp-hash"    style="left:35.1%;top:77.5%;font-size:clamp(6px,1.7vw,10px);font-weight:600;color:#333"></div>
+          <div class="cp-campo" id="cp-cargo"   style="left:34.9%;top:39.6%;font-size:2.2cqw;font-weight:800;color:#1a2a6e"></div>
+          <div class="cp-campo" id="cp-nome"    style="left:35%;top:51.9%;font-size:2.2cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-mat"     style="left:12.6%;top:64.2%;font-size:1.9cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-cpf"     style="left:35.1%;top:65.3%;font-size:1.9cqw;font-weight:700;color:#111"></div>
+          <div class="cp-campo" id="cp-emissao" style="left:67.3%;top:65.8%;font-size:1.9cqw;font-weight:700;color:#111"></div>
+          <div class="cp-campo" id="cp-hash"    style="left:35.1%;top:77.5%;font-size:1.7cqw;font-weight:600;color:#333"></div>
         </div>
       </div>
       <!-- VERSO -->
@@ -489,13 +490,13 @@ if('serviceWorker' in navigator){
         <img class="cart-bg" src="https://prdlcsmrr.github.io/Associa-o-/verso.jpg?v=1782205274" crossorigin="anonymous">
         <div class="cart-overlay">
           <div class="cp-qr" id="cp-qr"             style="left:3.4%;top:22.4%;width:14%;aspect-ratio:1;background:#fff;padding:2px;border-radius:2px"></div>
-          <div class="cp-campo" id="cp-filiacao"     style="left:18.9%;top:24.6%;font-size:clamp(7px,1.9vw,11px);font-weight:700;color:#111;line-height:1.8;white-space:normal;max-width:50%"></div>
-          <div class="cp-campo" id="cp-admissao"     style="left:52.5%;top:25.5%;font-size:clamp(7px,1.9vw,11px);font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-nasc"         style="left:19%;top:39.7%;font-size:clamp(7px,1.9vw,11px);font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-validade"     style="left:52.9%;top:39.5%;font-size:clamp(7px,1.9vw,11px);font-weight:800;color:#cc0000"></div>
-          <div class="cp-campo" id="cp-naturalidade" style="left:19.2%;top:51.6%;font-size:clamp(7px,1.9vw,11px);font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-situacao"     style="left:53%;top:52%;font-size:clamp(7px,1.9vw,11px);font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-municipio"    style="left:84%;top:60%;font-size:clamp(7px,1.9vw,11px);font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-filiacao"     style="left:18.9%;top:24.6%;font-size:1.9cqw;font-weight:700;color:#111;line-height:1.8;white-space:normal;max-width:50%"></div>
+          <div class="cp-campo" id="cp-admissao"     style="left:52.5%;top:25.5%;font-size:1.9cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-nasc"         style="left:19%;top:39.7%;font-size:1.9cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-validade"     style="left:52.9%;top:39.5%;font-size:1.9cqw;font-weight:800;color:#cc0000"></div>
+          <div class="cp-campo" id="cp-naturalidade" style="left:19.2%;top:51.6%;font-size:1.9cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-situacao"     style="left:53%;top:52%;font-size:1.9cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-municipio"    style="left:84%;top:60%;font-size:1.9cqw;font-weight:800;color:#111"></div>
         </div>
       </div>
     </div>
