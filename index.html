@@ -293,35 +293,31 @@ let _pagId = null;
 let _pagSelecionados = [];
 
 function abrirPagamentos(memberId){
-  // Encontrar membro
-  const m = members.find(x => String(x.id) === String(memberId) || String(x.numCred) === String(memberId));
-  if(!m){ alert('Membro não encontrado'); return; }
+  const m = members.find(x => String(x.numCred) === String(memberId));
+  if(!m) return;
   
-  _pagId = m.id;
+  _pagId = memberId;
   _pagSelecionados = Array.isArray(m.pagamentos) ? [...m.pagamentos] : [];
   
-  // Preencher nome
   document.getElementById('pag-nome').textContent = m.nome || '—';
   
-  // Renderizar meses
+  const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   let html = '';
-  MESES.forEach((mes, i) => {
+  meses.forEach(function(mes, i){
     const pago = _pagSelecionados.includes(i);
-    html += `<button onclick="toggleMesPag(${i})" id="pmes-${i}" style="
-      padding:10px 6px;border-radius:8px;border:2px solid ${pago?'#16a34a':'#e0e0e0'};
-      background:${pago?'rgba(22,163,74,0.1)':'#f9f9f9'};color:${pago?'#16a34a':'#666'};
-      font-size:11px;font-weight:700;cursor:pointer;text-align:center;transition:all 0.15s">
-      ${pago?'✅':'○'}<br><span style="font-size:9px">${mes.slice(0,3)}</span>
-    </button>`;
+    const borda = pago ? '#16a34a' : '#e0e0e0';
+    const bg = pago ? 'rgba(22,163,74,0.1)' : '#f9f9f9';
+    const cor = pago ? '#16a34a' : '#666';
+    const icone = pago ? '✅' : '○';
+    html += '<button onclick="toggleMesPag('+i+')" id="pmes-'+i+'" style="padding:10px 6px;border-radius:8px;border:2px solid '+borda+';background:'+bg+';color:'+cor+';font-size:11px;font-weight:700;cursor:pointer;text-align:center">'+icone+'<br><small>'+mes+'</small></button>';
   });
   document.getElementById('pag-meses').innerHTML = html;
-  
-  // Resumo
   atualizarResumoPag();
   
-  // Abrir modal
-  const modal = document.getElementById('modal-pag');
+  var modal = document.getElementById('modal-pag');
   modal.style.display = 'flex';
+  modal.style.alignItems = 'center';
+  modal.style.justifyContent = 'center';
 }
 
 function toggleMesPag(i){
