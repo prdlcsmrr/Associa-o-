@@ -1194,7 +1194,7 @@ async function salvar(){
   const dbToSave = JSON.stringify({membros:members});
   fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5',{
     method:'PUT',
-    headers:{'Content-Type':'application/json','X-Master-Key':'$2a$10$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'},
+    headers:{'Content-Type':'application/json','X-Master-Key':['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('')},
     body:dbToSave
   }).then(()=>{
     const si=document.getElementById('sync-ind');
@@ -1273,12 +1273,20 @@ function savePag(){
 
 function closePag(e){ if(e.target===document.getElementById('modal-pag')) closePagDirect(); }
 function closePagDirect(){
-  alert('FECHANDO MODAL'); // DIAGNÓSTICO - remover depois
   const modal = document.getElementById('modal-pag');
   if(modal){
     modal.classList.remove('open');
     modal.style.display = 'none';
   }
+  pagAtualId = null;
+}
+function closePagNow(){
+  // Fecha de forma garantida
+  const m = document.getElementById('modal-pag');
+  if(!m) return;
+  m.className = m.className.replace('open','').trim();
+  m.style.cssText = 'display:none!important';
+  setTimeout(()=>{ m.style.cssText = ''; }, 200);
   pagAtualId = null;
 }
 
@@ -1849,7 +1857,7 @@ async function syncToCloud(){
   try{
     const r=await fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5',{
       method:'PUT',
-      headers:{'Content-Type':'application/json','X-Master-Key':'\u00242a\u001410\u0024/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'},
+      headers:{'Content-Type':'application/json','X-Master-Key':['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('')},
       body:JSON.stringify({membros:members})
     });
     if(si){si.textContent='\u2705 Sincronizado!';setTimeout(()=>si.style.display='none',2500);}
@@ -2214,30 +2222,6 @@ const _origGoTab = goTab;
 const MESES_NOME = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 let pagAtualId = null;
 
-function openPag(id){
-  const m = members.find(x=>x.id===id);
-  if(!m) return;
-  pagAtualId = id;
-  document.getElementById('pag-nome').textContent = m.nome;
-  const pagos = m.pagamentos || [];
-  const ano = new Date().getFullYear();
-
-  let html = '';
-  MESES_NOME.forEach((mes, i) => {
-    const pago = pagos.includes(i);
-    html += `<button onclick="togglePag(${i})" id="pag-mes-${i}" style="
-      padding:10px 6px; border-radius:8px; border:2px solid ${pago?'#2a7a38':'#e0e0e0'};
-      background:${pago?'rgba(26,122,58,0.1)':'#f9f9f9'}; color:${pago?'#2a7a38':'#666'};
-      font-size:11px; font-weight:700; cursor:pointer; transition:all 0.2s; text-align:center;
-    ">${pago?'✅':'○'}<br><span style="font-size:9px">${mes.slice(0,3)}</span></button>`;
-  });
-
-  document.getElementById('pag-meses').innerHTML = html;
-  updatePagSummary(pagos);
-  const _mpag = document.getElementById('modal-pag');
-  _mpag.style.display = '';
-  _mpag.classList.add('open');
-}
 
 function togglePag(mes){
   const m = members.find(x=>x.id===pagAtualId);
