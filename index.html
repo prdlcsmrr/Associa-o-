@@ -1214,7 +1214,6 @@ const MESES_NOME = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho
 let pagAtualId = null;
 
 function openPag(id){
-  alert('openPag:'+id+' membros:'+members.length+' achou:'+!!members.find(x=>String(x.id)===String(id)||String(x.numCred)===String(id)));
   const m = members.find(x=>String(x.id)===String(id)||String(x.numCred)===String(id));
   if(!m) return;
   pagAtualId = m.id||m.numCred;
@@ -1400,7 +1399,6 @@ let _editId = null;
 let _editFotoData = null;
 
 function openEdit(id){
-  alert('openEdit:'+id+' membros:'+members.length+' achou:'+!!members.find(x=>String(x.id)===String(id)||String(x.numCred)===String(id)));
   const m = members.find(x=>String(x.id)===String(id)||String(x.numCred)===String(id));
   if(!m) return;
   _editId = m.id||m.numCred;
@@ -1422,15 +1420,16 @@ function openEdit(id){
   document.getElementById('edit-emissao').value     = m.emissao||'';
   document.getElementById('edit-validade').value    = m.validade||'';
   document.getElementById('edit-numCred').value     = m.numCred||'';
-  document.getElementById('edit-rua').value          = m.rua||'';
-  document.getElementById('edit-numero').value       = m.numero||'';
-  document.getElementById('edit-complemento').value  = m.complemento||'';
-  document.getElementById('edit-bairro').value       = m.bairro||'';
-  document.getElementById('edit-cep').value          = m.cep||'';
-  document.getElementById('edit-cidade').value       = m.cidade||'';
-  document.getElementById('edit-uf').value           = m.uf||'';
-  document.getElementById('edit-formacao').value     = m.formacao||'';
-  document.getElementById('edit-especializacao').value = m.especializacao||'';
+  const _sf = (id,v) => { const el=document.getElementById(id); if(el) el.value=v||''; };
+  _sf('edit-rua', m.rua);
+  _sf('edit-numero', m.numero);
+  _sf('edit-complemento', m.complemento);
+  _sf('edit-bairro', m.bairro);
+  _sf('edit-cep', m.cep);
+  _sf('edit-cidade', m.cidade);
+  _sf('edit-uf', m.uf);
+  _sf('edit-formacao', m.formacao);
+  _sf('edit-especializacao', m.especializacao);
   document.getElementById('edit-obs').value         = m.obs||'';
   document.getElementById('edit-foto-url').value    = '';
 
