@@ -285,6 +285,15 @@ if('serviceWorker' in navigator){
     .catch(err => console.log('SW:', err));
 }
 </script>
+<script>
+window.onerror = function(msg, src, line, col, err){
+  // Mostrar apenas erros relevantes (não de extensões)
+  if(src && src.includes('prdlcsmrr.github.io')){
+    alert('⚠️ ERRO:\n' + msg + '\nLinha: ' + line);
+  }
+  return false;
+};
+</script>
 </head>
 <body>
 
@@ -1341,7 +1350,7 @@ function renderList(){
           <div style="position:relative;overflow:visible" id="menu-wrap-${m.id}">
             <button onclick="toggleMenu(${m.id},event)" style="width:36px;height:34px;border-radius:8px;border:1px solid #e0e0e0;background:#f9f9f9;cursor:pointer;font-size:18px;font-weight:900;color:#555;display:flex;align-items:center;justify-content:center" title="Mais opções">⋯</button>
             <div onclick="event.stopPropagation()" id="dd-${m.id}" style="display:none;position:absolute;top:38px;right:0;background:#fff;border:1px solid #e0e0e0;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.35);min-width:210px;z-index:9999;overflow:hidden">
-              <div onclick="openEdit(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">✏️ Editar Cadastro</div>
+              <div onclick="closeMenus();setTimeout(()=>openEdit('${m.numCred}'),50)" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">✏️ Editar Cadastro</div>
               <div onclick="gerarCarteirinha('${m.numCred}');closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">🖨️ Gerar Carteirinha</div>
               <div onclick="gerarCobranca('${m.numCred}');closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">💰 Cobrança / Carnê</div>
               <div onclick="openPag(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">📋 Pagamentos</div>
@@ -1381,42 +1390,39 @@ let _editId = null;
 let _editFotoData = null;
 
 function openEdit(id){
-  const m = members.find(x=>x.id===id);
-  if(!m) return;
-  _editId = id;
+  // Buscar por id numérico OU numCred string
+  const m = members.find(x=>String(x.id)===String(id)||String(x.numCred)===String(id));
+  if(!m){ console.warn('openEdit: membro não encontrado:', id); return; }
+  _editId = m.id;
   _editFotoData = m.foto || null;
 
-  // Preencher campos
-  document.getElementById('edit-nome').value        = m.nome||'';
-  document.getElementById('edit-cpf').value         = m.cpf||'';
-  document.getElementById('edit-nasc').value        = m.nasc||'';
-  document.getElementById('edit-sexo').value        = m.sexo||'';
-  document.getElementById('edit-tel').value         = m.tel||'';
-  document.getElementById('edit-email').value       = m.email||'';
-  document.getElementById('edit-naturalidade').value= m.naturalidade||'';
-  document.getElementById('edit-municipio').value   = m.municipio||'';
-  document.getElementById('edit-pai').value         = m.pai||'';
-  document.getElementById('edit-mae').value         = m.mae||'';
-  document.getElementById('edit-cat').value         = m.cat||'Funcionário';
-  document.getElementById('edit-status').value      = m.status||'Ativo';
-  document.getElementById('edit-emissao').value     = m.emissao||'';
-  document.getElementById('edit-validade').value    = m.validade||'';
-  document.getElementById('edit-numCred').value     = m.numCred||'';
-  document.getElementById('edit-rua').value          = m.rua||'';
-  document.getElementById('edit-numero').value       = m.numero||'';
-  document.getElementById('edit-complemento').value  = m.complemento||'';
-  document.getElementById('edit-bairro').value       = m.bairro||'';
-  document.getElementById('edit-cep').value          = m.cep||'';
-  document.getElementById('edit-cidade').value       = m.cidade||'';
-  document.getElementById('edit-uf').value           = m.uf||'';
-  document.getElementById('edit-formacao').value     = m.formacao||'';
-  document.getElementById('edit-especializacao').value = m.especializacao||'';
-  document.getElementById('edit-obs').value         = m.obs||'';
-  document.getElementById('edit-foto-url').value    = '';
+  // Função segura para preencher campo (ignora se não existir)
+  const sf = (fieldId, val) => {
+    const el = document.getElementById(fieldId);
+    if(el) el.value = val||'';
+  };
+
+  sf('edit-nome', m.nome);
+  sf('edit-cpf', m.cpf);
+  sf('edit-nasc', m.nasc);
+  sf('edit-sexo', m.sexo);
+  sf('edit-tel', m.tel);
+  sf('edit-email', m.email);
+  sf('edit-naturalidade', m.naturalidade);
+  sf('edit-municipio', m.municipio);
+  sf('edit-pai', m.pai);
+  sf('edit-mae', m.mae);
+  sf('edit-cat', m.cat||'Funcionário');
+  sf('edit-status', m.status||'Ativo');
+  sf('edit-emissao', m.emissao);
+  sf('edit-validade', m.validade);
+  sf('edit-numCred', m.numCred);
+  sf('edit-obs', m.obs);
+  sf('edit-foto-url', '');
 
   // Preview foto
   const prev = document.getElementById('edit-foto-preview');
-  prev.innerHTML = m.foto ? `<img src="${m.foto}" alt="">` : '👤';
+  if(prev) prev.innerHTML = m.foto ? `<img src="${m.foto}" alt="">` : '👤';
 
   document.getElementById('modal-edit').classList.add('open');
 }
