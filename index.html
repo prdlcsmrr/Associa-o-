@@ -1234,7 +1234,8 @@ function openPag(id){
   document.getElementById('pag-meses').innerHTML = html;
   updatePagSummary(pagos);
   const _mpag = document.getElementById('modal-pag');
-  _mpag.style.display = '';
+  _mpag.style.cssText = '';
+  _mpag.style.display = 'flex';
   _mpag.classList.add('open');
 }
 
@@ -1281,12 +1282,10 @@ function closePagDirect(){
   pagAtualId = null;
 }
 function closePagNow(){
-  // Fecha de forma garantida
   const m = document.getElementById('modal-pag');
   if(!m) return;
-  m.className = m.className.replace('open','').trim();
-  m.style.cssText = 'display:none!important';
-  setTimeout(()=>{ m.style.cssText = ''; }, 200);
+  m.classList.remove('open');
+  m.style.display = 'none';
   pagAtualId = null;
 }
 
