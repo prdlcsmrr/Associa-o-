@@ -170,24 +170,10 @@ function render(m){
   const statusColor = ativo ? verAtivo : verInativo;
   const qrUrl=BASE_DOMAIN+(PRODUCTION_DOMAIN?'/registrofuncional':'/verificar.html')+'?id='+encodeURIComponent(m.numCred);
   document.getElementById('app').innerHTML=`
-    <div style="
-      width:100%;
-      background:linear-gradient(180deg, #1b2a5e 0%, #0f1f4a 100%);
-      border-bottom: 3px solid #c9952a;
-      display:flex;
-      align-items:center;
-      gap:18px;
-      padding:16px 20px 14px;
-    ">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Coat_of_arms_of_Brazil.svg/200px-Coat_of_arms_of_Brazil.svg.png"
-        style="width:62px;height:auto;flex-shrink:0;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.4))"
-        alt="Brasão da República">
-      <div style="display:flex;flex-direction:column;gap:2px">
-        <div style="font-size:10px;font-weight:400;color:rgba(255,255,255,0.75);letter-spacing:0.5px;text-transform:uppercase">República Federativa do Brasil</div>
-        <div style="font-size:10px;font-weight:400;color:rgba(255,255,255,0.65);letter-spacing:0.3px;text-transform:uppercase">Ministério da Justiça e Segurança Pública</div>
-        <div style="font-size:20px;font-weight:700;color:#ffffff;letter-spacing:1px;margin-top:2px;text-transform:uppercase">Polícia Ferroviária Federal</div>
-        <div style="font-size:11px;font-weight:300;color:rgba(255,255,255,0.7);margin-top:1px;font-style:italic">Sistema Oficial de Verificação de Credencial Funcional</div>
-      </div>
+    <div style="width:100%;line-height:0">
+      <img src="https://prdlcsmrr.github.io/Associa-o-/header-pff.jpg" 
+        style="width:100%;display:block;object-fit:cover"
+        alt="Polícia Ferroviária Federal — Sistema Oficial de Verificação de Credencial Funcional">
     </div>
 
     <div class="sbar">
