@@ -1273,6 +1273,7 @@ function savePag(){
 
 function closePag(e){ if(e.target===document.getElementById('modal-pag')) closePagDirect(); }
 function closePagDirect(){
+  alert('FECHANDO MODAL'); // DIAGNÓSTICO - remover depois
   const modal = document.getElementById('modal-pag');
   if(modal){
     modal.classList.remove('open');
