@@ -1214,7 +1214,7 @@ const MESES_NOME = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho
 let pagAtualId = null;
 
 function openPag(id){
-  const m = members.find(x=>x.id===id);
+  const m = members.find(x=>String(x.id)===String(id));
   if(!m) return;
   pagAtualId = id;
   document.getElementById('pag-nome').textContent = m.nome;
@@ -1398,7 +1398,7 @@ let _editId = null;
 let _editFotoData = null;
 
 function openEdit(id){
-  const m = members.find(x=>x.id===id);
+  const m = members.find(x=>String(x.id)===String(id));
   if(!m) return;
   _editId = id;
   _editFotoData = m.foto || null;
