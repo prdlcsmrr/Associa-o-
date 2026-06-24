@@ -333,7 +333,7 @@ function render(m){
           <div class="campo-lbl">Emissão:</div>
           <div class="campo-val">${fmt(m.emissao)}</div>
         </div>
-        <div class="campo" style="grid-column:2">
+        <div class="campo">
           <div class="campo-lbl">Validade:</div>
           <div class="campo-val ${expirada?'vermelho':''}">${fmt(m.validade)}${expirada?' ⚠️ EXPIRADA':''}</div>
         </div>
