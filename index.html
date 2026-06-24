@@ -1399,6 +1399,7 @@ let _editId = null;
 let _editFotoData = null;
 
 function openEdit(id){
+  try {
   const m = members.find(x=>String(x.id)===String(id)||String(x.numCred)===String(id));
   if(!m) return;
   _editId = m.id||m.numCred;
@@ -1438,6 +1439,7 @@ function openEdit(id){
   prev.innerHTML = m.foto ? `<img src="${m.foto}" alt="">` : '👤';
 
   document.getElementById('modal-edit').classList.add('open');
+  } catch(err) { alert('ERRO: ' + err.message); }
 }
 
 function closeEdit(e){ if(e.target===document.getElementById('modal-edit')) closeEditDirect(); }
