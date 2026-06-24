@@ -197,8 +197,8 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
   padding:9px 16px; border-radius:6px; margin-bottom:10px;
   font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;
 }
-.modal-status-bar.ativo { background:#16a34a;border:1px solid #15803d;color:#fff;font-weight:700; }
-.modal-status-bar.inativo { background:#dc2626;border:1px solid #b91c1c;color:#fff;font-weight:700; }
+.modal-status-bar.ativo { background:rgba(26,122,58,0.12);border:1px solid rgba(26,122,58,0.35);color:#1a7a3a; }
+.modal-status-bar.inativo { background:rgba(185,28,28,0.08);border:1px solid rgba(185,28,28,0.3);color:#b91c1c; }
 
 
 /* ── MODAL EDIÇÃO ── */
@@ -285,15 +285,6 @@ if('serviceWorker' in navigator){
     .catch(err => console.log('SW:', err));
 }
 </script>
-<script>
-window.onerror = function(msg, src, line, col, err){
-  alert('ERRO JS:\n' + msg + '\nLinha: ' + line + '\n' + (err?err.stack:''));
-  return false;
-};
-window.addEventListener('unhandledrejection', function(e){
-  alert('ERRO PROMISE:\n' + e.reason);
-});
-</script>
 </head>
 <body>
 
@@ -326,7 +317,7 @@ window.addEventListener('unhandledrejection', function(e){
     </div>
     <div class="hright">
       <div class="hcount" id="hcount">0 membros</div>
-      <button onclick="logout()" style="background:#cc0000;border:1px solid #aa0000;color:#fff;padding:7px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;letter-spacing:0.5px">Sair</button>
+      <button class="hbtn" onclick="logout()">Sair</button>
     </div>
   </div>
 </div>
@@ -510,7 +501,7 @@ window.addEventListener('unhandledrejection', function(e){
       </div>
     </div>
     <div class="modal-acts">
-      <button onclick="closeMD()" style="flex:1;background:#cc0000;border:1px solid #aa0000;color:#fff;padding:10px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700">✕ Fechar</button>
+      <button class="btn btn-outline" onclick="closeMD()" style="flex:1">✕ Fechar</button>
       <button class="btn btn-navy" onclick="abrirCarteirinha()" style="flex:1">🪪 Carteirinha Completa</button>
       <button class="btn btn-gold" onclick="downloadCarteirinhaModal()" style="flex:1">⬇ PNG</button>
     </div>
@@ -958,13 +949,13 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
 
 <!-- MODAL PAGAMENTOS -->
 <div class="modal-overlay" id="modal-pag" onclick="closePag(event)">
-  <div style="background:#fff;border-radius:16px;width:100%;max-width:500px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.3)" onclick="event.stopPropagation()">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:500px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.3)">
     <div style="background:var(--navy);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold)">
       <div>
         <div style="font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px">Controle de Pagamentos</div>
         <div style="font-size:16px;font-weight:800;color:#fff" id="pag-nome">—</div>
       </div>
-      <button type="button" id="btn-close-pag" style="background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.4);color:#fff;font-size:20px;cursor:pointer;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:100;position:relative;touch-action:manipulation">×</button>
+      <button onclick="closePagDirect()" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:20px;cursor:pointer">✕</button>
     </div>
     <div style="padding:20px 24px">
       <div style="font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px">
@@ -1004,7 +995,7 @@ const BASE_DOMAIN  = PRODUCTION_DOMAIN ? DOMAIN_PROD : DOMAIN_DEV;
 
 
 const LUSER='admin', LPASS='1234';
-const BASE_URL=PRODUCTION_DOMAIN ? BASE_DOMAIN+'/registrooficialcarteirafuncional' : BASE_DOMAIN+'/verificar.html';
+const BASE_URL=PRODUCTION_DOMAIN ? BASE_DOMAIN+'/registrofuncional' : BASE_DOMAIN+'/verificar.html';
 const ORG_PRE='ASC';
 
 // LOGIN
@@ -1203,7 +1194,7 @@ async function salvar(){
   const dbToSave = JSON.stringify({membros:members});
   fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5',{
     method:'PUT',
-    headers:{'Content-Type':'application/json','X-Master-Key':['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('')},
+    headers:{'Content-Type':'application/json','X-Master-Key':'$2a$10$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'},
     body:dbToSave
   }).then(()=>{
     const si=document.getElementById('sync-ind');
@@ -1223,9 +1214,9 @@ const MESES_NOME = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho
 let pagAtualId = null;
 
 function openPag(id){
-  const m = members.find(x=>String(x.id)===String(id)||String(x.numCred)===String(id));
+  const m = members.find(x=>x.id===id);
   if(!m) return;
-  pagAtualId = m.id||m.numCred;
+  pagAtualId = id;
   document.getElementById('pag-nome').textContent = m.nome;
   const pagos = m.pagamentos || [];
   const ano = new Date().getFullYear();
@@ -1242,9 +1233,7 @@ function openPag(id){
 
   document.getElementById('pag-meses').innerHTML = html;
   updatePagSummary(pagos);
-  const _mpag = document.getElementById('modal-pag');
-  _mpag.style.display = '';
-  _mpag.classList.add('open');
+  document.getElementById('modal-pag').classList.add('open');
 }
 
 function togglePag(mes){
@@ -1281,23 +1270,7 @@ function savePag(){
 }
 
 function closePag(e){ if(e.target===document.getElementById('modal-pag')) closePagDirect(); }
-function closePagDirect(){
-  const modal = document.getElementById('modal-pag');
-  if(modal){
-    modal.classList.remove('open');
-    modal.style.display = 'none';
-  }
-  pagAtualId = null;
-}
-function closePagNow(){
-  // Fecha de forma garantida
-  const m = document.getElementById('modal-pag');
-  if(!m) return;
-  m.className = m.className.replace('open','').trim();
-  m.style.cssText = 'display:none!important';
-  setTimeout(()=>{ m.style.cssText = ''; }, 200);
-  pagAtualId = null;
-}
+function closePagDirect(){ document.getElementById('modal-pag').classList.remove('open'); pagAtualId=null; }
 
 function updatePixPlaceholder(){
   const tipo = document.getElementById('cfg-pix-tipo').value;
@@ -1368,10 +1341,10 @@ function renderList(){
           <div style="position:relative;overflow:visible" id="menu-wrap-${m.id}">
             <button onclick="toggleMenu(${m.id},event)" style="width:36px;height:34px;border-radius:8px;border:1px solid #e0e0e0;background:#f9f9f9;cursor:pointer;font-size:18px;font-weight:900;color:#555;display:flex;align-items:center;justify-content:center" title="Mais opções">⋯</button>
             <div onclick="event.stopPropagation()" id="dd-${m.id}" style="display:none;position:absolute;top:38px;right:0;background:#fff;border:1px solid #e0e0e0;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.35);min-width:210px;z-index:9999;overflow:hidden">
-              <div onclick="closeMenus();setTimeout(()=>openEdit('${m.numCred}'),50)" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">✏️ Editar Cadastro</div>
+              <div onclick="openEdit(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">✏️ Editar Cadastro</div>
               <div onclick="gerarCarteirinha('${m.numCred}');closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">🖨️ Gerar Carteirinha</div>
               <div onclick="gerarCobranca('${m.numCred}');closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">💰 Cobrança / Carnê</div>
-              <div onclick="closeMenus();setTimeout(()=>openPag('${m.numCred}'),50)" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">📋 Pagamentos</div>
+              <div onclick="openPag(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">📋 Pagamentos</div>
               <div onclick="toggleStatus(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;cursor:pointer;border-bottom:1px solid #f3f4f6;color:${m.status==='Ativo'?'#b91c1c':'#2a7a38'}" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''"> ${m.status==='Ativo'?'⛔ Desativar':'✅ Ativar'} Credencial</div>
               <div onclick="del(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#b91c1c;cursor:pointer" onmouseover="this.style.background='#fff5f5'" onmouseout="this.style.background=''">🗑️ Excluir Membro</div>
             </div>
@@ -1408,10 +1381,9 @@ let _editId = null;
 let _editFotoData = null;
 
 function openEdit(id){
-  try {
-  const m = members.find(x=>String(x.id)===String(id)||String(x.numCred)===String(id));
+  const m = members.find(x=>x.id===id);
   if(!m) return;
-  _editId = m.id||m.numCred;
+  _editId = id;
   _editFotoData = m.foto || null;
 
   // Preencher campos
@@ -1430,16 +1402,15 @@ function openEdit(id){
   document.getElementById('edit-emissao').value     = m.emissao||'';
   document.getElementById('edit-validade').value    = m.validade||'';
   document.getElementById('edit-numCred').value     = m.numCred||'';
-  const _sf = (id,v) => { const el=document.getElementById(id); if(el) el.value=v||''; };
-  _sf('edit-rua', m.rua);
-  _sf('edit-numero', m.numero);
-  _sf('edit-complemento', m.complemento);
-  _sf('edit-bairro', m.bairro);
-  _sf('edit-cep', m.cep);
-  _sf('edit-cidade', m.cidade);
-  _sf('edit-uf', m.uf);
-  _sf('edit-formacao', m.formacao);
-  _sf('edit-especializacao', m.especializacao);
+  document.getElementById('edit-rua').value          = m.rua||'';
+  document.getElementById('edit-numero').value       = m.numero||'';
+  document.getElementById('edit-complemento').value  = m.complemento||'';
+  document.getElementById('edit-bairro').value       = m.bairro||'';
+  document.getElementById('edit-cep').value          = m.cep||'';
+  document.getElementById('edit-cidade').value       = m.cidade||'';
+  document.getElementById('edit-uf').value           = m.uf||'';
+  document.getElementById('edit-formacao').value     = m.formacao||'';
+  document.getElementById('edit-especializacao').value = m.especializacao||'';
   document.getElementById('edit-obs').value         = m.obs||'';
   document.getElementById('edit-foto-url').value    = '';
 
@@ -1448,7 +1419,6 @@ function openEdit(id){
   prev.innerHTML = m.foto ? `<img src="${m.foto}" alt="">` : '👤';
 
   document.getElementById('modal-edit').classList.add('open');
-  } catch(err) { alert('ERRO: ' + err.message); }
 }
 
 function closeEdit(e){ if(e.target===document.getElementById('modal-edit')) closeEditDirect(); }
@@ -1593,7 +1563,7 @@ function openCred(id){
 }
 
 function closeM(e){if(e.target===document.getElementById('modal'))closeMD();}
-function closeMD(){document.getElementById('modal').classList.remove('open'); goTab('lista');}
+function closeMD(){document.getElementById('modal').classList.remove('open');}
 
 function abrirCarteirinha(){
   if(_credAtualId) gerarCarteirinha(_credAtualId);
@@ -1868,7 +1838,7 @@ async function syncToCloud(){
   try{
     const r=await fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5',{
       method:'PUT',
-      headers:{'Content-Type':'application/json','X-Master-Key':['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('')},
+      headers:{'Content-Type':'application/json','X-Master-Key':'\u00242a\u001410\u0024/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'},
       body:JSON.stringify({membros:members})
     });
     if(si){si.textContent='\u2705 Sincronizado!';setTimeout(()=>si.style.display='none',2500);}
@@ -2233,6 +2203,28 @@ const _origGoTab = goTab;
 const MESES_NOME = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 let pagAtualId = null;
 
+function openPag(id){
+  const m = members.find(x=>x.id===id);
+  if(!m) return;
+  pagAtualId = id;
+  document.getElementById('pag-nome').textContent = m.nome;
+  const pagos = m.pagamentos || [];
+  const ano = new Date().getFullYear();
+
+  let html = '';
+  MESES_NOME.forEach((mes, i) => {
+    const pago = pagos.includes(i);
+    html += `<button onclick="togglePag(${i})" id="pag-mes-${i}" style="
+      padding:10px 6px; border-radius:8px; border:2px solid ${pago?'#2a7a38':'#e0e0e0'};
+      background:${pago?'rgba(26,122,58,0.1)':'#f9f9f9'}; color:${pago?'#2a7a38':'#666'};
+      font-size:11px; font-weight:700; cursor:pointer; transition:all 0.2s; text-align:center;
+    ">${pago?'✅':'○'}<br><span style="font-size:9px">${mes.slice(0,3)}</span></button>`;
+  });
+
+  document.getElementById('pag-meses').innerHTML = html;
+  updatePagSummary(pagos);
+  document.getElementById('modal-pag').classList.add('open');
+}
 
 function togglePag(mes){
   const m = members.find(x=>x.id===pagAtualId);
@@ -2273,15 +2265,6 @@ const ny=new Date();ny.setFullYear(ny.getFullYear()+1);
 document.getElementById('f-validade').value=ny.toISOString().split('T')[0];
 
 loadFromCloud();
-
-// Fechar modal de pagamentos — captura no documento (mais confiável no iOS)
-(function(){
-  var btn = document.getElementById('btn-close-pag');
-  if(!btn) return;
-  function fecharPag(e){ e.preventDefault(); e.stopPropagation(); closePagDirect(); }
-  btn.addEventListener('touchend', fecharPag, {capture:true, passive:false});
-  btn.addEventListener('click',    fecharPag, {capture:true});
-})();
 
 // ══════════════════════════════════════════════════════════
 // SISTEMA DE BACKUP & RESTAURAÇÃO
