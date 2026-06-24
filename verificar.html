@@ -18,18 +18,7 @@ body {
   align-items:center;
   padding-bottom:40px;
 }
-/* Marca d'água global */
-body::after {
-  content:'';
-  position:fixed;
-  top:50%; left:50%;
-  transform:translate(-50%,-50%);
-  width:600px; height:600px;
-  background:url('https://prdlcsmrr.github.io/Associa-o-/watermark.png') center/contain no-repeat;
-  opacity:0.12;
-  pointer-events:none;
-  z-index:999;
-}
+
 .wrap {
   width:100%;
   max-width:600px;
@@ -38,19 +27,7 @@ body::after {
   min-height:100vh;
   position:relative;
 }
-.wrap::before {
-  content:'';
-  position:fixed;
-  top:50%; left:50%;
-  transform:translate(-50%,-50%);
-  width:min(500px,90vw);
-  height:min(500px,90vw);
-  background:url('https://prdlcsmrr.github.io/Associa-o-/watermark.png') center/contain no-repeat;
-  opacity:0.07;
-  pointer-events:none;
-  z-index:0;
-}
-.wrap > * { position:relative; z-index:1; }
+
 
 /* STATUS BAR */
 .status-bar {
@@ -220,6 +197,15 @@ const DB_GITHUB = BASE_DOMAIN+'/db.json';
 const BIN_ID = '6a35c2ddda38895dfee044d5';
 
 function showErr(title, msg){
+  // Marca d'água fixa na tela
+  let wmDiv = document.getElementById('wm-overlay');
+  if(!wmDiv){
+    wmDiv = document.createElement('div');
+    wmDiv.id = 'wm-overlay';
+    wmDiv.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:50;display:flex;align-items:center;justify-content:center;overflow:hidden';
+    wmDiv.innerHTML = '<img src="https://prdlcsmrr.github.io/Associa-o-/watermark.png" style="width:min(500px,85vw);height:min(500px,85vh);object-fit:contain;opacity:0.13">';
+    document.body.appendChild(wmDiv);
+  }
   document.getElementById('app').innerHTML = `
     <img src="https://prdlcsmrr.github.io/Associa-o-/header-pff.jpg" style="width:100%;display:block">
     <div class="error-box">
