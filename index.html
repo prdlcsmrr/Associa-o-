@@ -293,10 +293,9 @@ let _pagId = null;
 let _pagSelecionados = [];
 
 function abrirPagamentos(memberId){
-  alert('abrirPagamentos chamado: ' + memberId + ' | membros: ' + members.length);
   // Encontrar membro
   const m = members.find(x => String(x.id) === String(memberId) || String(x.numCred) === String(memberId));
-  if(!m){ alert('Membro não encontrado. IDs: ' + members.map(x=>x.numCred).join(',')); return; }
+  if(!m){ alert('Membro não encontrado'); return; }
   
   _pagId = m.id;
   _pagSelecionados = Array.isArray(m.pagamentos) ? [...m.pagamentos] : [];
@@ -359,7 +358,7 @@ function atualizarResumoPag(){
 
 async function savePagamentos(){
   if(_pagId === null) return;
-  const m = members.find(x => String(x.id) === String(_pagId));
+  const m = members.find(x => String(x.numCred) === String(_pagId));
   if(!m) return;
   m.pagamentos = [..._pagSelecionados];
   localStorage.setItem('members', JSON.stringify(members));
