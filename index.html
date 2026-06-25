@@ -1403,7 +1403,6 @@ let _editFotoData = null;
 
 function openEdit(id){
   const m = members.find(function(x){ return String(x.id)===String(id)||String(x.numCred)===String(id); });
-  alert('openEdit: id='+id+' achou='+(!!m)+' membros='+members.length);
   if(!m) return;
   _editId = m.id;
   _editFotoData = m.foto || null;
@@ -1435,9 +1434,7 @@ function openEdit(id){
   var prev=document.getElementById('edit-foto-preview');
   if(prev) prev.innerHTML=m.foto?'<img src="'+m.foto+'" alt="">':'👤';
   var modal=document.getElementById('modal-edit');
-  alert('modal existe: '+(!!modal)+' display antes: '+(modal?modal.style.display:'N/A'));
   if(modal){ modal.style.display='flex'; modal.style.alignItems='flex-start'; modal.style.justifyContent='center'; }
-  alert('display depois: '+(modal?modal.style.display:'N/A'));
 }
 
 function closeEdit(e){ if(e.target===document.getElementById('modal-edit')) closeEditDirect(); }
@@ -2091,7 +2088,6 @@ function resetConfig(){
 
 // Update goTab to load config values when switching to config
 function menuEditarMembro(numCred){
-  alert('menuEditarMembro: '+numCred);
   closeMenus();
   setTimeout(function(){ openEdit(numCred); }, 100);
 }
