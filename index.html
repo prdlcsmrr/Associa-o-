@@ -1157,7 +1157,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
       <div id="cont-inadimplentes" style="padding:4px 0"></div>
     </div>
 
-    <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden">
+    <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:24px">
       <div style="background:#8a6500;padding:14px 20px;display:flex;align-items:center;gap:10px">
         <span style="font-size:16px">🔓</span>
         <span style="font-size:14px;font-weight:700;color:#fff;letter-spacing:1px">MEMBROS ISENTOS</span>
@@ -1165,6 +1165,66 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
       <div id="cont-isentos" style="padding:4px 0"></div>
     </div>
 
+    <!-- SAÍDAS -->
+    <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:24px">
+      <div style="background:#1a2a5e;padding:14px 20px;display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:16px">💸</span>
+          <span style="font-size:14px;font-weight:700;color:#fff;letter-spacing:1px">SAÍDAS / DESPESAS 2026</span>
+        </div>
+        <button onclick="abrirModalSaida()" style="background:var(--gold);color:#1a2a5e;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:800;cursor:pointer">+ Nova Saída</button>
+      </div>
+      <div id="cont-saidas" style="padding:4px 0"></div>
+    </div>
+
+    <!-- SALDO GERAL -->
+    <div id="cont-saldo" style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:24px"></div>
+
+  </div>
+</div>
+
+<!-- MODAL NOVA SAÍDA -->
+<div class="modal-overlay" id="modal-saida" onclick="fecharModalSaida(event)">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:480px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.3)">
+    <div style="background:var(--navy);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold)">
+      <div style="font-size:16px;font-weight:800;color:#fff" id="saida-modal-titulo">Nova Despesa</div>
+      <button onclick="fecharModalSaidaDirect()" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:22px;cursor:pointer">✕</button>
+    </div>
+    <div style="padding:20px 24px;display:flex;flex-direction:column;gap:14px">
+      <input type="hidden" id="saida-edit-id">
+      <div>
+        <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px">Data *</label>
+        <input type="date" id="saida-data" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:14px;margin-top:4px;box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px">Descrição *</label>
+        <input type="text" id="saida-descricao" placeholder="Ex: Aluguel sala, Material gráfico..." style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:14px;margin-top:4px;box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px">Categoria</label>
+        <select id="saida-categoria" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:14px;margin-top:4px;box-sizing:border-box">
+          <option value="Administrativo">Administrativo</option>
+          <option value="Material">Material</option>
+          <option value="Serviços">Serviços</option>
+          <option value="Eventos">Eventos</option>
+          <option value="Jurídico">Jurídico</option>
+          <option value="Comunicação">Comunicação</option>
+          <option value="Outros">Outros</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px">Valor (R$) *</label>
+        <input type="number" id="saida-valor" placeholder="0,00" min="0" step="0.01" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:14px;margin-top:4px;box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px">Responsável</label>
+        <input type="text" id="saida-responsavel" placeholder="Nome de quem autorizou" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:14px;margin-top:4px;box-sizing:border-box">
+      </div>
+      <div style="display:flex;gap:10px;margin-top:6px">
+        <button onclick="fecharModalSaidaDirect()" style="flex:1;padding:12px;border-radius:8px;border:1.5px solid #e0e0e0;background:#fff;font-size:13px;font-weight:700;cursor:pointer;color:#555">Cancelar</button>
+        <button onclick="salvarSaida()" style="flex:2;padding:12px;border-radius:8px;border:none;background:var(--navy);color:#fff;font-size:13px;font-weight:700;cursor:pointer">💾 Salvar Despesa</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2441,11 +2501,13 @@ function renderContabil(){
   let inadimplentes   = totalMembros - adimplentes;
 
   // CARDS
+  const totalSaidas2026 = saidas.filter(s=>s.data&&s.data.startsWith('2026')).reduce((a,s)=>a+s.valor,0);
+  const saldoGeral = totalAnual - totalSaidas2026;
   const cards = [
-    { icon:'💵', label:'Total Arrecadado 2026', valor:brl(totalArrecadado), cor:'#1a7a3a' },
-    { icon:'✅', label:'Adimplentes',            valor:adimplentes+' / '+totalMembros,  cor:'#1a2a5e' },
-    { icon:'⚠️', label:'Inadimplentes',          valor:inadimplentes,                   cor:'#b91c1c' },
-    { icon:'📋', label:'Total em Aberto',        valor:brl(totalEmAberto),              cor:'#c9972a' },
+    { icon:'💵', label:'Entradas 2026',    valor:brl(totalArrecadado), cor:'#1a7a3a' },
+    { icon:'💸', label:'Saídas 2026',      valor:brl(totalSaidas2026), cor:'#b91c1c' },
+    { icon:'📊', label:'Saldo',            valor:brl(saldoGeral),      cor: saldoGeral>=0?'#1a7a3a':'#b91c1c' },
+    { icon:'⚠️', label:'Inadimplentes',    valor:inadimplentes,        cor:'#c9972a' },
   ];
   document.getElementById('cont-cards').innerHTML = cards.map(c=>`
     <div style="background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.08);padding:16px;border-left:4px solid ${c.cor}">
@@ -2500,6 +2562,9 @@ function renderContabil(){
       <th style="padding:10px 8px;text-align:right;font-size:11px;color:#888;font-weight:700;text-transform:uppercase">Em Aberto</th>
       <th style="padding:10px 14px;text-align:center;font-size:11px;color:#888;font-weight:700;text-transform:uppercase">Situação</th>
     </tr></thead><tbody>${rows}</tbody>`;
+
+  // SAÍDAS
+  renderSaidas(totalAnual);
 
   // ISENTOS
   const isentoEl = document.getElementById('cont-isentos');
@@ -2613,8 +2678,163 @@ function badgeVencimento(validade){
   return '';
 }
 
+
+// ══════════════════════════════════════════
+// MÓDULO DE SAÍDAS / DESPESAS 2026
+// ══════════════════════════════════════════
+let saidas = JSON.parse(localStorage.getItem('ubapff-saidas') || '[]');
+
+function salvarSaidas(){
+  localStorage.setItem('ubapff-saidas', JSON.stringify(saidas));
+}
+
+function abrirModalSaida(id){
+  const modal = document.getElementById('modal-saida');
+  const hoje = new Date().toISOString().slice(0,10);
+  if(id){
+    // Editar
+    const s = saidas.find(x=>x.id===id);
+    if(!s) return;
+    document.getElementById('saida-modal-titulo').textContent = 'Editar Despesa';
+    document.getElementById('saida-edit-id').value = id;
+    document.getElementById('saida-data').value = s.data||hoje;
+    document.getElementById('saida-descricao').value = s.descricao||'';
+    document.getElementById('saida-categoria').value = s.categoria||'Outros';
+    document.getElementById('saida-valor').value = s.valor||'';
+    document.getElementById('saida-responsavel').value = s.responsavel||'';
+  } else {
+    // Nova
+    document.getElementById('saida-modal-titulo').textContent = 'Nova Despesa';
+    document.getElementById('saida-edit-id').value = '';
+    document.getElementById('saida-data').value = hoje;
+    document.getElementById('saida-descricao').value = '';
+    document.getElementById('saida-categoria').value = 'Administrativo';
+    document.getElementById('saida-valor').value = '';
+    document.getElementById('saida-responsavel').value = '';
+  }
+  modal.style.display='flex';
+  modal.classList.add('open');
+}
+
+function fecharModalSaida(e){
+  if(e.target===document.getElementById('modal-saida')) fecharModalSaidaDirect();
+}
+function fecharModalSaidaDirect(){
+  const modal=document.getElementById('modal-saida');
+  if(modal){ modal.classList.remove('open'); modal.style.display='none'; }
+}
+
+function salvarSaida(){
+  const data       = document.getElementById('saida-data').value;
+  const descricao  = document.getElementById('saida-descricao').value.trim();
+  const categoria  = document.getElementById('saida-categoria').value;
+  const valor      = parseFloat(document.getElementById('saida-valor').value);
+  const responsavel= document.getElementById('saida-responsavel').value.trim();
+  const editId     = document.getElementById('saida-edit-id').value;
+
+  if(!data||!descricao||isNaN(valor)||valor<=0){
+    alert('❌ Preencha data, descrição e valor corretamente.');
+    return;
+  }
+
+  if(editId){
+    const idx = saidas.findIndex(x=>x.id===editId);
+    if(idx>=0){
+      saidas[idx] = {...saidas[idx], data, descricao, categoria, valor, responsavel};
+    }
+  } else {
+    saidas.push({
+      id: 'S'+Date.now(),
+      data, descricao, categoria, valor, responsavel,
+      criadoEm: new Date().toISOString()
+    });
+  }
+
+  salvarSaidas();
+  fecharModalSaidaDirect();
+  renderContabil();
+}
+
+function excluirSaida(id){
+  if(!confirm('Excluir esta despesa?')) return;
+  saidas = saidas.filter(x=>x.id!==id);
+  salvarSaidas();
+  renderContabil();
+}
+
+function renderSaidas(totalEntradas){
+  const el = document.getElementById('cont-saidas');
+  const saldoEl = document.getElementById('cont-saldo');
+  if(!el) return;
+
+  // Filtrar só 2026
+  const saidas2026 = saidas.filter(s=>s.data&&s.data.startsWith('2026'))
+    .sort((a,b)=>b.data.localeCompare(a.data));
+
+  const totalSaidas = saidas2026.reduce((acc,s)=>acc+s.valor,0);
+  const saldo = totalEntradas - totalSaidas;
+
+  if(saidas2026.length===0){
+    el.innerHTML='<div style="padding:24px;text-align:center;color:#888;font-size:13px">Nenhuma despesa registrada em 2026.</div>';
+  } else {
+    el.innerHTML = saidas2026.map((s,i)=>`
+      <div style="display:grid;grid-template-columns:1fr auto;align-items:center;padding:12px 20px;border-bottom:1px solid #f3f4f6;background:${i%2===0?'#fff':'#fafafa'}">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--navy)">${s.descricao}</div>
+          <div style="font-size:11px;color:#888;margin-top:2px">
+            📅 ${formatarData(s.data)} · 
+            🏷️ ${s.categoria}
+            ${s.responsavel?'· 👤 '+s.responsavel:''}
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="font-size:14px;font-weight:900;color:#b91c1c;white-space:nowrap">− ${brl(s.valor)}</div>
+          <button onclick="abrirModalSaida('${s.id}')" style="background:#f3f4f6;border:none;border-radius:6px;padding:5px 8px;cursor:pointer;font-size:12px" title="Editar">✏️</button>
+          <button onclick="excluirSaida('${s.id}')" style="background:#fee2e2;border:none;border-radius:6px;padding:5px 8px;cursor:pointer;font-size:12px" title="Excluir">🗑️</button>
+        </div>
+      </div>`).join('') +
+    `<div style="display:grid;grid-template-columns:1fr auto;align-items:center;padding:14px 20px;background:#1a2a5e">
+      <div style="font-size:13px;font-weight:700;color:#fff">TOTAL DESPESAS 2026</div>
+      <div style="font-size:16px;font-weight:900;color:#ff9999">− ${brl(totalSaidas)}</div>
+    </div>`;
+  }
+
+  // Saldo geral
+  const corSaldo = saldo >= 0 ? '#1a7a3a' : '#b91c1c';
+  const iconSaldo = saldo >= 0 ? '📈' : '📉';
+  saldoEl.innerHTML = `
+    <div style="background:${saldo>=0?'#f0fdf4':'#fef2f2'};border:2px solid ${corSaldo};border-radius:14px;padding:20px 24px">
+      <div style="font-size:11px;font-weight:700;color:${corSaldo};text-transform:uppercase;letter-spacing:2px;margin-bottom:12px">${iconSaldo} Saldo Geral 2026</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;text-align:center">
+        <div>
+          <div style="font-size:10px;color:#888;margin-bottom:4px">Entradas</div>
+          <div style="font-size:16px;font-weight:900;color:#1a7a3a">${brl(totalEntradas)}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:#888;margin-bottom:4px">Saídas</div>
+          <div style="font-size:16px;font-weight:900;color:#b91c1c">− ${brl(totalSaidas)}</div>
+        </div>
+        <div style="border-left:2px solid ${corSaldo};padding-left:16px">
+          <div style="font-size:10px;color:#888;margin-bottom:4px">Saldo</div>
+          <div style="font-size:18px;font-weight:900;color:${corSaldo}">${saldo>=0?'':'− '}${brl(Math.abs(saldo))}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function formatarData(dataStr){
+  if(!dataStr) return '—';
+  const [y,m,d] = dataStr.split('-');
+  return `${d}/${m}/${y}`;
+}
+
 // Expor funções globalmente para onclicks em HTML dinâmico
 window.onCpfInput=onCpfInput;
+window.abrirModalSaida=abrirModalSaida;
+window.excluirSaida=excluirSaida;
+window.salvarSaida=salvarSaida;
+window.fecharModalSaidaDirect=fecharModalSaidaDirect;
+window.fecharModalSaida=fecharModalSaida;
 window.badgeVencimento=badgeVencimento;
 if(typeof openCred!=="undefined") window.openCred=openCred;
 if(typeof closeMD!=="undefined") window.closeMD=closeMD;
