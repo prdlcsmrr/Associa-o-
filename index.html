@@ -1525,7 +1525,7 @@ function renderList(){
     m.numCred.toLowerCase().includes(q)||
     (m.cat||'').toLowerCase().includes(q)||
     (m.lotacao||'').toLowerCase().includes(q)
-  );
+  ).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
   document.getElementById('total').textContent=f.length;
   const g=document.getElementById('mgrid');
   if(!f.length){
