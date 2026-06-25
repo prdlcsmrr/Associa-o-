@@ -388,6 +388,10 @@ if('serviceWorker' in navigator){
               </select>
             </div>
           </div>
+          <div class="field">
+            <label>Lotação / Unidade de Trabalho</label>
+            <input type="text" id="f-lotacao" placeholder="Ex: Delegacia PFF São Paulo, CGPFF Brasília...">
+          </div>
         </div>
 
         <div class="box">
@@ -987,6 +991,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
           <div class="edit-field"><label>E-mail</label><input type="email" id="edit-email"></div>
           <div class="edit-field"><label>Naturalidade</label><input type="text" id="edit-naturalidade" placeholder="Cidade de nascimento"></div>
           <div class="edit-field"><label>Município (residência)</label><input type="text" id="edit-municipio"></div>
+          <div class="edit-field" style="grid-column:1/-1"><label>Lotação / Unidade de Trabalho</label><input type="text" id="edit-lotacao" placeholder="Ex: Delegacia PFF São Paulo, CGPFF Brasília..."></div>
           <div class="edit-field"><label>Nome do Pai</label><input type="text" id="edit-pai"></div>
           <div class="edit-field"><label>Nome da Mãe</label><input type="text" id="edit-mae"></div>
         </div>
@@ -1309,6 +1314,7 @@ async function salvar(){
     cep:document.getElementById('f-cep')?.value.trim()||'',
     cidade:document.getElementById('f-cidade')?.value.trim()||'',
     uf:document.getElementById('f-uf')?.value||'',
+    lotacao:document.getElementById('f-lotacao')?.value.trim()||'',
     cat:document.getElementById('f-cat').value,
     status:curStatus,
     emissao:document.getElementById('f-emissao').value,
@@ -1519,6 +1525,7 @@ function renderList(){
       <div class="mcard-body">
         <div class="mcard-name">${m.nome}</div>
         <div class="mcard-cat">${m.cat} · ${m.numCred}</div>
+        ${m.lotacao?`<div style="font-size:10px;color:#888;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📍 ${m.lotacao}</div>`:''}
         <div class="mcard-status ${m.status==='Ativo'?'ativo':'inativo'}">● ${m.status==='Ativo'?'Credencial Ativa':'Credencial Inativa'}</div>
         ${m.isento?'<div style="display:inline-flex;align-items:center;gap:4px;background:rgba(201,151,42,0.12);color:#8a6500;border:1px solid rgba(201,151,42,0.4);padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;margin-top:4px">🔓 ISENTO</div>':''}
         <div style="display:flex;gap:8px;align-items:center">
@@ -1598,6 +1605,8 @@ function openEdit(id){
   var prev=document.getElementById('edit-foto-preview');
   if(prev) prev.innerHTML=m.foto?'<img src="'+m.foto+'" alt="">':'👤';
   // Carregar isento
+  var _lotEl=document.getElementById('edit-lotacao');
+  if(_lotEl) _lotEl.value=m.lotacao||'';
   var _isentoEl=document.getElementById('edit-isento');
   if(_isentoEl) _isentoEl.checked = m.isento===true;
 
@@ -1688,6 +1697,7 @@ function saveEdit(){
     formacao:        document.getElementById('edit-formacao').value.trim(),
     especializacao:  document.getElementById('edit-especializacao').value.trim(),
     obs:             document.getElementById('edit-obs').value.trim(),
+    lotacao:         document.getElementById('edit-lotacao')?.value.trim()||'',
     isento:          document.getElementById('edit-isento')?.checked === true,
     foto:            fotoFinal,
   };
