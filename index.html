@@ -490,8 +490,7 @@ if('serviceWorker' in navigator){
 
       <div>
         <div class="box">
-          <div class="box-title">📷 Foto do Membro</div>
-          <div class="wcframe" id="wcframe">
+          <div class="box-title">📷 Foto do Membro *   <div class="wcframe" id="wcframe">
             <video id="video" autoplay playsinline style="display:none"></video>
             <img id="preview" style="display:none">
             <div class="wcph" id="wcph">
@@ -1440,6 +1439,16 @@ async function salvar(){
   const tel=document.getElementById('f-tel').value.trim();
   const nasc=document.getElementById('f-nasc').value;
   if(!nome||!cpf||!tel||!nasc){showA('aerr');return;}
+  if(!photo){
+    alert('❌ Foto obrigatória!\nTire uma foto ou faça upload de uma imagem.');
+    // Scroll até a seção de foto
+    const fotoBtn = document.querySelector('.cam-btn');
+    if(fotoBtn) fotoBtn.scrollIntoView({behavior:'smooth', block:'center'});
+    // Destacar área de foto
+    const prevArea = document.getElementById('preview-area');
+    if(prevArea){ prevArea.style.outline='3px solid #b91c1c'; setTimeout(()=>prevArea.style.outline='',3000); }
+    return;
+  }
   if(!validarCPF(cpf)){
     alert('❌ CPF inválido! Verifique os dígitos.');
     document.getElementById('f-cpf').style.borderColor='#b91c1c';
@@ -1919,6 +1928,11 @@ function saveEdit(){
   localStorage.setItem('members', JSON.stringify(members));
   save(); // sinc JSONBin
   renderList();
+  // Foto: obrigatória se membro não tinha foto e não enviou nova
+  if(!fotoFinal){
+    alert('❌ Foto obrigatória! Adicione uma foto para este membro.');
+    return;
+  }
   registrarHistorico('EDICAO','Editado: '+nome,members[idx].numCred||members[idx].id,nome);
   closeEditDirect();
 
