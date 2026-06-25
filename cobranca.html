@@ -253,10 +253,12 @@ async function init(){
   if(!m){
     try{ const r=await fetch(DB+'?t='+Date.now()); if(r.ok){const d=await r.json();m=d.membros?.find(x=>x.numCred===id);} }catch(e){}
   }
-  // Fallback: localStorage
-  if(!m){
-    try{ const ls=JSON.parse(localStorage.getItem('members')||'[]'); m=ls.find(x=>x.numCred===id); }catch(e){}
-  }
+  // localStorage — prioridade pois tem dados mais recentes
+  try{
+    const ls=JSON.parse(localStorage.getItem('members')||'[]');
+    const lsMembro=ls.find(x=>x.numCred===id);
+    if(lsMembro) m=lsMembro; // sobrescreve com versão mais atual
+  }catch(e){}
   if(!m){ document.getElementById('app').innerHTML='<div class="loading">❌ Membro não encontrado (ID: '+id+')</div>'; return; }
 
   MEMBRO = m;
