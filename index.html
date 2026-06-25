@@ -313,7 +313,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
         <div class="box">
           <div class="box-title">👤 Dados Pessoais</div>
           <div class="field"><label>Nome completo *</label><input type="text" id="f-nome" placeholder="Nome completo"></div>
-          <div class="field"><label>CPF *</label><input type="text" id="f-cpf" placeholder="000.000.000-00" maxlength="14"></div>
+          <div class="field"><label>CPF *</label><input type="text" id="f-cpf" placeholder="000.000.000-00" maxlength="14" oninput="onCpfInput(this)"></div>
           <div class="field-row">
             <div class="field"><label>Data de Nascimento *</label><input type="date" id="f-nasc"></div>
             <div class="field"><label>Sexo</label>
@@ -950,7 +950,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
         <div class="edit-section-title">👤 Dados Pessoais</div>
         <div class="edit-grid">
           <div class="edit-field" style="grid-column:1/-1"><label>Nome Completo *</label><input type="text" id="edit-nome"></div>
-          <div class="edit-field"><label>CPF *</label><input type="text" id="edit-cpf" maxlength="14" placeholder="000.000.000-00"></div>
+          <div class="edit-field"><label>CPF *</label><input type="text" id="edit-cpf" maxlength="14" placeholder="000.000.000-00" oninput="onCpfInput(this)"></div>
           <div class="edit-field"><label>Data de Nascimento</label><input type="date" id="edit-nasc"></div>
           <div class="edit-field"><label>Sexo</label>
             <select id="edit-sexo"><option value="">—</option><option>Masculino</option><option>Feminino</option><option>Outro</option></select>
@@ -1249,6 +1249,15 @@ async function salvar(){
   const tel=document.getElementById('f-tel').value.trim();
   const nasc=document.getElementById('f-nasc').value;
   if(!nome||!cpf||!tel||!nasc){showA('aerr');return;}
+  if(!validarCPF(cpf)){
+    alert('❌ CPF inválido! Verifique os dígitos.');
+    document.getElementById('f-cpf').style.borderColor='#b91c1c';
+    document.getElementById('f-cpf').focus();
+    return;
+  }
+  const _cpfLimpo=cpf.replace(/[^\d]/g,'');
+  const _cpfDupl=members.find(m=>m.cpf&&m.cpf.replace(/[^\d]/g,'')===_cpfLimpo);
+  if(_cpfDupl){ alert('❌ CPF já cadastrado para: '+_cpfDupl.nome); return; }
 
   // Use current localStorage as base (most up to date)
   const localNow = JSON.parse(localStorage.getItem('members')||'[]');
@@ -1600,6 +1609,15 @@ function saveEdit(){
   const nome = document.getElementById('edit-nome').value.trim();
   const cpf  = document.getElementById('edit-cpf').value.trim();
   if(!nome||!cpf){ alert('Nome e CPF são obrigatórios'); return; }
+  if(!validarCPF(cpf)){
+    alert('❌ CPF inválido! Verifique os dígitos.');
+    document.getElementById('edit-cpf').style.borderColor='#b91c1c';
+    document.getElementById('edit-cpf').focus();
+    return;
+  }
+  const _cpfE=cpf.replace(/[^\d]/g,'');
+  const _cpfDE=members.find((m,i)=>i!==idx&&m.cpf&&m.cpf.replace(/[^\d]/g,'')===_cpfE);
+  if(_cpfDE){ alert('❌ CPF já cadastrado para: '+_cpfDE.nome); return; }
 
   // Foto: prioridade — arquivo carregado > URL digitada > manter existente
   const fotoUrl = document.getElementById('edit-foto-url').value.trim();
@@ -2415,7 +2433,38 @@ function removerDataPag(memberId, mes){
   if(m && m.pagDatas) delete m.pagDatas[mes];
 }
 
+
+// ── VALIDAÇÃO E MÁSCARA DE CPF ─────────────────────
+function validarCPF(cpf){
+  cpf = cpf.replace(/[^\d]/g,'');
+  if(cpf.length!==11||/^(\d)\1{10}$/.test(cpf)) return false;
+  let s=0,r,d1,d2;
+  for(let i=0;i<9;i++) s+=parseInt(cpf[i])*(10-i);
+  r=s%11; d1=r<2?0:11-r;
+  if(parseInt(cpf[9])!==d1) return false;
+  s=0;
+  for(let i=0;i<10;i++) s+=parseInt(cpf[i])*(11-i);
+  r=s%11; d2=r<2?0:11-r;
+  return parseInt(cpf[10])===d2;
+}
+function mascaraCPF(v){
+  v=v.replace(/\D/g,'').slice(0,11);
+  if(v.length>9) return v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/,'$1.$2.$3-$4');
+  if(v.length>6) return v.replace(/(\d{3})(\d{3})(\d{1,3})/,'$1.$2.$3');
+  if(v.length>3) return v.replace(/(\d{3})(\d{1,3})/,'$1.$2');
+  return v;
+}
+function onCpfInput(el){
+  el.value=mascaraCPF(el.value);
+  if(el.value.length===14){
+    el.style.borderColor=validarCPF(el.value)?'#1a7a3a':'#b91c1c';
+  } else {
+    el.style.borderColor='';
+  }
+}
+
 // Expor funções globalmente para onclicks em HTML dinâmico
+window.onCpfInput=onCpfInput;
 if(typeof openCred!=="undefined") window.openCred=openCred;
 if(typeof closeMD!=="undefined") window.closeMD=closeMD;
 if(typeof toggleStatus!=="undefined") window.toggleStatus=toggleStatus;
