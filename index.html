@@ -1949,35 +1949,33 @@ async function reloadMembers(){
 async function loadFromCloud(){
   const localData = JSON.parse(localStorage.getItem('members')||'[]');
   let cloudData = [];
-  let dbData = [];
 
-  // 1. Tentar JSONBin
+  // 1. Tentar db.json (GitHub Pages — sempre disponível)
   try{
-    const k1='$2a',k2='$10',k3='$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2';
-    const r=await fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5/latest',{
-      headers:{'X-Master-Key':k1+k2+k3,'X-Bin-Meta':'false'}
-    });
-    if(r.ok){ const data=await r.json(); cloudData=data.membros||[]; }
+    const r2 = await fetch('db.json?t='+Date.now());
+    if(r2.ok){
+      const data2 = await r2.json();
+      cloudData = data2.membros || [];
+    }
   }catch(e){}
 
-  // 2. Tentar db.json do GitHub
-  try{
-    const r2=await fetch('db.json?t='+Date.now());
-    if(r2.ok){ const data2=await r2.json(); dbData=data2.membros||[]; }
-  }catch(e2){}
+  // 2. Se db.json vazio, tentar JSONBin
+  if(cloudData.length === 0){
+    try{
+      const k1='$2a',k2='$10',k3='$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2';
+      const r = await fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5/latest',{
+        headers:{'X-Master-Key':k1+k2+k3,'X-Bin-Meta':'false'}
+      });
+      if(r.ok){ const data=await r.json(); cloudData=data.membros||[]; }
+    }catch(e){}
+  }
 
-  // Usar a fonte com MAIS membros
-  const allSources = [
-    {data: cloudData, name: 'JSONBin'},
-    {data: dbData, name: 'db.json'},
-    {data: localData, name: 'localStorage'}
-  ];
-  allSources.sort((a,b) => b.data.length - a.data.length);
-  const best = allSources[0];
-
-  members = best.data;
-  if(members.length > 0){
+  // Usar cloud se tiver mais membros que local
+  if(cloudData.length >= localData.length && cloudData.length > 0){
+    members = cloudData;
     localStorage.setItem('members', JSON.stringify(members));
+  } else if(localData.length > 0){
+    members = localData;
   }
 
   renderList();
