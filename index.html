@@ -285,15 +285,6 @@ if('serviceWorker' in navigator){
     .catch(err => console.log('SW:', err));
 }
 </script>
-<script>
-window.onerror = function(msg, src, line, col, err){
-  alert('ERRO JS:\n' + msg + '\nLinha: ' + line + '\n' + (err?err.stack:''));
-  return false;
-};
-window.addEventListener('unhandledrejection', function(e){
-  alert('ERRO PROMISE:\n' + e.reason);
-});
-</script>
 </head>
 <body>
 
@@ -1410,51 +1401,33 @@ let _editId = null;
 let _editFotoData = null;
 
 function openEdit(id){
-  try {
   const m = members.find(x=>String(x.id)===String(id)||String(x.numCred)===String(id));
   if(!m) return;
-  _editId = m.id||m.numCred;
+  _editId = m.id;
   _editFotoData = m.foto || null;
-
-  // Preencher campos
-  document.getElementById('edit-nome').value        = m.nome||'';
-  document.getElementById('edit-cpf').value         = m.cpf||'';
-  document.getElementById('edit-nasc').value        = m.nasc||'';
-  document.getElementById('edit-sexo').value        = m.sexo||'';
-  document.getElementById('edit-tel').value         = m.tel||'';
-  document.getElementById('edit-email').value       = m.email||'';
-  document.getElementById('edit-naturalidade').value= m.naturalidade||'';
-  document.getElementById('edit-municipio').value   = m.municipio||'';
-  document.getElementById('edit-pai').value         = m.pai||'';
-  document.getElementById('edit-mae').value         = m.mae||'';
-  document.getElementById('edit-cat').value         = m.cat||'Funcionário';
-  document.getElementById('edit-status').value      = m.status||'Ativo';
-  document.getElementById('edit-emissao').value     = m.emissao||'';
-  document.getElementById('edit-validade').value    = m.validade||'';
-  document.getElementById('edit-numCred').value     = m.numCred||'';
-  const _sf = (id,v) => { const el=document.getElementById(id); if(el) el.value=v||''; };
-  _sf('edit-rua', m.rua);
-  _sf('edit-numero', m.numero);
-  _sf('edit-complemento', m.complemento);
-  _sf('edit-bairro', m.bairro);
-  _sf('edit-cep', m.cep);
-  _sf('edit-cidade', m.cidade);
-  _sf('edit-uf', m.uf);
-  _sf('edit-formacao', m.formacao);
-  _sf('edit-especializacao', m.especializacao);
-  document.getElementById('edit-obs').value         = m.obs||'';
-  document.getElementById('edit-foto-url').value    = '';
-
-  // Preview foto
+  const sf = (fid,v)=>{ const el=document.getElementById(fid); if(el) el.value=v||''; };
+  sf('edit-nome', m.nome);
+  sf('edit-cpf', m.cpf);
+  sf('edit-nasc', m.nasc);
+  sf('edit-sexo', m.sexo);
+  sf('edit-tel', m.tel);
+  sf('edit-email', m.email);
+  sf('edit-naturalidade', m.naturalidade);
+  sf('edit-municipio', m.municipio);
+  sf('edit-pai', m.pai);
+  sf('edit-mae', m.mae);
+  sf('edit-cat', m.cat||'Funcionário');
+  sf('edit-status', m.status||'Ativo');
+  sf('edit-emissao', m.emissao);
+  sf('edit-validade', m.validade);
+  sf('edit-numCred', m.numCred);
+  sf('edit-obs', m.obs);
+  sf('edit-foto-url', '');
   const prev = document.getElementById('edit-foto-preview');
-  prev.innerHTML = m.foto ? `<img src="${m.foto}" alt="">` : '👤';
-
-  document.getElementById('modal-edit').classList.add('open');
-  } catch(err) { alert('ERRO: ' + err.message); }
+  if(prev) prev.innerHTML = m.foto ? `<img src="${m.foto}" alt="">` : '👤';
+  const modal = document.getElementById('modal-edit');
+  if(modal) modal.classList.add('open');
 }
-window.openEdit = openEdit;
-
-
 function closeEdit(e){ if(e.target===document.getElementById('modal-edit')) closeEditDirect(); }
 function closeEditDirect(){ document.getElementById('modal-edit').classList.remove('open'); _editId=null; _editFotoData=null; }
 
@@ -2238,29 +2211,7 @@ const MESES_NOME = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho
 let pagAtualId = null;
 
 
-function togglePag(mes){
-  const m = members.find(x=>x.id===pagAtualId);
-  if(!m) return;
-  if(!m.pagamentos) m.pagamentos = [];
-  const idx = m.pagamentos.indexOf(mes);
-  if(idx >= 0) m.pagamentos.splice(idx, 1);
-  else m.pagamentos.push(mes);
 
-  const pago = m.pagamentos.includes(mes);
-  const btn = document.getElementById('pag-mes-'+mes);
-  btn.style.border = '2px solid '+(pago?'#2a7a38':'#e0e0e0');
-  btn.style.background = pago?'rgba(26,122,58,0.1)':'#f9f9f9';
-  btn.style.color = pago?'#2a7a38':'#666';
-  btn.innerHTML = (pago?'✅':'○')+'<br><span style="font-size:9px">'+MESES_NOME[mes].slice(0,3)+'</span>';
-  updatePagSummary(m.pagamentos);
-}
-
-function updatePagSummary(pagos){
-  const n = pagos.length;
-  document.getElementById('pag-count').textContent = n+'/12';
-  document.getElementById('pag-total').textContent = 'R$ '+(n*100).toLocaleString('pt-BR',{minimumFractionDigits:2});
-  document.getElementById('pag-pend').textContent = 'R$ '+((12-n)*100).toLocaleString('pt-BR',{minimumFractionDigits:2});
-}
 
 function savePag(){
   criarBackup('pagamento-registrado');
@@ -2423,8 +2374,7 @@ if(typeof closeMD!=="undefined") window.closeMD=closeMD;
 if(typeof toggleStatus!=="undefined") window.toggleStatus=toggleStatus;
 if(typeof closeMenus!=="undefined") window.closeMenus=closeMenus;
 if(typeof gerarCobranca!=="undefined") window.gerarCobranca=gerarCobranca;
-if(typeof closePagDirect!=="undefined") window.closePagDirect=closePagDirect;
-if(typeof closeEditDirect!=="undefined") window.closeEditDirect=closeEditDirect;
+
 
 function savePagamentos(){
   if(!pagAtualId) return;
