@@ -1292,8 +1292,9 @@ const ORG_PRE='ASC';
 // LOGIN
 function login(){
   if(document.getElementById('lu').value===LUSER&&document.getElementById('lp').value===LPASS){
-    sessionStorage.setItem('ok','1');
+    localStorage.setItem('ubapff-session','1');
     document.getElementById('login-screen').style.display='none';
+    loadFromCloud();
   } else {
     const e=document.getElementById('lerr');
     e.style.display='block';
@@ -1301,8 +1302,8 @@ function login(){
     setTimeout(()=>e.style.display='none',3000);
   }
 }
-function logout(){sessionStorage.removeItem('ok');location.reload();}
-if(sessionStorage.getItem('ok')==='1') document.getElementById('login-screen').style.display='none';
+function logout(){localStorage.removeItem('ubapff-session');location.reload();}
+if(localStorage.getItem('ubapff-session')==='1') document.getElementById('login-screen').style.display='none';
 
 // STATE
 let members=JSON.parse(localStorage.getItem('members')||'[]');
@@ -2228,6 +2229,8 @@ function clearAll(){if(!confirm('Apagar TODOS?'))return;members=[];save();render
 // Use localStorage first, cloud only if empty
 members = JSON.parse(localStorage.getItem('members') || '[]');
 renderList();
+// Carregar dados da nuvem se logado
+if(localStorage.getItem('ubapff-session')==='1') loadFromCloud();
 // Verificar vencimentos ao carregar (envia ntfy se necessário)
 setTimeout(verificarVencimentos, 3000);
 // ── CONFIG ──────────────────────────────────────────────────────────
