@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Sistema de Credencial</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -28,7 +28,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 .lerr { display:none;background:rgba(185,28,28,0.2);border:1px solid var(--red);color:#fca5a5;border-radius:8px;padding:10px;font-size:13px;margin-bottom:14px; }
 
 /* APP HEADER */
-.app-header { background:var(--navy);border-bottom:4px solid var(--gold); }
+.app-header { background:var(--navy);border-bottom:4px solid var(--gold); width:100%;box-sizing:border-box;}
 .header-inner { display:flex;align-items:center;justify-content:space-between;padding:14px 24px; }
 .hlogo { display:flex;align-items:center;gap:14px; }
 .hemblem { width:50px;height:50px;background:rgba(201,151,42,0.12);border:2px solid rgba(201,151,42,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px; }
@@ -41,7 +41,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 .hbtn:hover { border-color:var(--red);color:#fca5a5; }
 
 /* TABS */
-.tabs { display:flex;background:var(--navy2);padding:0 24px;gap:2px; }
+.tabs { display:flex;background:var(--navy2);padding:0 24px;gap:2px; width:100%;box-sizing:border-box;}
 .tab { padding:12px 22px;cursor:pointer;font-size:12px;font-weight:700;color:rgba(255,255,255,0.35);border-bottom:3px solid transparent;transition:all 0.2s;text-transform:uppercase;letter-spacing:0.5px; }
 .tab:hover { color:rgba(255,255,255,0.7); }
 .tab.active { color:var(--gold);border-bottom-color:var(--gold); }
@@ -226,7 +226,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 
 @media(max-width:660px){
   .form-grid{grid-template-columns:1fr;}
-  .content{padding:16px;}
+  content{padding:12px;}
   .tabs,.header-inner{padding-left:16px;padding-right:16px;}
 }
 
