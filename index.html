@@ -868,10 +868,19 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
         <div style="font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px">Controle de Pagamentos</div>
         <div style="font-size:16px;font-weight:800;color:#fff" id="pag-nome">—</div>
       </div>
-      <button onclick="closePagDirect()" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:20px;cursor:pointer">✕</button>
+      <div style="display:flex;align-items:center;gap:12px">
+        <label id="pag-isento-label" style="display:flex;align-items:center;gap:6px;cursor:pointer;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:6px 12px" title="Marcar como isento">
+          <input type="checkbox" id="pag-isento-check" onchange="toggleIsento(this.checked)" style="width:16px;height:16px;cursor:pointer;accent-color:#c9972a">
+          <span style="font-size:11px;font-weight:700;color:#fff">ISENTO</span>
+        </label>
+        <button type="button" id="btn-close-pag" onclick="closePagDirect()" style="background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.4);color:#fff;font-size:20px;cursor:pointer;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:100;position:relative;touch-action:manipulation">×</button>
+      </div>
     </div>
     <div style="padding:20px 24px">
-      <div style="font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px">
+      <div id="pag-isento-banner" style="display:none;background:rgba(201,151,42,0.1);border:1px solid rgba(201,151,42,0.4);border-radius:8px;padding:10px 14px;margin-bottom:14px;text-align:center;color:#8a6500;font-size:13px;font-weight:700">
+        🔓 Membro isento — pagamentos bloqueados
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px" id="pag-selecione-label">
         Selecione os meses pagos:
       </div>
       <div id="pag-meses" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px"></div>
@@ -990,6 +999,13 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
           <div class="edit-field"><label>Status</label>
             <select id="edit-status"><option value="Ativo">Ativo</option><option value="Inativo">Inativo</option></select>
           </div>
+          <div class="edit-field" style="grid-column:1/-1">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;font-weight:700;color:var(--navy)">
+              <input type="checkbox" id="edit-isento" style="width:18px;height:18px;cursor:pointer;accent-color:#c9972a">
+              <span>Membro Isento de Pagamento</span>
+              <span style="font-size:11px;font-weight:400;color:#888">— não entra na contabilidade</span>
+            </label>
+          </div>
           <div class="edit-field"><label>Emissão</label><input type="date" id="edit-emissao"></div>
           <div class="edit-field"><label>Validade</label><input type="date" id="edit-validade"></div>
           <div class="edit-field"><label>Matrícula</label><input type="text" id="edit-numCred" readonly style="opacity:.6;cursor:not-allowed" title="Matrícula gerada automaticamente"></div>
@@ -1049,12 +1065,20 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
       </div>
     </div>
 
-    <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden">
+    <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:24px">
       <div style="background:#b91c1c;padding:14px 20px;display:flex;align-items:center;gap:10px">
         <span style="font-size:16px">⚠️</span>
         <span style="font-size:14px;font-weight:700;color:#fff;letter-spacing:1px">INADIMPLENTES</span>
       </div>
       <div id="cont-inadimplentes" style="padding:4px 0"></div>
+    </div>
+
+    <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden">
+      <div style="background:#8a6500;padding:14px 20px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:16px">🔓</span>
+        <span style="font-size:14px;font-weight:700;color:#fff;letter-spacing:1px">MEMBROS ISENTOS</span>
+      </div>
+      <div id="cont-isentos" style="padding:4px 0"></div>
     </div>
 
   </div>
@@ -1288,25 +1312,55 @@ function openPag(id){
   pagAtualId = id;
   document.getElementById('pag-nome').textContent = m.nome;
   const pagos = m.pagamentos || [];
-  const ano = new Date().getFullYear();
+  const isIsento = m.isento === true;
 
-  let html = '';
-  MESES_NOME.forEach((mes, i) => {
-    const pago = pagos.includes(i);
-    html += `<button onclick="togglePag(${i})" id="pag-mes-${i}" style="
-      padding:10px 6px; border-radius:8px; border:2px solid ${pago?'#2a7a38':'#e0e0e0'};
-      background:${pago?'rgba(26,122,58,0.1)':'#f9f9f9'}; color:${pago?'#2a7a38':'#666'};
-      font-size:11px; font-weight:700; cursor:pointer; transition:all 0.2s; text-align:center;
-    ">${pago?'✅':'○'}<br><span style="font-size:9px">${mes.slice(0,3)}</span></button>`;
-  });
+  // Marcar checkbox de isento
+  const isentoCheck = document.getElementById('pag-isento-check');
+  if(isentoCheck) isentoCheck.checked = isIsento;
 
-  document.getElementById('pag-meses').innerHTML = html;
-  updatePagSummary(pagos);
+  renderMesesPag(pagos, isIsento);
+  updatePagSummary(pagos, isIsento);
   var mpag=document.getElementById('modal-pag');
   if(mpag){ mpag.style.display='flex'; mpag.classList.add('open'); }
 }
+
+function renderMesesPag(pagos, isIsento){
+  let html = '';
+  MESES_NOME.forEach((mes, i) => {
+    const pago = pagos.includes(i);
+    if(isIsento){
+      html += `<button disabled id="pag-mes-${i}" style="
+        padding:10px 6px; border-radius:8px; border:2px solid #e0e0e0;
+        background:#f5f5f5; color:#bbb;
+        font-size:11px; font-weight:700; cursor:not-allowed; text-align:center; opacity:0.6;
+      ">🔒<br><span style="font-size:9px">${mes.slice(0,3)}</span></button>`;
+    } else {
+      html += `<button onclick="togglePag(${i})" id="pag-mes-${i}" style="
+        padding:10px 6px; border-radius:8px; border:2px solid ${pago?'#2a7a38':'#e0e0e0'};
+        background:${pago?'rgba(26,122,58,0.1)':'#f9f9f9'}; color:${pago?'#2a7a38':'#666'};
+        font-size:11px; font-weight:700; cursor:pointer; transition:all 0.2s; text-align:center;
+      ">${pago?'✅':'○'}<br><span style="font-size:9px">${mes.slice(0,3)}</span></button>`;
+    }
+  });
+  document.getElementById('pag-meses').innerHTML = html;
+  const banner = document.getElementById('pag-isento-banner');
+  const label  = document.getElementById('pag-selecione-label');
+  if(banner) banner.style.display = isIsento ? 'block' : 'none';
+  if(label)  label.style.display  = isIsento ? 'none'  : 'block';
+}
 window.openPag = openPag;
 
+
+function toggleIsento(checked){
+  const m = members.find(x=>String(x.id)===String(pagAtualId)||String(x.numCred)===String(pagAtualId));
+  if(!m) return;
+  m.isento = checked;
+  const pagos = m.pagamentos || [];
+  renderMesesPag(pagos, checked);
+  updatePagSummary(pagos, checked);
+  save();
+  renderList(); // atualizar badge no card
+}
 
 function togglePag(mes){
   const m = members.find(x=>String(x.id)===String(pagAtualId)||String(x.numCred)===String(pagAtualId));
@@ -1325,11 +1379,18 @@ function togglePag(mes){
   updatePagSummary(m.pagamentos);
 }
 
-function updatePagSummary(pagos){
-  const n = pagos.length;
+function updatePagSummary(pagos, isIsento){
+  if(isIsento){
+    document.getElementById('pag-count').textContent = 'ISENTO';
+    document.getElementById('pag-total').textContent = '—';
+    document.getElementById('pag-pend').textContent  = '—';
+    return;
+  }
+  const valorMes = parseFloat((cfg&&cfg.valorMensalidade)||'100');
+  const n = (pagos||[]).length;
   document.getElementById('pag-count').textContent = n+'/12';
-  document.getElementById('pag-total').textContent = 'R$ '+(n*100).toLocaleString('pt-BR',{minimumFractionDigits:2});
-  document.getElementById('pag-pend').textContent = 'R$ '+((12-n)*100).toLocaleString('pt-BR',{minimumFractionDigits:2});
+  document.getElementById('pag-total').textContent = 'R$ '+(n*valorMes).toLocaleString('pt-BR',{minimumFractionDigits:2});
+  document.getElementById('pag-pend').textContent  = 'R$ '+((12-n)*valorMes).toLocaleString('pt-BR',{minimumFractionDigits:2});
 }
 
 function savePag(){
@@ -1410,6 +1471,7 @@ function renderList(){
         <div class="mcard-name">${m.nome}</div>
         <div class="mcard-cat">${m.cat} · ${m.numCred}</div>
         <div class="mcard-status ${m.status==='Ativo'?'ativo':'inativo'}">● ${m.status==='Ativo'?'Credencial Ativa':'Credencial Inativa'}</div>
+        ${m.isento?'<div style="display:inline-flex;align-items:center;gap:4px;background:rgba(201,151,42,0.12);color:#8a6500;border:1px solid rgba(201,151,42,0.4);padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;margin-top:4px">🔓 ISENTO</div>':''}
         <div style="display:flex;gap:8px;align-items:center">
           <button class="mcard-btn mcard-btn-cred" onclick="openCred(${m.id})" style="flex:1;padding:8px">🪪 Ver Credencial</button>
           <div style="position:relative;overflow:visible" id="menu-wrap-${m.id}">
@@ -1486,6 +1548,10 @@ function openEdit(id){
   sf('edit-foto-url', '');
   var prev=document.getElementById('edit-foto-preview');
   if(prev) prev.innerHTML=m.foto?'<img src="'+m.foto+'" alt="">':'👤';
+  // Carregar isento
+  var _isentoEl=document.getElementById('edit-isento');
+  if(_isentoEl) _isentoEl.checked = m.isento===true;
+
   var modal=document.getElementById('modal-edit');
   if(modal){ modal.style.display='flex'; modal.style.alignItems='flex-start'; modal.style.justifyContent='center'; }
 }
@@ -1535,6 +1601,7 @@ function saveEdit(){
     hash:     members[idx].hash,
     dataCad:  members[idx].dataCad,
     pagamentos: members[idx].pagamentos||[],
+    pagDatas: members[idx].pagDatas||{},
     qrUrl:    members[idx].qrUrl,
   };
 
@@ -1563,6 +1630,7 @@ function saveEdit(){
     formacao:        document.getElementById('edit-formacao').value.trim(),
     especializacao:  document.getElementById('edit-especializacao').value.trim(),
     obs:             document.getElementById('edit-obs').value.trim(),
+    isento:          document.getElementById('edit-isento')?.checked === true,
     foto:            fotoFinal,
   };
 
@@ -2187,10 +2255,13 @@ function brl(v){ return 'R$ '+Number(v).toFixed(2).replace('.',','); }
 
 function renderContabil(){
   const valorMes = parseFloat((cfg&&cfg.valorMensalidade)||'100');
-  const totalMembros = members.length;
+  const totalMembros = membrosAtivos.length;
   const mesAtual = new Date().getMonth();
 
-  const dadosMembros = members.map(m => {
+  const membrosAtivos   = members.filter(m => m.isento !== true);
+  const membrosIsentos  = members.filter(m => m.isento === true);
+
+  const dadosMembros = membrosAtivos.map(m => {
     const pag = m.pagamentos || [];
     const mesesPagos = pag.filter(p => typeof p === 'number');
     const totalPago = mesesPagos.length * valorMes;
@@ -2267,6 +2338,26 @@ function renderContabil(){
       <th style="padding:10px 8px;text-align:right;font-size:11px;color:#888;font-weight:700;text-transform:uppercase">Em Aberto</th>
       <th style="padding:10px 14px;text-align:center;font-size:11px;color:#888;font-weight:700;text-transform:uppercase">Situação</th>
     </tr></thead><tbody>${rows}</tbody>`;
+
+  // ISENTOS
+  const isentoEl = document.getElementById('cont-isentos');
+  if(isentoEl){
+    if(membrosIsentos.length === 0){
+      isentoEl.innerHTML = '<div style="padding:20px;text-align:center;color:#888;font-size:13px">Nenhum membro isento cadastrado.</div>';
+    } else {
+      isentoEl.innerHTML = membrosIsentos.map((m,i)=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid #f3f4f6;background:${i%2===0?'#fff':'#fafafa'}">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy)">${m.nome}</div>
+            <div style="font-size:11px;color:#888;margin-top:2px">${m.numCred} · ${m.cat||'—'}</div>
+          </div>
+          <span style="background:rgba(201,151,42,0.12);color:#8a6500;border:1px solid rgba(201,151,42,0.4);padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700">🔓 ISENTO</span>
+        </div>`).join('') +
+        `<div style="padding:12px 20px;background:#f9f5e7;border-top:1px solid #e8d89a;font-size:12px;color:#8a6500;font-weight:600">
+          Total de isentos: ${membrosIsentos.length} membro${membrosIsentos.length!==1?'s':''}
+        </div>`;
+    }
+  }
 
   // INADIMPLENTES
   const inadList = dadosMembros.filter(d=>d.mesesEmAtraso.length>0)
