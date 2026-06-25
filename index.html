@@ -1448,8 +1448,9 @@ let _editId = null;
 let _editFotoData = null;
 
 function openEdit(id){
+  if(!members || members.length===0){ alert('⚠️ Lista de membros vazia!'); return; }
   const m = members.find(x=>String(x.id)===String(id)||String(x.numCred)===String(id));
-  if(!m) return;
+  if(!m){ alert('⚠️ Membro não encontrado: ' + id + '\nMembros: ' + members.map(x=>x.numCred).join(',')); return; }
   _editId = m.id;
   _editFotoData = m.foto || null;
   const sf = (fid,v)=>{ const el=document.getElementById(fid); if(el) el.value=v||''; };
