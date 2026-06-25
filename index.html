@@ -268,7 +268,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 <div class="app-header">
   <div class="header-inner">
     <div class="hlogo">
-      <div class="hemblem">🏛️</div>
+      <div class="hemblem"><img src="https://prdlcsmrr.github.io/Associa-o-/logo.png" style="width:44px;height:44px;object-fit:contain;"></div>
       <div class="htitles">
         <div class="horg">Sistema Oficial</div>
         <div class="hname">A.A.F.F - UBAPFF</div>
@@ -551,14 +551,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
           <label>Subtítulo</label>
           <input type="text" id="cfg-sub" placeholder="Ex: Sistema de Verificação de Credencial">
         </div>
-        <div class="field">
-          <label>Logo (upload)</label>
-          <input type="file" id="cfg-logo" accept="image/*" onchange="previewLogo(this)" style="background:#fff;padding:8px">
-          <div id="logo-preview" style="margin-top:10px;display:none;align-items:center;gap:10px">
-            <img id="logo-img" style="height:56px;border-radius:8px;border:1px solid #ddd">
-            <button onclick="removeLogo()" style="background:#fee2e2;border:none;border-radius:6px;padding:6px 12px;color:#b91c1c;cursor:pointer;font-size:12px;font-weight:700">✕ Remover</button>
-          </div>
-        </div>
+
       </div>
 
       <!-- Cores -->
@@ -1851,7 +1844,6 @@ function loadConfig(){
     loginUser:     'admin',
     valorMensalidade: '100',
     diaVencimento: '10',
-    logo: 'https://prdlcsmrr.github.io/Associa-o-/logo.png',
   };
   cfg = Object.assign({}, _cfgDefaults, _cfgSaved ? JSON.parse(_cfgSaved) : {});
   if(cfg.cor1){ document.documentElement.style.setProperty('--navy', cfg.cor1); document.documentElement.style.setProperty('--navy2', shadeColor(cfg.cor1,-20)); }
@@ -1861,11 +1853,10 @@ function loadConfig(){
   if(cfg.fonte) document.body.style.fontFamily = cfg.fonte;
   if(cfg.nomeAssoc) document.querySelectorAll('.hname').forEach(e=>e.textContent=cfg.nomeAssoc);
   if(cfg.subAssoc) document.querySelectorAll('.hsub').forEach(e=>e.textContent=cfg.subAssoc);
-  if(cfg.logo){
-    document.querySelectorAll('.hemblem').forEach(e=>{
-      e.innerHTML='<img src="'+cfg.logo+'" style="width:40px;height:40px;object-fit:contain;border-radius:50%">';
-    });
-  }
+  // Logo fixa — marca do sistema
+  document.querySelectorAll('.hemblem').forEach(e=>{
+    e.innerHTML='<img src="https://prdlcsmrr.github.io/Associa-o-/logo.png" style="width:44px;height:44px;object-fit:contain;">';
+  });
 }
 
 // Aplicar config ao carregar a página
@@ -1911,7 +1902,6 @@ function goToConfig(){
     loginUser:     'admin',
     valorMensalidade: '100',
     diaVencimento: '10',
-    logo: 'https://prdlcsmrr.github.io/Associa-o-/logo.png',
   };
   cfg = Object.assign({}, _cfgDefaults, _cfgSaved ? JSON.parse(_cfgSaved) : {});
   document.getElementById('cfg-nome').value = cfg.nomeAssoc || 'A.A.F.F - UBAPFF';
@@ -1967,11 +1957,7 @@ function goToConfig(){
     const el=document.getElementById('cfg-ver-'+f);
     if(el) el.checked = cfg['ver_'+f]!==false;
   });
-  if(cfg.logo){
-    document.getElementById('logo-preview').style.display='flex';
-    document.getElementById('logo-img').src=cfg.logo;
-    document.getElementById('prev-emblem').innerHTML='<img src="'+cfg.logo+'" style="width:40px;height:40px;object-fit:contain;border-radius:50%">';
-  }
+
   livePreview();
 }
 
@@ -1999,24 +1985,9 @@ function applyTheme(c1,c2){
   livePreview();
 }
 
-function previewLogo(input){
-  if(!input.files||!input.files[0])return;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    document.getElementById('logo-img').src=e.target.result;
-    document.getElementById('logo-preview').style.display='flex';
-    document.getElementById('prev-emblem').innerHTML='<img src="'+e.target.result+'" style="width:40px;height:40px;object-fit:contain;border-radius:50%">';
-  };
-  reader.readAsDataURL(input.files[0]);
-}
 
-function removeLogo(){
-  document.getElementById('logo-preview').style.display='none';
-  document.getElementById('logo-img').src='';
-  document.getElementById('cfg-logo').value='';
-  document.getElementById('prev-emblem').innerHTML='🏛️';
-  cfg.logo=null;
-}
+
+
 
 function previewFonte(fonte){
   const el=document.getElementById('fonte-preview');
@@ -2037,9 +2008,7 @@ function saveConfig(){
     if(passNova.length<4){alert('❌ Senha deve ter pelo menos 4 caracteres.');return;}
   }
 
-  const logoEl=document.getElementById('logo-img');
-  const logoPreview=document.getElementById('logo-preview');
-  const logo=(logoEl&&logoEl.src&&logoPreview&&logoPreview.style.display!=='none')?logoEl.src:(cfg.logo||null);
+
 
   cfg={
     nomeAssoc:document.getElementById('cfg-nome').value.trim()||'A.A.F.F - UBAPFF',
@@ -2063,7 +2032,6 @@ function saveConfig(){
     pixTipo:document.getElementById('cfg-pix-tipo').value,
     pixChave:document.getElementById('cfg-pix-chave').value.trim(),
     pixFavorecido:document.getElementById('cfg-pix-favorecido').value.trim(),
-    logo:logo,
     // Dados da Associação
     assocNome:document.getElementById('cfg-assoc-nome').value.trim(),
     assocCnpj:document.getElementById('cfg-assoc-cnpj').value.trim(),
