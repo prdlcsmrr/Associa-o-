@@ -2080,6 +2080,7 @@ function resetConfig(){
 
 // Update goTab to load config values when switching to config
 function menuEditarMembro(numCred){
+  alert('menuEditarMembro: '+numCred);
   closeMenus();
   setTimeout(function(){ openEdit(numCred); }, 100);
 }
