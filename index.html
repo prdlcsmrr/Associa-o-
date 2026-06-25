@@ -2039,6 +2039,7 @@ async function reloadMembers(){
 
   updateCount();
   renderList();
+  setTimeout(verificarVencimentos, 1000);
   if(btn){ btn.textContent='✅'; setTimeout(()=>{btn.textContent='🔄';btn.disabled=false;},1500); }
 }
 
@@ -2151,6 +2152,8 @@ function clearAll(){if(!confirm('Apagar TODOS?'))return;members=[];save();render
 // Use localStorage first, cloud only if empty
 members = JSON.parse(localStorage.getItem('members') || '[]');
 renderList();
+// Verificar vencimentos ao carregar (envia ntfy se necessário)
+setTimeout(verificarVencimentos, 3000);
 // ── CONFIG ──────────────────────────────────────────────────────────
 let cfg = JSON.parse(localStorage.getItem('assoc-config') || '{}');
 
@@ -2828,9 +2831,87 @@ function formatarData(dataStr){
   return `${d}/${m}/${y}`;
 }
 
+
+// ══════════════════════════════════════════
+// NOTIFICAÇÕES DE VENCIMENTO — ntfy.sh
+// ══════════════════════════════════════════
+const _CANAL_VENC = 'ubapff-signumor-erros-2026';
+
+function verificarVencimentos(){
+  if(!members || members.length === 0) return;
+
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const alertas = [];
+
+  members.forEach(m => {
+    if(!m.validade || m.status !== 'Ativo') return;
+    const val = new Date(m.validade + 'T00:00:00');
+    if(isNaN(val.getTime())) return;
+    const diffDias = Math.ceil((val - hoje) / 86400000);
+
+    if(diffDias < 0){
+      alertas.push({ nome: m.nome, numCred: m.numCred, diffDias, tipo: 'VENCIDA' });
+    } else if(diffDias <= 30){
+      alertas.push({ nome: m.nome, numCred: m.numCred, diffDias, tipo: 'PROXIMA' });
+    }
+  });
+
+  if(alertas.length === 0) return;
+
+  // Verificar se já notificamos hoje (evitar spam)
+  const hoje_str = hoje.toISOString().slice(0,10);
+  const ultimaVerif = localStorage.getItem('ubapff-venc-notif-data');
+  if(ultimaVerif === hoje_str) return;
+
+  // Montar mensagem
+  const vencidas = alertas.filter(a => a.tipo === 'VENCIDA');
+  const proximas = alertas.filter(a => a.tipo === 'PROXIMA');
+
+  let corpo = 'Verificacao diaria de credenciais UBAPFF\n\n';
+
+  if(vencidas.length > 0){
+    corpo += 'VENCIDAS (' + vencidas.length + '):\n';
+    vencidas.forEach(a => {
+      corpo += '- ' + a.nome + ' (' + a.numCred + ') — ' + Math.abs(a.diffDias) + ' dia(s) vencida\n';
+    });
+    corpo += '\n';
+  }
+
+  if(proximas.length > 0){
+    corpo += 'VENCENDO EM BREVE (' + proximas.length + '):\n';
+    proximas.forEach(a => {
+      corpo += '- ' + a.nome + ' (' + a.numCred + ') — vence em ' + a.diffDias + ' dia(s)\n';
+    });
+  }
+
+  const titulo = vencidas.length > 0
+    ? 'Credenciais vencidas: ' + vencidas.length + ' membro(s)'
+    : 'Credenciais vencendo: ' + proximas.length + ' membro(s)';
+
+  const prioridade = vencidas.length > 0 ? 'high' : 'default';
+  const tags = vencidas.length > 0 ? 'rotating_light' : 'warning';
+
+  // Enviar notificação
+  try {
+    fetch('https://ntfy.sh/' + _CANAL_VENC, {
+      method: 'POST',
+      headers: {
+        'Title': titulo,
+        'Priority': prioridade,
+        'Tags': tags
+      },
+      body: corpo
+    }).catch(function(){});
+  } catch(e){}
+
+  // Marcar como notificado hoje
+  localStorage.setItem('ubapff-venc-notif-data', hoje_str);
+}
+
 // Expor funções globalmente para onclicks em HTML dinâmico
 window.onCpfInput=onCpfInput;
 window.abrirModalSaida=abrirModalSaida;
+window.verificarVencimentos=verificarVencimentos;
 window.excluirSaida=excluirSaida;
 window.salvarSaida=salvarSaida;
 window.fecharModalSaidaDirect=fecharModalSaidaDirect;
