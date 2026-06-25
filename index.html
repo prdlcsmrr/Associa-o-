@@ -1284,6 +1284,7 @@ let _editFotoData = null;
 
 function openEdit(id){
   const m = members.find(function(x){ return String(x.id)===String(id)||String(x.numCred)===String(id); });
+  alert('openEdit: id='+id+' achou='+(!!m)+' membros='+members.length);
   if(!m) return;
   _editId = m.id;
   _editFotoData = m.foto || null;
