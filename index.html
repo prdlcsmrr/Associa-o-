@@ -1817,6 +1817,7 @@ function clearAll(){if(!confirm('Apagar TODOS?'))return;members=[];save();render
 // INIT
 // Use localStorage first, cloud only if empty
 members = JSON.parse(localStorage.getItem('members') || '[]');
+renderList();
 // ── CONFIG ──────────────────────────────────────────────────────────
 let cfg = JSON.parse(localStorage.getItem('assoc-config') || '{}');
 
@@ -1866,6 +1867,9 @@ function loadConfig(){
     });
   }
 }
+
+// Aplicar config ao carregar a página
+loadConfig();
 
 function shadeColor(color, percent){
   try{
