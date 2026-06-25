@@ -47,7 +47,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 .tab.active { color:var(--gold);border-bottom-color:var(--gold); }
 
 /* CONTENT */
-.content { padding:24px;max-width:1100px;margin:0 auto; }
+.content { padding:16px;max-width:1100px;margin:0 auto;overflow-y:auto; }
 .page { display:none; }
 .page.active { display:block; }
 
@@ -96,7 +96,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 .search-row input:focus { border-color:var(--navy); }
 .badge { background:#fff;border:1px solid var(--border);padding:10px 16px;border-radius:8px;font-size:13px;color:var(--muted);white-space:nowrap; }
 .badge strong { color:var(--navy); }
-.mgrid { display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px; }
+.mgrid { display:grid;grid-template-columns:1fr;gap:14px; }
 .mcard { background:#fff;border:1px solid var(--border);border-radius:12px;overflow:visible;transition:all 0.2s; }
 .mcard:hover { border-color:var(--navy);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.08); }
 .mcard-photo { width:100%;aspect-ratio:1;background:#f3f4f6;display:flex;align-items:center;justify-content:center;overflow:hidden; }
