@@ -996,6 +996,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
               <option value="Colaborador">Colaborador</option>
             </select>
           </div>
+          <div class="edit-field"><label>Matrícula Funcional</label><input type="text" id="edit-numcred" placeholder="Ex: 1234567"></div>
           <div class="edit-field"><label>Status</label>
             <select id="edit-status"><option value="Ativo">Ativo</option><option value="Inativo">Inativo</option></select>
           </div>
@@ -1539,6 +1540,7 @@ function openEdit(id){
   sf('edit-cep', m.cep);
   sf('edit-cidade', m.cidade);
   sf('edit-uf', m.uf);
+  sf('edit-numcred', m.numCred||'');
   sf('edit-cat', m.cat||'Funcionário');
   sf('edit-status', m.status||'Ativo');
   sf('edit-emissao', m.emissao);
