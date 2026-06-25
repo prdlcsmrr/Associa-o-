@@ -1742,7 +1742,8 @@ async function syncToCloud(){
     });
     if(si){si.textContent='\u2705 Sincronizado!';setTimeout(()=>si.style.display='none',2500);}
   }catch(e){
-    if(si){si.textContent='\u26a0\ufe0f Erro ao sincronizar';setTimeout(()=>si.style.display='none',3000);}
+    if(si){ si.style.display='none'; } // falha silenciosa — dados salvos no localStorage
+    console.warn('JSONBin sync falhou:', e.message);
   }
 }
 
