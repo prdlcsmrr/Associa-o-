@@ -1316,7 +1316,9 @@ function openEdit(id){
   var prev=document.getElementById('edit-foto-preview');
   if(prev) prev.innerHTML=m.foto?'<img src="'+m.foto+'" alt="">':'👤';
   var modal=document.getElementById('modal-edit');
+  alert('modal existe: '+(!!modal)+' display antes: '+(modal?modal.style.display:'N/A'));
   if(modal){ modal.style.display='flex'; modal.style.alignItems='flex-start'; modal.style.justifyContent='center'; }
+  alert('display depois: '+(modal?modal.style.display:'N/A'));
 }
 
 function closeEdit(e){ if(e.target===document.getElementById('modal-edit')) closeEditDirect(); }
