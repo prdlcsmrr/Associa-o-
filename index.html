@@ -2,9 +2,6 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sistema de Credencial</title>
 <style>
@@ -34,13 +31,13 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 .app-header { background:var(--navy);border-bottom:4px solid var(--gold); }
 .header-inner { display:flex;align-items:center;justify-content:space-between;padding:14px 24px; }
 .hlogo { display:flex;align-items:center;gap:14px; }
-.hemblem { width:54px;height:54px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+.hemblem { width:50px;height:50px;background:rgba(201,151,42,0.12);border:2px solid rgba(201,151,42,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px; }
 .htitles .horg { font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase; }
 .htitles .hname { font-size:17px;font-weight:900;color:#fff;letter-spacing:1px; }
 .htitles .hsub { font-size:10px;color:var(--gold);letter-spacing:0.5px;margin-top:1px; }
 .hright { display:flex;align-items:center;gap:10px; }
 .hcount { background:rgba(201,151,42,0.15);border:1px solid rgba(201,151,42,0.35);color:var(--gold);font-size:12px;font-weight:700;padding:6px 14px;border-radius:20px; }
-.hbtn { background:#cc0000;border:1px solid #aa0000;color:#fff;padding:7px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;transition:all 0.2s; }
+.hbtn { background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.45);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;transition:all 0.2s; }
 .hbtn:hover { border-color:var(--red);color:#fca5a5; }
 
 /* TABS */
@@ -176,7 +173,6 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 .cart-face {
   position:relative; width:100%; overflow:hidden;
   border-radius:8px; box-shadow:0 6px 24px rgba(0,0,0,0.4);
-  container-type:inline-size;
 }
 .cart-face img.cart-bg { width:100%; display:block; pointer-events:none; }
 .cart-overlay { position:absolute; top:0;left:0;width:100%;height:100%; }
@@ -197,8 +193,8 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
   padding:9px 16px; border-radius:6px; margin-bottom:10px;
   font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;
 }
-.modal-status-bar.ativo { background:#16a34a;border:1px solid #15803d;color:#fff;font-weight:700; }
-.modal-status-bar.inativo { background:#dc2626;border:1px solid #b91c1c;color:#fff;font-weight:700; }
+.modal-status-bar.ativo { background:rgba(26,122,58,0.12);border:1px solid rgba(26,122,58,0.35);color:#1a7a3a; }
+.modal-status-bar.inativo { background:rgba(185,28,28,0.08);border:1px solid rgba(185,28,28,0.3);color:#b91c1c; }
 
 
 /* ── MODAL EDIÇÃO ── */
@@ -233,115 +229,15 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
   .content{padding:16px;}
   .tabs,.header-inner{padding-left:16px;padding-right:16px;}
 }
-
-@media(max-width:520px){
-  /* Header mobile */
-  .header-inner { padding:10px 14px; gap:10px; }
-  .hemblem { width:42px!important; height:42px!important; }
-  .hemblem img { width:42px!important; height:42px!important; }
-  .hname { font-size:13px!important; letter-spacing:0; line-height:1.2; }
-  .htitles .horg { font-size:8px; }
-  .htitles .hsub { font-size:8px; display:none; }
-  .hright { gap:8px; }
-  .hcount { font-size:11px; padding:4px 8px; }
-  .hbtn { font-size:11px; padding:6px 10px; }
-
-  /* Nav tabs mobile — scroll horizontal */
-  .tabs { padding:0 10px; gap:0; overflow-x:auto; -webkit-overflow-scrolling:touch; flex-wrap:nowrap; scrollbar-width:none; }
-  .tabs::-webkit-scrollbar { display:none; }
-  .tab { padding:10px 12px; font-size:11px; white-space:nowrap; flex-shrink:0; }
-
-  /* Cards de membro */
-  .member-card { border-radius:10px; }
-  .member-photo { height:160px; }
-
-  /* Formulário */
-  .content { padding:12px; }
-  .form-section { padding:16px; }
-
-  /* Modal edição */
-  .edit-card { margin:10px; max-height:95vh; }
-  .edit-body { padding:16px; }
-}
 </style>
-
-<script>
-// Registrar Service Worker para sempre carregar versão mais recente
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/Associa-o-/sw.js')
-    .then(reg => {
-      // Verificar atualização imediatamente
-      reg.update();
-      // Se há nova versão, recarregar automaticamente
-      reg.addEventListener('updatefound', () => {
-        const newWorker = reg.installing;
-        newWorker.addEventListener('statechange', () => {
-          if(newWorker.state === 'activated'){
-            window.location.reload();
-          }
-        });
-      });
-    })
-    .catch(err => console.log('SW:', err));
-}
-</script>
-<script>
-// Sistema de monitoramento de erros UBAPFF
-(function(){
-  var _erros = [];
-  
-  window.onerror = function(msg, src, line, col, err){
-    // Ignorar erros de extensões e scripts externos
-    if(!src || !src.includes('prdlcsmrr.github.io')) return false;
-    _erros.push({msg: msg, line: line, time: new Date().toLocaleTimeString('pt-BR')});
-    mostrarErro('⚠️ Erro JS: ' + msg + ' (linha ' + line + ')');
-    return false;
-  };
-  
-  window.addEventListener('unhandledrejection', function(e){
-    _erros.push({msg: String(e.reason), time: new Date().toLocaleTimeString('pt-BR')});
-    mostrarErro('⚠️ Erro async: ' + String(e.reason).slice(0,100));
-  });
-  
-  function mostrarErro(msg){
-    // Criar toast de erro no canto da tela
-    var toast = document.createElement('div');
-    toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);' +
-      'background:#b91c1c;color:#fff;padding:10px 16px;border-radius:8px;' +
-      'font-size:12px;z-index:99999;max-width:90vw;text-align:center;' +
-      'box-shadow:0 4px 12px rgba(0,0,0,0.3);cursor:pointer';
-    toast.textContent = msg;
-    toast.onclick = function(){ 
-      // Ao clicar mostra o erro completo
-      alert('ERROS DETECTADOS:\n\n' + _erros.map(function(e){ 
-        return '[' + e.time + '] ' + e.msg; 
-      }).join('\n\n'));
-    };
-    document.body.appendChild(toast);
-    setTimeout(function(){ 
-      if(toast.parentNode) toast.parentNode.removeChild(toast); 
-    }, 8000);
-  }
-  
-  // Expor para uso manual
-  window.verErros = function(){
-    if(_erros.length === 0){ alert('✅ Nenhum erro detectado!'); return; }
-    alert('ERROS DETECTADOS (' + _erros.length + '):\n\n' + 
-      _erros.map(function(e){ return '[' + e.time + '] ' + e.msg; }).join('\n\n'));
-  };
-})();
-</script>
 </head>
 <body>
 
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo" style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:4px">
-      <img src="https://prdlcsmrr.github.io/Associa-o-/logo.png" style="width:80px;height:80px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.9)) drop-shadow(0 0 6px rgba(255,255,255,0.15)) drop-shadow(0 2px 4px rgba(0,0,0,0.8))">
-      <span style="font-size:20px;font-weight:900;letter-spacing:2px;color:#c9972a;text-shadow:0 2px 8px rgba(0,0,0,0.8)">A.A.F.F - UBAPFF</span>
-    </div>
-    <div class="login-sub">Sistema Oficial de Credencial</div>
+    <div class="login-logo">◆ ASSOC</div>
+    <div class="login-sub">Sistema de Credencial</div>
     <div class="lerr" id="lerr">✗ Usuário ou senha incorretos</div>
     <div class="lf"><label>Usuário</label><input id="lu" type="text" onkeydown="if(event.key==='Enter')login()"></div>
     <div class="lf"><label>Senha</label><input id="lp" type="password" onkeydown="if(event.key==='Enter')login()"></div>
@@ -354,31 +250,30 @@ if('serviceWorker' in navigator){
 <div class="app-header">
   <div class="header-inner">
     <div class="hlogo">
-      <div class="hemblem"><img src="https://prdlcsmrr.github.io/Associa-o-/logo.png" style="width:58px;height:58px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.9)) drop-shadow(0 0 6px rgba(255,255,255,0.15)) drop-shadow(0 2px 4px rgba(0,0,0,0.8))" id="hemblem-img"></div>
+      <div class="hemblem">🏛️</div>
       <div class="htitles">
         <div class="horg">Sistema Oficial</div>
-        <div class="hname">A.A.F.F - UBAPFF</div>
-        <div class="hsub">União Brasileira dos Agentes da P.F.F</div>
+        <div class="hname">ASSOCIAÇÃO</div>
+        <div class="hsub">Sistema de Verificação de Credencial</div>
       </div>
     </div>
     <div class="hright">
       <div class="hcount" id="hcount">0 membros</div>
-      <button onclick="logout()" style="background:#cc0000;border:1px solid #aa0000;color:#fff;padding:7px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;letter-spacing:0.5px">Sair</button>
+      <button class="hbtn" onclick="logout()">Sair</button>
     </div>
   </div>
 </div>
 
 <div class="tabs">
-  <div class="tab" onclick="goTab('novo')">＋ Novo Cadastro</div>
-  <div class="tab active" onclick="goTab('lista')">☰ Membros</div>
+  <div class="tab active" onclick="goTab('novo')">＋ Novo Cadastro</div>
+  <div class="tab" onclick="goTab('lista')">☰ Membros</div>
   <div class="tab" onclick="goTab('config')">⚙️ Configurações</div>
-  <div class="tab" onclick="goTab('backup')" title="Backup &amp; Restauração">🛡️ Backups</div>
 </div>
 
 <div class="content">
 
   <!-- NOVO -->
-  <div class="page" id="page-novo">
+  <div class="page active" id="page-novo">
     <div class="alert alert-ok" id="aok">✓ Cadastro realizado! Exporte o db.json e faça upload no GitHub.</div>
     <div class="alert alert-err" id="aerr">✗ Preencha todos os campos obrigatórios.</div>
 
@@ -495,7 +390,7 @@ if('serviceWorker' in navigator){
   </div>
 
   <!-- LISTA -->
-  <div class="page active" id="page-lista">
+  <div class="page" id="page-lista">
 
     <!-- EXPORT BOX -->
     <div class="search-row">
@@ -522,32 +417,31 @@ if('serviceWorker' in navigator){
       <div class="cart-face" id="cart-frente">
         <img class="cart-bg" src="https://prdlcsmrr.github.io/Associa-o-/frente.jpg?v=1782205274" crossorigin="anonymous">
         <div class="cart-overlay">
-          <div class="cp-photo" id="cp-photo" style="left:12.6%;top:28.8%;width:13.5%;aspect-ratio:3/4"><div class="cp-photo-ph">👤</div></div>
-          <div class="cp-campo" id="cp-cargo"   style="left:34.9%;top:39.6%;font-size:2.2cqw;font-weight:800;color:#1a2a6e"></div>
-          <div class="cp-campo" id="cp-nome"    style="left:35%;top:51.9%;font-size:2.2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-mat"     style="left:14%;top:65%;font-size:2.0cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-cpf"     style="left:35.1%;top:65.3%;font-size:2.2cqw;font-weight:700;color:#111"></div>
-          <div class="cp-campo" id="cp-emissao" style="left:67.3%;top:65.8%;font-size:2.2cqw;font-weight:700;color:#111"></div>
-          <div class="cp-campo" id="cp-hash"    style="left:35.1%;top:77.5%;font-size:2.0cqw;font-weight:600;color:#333"></div>
+          <div class="cp-photo" id="cp-photo" style="left:3.5%;top:58%;width:12%;aspect-ratio:3/4"><div class="cp-photo-ph">👤</div></div>
+          <div class="cp-campo" id="cp-cargo"   style="left:34.5%;top:41.9%;font-size:2vw;font-weight:800;color:#1a2a6e"></div>
+          <div class="cp-campo" id="cp-nome"    style="left:34.5%;top:53.9%;font-size:2vw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-mat"     style="left:7.6%;top:67.3%;font-size:1.6vw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-cpf"     style="left:34.5%;top:67.3%;font-size:1.6vw;font-weight:700;color:#111"></div>
+          <div class="cp-campo" id="cp-emissao" style="left:68.3%;top:67.3%;font-size:1.6vw;font-weight:700;color:#111"></div>
+          <div class="cp-campo" id="cp-hash"    style="left:34.5%;top:79.5%;font-size:1.4vw;font-weight:600;color:#333"></div>
         </div>
       </div>
       <!-- VERSO -->
       <div class="cart-face" id="cart-verso">
         <img class="cart-bg" src="https://prdlcsmrr.github.io/Associa-o-/verso.jpg?v=1782205274" crossorigin="anonymous">
         <div class="cart-overlay">
-          <div class="cp-qr" id="cp-qr"             style="left:3.4%;top:22.4%;width:14%;aspect-ratio:1;background:#fff;padding:2px;border-radius:2px"></div>
-          <div class="cp-campo" id="cp-filiacao"     style="left:18.9%;top:24.6%;font-size:2.2cqw;font-weight:700;color:#111;line-height:1.8;white-space:normal;max-width:50%"></div>
-          <div class="cp-campo" id="cp-admissao"     style="left:52.5%;top:25.5%;font-size:2.2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-nasc"         style="left:19%;top:39.7%;font-size:2.2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-validade"     style="left:52.9%;top:39.5%;font-size:2.2cqw;font-weight:800;color:#cc0000"></div>
-          <div class="cp-campo" id="cp-naturalidade" style="left:19.2%;top:51.6%;font-size:2.2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-situacao"     style="left:53%;top:52%;font-size:2.2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-municipio"    style="left:84%;top:60%;font-size:2.2cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-filiacao"     style="left:19%;top:28.2%;font-size:1.8vw;font-weight:700;color:#111;line-height:1.5;white-space:normal;max-width:50%"></div>
+          <div class="cp-campo" id="cp-admissao"     style="left:52.4%;top:28.2%;font-size:1.8vw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-nasc"         style="left:19%;top:42.5%;font-size:1.8vw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-validade"     style="left:52.4%;top:42.5%;font-size:1.8vw;font-weight:800;color:#cc0000"></div>
+          <div class="cp-campo" id="cp-naturalidade" style="left:19%;top:54.5%;font-size:1.8vw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-situacao"     style="left:52.4%;top:54.5%;font-size:1.8vw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-municipio"    style="left:83.3%;top:62.1%;font-size:1.6vw;font-weight:800;color:#111"></div>
         </div>
       </div>
     </div>
     <div class="modal-acts">
-      <button onclick="closeMD()" style="flex:1;background:#cc0000;border:1px solid #aa0000;color:#fff;padding:10px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700">✕ Fechar</button>
+      <button class="btn btn-outline" onclick="closeMD()" style="flex:1">✕ Fechar</button>
       <button class="btn btn-navy" onclick="abrirCarteirinha()" style="flex:1">🪪 Carteirinha Completa</button>
       <button class="btn btn-gold" onclick="downloadCarteirinhaModal()" style="flex:1">⬇ PNG</button>
     </div>
@@ -703,7 +597,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
         <div class="box-title">👁️ Prévia em Tempo Real</div>
         <div id="cfg-preview" style="border-radius:10px;overflow:hidden;border:1px solid #ddd">
           <div id="prev-header" style="background:#1a2a5e;padding:14px 18px;display:flex;align-items:center;gap:12px;border-bottom:3px solid #c9972a">
-            <div id="prev-emblem" style="width:50px;height:50px;display:flex;align-items:center;justify-content:center;flex-shrink:0">🏛️</div>
+            <div id="prev-emblem" style="width:44px;height:44px;background:rgba(201,151,42,0.15);border:2px solid #c9972a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🏛️</div>
             <div>
               <div style="font-size:9px;color:rgba(255,255,255,0.45);letter-spacing:2px;text-transform:uppercase">Sistema Oficial</div>
               <div id="prev-nome" style="font-size:16px;font-weight:800;color:#fff">ASSOCIAÇÃO</div>
@@ -953,55 +847,15 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
     </div>
   </div>
 
-  <!-- ── BACKUP & RESTAURAÇÃO ──────────────────────────── -->
-  <div class="page" id="page-backup">
-    <div style="max-width:640px;margin:0 auto">
-      <div class="cfg-section">
-        <div class="cfg-section-title">🛡️ Backup & Restauração</div>
-
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">
-          <button class="btn btn-gold" onclick="criarBackup('manual')" style="flex:1;min-width:140px">
-            📦 Criar Backup Agora
-          </button>
-          <button class="btn" onclick="exportarBackup()" style="flex:1;min-width:140px;background:#1a3a6e">
-            ⬇️ Exportar JSON
-          </button>
-          <label class="btn" style="flex:1;min-width:140px;background:#1a4a2e;cursor:pointer;display:flex;align-items:center;justify-content:center">
-            📂 Importar JSON
-            <input type="file" accept=".json" onchange="importarBackup(event)" style="display:none">
-          </label>
-        </div>
-
-        <div id="backup-status" style="margin-bottom:16px;font-size:12px;color:#c9972a;min-height:18px"></div>
-
-        <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:12px;letter-spacing:1px;text-transform:uppercase">
-          Pontos de Restauração Salvos
-        </div>
-        <div id="backup-lista" style="display:flex;flex-direction:column;gap:8px">
-          <div style="color:rgba(255,255,255,0.3);font-size:13px;text-align:center;padding:20px">
-            Carregando backups...
-          </div>
-        </div>
-
-        <div style="margin-top:20px;padding:14px;background:rgba(255,255,255,0.04);border-radius:8px;font-size:11px;color:rgba(255,255,255,0.35);line-height:1.6">
-          ⚙️ Backups automáticos criados em: novo cadastro, edição de membro, pagamento registrado, e a cada 30 minutos.<br>
-          📦 Máximo de 20 pontos de restauração salvos localmente.<br>
-          ☁️ Exporte JSON periodicamente para backup externo seguro.
-        </div>
-      </div>
-    </div>
-  </div>
-
-
 <!-- MODAL PAGAMENTOS -->
 <div class="modal-overlay" id="modal-pag" onclick="closePag(event)">
-  <div style="background:#fff;border-radius:16px;width:100%;max-width:500px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.3)" onclick="event.stopPropagation()">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:500px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.3)">
     <div style="background:var(--navy);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold)">
       <div>
         <div style="font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px">Controle de Pagamentos</div>
         <div style="font-size:16px;font-weight:800;color:#fff" id="pag-nome">—</div>
       </div>
-      <button type="button" id="btn-close-pag" onclick="closePagDirect()" style="background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.4);color:#fff;font-size:20px;cursor:pointer;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:100;position:relative;touch-action:manipulation">×</button>
+      <button onclick="closePagDirect()" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:20px;cursor:pointer">✕</button>
     </div>
     <div style="padding:20px 24px">
       <div style="font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px">
@@ -1029,19 +883,8 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
 </div>
 
 <script>
-// ══════════════════════════════════════════════════
-// CONFIGURAÇÃO DE DOMÍNIO
-// Em produção: mudar PRODUCTION_DOMAIN para true
-// e registrar ubapff.org.br apontando para este repo
-// ══════════════════════════════════════════════════
-const PRODUCTION_DOMAIN = false;
-const DOMAIN_PROD  = 'https://ubapff.org.br';
-const DOMAIN_DEV   = 'https://prdlcsmrr.github.io/Associa-o-';
-const BASE_DOMAIN  = PRODUCTION_DOMAIN ? DOMAIN_PROD : DOMAIN_DEV;
-
-
 const LUSER='admin', LPASS='1234';
-const BASE_URL=PRODUCTION_DOMAIN ? BASE_DOMAIN+'/registrooficialcarteirafuncional' : BASE_DOMAIN+'/verificar.html';
+const BASE_URL='https://prdlcsmrr.github.io/Associa-o-/verificar.html';
 const ORG_PRE='ASC';
 
 // LOGIN
@@ -1065,7 +908,6 @@ let stream=null,photo=null,facing='user',curStatus='Ativo';
 
 // TABS
 function goTab(t){
-  if(t==='backup') setTimeout(renderBackupLista, 50);
   document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',(t==='novo'&&i===0)||(t==='lista'&&i===1)||(t==='config'&&i===2)));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+t).classList.add('active');
@@ -1226,7 +1068,6 @@ async function salvar(){
     pagamentos:[],
     qrUrl:BASE_URL+'?id='+encodeURIComponent(numCred)
   };
-  criarBackup('novo-cadastro');
   members.push(m);
 
   // Save to localStorage immediately
@@ -1240,7 +1081,7 @@ async function salvar(){
   const dbToSave = JSON.stringify({membros:members});
   fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5',{
     method:'PUT',
-    headers:{'Content-Type':'application/json','X-Master-Key':['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('')},
+    headers:{'Content-Type':'application/json','X-Master-Key':'$2a$10$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'},
     body:dbToSave
   }).then(()=>{
     const si=document.getElementById('sync-ind');
@@ -1255,15 +1096,14 @@ function limpar(){
   document.getElementById('f-cat').value='Membro';
   setStatus('Ativo');retake();
 }
-function save(){localStorage.setItem('members',JSON.stringify(members));}
-// ── PAGAMENTOS ──────────────────────────────────────────────────────
+function save(){localStorage.setItem('members',JSON.stringify(members));// ── PAGAMENTOS ──────────────────────────────────────────────────────
 const MESES_NOME = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 let pagAtualId = null;
 
 function openPag(id){
-  const m = members.find(x=>String(x.id)===String(id)||String(x.numCred)===String(id));
+  const m = members.find(x=>x.id===id);
   if(!m) return;
-  pagAtualId = m.id||m.numCred;
+  pagAtualId = id;
   document.getElementById('pag-nome').textContent = m.nome;
   const pagos = m.pagamentos || [];
   const ano = new Date().getFullYear();
@@ -1280,12 +1120,8 @@ function openPag(id){
 
   document.getElementById('pag-meses').innerHTML = html;
   updatePagSummary(pagos);
-  const _mpag = document.getElementById('modal-pag');
-  _mpag.style.display = '';
-  _mpag.classList.add('open');
+  document.getElementById('modal-pag').classList.add('open');
 }
-window.openPag = openPag;
-
 
 function togglePag(mes){
   const m = members.find(x=>x.id===pagAtualId);
@@ -1312,7 +1148,6 @@ function updatePagSummary(pagos){
 }
 
 function savePag(){
-  criarBackup('pagamento-registrado');
   save();
   syncToCloud();
   closePagDirect();
@@ -1321,23 +1156,7 @@ function savePag(){
 }
 
 function closePag(e){ if(e.target===document.getElementById('modal-pag')) closePagDirect(); }
-function closePagDirect(){
-  const modal = document.getElementById('modal-pag');
-  if(modal){
-    modal.classList.remove('open');
-    modal.style.display = 'none';
-  }
-  pagAtualId = null;
-}
-function closePagNow(){
-  // Fecha de forma garantida
-  const m = document.getElementById('modal-pag');
-  if(!m) return;
-  m.className = m.className.replace('open','').trim();
-  m.style.cssText = 'display:none!important';
-  setTimeout(()=>{ m.style.cssText = ''; }, 200);
-  pagAtualId = null;
-}
+function closePagDirect(){ document.getElementById('modal-pag').classList.remove('open'); pagAtualId=null; }
 
 function updatePixPlaceholder(){
   const tipo = document.getElementById('cfg-pix-tipo').value;
@@ -1408,10 +1227,10 @@ function renderList(){
           <div style="position:relative;overflow:visible" id="menu-wrap-${m.id}">
             <button onclick="toggleMenu(${m.id},event)" style="width:36px;height:34px;border-radius:8px;border:1px solid #e0e0e0;background:#f9f9f9;cursor:pointer;font-size:18px;font-weight:900;color:#555;display:flex;align-items:center;justify-content:center" title="Mais opções">⋯</button>
             <div onclick="event.stopPropagation()" id="dd-${m.id}" style="display:none;position:absolute;top:38px;right:0;background:#fff;border:1px solid #e0e0e0;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.35);min-width:210px;z-index:9999;overflow:hidden">
-              <div onclick="menuEditarMembro('${m.numCred}')" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">✏️ Editar Cadastro</div>
+              <div onclick="openEdit(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">✏️ Editar Cadastro</div>
               <div onclick="gerarCarteirinha('${m.numCred}');closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">🖨️ Gerar Carteirinha</div>
               <div onclick="gerarCobranca('${m.numCred}');closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">💰 Cobrança / Carnê</div>
-              <div onclick="menuPagamentos('${m.numCred}')" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">📋 Pagamentos</div>
+              <div onclick="openPag(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">📋 Pagamentos</div>
               <div onclick="toggleStatus(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;cursor:pointer;border-bottom:1px solid #f3f4f6;color:${m.status==='Ativo'?'#b91c1c':'#2a7a38'}" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''"> ${m.status==='Ativo'?'⛔ Desativar':'✅ Ativar'} Credencial</div>
               <div onclick="del(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#b91c1c;cursor:pointer" onmouseover="this.style.background='#fff5f5'" onmouseout="this.style.background=''">🗑️ Excluir Membro</div>
             </div>
@@ -1448,34 +1267,46 @@ let _editId = null;
 let _editFotoData = null;
 
 function openEdit(id){
-  if(!members || members.length===0){ alert('⚠️ Lista de membros vazia!'); return; }
-  const m = members.find(x=>String(x.id)===String(id)||String(x.numCred)===String(id));
-  if(!m){ alert('⚠️ Membro não encontrado: ' + id + '\nMembros: ' + members.map(x=>x.numCred).join(',')); return; }
-  _editId = m.id;
+  const m = members.find(x=>x.id===id);
+  if(!m) return;
+  _editId = id;
   _editFotoData = m.foto || null;
-  const sf = (fid,v)=>{ const el=document.getElementById(fid); if(el) el.value=v||''; };
-  sf('edit-nome', m.nome);
-  sf('edit-cpf', m.cpf);
-  sf('edit-nasc', m.nasc);
-  sf('edit-sexo', m.sexo);
-  sf('edit-tel', m.tel);
-  sf('edit-email', m.email);
-  sf('edit-naturalidade', m.naturalidade);
-  sf('edit-municipio', m.municipio);
-  sf('edit-pai', m.pai);
-  sf('edit-mae', m.mae);
-  sf('edit-cat', m.cat||'Funcionário');
-  sf('edit-status', m.status||'Ativo');
-  sf('edit-emissao', m.emissao);
-  sf('edit-validade', m.validade);
-  sf('edit-numCred', m.numCred);
-  sf('edit-obs', m.obs);
-  sf('edit-foto-url', '');
+
+  // Preencher campos
+  document.getElementById('edit-nome').value        = m.nome||'';
+  document.getElementById('edit-cpf').value         = m.cpf||'';
+  document.getElementById('edit-nasc').value        = m.nasc||'';
+  document.getElementById('edit-sexo').value        = m.sexo||'';
+  document.getElementById('edit-tel').value         = m.tel||'';
+  document.getElementById('edit-email').value       = m.email||'';
+  document.getElementById('edit-naturalidade').value= m.naturalidade||'';
+  document.getElementById('edit-municipio').value   = m.municipio||'';
+  document.getElementById('edit-pai').value         = m.pai||'';
+  document.getElementById('edit-mae').value         = m.mae||'';
+  document.getElementById('edit-cat').value         = m.cat||'Funcionário';
+  document.getElementById('edit-status').value      = m.status||'Ativo';
+  document.getElementById('edit-emissao').value     = m.emissao||'';
+  document.getElementById('edit-validade').value    = m.validade||'';
+  document.getElementById('edit-numCred').value     = m.numCred||'';
+  document.getElementById('edit-rua').value          = m.rua||'';
+  document.getElementById('edit-numero').value       = m.numero||'';
+  document.getElementById('edit-complemento').value  = m.complemento||'';
+  document.getElementById('edit-bairro').value       = m.bairro||'';
+  document.getElementById('edit-cep').value          = m.cep||'';
+  document.getElementById('edit-cidade').value       = m.cidade||'';
+  document.getElementById('edit-uf').value           = m.uf||'';
+  document.getElementById('edit-formacao').value     = m.formacao||'';
+  document.getElementById('edit-especializacao').value = m.especializacao||'';
+  document.getElementById('edit-obs').value         = m.obs||'';
+  document.getElementById('edit-foto-url').value    = '';
+
+  // Preview foto
   const prev = document.getElementById('edit-foto-preview');
-  if(prev) prev.innerHTML = m.foto ? `<img src="${m.foto}" alt="">` : '👤';
-  const modal = document.getElementById('modal-edit');
-  if(modal) modal.classList.add('open');
+  prev.innerHTML = m.foto ? `<img src="${m.foto}" alt="">` : '👤';
+
+  document.getElementById('modal-edit').classList.add('open');
 }
+
 function closeEdit(e){ if(e.target===document.getElementById('modal-edit')) closeEditDirect(); }
 function closeEditDirect(){ document.getElementById('modal-edit').classList.remove('open'); _editId=null; _editFotoData=null; }
 
@@ -1496,7 +1327,6 @@ function editRemoveFoto(){
 }
 
 function saveEdit(){
-  criarBackup('edicao-membro');
   const idx = members.findIndex(x=>x.id===_editId);
   if(idx<0){ alert('Membro não encontrado'); return; }
 
@@ -1586,13 +1416,7 @@ function openCred(id){
 
   // VERSO — QR
   const qrUrl=BASE_URL+'?id='+encodeURIComponent(m.numCred);
-  // QR dinâmico no verso
-  const qrEl = document.getElementById('cp-qr');
-  if(qrEl){
-    const _qColor = 'cc0000';
-    const _qImg = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrUrl)}&margin=4&color=${_qColor}`;
-    qrEl.innerHTML = `<img src="${_qImg}" style="width:100%;display:block">`;
-  }
+  // QR já está impresso na imagem Canva
 
   // VERSO — campos
   // Filiação: pai e mãe em linhas separadas
@@ -1618,7 +1442,7 @@ function openCred(id){
 }
 
 function closeM(e){if(e.target===document.getElementById('modal'))closeMD();}
-function closeMD(){document.getElementById('modal').classList.remove('open'); goTab('lista');}
+function closeMD(){document.getElementById('modal').classList.remove('open');}
 
 function abrirCarteirinha(){
   if(_credAtualId) gerarCarteirinha(_credAtualId);
@@ -1872,7 +1696,7 @@ async function loadFromCloud(){
   // Fallback: GitHub db.json
   if(!loaded){
     try{
-      const r2=await fetch(BASE_DOMAIN+'/db.json?t='+Date.now());
+      const r2=await fetch('https://prdlcsmrr.github.io/Associa-o-/db.json?t='+Date.now());
       if(r2.ok){
         const data2=await r2.json();
         members=data2.membros||[];
@@ -1893,7 +1717,7 @@ async function syncToCloud(){
   try{
     const r=await fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5',{
       method:'PUT',
-      headers:{'Content-Type':'application/json','X-Master-Key':['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('')},
+      headers:{'Content-Type':'application/json','X-Master-Key':'\u00242a\u001410\u0024/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'},
       body:JSON.stringify({membros:members})
     });
     if(si){si.textContent='\u2705 Sincronizado!';setTimeout(()=>si.style.display='none',2500);}
@@ -1943,11 +1767,11 @@ document.addEventListener('click', function(e){
 });
 
 function gerarCobranca(numCred){
-  window.open(BASE_DOMAIN+'/cobranca.html?id='+encodeURIComponent(numCred),'_blank');
+  window.open('https://prdlcsmrr.github.io/Associa-o-/cobranca.html?id='+encodeURIComponent(numCred),'_blank');
 }
 
 function gerarCarteirinha(numCred){
-  window.open(BASE_DOMAIN+'/carteirinha.html?id='+encodeURIComponent(numCred),'_blank');
+  window.open('https://prdlcsmrr.github.io/Associa-o-/carteirinha.html?id='+encodeURIComponent(numCred),'_blank');
 }
 
 function del(id){if(!confirm('Excluir?'))return;members=members.filter(m=>m.id!==id);save();renderList();}
@@ -1962,7 +1786,7 @@ let cfg = JSON.parse(localStorage.getItem('assoc-config') || '{}');
 function loadConfig(){
   const _cfgSaved = localStorage.getItem('assoc-config');
   const _cfgDefaults = {
-    nomeAssoc:     'A.A.F.F - UBAPFF',
+    nomeAssoc:     'UBAPFF',
     subAssoc:      'União Brasileira dos Agentes da Policia Ferroviária Federal',
     assocNome:     'ASSOCIAÇÃO DOS AGENTES FERROVIÁRIOS FEDERAIS DO MUNICÍPIO DE NOVA IGUAÇU RJ',
     assocCnpj:     '67.134.819/0001-12',
@@ -1996,18 +1820,13 @@ function loadConfig(){
   if(cfg.cor3){ document.documentElement.style.setProperty('--green', cfg.cor3); document.documentElement.style.setProperty('--green2', shadeColor(cfg.cor3,15)); }
   if(cfg.cor4) document.documentElement.style.setProperty('--red', cfg.cor4);
   if(cfg.fonte) document.body.style.fontFamily = cfg.fonte;
-  // Migração: corrigir nome antigo 'ASSOCIAÇÃO' para 'A.A.F.F - UBAPFF'
-  if(cfg.nomeAssoc === 'ASSOCIAÇÃO') cfg.nomeAssoc = 'A.A.F.F - UBAPFF';
   if(cfg.nomeAssoc) document.querySelectorAll('.hname').forEach(e=>e.textContent=cfg.nomeAssoc);
-  else document.querySelectorAll('.hname').forEach(e=>e.textContent='A.A.F.F - UBAPFF');
-  if(cfg.subAssoc === 'Sistema de Verificação de Credencial') cfg.subAssoc = 'União Brasileira dos Agentes da P.F.F';
   if(cfg.subAssoc) document.querySelectorAll('.hsub').forEach(e=>e.textContent=cfg.subAssoc);
-  else document.querySelectorAll('.hsub').forEach(e=>e.textContent='União Brasileira dos Agentes da P.F.F');
-  // Logo: usa cfg.logo se configurado, senão usa logo.png padrão
-  const _logoSrc = cfg.logo || BASE_DOMAIN+'/logo.png';
-  document.querySelectorAll('.hemblem').forEach(e=>{
-    e.innerHTML='<img src="'+_logoSrc+'" style="width:58px;height:58px;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.9)) drop-shadow(0 0 6px rgba(255,255,255,0.15)) drop-shadow(0 2px 4px rgba(0,0,0,0.8))">';
-  });
+  if(cfg.logo){
+    document.querySelectorAll('.hemblem').forEach(e=>{
+      e.innerHTML='<img src="'+cfg.logo+'" style="width:40px;height:40px;object-fit:contain;border-radius:50%">';
+    });
+  }
 }
 
 function shadeColor(color, percent){
@@ -2023,7 +1842,7 @@ function shadeColor(color, percent){
 function goToConfig(){
   const _cfgSaved = localStorage.getItem('assoc-config');
   const _cfgDefaults = {
-    nomeAssoc:     'A.A.F.F - UBAPFF',
+    nomeAssoc:     'UBAPFF',
     subAssoc:      'União Brasileira dos Agentes da Policia Ferroviária Federal',
     assocNome:     'ASSOCIAÇÃO DOS AGENTES FERROVIÁRIOS FEDERAIS DO MUNICÍPIO DE NOVA IGUAÇU RJ',
     assocCnpj:     '67.134.819/0001-12',
@@ -2052,7 +1871,7 @@ function goToConfig(){
     diaVencimento: '10',
   };
   cfg = Object.assign({}, _cfgDefaults, _cfgSaved ? JSON.parse(_cfgSaved) : {});
-  document.getElementById('cfg-nome').value = cfg.nomeAssoc || 'A.A.F.F - UBAPFF';
+  document.getElementById('cfg-nome').value = cfg.nomeAssoc || 'ASSOCIAÇÃO';
   document.getElementById('cfg-sub').value = cfg.subAssoc || 'Sistema de Verificação de Credencial';
   const c1=cfg.cor1||'#1a2a5e', c2=cfg.cor2||'#c9972a', c3=cfg.cor3||'#1a7a3a', c4=cfg.cor4||'#b91c1c';
   document.getElementById('cfg-cor1').value=c1; document.getElementById('cfg-cor1-hex').value=c1;
@@ -2108,7 +1927,7 @@ function goToConfig(){
   if(cfg.logo){
     document.getElementById('logo-preview').style.display='flex';
     document.getElementById('logo-img').src=cfg.logo;
-    document.getElementById('prev-emblem').innerHTML='<img src="'+cfg.logo+'" style="width:50px;height:50px;object-fit:contain;filter:drop-shadow(0 2px 5px rgba(0,0,0,0.5))">';
+    document.getElementById('prev-emblem').innerHTML='<img src="'+cfg.logo+'" style="width:40px;height:40px;object-fit:contain;border-radius:50%">';
   }
   livePreview();
 }
@@ -2216,7 +2035,7 @@ function saveConfig(){
     assocSite:document.getElementById('cfg-assoc-site').value.trim(),
     assocLegal:document.getElementById('cfg-assoc-legal').value.trim(),
     // Verificação QR settings
-    verTitulo:document.getElementById('cfg-ver-titulo').value.trim()||'A.A.F.F - UBAPFF',
+    verTitulo:document.getElementById('cfg-ver-titulo').value.trim()||'ASSOCIAÇÃO',
     verLinha1:document.getElementById('cfg-ver-linha1').value.trim(),
     verLinha2:document.getElementById('cfg-ver-linha2').value.trim(),
     verSub:document.getElementById('cfg-ver-sub').value.trim(),
@@ -2258,11 +2077,54 @@ const _origGoTab = goTab;
 const MESES_NOME = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 let pagAtualId = null;
 
+function openPag(id){
+  const m = members.find(x=>x.id===id);
+  if(!m) return;
+  pagAtualId = id;
+  document.getElementById('pag-nome').textContent = m.nome;
+  const pagos = m.pagamentos || [];
+  const ano = new Date().getFullYear();
 
+  let html = '';
+  MESES_NOME.forEach((mes, i) => {
+    const pago = pagos.includes(i);
+    html += `<button onclick="togglePag(${i})" id="pag-mes-${i}" style="
+      padding:10px 6px; border-radius:8px; border:2px solid ${pago?'#2a7a38':'#e0e0e0'};
+      background:${pago?'rgba(26,122,58,0.1)':'#f9f9f9'}; color:${pago?'#2a7a38':'#666'};
+      font-size:11px; font-weight:700; cursor:pointer; transition:all 0.2s; text-align:center;
+    ">${pago?'✅':'○'}<br><span style="font-size:9px">${mes.slice(0,3)}</span></button>`;
+  });
 
+  document.getElementById('pag-meses').innerHTML = html;
+  updatePagSummary(pagos);
+  document.getElementById('modal-pag').classList.add('open');
+}
+
+function togglePag(mes){
+  const m = members.find(x=>x.id===pagAtualId);
+  if(!m) return;
+  if(!m.pagamentos) m.pagamentos = [];
+  const idx = m.pagamentos.indexOf(mes);
+  if(idx >= 0) m.pagamentos.splice(idx, 1);
+  else m.pagamentos.push(mes);
+
+  const pago = m.pagamentos.includes(mes);
+  const btn = document.getElementById('pag-mes-'+mes);
+  btn.style.border = '2px solid '+(pago?'#2a7a38':'#e0e0e0');
+  btn.style.background = pago?'rgba(26,122,58,0.1)':'#f9f9f9';
+  btn.style.color = pago?'#2a7a38':'#666';
+  btn.innerHTML = (pago?'✅':'○')+'<br><span style="font-size:9px">'+MESES_NOME[mes].slice(0,3)+'</span>';
+  updatePagSummary(m.pagamentos);
+}
+
+function updatePagSummary(pagos){
+  const n = pagos.length;
+  document.getElementById('pag-count').textContent = n+'/12';
+  document.getElementById('pag-total').textContent = 'R$ '+(n*100).toLocaleString('pt-BR',{minimumFractionDigits:2});
+  document.getElementById('pag-pend').textContent = 'R$ '+((12-n)*100).toLocaleString('pt-BR',{minimumFractionDigits:2});
+}
 
 function savePag(){
-  criarBackup('pagamento-registrado');
   save();
   syncToCloud();
   closePagDirect();
@@ -2276,180 +2138,6 @@ const ny=new Date();ny.setFullYear(ny.getFullYear()+1);
 document.getElementById('f-validade').value=ny.toISOString().split('T')[0];
 
 loadFromCloud();
-
-// Fechar modal de pagamentos — captura no documento (mais confiável no iOS)
-(function(){
-  var btn = document.getElementById('btn-close-pag');
-  if(!btn) return;
-  function fecharPag(e){ e.preventDefault(); e.stopPropagation(); closePagDirect(); }
-  btn.addEventListener('touchend', fecharPag, {capture:true, passive:false});
-  btn.addEventListener('click',    fecharPag, {capture:true});
-})();
-
-// ══════════════════════════════════════════════════════════
-// SISTEMA DE BACKUP & RESTAURAÇÃO
-// ══════════════════════════════════════════════════════════
-const BACKUP_KEY  = 'assoc_backups_v1';
-const BACKUP_MAX  = 20;
-
-function getBackups(){
-  try{ return JSON.parse(localStorage.getItem(BACKUP_KEY)||'[]'); }
-  catch(e){ return []; }
-}
-
-function saveBackups(list){
-  localStorage.setItem(BACKUP_KEY, JSON.stringify(list));
-}
-
-function criarBackup(motivo){
-  const backups = getBackups();
-  const snapshot = {
-    id:        Date.now(),
-    motivo:    motivo || 'manual',
-    data:      new Date().toLocaleString('pt-BR'),
-    membros:   JSON.parse(JSON.stringify(members)),
-    config:    JSON.parse(localStorage.getItem('assoc-config')||'{}'),
-    total:     members.length
-  };
-  backups.unshift(snapshot);                       // mais recente primeiro
-  if(backups.length > BACKUP_MAX) backups.length = BACKUP_MAX;
-  saveBackups(backups);
-  renderBackupLista();
-  const el = document.getElementById('backup-status');
-  if(el) el.textContent = '✅ Backup "' + motivo + '" criado — ' + snapshot.data;
-  return snapshot;
-}
-
-function renderBackupLista(){
-  const lista = document.getElementById('backup-lista');
-  if(!lista) return;
-  const backups = getBackups();
-  if(!backups.length){
-    lista.innerHTML = '<div style="color:rgba(255,255,255,0.3);font-size:13px;text-align:center;padding:20px">Nenhum backup encontrado.</div>';
-    return;
-  }
-  lista.innerHTML = backups.map((b,i) => `
-    <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(255,255,255,0.05);border-radius:8px;border:1px solid rgba(201,151,42,${i===0?'0.4':'0.1'})">
-      <div style="flex:1;min-width:0">
-        <div style="font-size:12px;font-weight:700;color:${i===0?'#c9972a':'#fff'}">${i===0?'⭐ ':''}<span style="text-transform:capitalize">${b.motivo}</span></div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px">${b.data} · ${b.total} membros</div>
-      </div>
-      <button onclick="restaurarBackup(${b.id})" style="background:#1a3a6e;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">
-        ↩ Restaurar
-      </button>
-      <button onclick="excluirBackup(${b.id})" style="background:rgba(180,30,30,0.25);color:#ff6b6b;border:1px solid rgba(180,30,30,0.4);border-radius:6px;padding:6px 8px;font-size:11px;cursor:pointer">
-        🗑
-      </button>
-    </div>
-  `).join('');
-}
-
-function restaurarBackup(id){
-  const backups = getBackups();
-  const b = backups.find(x=>x.id===id);
-  if(!b){ alert('❌ Backup não encontrado.'); return; }
-  if(!confirm(`Restaurar backup de ${b.data}?\n${b.total} membros serão restaurados.\nUm backup do estado atual será criado antes.`)) return;
-  // Criar backup do estado atual antes de restaurar
-  criarBackup('antes-de-restaurar');
-  // Restaurar membros
-  members = JSON.parse(JSON.stringify(b.membros));
-  save();
-  syncToCloud();
-  // Restaurar configurações se existirem
-  if(b.config && Object.keys(b.config).length){
-    localStorage.setItem('assoc-config', JSON.stringify(b.config));
-    loadConfig();
-  }
-  renderList();
-  updateCount();
-  alert('✅ Backup restaurado com sucesso!\n' + b.data);
-  goTab('lista');
-}
-
-function excluirBackup(id){
-  if(!confirm('Excluir este backup?')) return;
-  const backups = getBackups().filter(x=>x.id!==id);
-  saveBackups(backups);
-  renderBackupLista();
-}
-
-function exportarBackup(){
-  const payload = {
-    exportado:  new Date().toLocaleString('pt-BR'),
-    membros:    members,
-    config:     JSON.parse(localStorage.getItem('assoc-config')||'{}'),
-    backups:    getBackups()
-  };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'backup_ubapff_' + new Date().toISOString().slice(0,10) + '.json';
-  a.click();
-}
-
-function importarBackup(evt){
-  const file = evt.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try{
-      const data = JSON.parse(e.target.result);
-      if(!data.membros) throw new Error('Arquivo inválido');
-      if(!confirm('Importar backup?\n' + (data.membros.length) + ' membros encontrados.\nEstado atual será preservado em backup.')) return;
-      criarBackup('antes-de-importar');
-      members = data.membros;
-      save();
-      syncToCloud();
-      if(data.config){ localStorage.setItem('assoc-config', JSON.stringify(data.config)); loadConfig(); }
-      if(data.backups){ saveBackups(data.backups); }
-      renderList(); updateCount(); renderBackupLista();
-      alert('✅ Backup importado com sucesso!');
-    }catch(err){
-      alert('❌ Erro ao importar: ' + err.message);
-    }
-  };
-  reader.readAsText(file);
-}
-
-// Backup automático a cada 30 minutos
-setInterval(()=>{ if(members.length>0) criarBackup('auto-30min'); }, 30*60*1000);
-
-
-
-// Expor funções globalmente para onclicks em HTML dinâmico
-if(typeof openCred!=="undefined") window.openCred=openCred;
-if(typeof closeMD!=="undefined") window.closeMD=closeMD;
-if(typeof toggleStatus!=="undefined") window.toggleStatus=toggleStatus;
-if(typeof closeMenus!=="undefined") window.closeMenus=closeMenus;
-if(typeof gerarCobranca!=="undefined") window.gerarCobranca=gerarCobranca;
-
-
-function savePagamentos(){
-  if(!pagAtualId) return;
-  const m = members.find(x=>x.id===pagAtualId);
-  if(!m){ alert('Membro não encontrado'); return; }
-  const pagos = [];
-  for(let i=0;i<12;i++){
-    const btn = document.getElementById('pag-mes-'+i);
-    if(btn && btn.dataset.pago==='1') pagos.push(i);
-  }
-  m.pagamentos = pagos;
-  localStorage.setItem('members', JSON.stringify(members));
-  closePagDirect();
-  renderList();
-  criarBackup('pagamento');
-  syncToCloud();
-}
-
-// Funções wrapper para menu de membros
-function menuEditarMembro(numCred){
-  closeMenus();
-  setTimeout(function(){ openEdit(numCred); }, 100);
-}
-function menuPagamentos(numCred){
-  closeMenus();
-  setTimeout(function(){ openPag(numCred); }, 100);
-}
 </script>
 
 
