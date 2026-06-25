@@ -979,6 +979,63 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
 </div>
 
 
+
+<!-- CONTABILIDADE -->
+<div class="page" id="page-contabil">
+  <div style="max-width:800px;margin:0 auto;padding:8px 0 40px">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:2px;text-transform:uppercase">A.A.F.F — UBAPFF</div>
+        <div style="font-size:20px;font-weight:900;color:var(--navy);margin-top:2px">💰 Contabilidade 2026</div>
+      </div>
+      <button onclick="imprimirContabil()" style="background:var(--navy);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px">
+        🖨️ Imprimir / PDF
+      </button>
+    </div>
+
+    <div id="cont-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px"></div>
+
+    <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:24px">
+      <div style="background:var(--navy);padding:14px 20px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:16px">📅</span>
+        <span style="font-size:14px;font-weight:700;color:#fff;letter-spacing:1px">ARRECADAÇÃO POR MÊS — 2026</span>
+      </div>
+      <div id="cont-tabela-meses" style="padding:4px 0"></div>
+    </div>
+
+    <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:24px">
+      <div style="background:var(--navy);padding:14px 20px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:16px">👤</span>
+        <span style="font-size:14px;font-weight:700;color:#fff;letter-spacing:1px">SITUAÇÃO POR MEMBRO</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table id="cont-tabela-membros" style="width:100%;border-collapse:collapse;font-size:13px"></table>
+      </div>
+    </div>
+
+    <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:24px">
+      <div style="background:#b91c1c;padding:14px 20px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:16px">⚠️</span>
+        <span style="font-size:14px;font-weight:700;color:#fff;letter-spacing:1px">INADIMPLENTES</span>
+      </div>
+      <div id="cont-inadimplentes" style="padding:4px 0"></div>
+    </div>
+
+    <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden">
+      <div style="background:#8a6500;padding:14px 20px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:16px">🔓</span>
+        <span style="font-size:14px;font-weight:700;color:#fff;letter-spacing:1px">MEMBROS ISENTOS</span>
+      </div>
+      <div id="cont-isentos" style="padding:4px 0"></div>
+    </div>
+
+  </div>
+</div>
+
+
+
+
 <!-- ── MODAL EDIÇÃO DE MEMBRO ── -->
 <div id="modal-edit" onclick="closeEdit(event)">
   <div class="edit-card">
@@ -1102,60 +1159,6 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
       <button class="btn btn-outline" onclick="closeEditDirect()">✕ Cancelar</button>
       <button class="btn btn-green" onclick="saveEdit()">💾 Salvar Alterações</button>
     </div>
-  </div>
-</div>
-
-
-<!-- CONTABILIDADE -->
-<div class="page" id="page-contabil">
-  <div style="max-width:800px;margin:0 auto;padding:8px 0 40px">
-
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
-      <div>
-        <div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:2px;text-transform:uppercase">A.A.F.F — UBAPFF</div>
-        <div style="font-size:20px;font-weight:900;color:var(--navy);margin-top:2px">💰 Contabilidade 2026</div>
-      </div>
-      <button onclick="imprimirContabil()" style="background:var(--navy);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px">
-        🖨️ Imprimir / PDF
-      </button>
-    </div>
-
-    <div id="cont-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px"></div>
-
-    <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:24px">
-      <div style="background:var(--navy);padding:14px 20px;display:flex;align-items:center;gap:10px">
-        <span style="font-size:16px">📅</span>
-        <span style="font-size:14px;font-weight:700;color:#fff;letter-spacing:1px">ARRECADAÇÃO POR MÊS — 2026</span>
-      </div>
-      <div id="cont-tabela-meses" style="padding:4px 0"></div>
-    </div>
-
-    <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:24px">
-      <div style="background:var(--navy);padding:14px 20px;display:flex;align-items:center;gap:10px">
-        <span style="font-size:16px">👤</span>
-        <span style="font-size:14px;font-weight:700;color:#fff;letter-spacing:1px">SITUAÇÃO POR MEMBRO</span>
-      </div>
-      <div style="overflow-x:auto">
-        <table id="cont-tabela-membros" style="width:100%;border-collapse:collapse;font-size:13px"></table>
-      </div>
-    </div>
-
-    <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:24px">
-      <div style="background:#b91c1c;padding:14px 20px;display:flex;align-items:center;gap:10px">
-        <span style="font-size:16px">⚠️</span>
-        <span style="font-size:14px;font-weight:700;color:#fff;letter-spacing:1px">INADIMPLENTES</span>
-      </div>
-      <div id="cont-inadimplentes" style="padding:4px 0"></div>
-    </div>
-
-    <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden">
-      <div style="background:#8a6500;padding:14px 20px;display:flex;align-items:center;gap:10px">
-        <span style="font-size:16px">🔓</span>
-        <span style="font-size:14px;font-weight:700;color:#fff;letter-spacing:1px">MEMBROS ISENTOS</span>
-      </div>
-      <div id="cont-isentos" style="padding:4px 0"></div>
-    </div>
-
   </div>
 </div>
 
