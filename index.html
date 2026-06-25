@@ -389,6 +389,7 @@ if('serviceWorker' in navigator){
   <div class="tab" onclick="goTab('novo')">＋ Novo Cadastro</div>
   <div class="tab active" onclick="goTab('lista')">☰ Membros</div>
   <div class="tab" onclick="goTab('contabil')">💰 Contabilidade</div>
+  <div class="tab" onclick="goTab('historico')">📋 Histórico</div>
   <div class="tab" onclick="goTab('config')">⚙️ Configurações</div>
 </div>
 
@@ -1255,6 +1256,35 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
   </div>
 </div>
 
+<!-- HISTÓRICO -->
+<div class="page" id="page-historico">
+  <div style="max-width:800px;margin:0 auto;padding:8px 0 40px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:2px;text-transform:uppercase">A.A.F.F — UBAPFF</div>
+        <div style="font-size:20px;font-weight:900;color:var(--navy);margin-top:2px">📋 Histórico de Alterações</div>
+      </div>
+      <button onclick="limparHistorico()" style="background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer">🗑️ Limpar Tudo</button>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+      <input type="text" id="hist-busca" placeholder="🔍 Buscar..." oninput="renderHistorico()" style="flex:1;min-width:150px;padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:13px">
+      <select id="hist-filtro-tipo" onchange="renderHistorico()" style="padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:13px;background:#fff">
+        <option value="">Todos os tipos</option>
+        <option value="CADASTRO">➕ Cadastro</option>
+        <option value="EDICAO">✏️ Edição</option>
+        <option value="EXCLUSAO">🗑️ Exclusão</option>
+        <option value="STATUS">🔄 Status</option>
+        <option value="PAGAMENTO">💰 Pagamento</option>
+        <option value="ISENTO">🔓 Isento</option>
+        <option value="SAIDA">💸 Saída</option>
+      </select>
+    </div>
+    <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden">
+      <div id="hist-lista"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 const LUSER='admin', LPASS='1234';
 const BASE_URL='https://prdlcsmrr.github.io/Associa-o-/verificar.html';
@@ -1283,13 +1313,14 @@ let _pagAtual=1; // Paginação
 // TABS
 function goTab(t){
   document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',
-    (t==='novo'&&i===0)||(t==='lista'&&i===1)||(t==='contabil'&&i===2)||(t==='config'&&i===3)
+    (t==='novo'&&i===0)||(t==='lista'&&i===1)||(t==='contabil'&&i===2)||(t==='historico'&&i===3)||(t==='config'&&i===4)
   ));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+t).classList.add('active');
   if(t==='lista') renderList();
   if(t==='config') goToConfig();
   if(t==='contabil') renderContabil();
+  if(t==='historico') renderHistorico();
 }
 
 // STATUS
@@ -1460,6 +1491,7 @@ async function salvar(){
   // Save to localStorage immediately
   localStorage.setItem('members',JSON.stringify(members));
 
+  registrarHistorico('CADASTRO','Novo membro: '+nome,numCred,nome);
   updateCount();
   showA('aok');
   limpar();
@@ -1537,6 +1569,7 @@ function toggleIsento(checked){
   const m = members.find(x=>String(x.id)===String(pagAtualId)||String(x.numCred)===String(pagAtualId));
   if(!m) return;
   m.isento = checked;
+  registrarHistorico('ISENTO',checked?'Isento marcado':'Isenção removida',m.numCred||m.id,m.nome);
   const pagos = m.pagamentos || [];
   renderMesesPag(pagos, checked);
   updatePagSummary(pagos, checked);
@@ -1549,8 +1582,8 @@ function togglePag(mes){
   if(!m) return;
   if(!m.pagamentos) m.pagamentos = [];
   const idx = m.pagamentos.indexOf(mes);
-  if(idx >= 0){ m.pagamentos.splice(idx, 1); removerDataPag(pagAtualId, mes); }
-  else { m.pagamentos.push(mes); registrarDataPag(pagAtualId, mes); }
+  if(idx >= 0){ m.pagamentos.splice(idx, 1); removerDataPag(pagAtualId, mes); registrarHistorico('PAGAMENTO','Desmarcado: '+MESES_NOME[mes],m.numCred||m.id,m.nome); }
+  else { m.pagamentos.push(mes); registrarDataPag(pagAtualId, mes); registrarHistorico('PAGAMENTO','Pago: '+MESES_NOME[mes],m.numCred||m.id,m.nome); }
 
   const pago = m.pagamentos.includes(mes);
   const btn = document.getElementById('pag-mes-'+mes);
@@ -1886,6 +1919,7 @@ function saveEdit(){
   localStorage.setItem('members', JSON.stringify(members));
   save(); // sinc JSONBin
   renderList();
+  registrarHistorico('EDICAO','Editado: '+nome,members[idx].numCred||members[idx].id,nome);
   closeEditDirect();
 
   // Feedback
@@ -2024,6 +2058,7 @@ function toggleStatus(id){
   if(!m)return;
   const novo=m.status==='Ativo'?'Inativo':'Ativo';
   if(!confirm((novo==='Ativo'?'\u2705 ATIVAR':'\u26d4 DESATIVAR')+' a credencial de '+m.nome+'?'))return;
+  registrarHistorico('STATUS',(novo==='Ativo'?'Ativado':'Desativado')+': '+m.nome,m.numCred||m.id,m.nome);
   m.status=novo;
   save();
   renderList();
@@ -2172,7 +2207,7 @@ function gerarCarteirinha(numCred){
   window.open('https://prdlcsmrr.github.io/Associa-o-/carteirinha.html?id='+encodeURIComponent(numCred),'_blank');
 }
 
-function del(id){if(!confirm('Excluir?'))return;members=members.filter(m=>m.id!==id);save();renderList();}
+function del(id){if(!confirm('Excluir?'))return;const _dm=members.find(m=>m.id===id);if(_dm)registrarHistorico('EXCLUSAO','Excluído: '+_dm.nome,_dm.numCred||id,_dm.nome);members=members.filter(m=>m.id!==id);save();renderList();}
 function clearAll(){if(!confirm('Apagar TODOS?'))return;members=[];save();renderList();}
 
 // INIT
@@ -2935,8 +2970,49 @@ function verificarVencimentos(){
   localStorage.setItem('ubapff-venc-notif-data', hoje_str);
 }
 
+
+// ══ HISTÓRICO DE ALTERAÇÕES ══
+let historico = JSON.parse(localStorage.getItem('ubapff-historico') || '[]');
+function registrarHistorico(tipo, descricao, memberId, membroNome){
+  historico.unshift({id:'H'+Date.now(),data:new Date().toISOString(),usuario:(cfg&&cfg.loginUser)||'admin',tipo,descricao,memberId:memberId||null,membro:membroNome||null});
+  if(historico.length>200) historico=historico.slice(0,200);
+  localStorage.setItem('ubapff-historico',JSON.stringify(historico));
+}
+function renderHistorico(){
+  const el=document.getElementById('hist-lista'); if(!el) return;
+  const ft=document.getElementById('hist-filtro-tipo')?.value||'';
+  const fq=(document.getElementById('hist-busca')?.value||'').toLowerCase();
+  let lista=historico;
+  if(ft) lista=lista.filter(h=>h.tipo===ft);
+  if(fq) lista=lista.filter(h=>(h.descricao||'').toLowerCase().includes(fq)||(h.membro||'').toLowerCase().includes(fq));
+  if(lista.length===0){el.innerHTML='<div style="padding:30px;text-align:center;color:#888;font-size:13px">Nenhuma alteração registrada ainda.</div>';return;}
+  const ico={'CADASTRO':'➕','EDICAO':'✏️','EXCLUSAO':'🗑️','STATUS':'🔄','PAGAMENTO':'💰','ISENTO':'🔓','SAIDA':'💸'};
+  const cor={'CADASTRO':'#1a7a3a','EDICAO':'#1a2a5e','EXCLUSAO':'#b91c1c','STATUS':'#c2410c','PAGAMENTO':'#c9972a','ISENTO':'#8a6500','SAIDA':'#b91c1c'};
+  el.innerHTML=lista.map((h,i)=>{
+    const dt=new Date(h.data),dia=dt.toLocaleDateString('pt-BR'),hr=dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    const c=cor[h.tipo]||'#555',ic=ico[h.tipo]||'📋';
+    return `<div style="display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;padding:14px 20px;border-bottom:1px solid #f3f4f6;background:${i%2===0?'#fff':'#fafafa'}">
+      <div style="width:36px;height:36px;border-radius:50%;background:${c}22;border:1.5px solid ${c}55;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${ic}</div>
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px">
+          <span style="font-size:11px;font-weight:800;color:${c};background:${c}18;padding:2px 8px;border-radius:10px">${h.tipo}</span>
+          <span style="font-size:12px;font-weight:700;color:#1a2a5e">${h.descricao}</span>
+        </div>
+        <div style="font-size:11px;color:#888">👤 ${h.usuario||'admin'} · 📅 ${dia} às ${hr}${h.membro?' · 🪪 '+h.membro:''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function limparHistorico(){
+  if(!confirm('Limpar todo o histórico? Não pode ser desfeito.')) return;
+  historico=[];localStorage.removeItem('ubapff-historico');renderHistorico();
+}
+
 // Expor funções globalmente para onclicks em HTML dinâmico
 window.onCpfInput=onCpfInput;
+window.registrarHistorico=registrarHistorico;
+window.renderHistorico=renderHistorico;
+window.limparHistorico=limparHistorico;
 window.abrirModalSaida=abrirModalSaida;
 window.verificarVencimentos=verificarVencimentos;
 window.excluirSaida=excluirSaida;
