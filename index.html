@@ -1283,12 +1283,11 @@ let _editId = null;
 let _editFotoData = null;
 
 function openEdit(id){
-  const m = members.find(x=>String(x.id)===String(id)||String(x.numCred)===String(id));
+  const m = members.find(function(x){ return String(x.id)===String(id)||String(x.numCred)===String(id); });
   if(!m) return;
   _editId = m.id;
   _editFotoData = m.foto || null;
-  // sf: preenche campo apenas se ele existir no HTML
-  const sf = function(fid,v){ const el=document.getElementById(fid); if(el) el.value=v||''; };
+  function sf(fid,v){ var el=document.getElementById(fid); if(el) el.value=v||''; }
   sf('edit-nome', m.nome);
   sf('edit-cpf', m.cpf);
   sf('edit-nasc', m.nasc);
@@ -1299,6 +1298,13 @@ function openEdit(id){
   sf('edit-municipio', m.municipio);
   sf('edit-pai', m.pai);
   sf('edit-mae', m.mae);
+  sf('edit-rua', m.rua);
+  sf('edit-numero', m.numero);
+  sf('edit-complemento', m.complemento);
+  sf('edit-bairro', m.bairro);
+  sf('edit-cep', m.cep);
+  sf('edit-cidade', m.cidade);
+  sf('edit-uf', m.uf);
   sf('edit-cat', m.cat||'Funcionário');
   sf('edit-status', m.status||'Ativo');
   sf('edit-emissao', m.emissao);
@@ -1306,9 +1312,9 @@ function openEdit(id){
   sf('edit-numCred', m.numCred);
   sf('edit-obs', m.obs);
   sf('edit-foto-url', '');
-  const prev = document.getElementById('edit-foto-preview');
-  if(prev) prev.innerHTML = m.foto ? '<img src="'+m.foto+'" alt="">' : '👤';
-  const modal = document.getElementById('modal-edit');
+  var prev=document.getElementById('edit-foto-preview');
+  if(prev) prev.innerHTML=m.foto?'<img src="'+m.foto+'" alt="">':'👤';
+  var modal=document.getElementById('modal-edit');
   if(modal) modal.classList.add('open');
 }
 
