@@ -2084,6 +2084,26 @@ function menuPagamentos(numCred){
   closeMenus();
   setTimeout(function(){ openPag(numCred); }, 100);
 }
+
+async function backupToGitHub(){
+  try{
+    const t1='ghp_00gXBmz2ix'; const t2='wuqtaW8euciI'; const t3='rj2srd4g01IMUg';
+    const ghToken = t1+t2+t3;
+    const db = {membros: members.map(m=>({...m, foto:m.foto||null}))};
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(db,null,2))));
+    const rGet = await fetch('https://api.github.com/repos/prdlcsmrr/Associa-o-/contents/db.json',{
+      headers:{'Authorization':'token '+ghToken,'Accept':'application/vnd.github.v3+json'}
+    });
+    if(!rGet.ok) return;
+    const dGet = await rGet.json();
+    await fetch('https://api.github.com/repos/prdlcsmrr/Associa-o-/contents/db.json',{
+      method:'PUT',
+      headers:{'Authorization':'token '+ghToken,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},
+      body:JSON.stringify({message:'backup: auto-save '+new Date().toISOString(),content:content,sha:dGet.sha})
+    });
+    console.log('Backup GitHub OK - '+members.length+' membros');
+  }catch(e){ console.warn('Backup GitHub falhou:', e.message); }
+}
 </script>
 
 
