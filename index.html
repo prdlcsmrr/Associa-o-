@@ -1598,7 +1598,6 @@ function saveEdit(){
   // Preservar campos imutáveis
   const keep = {
     id:       members[idx].id,
-    numCred:  members[idx].numCred,
     docId:    members[idx].docId,
     hash:     members[idx].hash,
     dataCad:  members[idx].dataCad,
@@ -1609,6 +1608,7 @@ function saveEdit(){
 
   members[idx] = {
     ...keep,
+    numCred: (document.getElementById('edit-numcred')?.value.trim()||members[idx].numCred),
     nome, cpf,
     nasc:            document.getElementById('edit-nasc').value,
     sexo:            document.getElementById('edit-sexo').value,
