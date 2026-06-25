@@ -457,12 +457,15 @@ if('serviceWorker' in navigator){
 
     <!-- EXPORT BOX -->
     <div class="search-row">
-      <input type="text" id="search" placeholder="🔍 Buscar por nome, CPF, matrícula..." oninput="renderList()">
+      <input type="text" id="search" placeholder="🔍 Buscar por nome, CPF, matrícula..." oninput="_pagAtual=1;renderList()">
       <button onclick="reloadMembers()" style="background:#1a2a5e;border:none;border-radius:8px;padding:11px 14px;color:#fff;cursor:pointer;font-size:16px;" title="Atualizar">🔄</button>
       <div class="badge">Total: <strong id="total">0</strong></div>
       <button class="btn btn-red" onclick="clearAll()" style="padding:11px 14px;font-size:12px;">🗑</button>
     </div>
     <div class="mgrid" id="mgrid"></div>
+
+    <!-- PAGINAÇÃO -->
+    <div id="paginacao" style="display:none;justify-content:center;align-items:center;gap:8px;padding:20px 0;flex-wrap:wrap"></div>
   </div>
 
 </div>
@@ -1152,6 +1155,7 @@ if(sessionStorage.getItem('ok')==='1') document.getElementById('login-screen').s
 // STATE
 let members=JSON.parse(localStorage.getItem('members')||'[]');
 let stream=null,photo=null,facing='user',curStatus='Ativo';
+let _pagAtual=1; // Paginação
 
 // TABS
 function goTab(t){
@@ -1515,11 +1519,30 @@ function exportDB(){
 // LISTA
 function renderList(){
   const q=(document.getElementById('search').value||'').toLowerCase();
-  const f=members.filter(m=>m.nome.toLowerCase().includes(q)||m.cpf.includes(q)||m.numCred.toLowerCase().includes(q)||m.cat.toLowerCase().includes(q));
+  const f=members.filter(m=>
+    m.nome.toLowerCase().includes(q)||
+    (m.cpf||'').includes(q)||
+    m.numCred.toLowerCase().includes(q)||
+    (m.cat||'').toLowerCase().includes(q)||
+    (m.lotacao||'').toLowerCase().includes(q)
+  );
   document.getElementById('total').textContent=f.length;
   const g=document.getElementById('mgrid');
-  if(!f.length){g.innerHTML='<div class="empty"><p>Nenhum membro encontrado.</p></div>';return;}
-  g.innerHTML=f.map(m=>`
+  if(!f.length){
+    g.innerHTML='<div class="empty"><p>Nenhum membro encontrado.</p></div>';
+    document.getElementById('paginacao').style.display='none';
+    return;
+  }
+
+  // PAGINAÇÃO
+  const POR_PAG = 10;
+  const totalPags = Math.ceil(f.length / POR_PAG);
+  if(_pagAtual > totalPags) _pagAtual = totalPags;
+  if(_pagAtual < 1) _pagAtual = 1;
+  const inicio = (_pagAtual - 1) * POR_PAG;
+  const pagina = f.slice(inicio, inicio + POR_PAG);
+
+  g.innerHTML=pagina.map(m=>`
     <div class="mcard">
       <div class="mcard-photo">${m.foto?`<img src="${m.foto}" alt="">`:`<div class="mcard-ph"><svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Sem foto</span></div>`}</div>
       <div class="mcard-body">
@@ -1545,6 +1568,40 @@ function renderList(){
         </div>
       </div>
     </div>`).join('');
+
+  // Renderizar controles de paginação
+  const pagDiv = document.getElementById('paginacao');
+  if(totalPags <= 1){
+    pagDiv.style.display='none';
+  } else {
+    pagDiv.style.display='flex';
+    let html = '';
+
+    // Botão anterior
+    html += `<button onclick="irParaPag(${_pagAtual-1})" ${_pagAtual===1?'disabled':''} style="padding:8px 14px;border-radius:8px;border:1px solid #e0e0e0;background:${_pagAtual===1?'#f5f5f5':'#fff'};cursor:${_pagAtual===1?'default':'pointer'};font-size:13px;font-weight:600;color:${_pagAtual===1?'#bbb':'#1a2a5e'}">‹ Anterior</button>`;
+
+    // Páginas
+    for(let p=1; p<=totalPags; p++){
+      const isAtual = p === _pagAtual;
+      html += `<button onclick="irParaPag(${p})" style="width:36px;height:36px;border-radius:8px;border:2px solid ${isAtual?'var(--navy)':'#e0e0e0'};background:${isAtual?'var(--navy)':'#fff'};color:${isAtual?'#fff':'#555'};font-size:13px;font-weight:700;cursor:${isAtual?'default':'pointer'}">${p}</button>`;
+    }
+
+    // Botão próxima
+    html += `<button onclick="irParaPag(${_pagAtual+1})" ${_pagAtual===totalPags?'disabled':''} style="padding:8px 14px;border-radius:8px;border:1px solid #e0e0e0;background:${_pagAtual===totalPags?'#f5f5f5':'#fff'};cursor:${_pagAtual===totalPags?'default':'pointer'};font-size:13px;font-weight:600;color:${_pagAtual===totalPags?'#bbb':'#1a2a5e'}">Próxima ›</button>`;
+
+    // Info
+    html += `<span style="font-size:11px;color:#888;margin-left:4px">${inicio+1}–${Math.min(inicio+POR_PAG,f.length)} de ${f.length}</span>`;
+
+    pagDiv.innerHTML = html;
+  }
+}
+
+function irParaPag(p){
+  _pagAtual = p;
+  renderList();
+  // Scroll suave para o topo da lista
+  const el = document.getElementById('mgrid');
+  if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 // CREDENCIAL MODAL
