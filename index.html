@@ -12,10 +12,10 @@
   --text:#1a1a2e; --muted:#6b7280; --border:#d1d5db;
   --bg:#e8eaed; --white:#fff;
 }
-body { background:#0a1628; font-family:'Segoe UI',system-ui,sans-serif; min-height:100vh; color:var(--text); }
+body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-height:100vh; color:var(--text); }
 
 /* LOGIN */
-#login-screen { position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;z-index:99999;background:#0a1628;-webkit-transform:translateZ(0);transform:translateZ(0); }
+#login-screen { position:fixed;inset:0;background:var(--navy2);display:flex;align-items:center;justify-content:center;z-index:9999; }
 .login-box { background:rgba(255,255,255,0.06);border:1px solid rgba(201,151,42,0.25);border-radius:16px;padding:48px 36px;width:100%;max-width:360px;text-align:center; }
 .login-logo { color:var(--gold);font-weight:900;letter-spacing:3px;margin-bottom:4px; }
 .login-sub { font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:4px;text-transform:uppercase;margin:4px 0 32px; }
@@ -23,7 +23,7 @@ body { background:#0a1628; font-family:'Segoe UI',system-ui,sans-serif; min-heig
 .lf label { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35);display:block;margin-bottom:7px; }
 .lf input { width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px 14px;color:#fff;font-size:14px;outline:none;transition:border-color 0.2s; }
 .lf input:focus { border-color:var(--gold); }
-.lbtn { width:100%;padding:14px;background:linear-gradient(135deg,var(--gold) 0%,#a07820 100%);color:#1a2a5e;border:none;border-radius:10px;font-size:14px;font-weight:900;cursor:pointer;letter-spacing:1px;margin-top:8px;box-shadow:0 4px 16px rgba(201,151,42,0.3); }
+.lbtn { width:100%;background:var(--gold);color:#000;border:none;border-radius:8px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:background 0.2s;margin-top:6px; }
 .lbtn:hover { background:var(--gold2); }
 .lerr { display:none;background:rgba(185,28,28,0.2);border:1px solid var(--red);color:#fca5a5;border-radius:8px;padding:10px;font-size:13px;margin-bottom:14px; }
 
@@ -49,8 +49,7 @@ body { background:#0a1628; font-family:'Segoe UI',system-ui,sans-serif; min-heig
 /* CONTENT */
 .content { padding:24px;max-width:1100px;margin:0 auto; }
 .page { display:none; }
-#page-lista.active, #page-novo.active, #page-contabil.active, #page-historico.active, #page-config.active { display:block !important; }
-.page.active { display:block !important; }
+.page.active { display:block; }
 
 /* FORM */
 .form-grid { display:grid;grid-template-columns:1fr 1fr;gap:20px; }
@@ -97,7 +96,7 @@ body { background:#0a1628; font-family:'Segoe UI',system-ui,sans-serif; min-heig
 .search-row input:focus { border-color:var(--navy); }
 .badge { background:#fff;border:1px solid var(--border);padding:10px 16px;border-radius:8px;font-size:13px;color:var(--muted);white-space:nowrap; }
 .badge strong { color:var(--navy); }
-.mgrid { display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;min-height:50px; }
+.mgrid { display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px; }
 .mcard { background:#fff;border:1px solid var(--border);border-radius:12px;overflow:visible;transition:all 0.2s; }
 .mcard:hover { border-color:var(--navy);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.08); }
 .mcard-photo { width:100%;aspect-ratio:1;background:#f3f4f6;display:flex;align-items:center;justify-content:center;overflow:hidden; }
@@ -234,64 +233,28 @@ body { background:#0a1628; font-family:'Segoe UI',system-ui,sans-serif; min-heig
 /* ── MARCA D'ÁGUA SIGNUMOR ── */
 .signumor-wm {
   position: fixed;
-  bottom: 14px;
-  right: 14px;
-  width: 40px;
-  opacity: 0.10;
+  bottom: 18px;
+  right: 18px;
+  width: 54px;
+  opacity: 0.13;
   pointer-events: none;
-  z-index: 9990;
-  filter: grayscale(30%);
+  z-index: 9998;
+  filter: grayscale(20%);
 }
 </style>
 
 <script>
 (function(){
-  // ══ MONITORAMENTO DE ERROS — SIGNUMOR ══
-  var _ERRO_CANAL = 'ubapff-signumor-erros-2026';
-  var _erroCount = 0;
-
-  function _enviarErroRemoto(titulo, corpo){
-    try{
-      fetch('https://ntfy.sh/'+_ERRO_CANAL,{
-        method:'POST',
-        headers:{'Title':titulo,'Priority':'high','Tags':'warning'},
-        body: corpo
-      }).catch(function(){});
-    }catch(e){}
-  }
-
-  window.onerror = function(msg, src, line, col, err){
+  window.onerror = function(msg, src, line){
     if(!src || !src.includes('prdlcsmrr.github.io')) return false;
-    _erroCount++;
-    // Alerta visual para o operador
     var t=document.createElement('div');
-    t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#b91c1c;color:#fff;padding:12px 18px;border-radius:10px;font-size:12px;z-index:99999;max-width:92vw;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.4);cursor:pointer;line-height:1.6';
-    t.innerHTML='<strong>⚠️ Erro no sistema</strong><br>'+msg+'<br><span style="opacity:0.7;font-size:10px">Linha '+line+' · Toque para detalhes</span>';
-    t.onclick=function(){ alert('ERRO #'+_erroCount+'
-
-'+msg+'
-Linha: '+line+'
-Arquivo: '+(src||'').split('/').pop()); };
+    t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#b91c1c;color:#fff;padding:10px 16px;border-radius:8px;font-size:12px;z-index:99999;max-width:90vw;text-align:center;cursor:pointer';
+    t.textContent='⚠️ Erro: '+msg+' (linha '+line+')';
+    t.onclick=function(){alert(t.textContent);};
     document.body.appendChild(t);
-    setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 10000);
-    // Notificação remota
-    var agora=new Date().toLocaleString('pt-BR');
-    _enviarErroRemoto(
-      'Erro UBAPFF #'+_erroCount,
-      agora+'
-'+msg+'
-Linha: '+line+'
-Arquivo: '+(src||'').split('/').pop()
-    );
+    setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},8000);
     return false;
   };
-
-  window.addEventListener('unhandledrejection',function(e){
-    if(!e.reason) return;
-    var msg=e.reason.message||String(e.reason);
-    _enviarErroRemoto('Erro Async UBAPFF', new Date().toLocaleString('pt-BR')+'
-'+msg);
-  });;
 })();
 
 // ── SERVICE WORKER — garante versão sempre atualizada ──
@@ -326,44 +289,17 @@ if('serviceWorker' in navigator){
 <body>
 
 <!-- LOGIN -->
-<div id="login-screen" style="position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#0a1628 0%,#1a2a5e 50%,#0d1f4a 100%);display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;">
-  <div style="width:100%;max-width:380px;">
-    <div class="login-box">
-
-      <!-- HEADER COM IDENTIDADE -->
-      <div class="login-header">
-        <img src="https://prdlcsmrr.github.io/Associa-o-/logo.png" style="height:72px;object-fit:contain;display:block;margin:0 auto 14px;">
-        <div style="font-size:18px;font-weight:900;letter-spacing:2px;color:var(--gold)">A.A.F.F — UBAPFF</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-top:4px">União Brasileira dos Agentes da Polícia Ferroviária Federal</div>
-        <div style="margin-top:14px;display:inline-flex;align-items:center;gap:6px;background:rgba(201,151,42,0.1);border:1px solid rgba(201,151,42,0.25);border-radius:20px;padding:4px 12px">
-          <span style="width:6px;height:6px;background:#4ade80;border-radius:50%;display:inline-block;box-shadow:0 0 6px #4ade80"></span>
-          <span style="font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:1px">SISTEMA OFICIAL</span>
-        </div>
-      </div>
-
-      <!-- FORMULÁRIO -->
-      <div class="login-body">
-        <div class="login-divider"><span>ACESSO RESTRITO</span></div>
-        <div class="lerr" id="lerr" style="margin-bottom:16px">✗ Usuário ou senha incorretos</div>
-        <div class="lf">
-          <label>Usuário</label>
-          <input id="lu" type="text" autocomplete="username" placeholder="Digite seu usuário" onkeydown="if(event.key==='Enter')login()">
-        </div>
-        <div class="lf">
-          <label>Senha</label>
-          <input id="lp" type="password" autocomplete="current-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()">
-        </div>
-        <button class="lbtn" onclick="login()">🔐 Acessar Sistema</button>
-        <div style="margin-top:20px;font-size:10px;color:rgba(255,255,255,0.2);letter-spacing:1px;line-height:1.6">
-          CNPJ 67.134.819/0001-12<br>
-          Acesso exclusivo para membros autorizados
-        </div>
-        <div style="margin-top:16px;font-size:9px;color:rgba(255,255,255,0.15);letter-spacing:1px">
-          Powered by SIGNUMOR
-        </div>
-      </div>
-
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <img src="https://prdlcsmrr.github.io/Associa-o-/logo.png" style="height:80px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto;">
+      <div style="font-size:14px;font-weight:900;letter-spacing:2px;color:var(--gold);margin-top:6px;">A.A.F.F — UBAPFF</div>
     </div>
+    <div class="login-sub">Sistema de Credencial Funcional</div>
+    <div class="lerr" id="lerr">✗ Usuário ou senha incorretos</div>
+    <div class="lf"><label>Usuário</label><input id="lu" type="text" onkeydown="if(event.key==='Enter')login()"></div>
+    <div class="lf"><label>Senha</label><input id="lp" type="password" onkeydown="if(event.key==='Enter')login()"></div>
+    <button class="lbtn" onclick="login()">Entrar</button>
   </div>
 </div>
 
@@ -390,7 +326,6 @@ if('serviceWorker' in navigator){
   <div class="tab" onclick="goTab('novo')">＋ Novo Cadastro</div>
   <div class="tab active" onclick="goTab('lista')">☰ Membros</div>
   <div class="tab" onclick="goTab('contabil')">💰 Contabilidade</div>
-  <div class="tab" onclick="goTab('historico')">📋 Histórico</div>
   <div class="tab" onclick="goTab('config')">⚙️ Configurações</div>
 </div>
 
@@ -491,7 +426,8 @@ if('serviceWorker' in navigator){
 
       <div>
         <div class="box">
-          <div class="box-title">📷 Foto do Membro *   <div class="wcframe" id="wcframe">
+          <div class="box-title">📷 Foto do Membro</div>
+          <div class="wcframe" id="wcframe">
             <video id="video" autoplay playsinline style="display:none"></video>
             <img id="preview" style="display:none">
             <div class="wcph" id="wcph">
@@ -1185,7 +1121,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
       <div id="cont-inadimplentes" style="padding:4px 0"></div>
     </div>
 
-    <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:24px">
+    <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden">
       <div style="background:#8a6500;padding:14px 20px;display:flex;align-items:center;gap:10px">
         <span style="font-size:16px">🔓</span>
         <span style="font-size:14px;font-weight:700;color:#fff;letter-spacing:1px">MEMBROS ISENTOS</span>
@@ -1193,95 +1129,6 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
       <div id="cont-isentos" style="padding:4px 0"></div>
     </div>
 
-    <!-- SAÍDAS -->
-    <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:24px">
-      <div style="background:#1a2a5e;padding:14px 20px;display:flex;align-items:center;justify-content:space-between">
-        <div style="display:flex;align-items:center;gap:10px">
-          <span style="font-size:16px">💸</span>
-          <span style="font-size:14px;font-weight:700;color:#fff;letter-spacing:1px">SAÍDAS / DESPESAS 2026</span>
-        </div>
-        <button onclick="abrirModalSaida()" style="background:var(--gold);color:#1a2a5e;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:800;cursor:pointer">+ Nova Saída</button>
-      </div>
-      <div id="cont-saidas" style="padding:4px 0"></div>
-    </div>
-
-    <!-- SALDO GERAL -->
-    <div id="cont-saldo" style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:24px"></div>
-
-  </div>
-</div>
-
-<!-- MODAL NOVA SAÍDA -->
-<div class="modal-overlay" id="modal-saida" onclick="fecharModalSaida(event)">
-  <div style="background:#fff;border-radius:16px;width:100%;max-width:480px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.3)">
-    <div style="background:var(--navy);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold)">
-      <div style="font-size:16px;font-weight:800;color:#fff" id="saida-modal-titulo">Nova Despesa</div>
-      <button onclick="fecharModalSaidaDirect()" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:22px;cursor:pointer">✕</button>
-    </div>
-    <div style="padding:20px 24px;display:flex;flex-direction:column;gap:14px">
-      <input type="hidden" id="saida-edit-id">
-      <div>
-        <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px">Data *</label>
-        <input type="date" id="saida-data" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:14px;margin-top:4px;box-sizing:border-box">
-      </div>
-      <div>
-        <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px">Descrição *</label>
-        <input type="text" id="saida-descricao" placeholder="Ex: Aluguel sala, Material gráfico..." style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:14px;margin-top:4px;box-sizing:border-box">
-      </div>
-      <div>
-        <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px">Categoria</label>
-        <select id="saida-categoria" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:14px;margin-top:4px;box-sizing:border-box">
-          <option value="Administrativo">Administrativo</option>
-          <option value="Material">Material</option>
-          <option value="Serviços">Serviços</option>
-          <option value="Eventos">Eventos</option>
-          <option value="Jurídico">Jurídico</option>
-          <option value="Comunicação">Comunicação</option>
-          <option value="Outros">Outros</option>
-        </select>
-      </div>
-      <div>
-        <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px">Valor (R$) *</label>
-        <input type="number" id="saida-valor" placeholder="0,00" min="0" step="0.01" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:14px;margin-top:4px;box-sizing:border-box">
-      </div>
-      <div>
-        <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px">Responsável</label>
-        <input type="text" id="saida-responsavel" placeholder="Nome de quem autorizou" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:14px;margin-top:4px;box-sizing:border-box">
-      </div>
-      <div style="display:flex;gap:10px;margin-top:6px">
-        <button onclick="fecharModalSaidaDirect()" style="flex:1;padding:12px;border-radius:8px;border:1.5px solid #e0e0e0;background:#fff;font-size:13px;font-weight:700;cursor:pointer;color:#555">Cancelar</button>
-        <button onclick="salvarSaida()" style="flex:2;padding:12px;border-radius:8px;border:none;background:var(--navy);color:#fff;font-size:13px;font-weight:700;cursor:pointer">💾 Salvar Despesa</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- HISTÓRICO -->
-<div class="page" id="page-historico">
-  <div style="max-width:800px;margin:0 auto;padding:8px 0 40px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
-      <div>
-        <div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:2px;text-transform:uppercase">A.A.F.F — UBAPFF</div>
-        <div style="font-size:20px;font-weight:900;color:var(--navy);margin-top:2px">📋 Histórico de Alterações</div>
-      </div>
-      <button onclick="limparHistorico()" style="background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer">🗑️ Limpar Tudo</button>
-    </div>
-    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
-      <input type="text" id="hist-busca" placeholder="🔍 Buscar..." oninput="renderHistorico()" style="flex:1;min-width:150px;padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:13px">
-      <select id="hist-filtro-tipo" onchange="renderHistorico()" style="padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:13px;background:#fff">
-        <option value="">Todos os tipos</option>
-        <option value="CADASTRO">➕ Cadastro</option>
-        <option value="EDICAO">✏️ Edição</option>
-        <option value="EXCLUSAO">🗑️ Exclusão</option>
-        <option value="STATUS">🔄 Status</option>
-        <option value="PAGAMENTO">💰 Pagamento</option>
-        <option value="ISENTO">🔓 Isento</option>
-        <option value="SAIDA">💸 Saída</option>
-      </select>
-    </div>
-    <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden">
-      <div id="hist-lista"></div>
-    </div>
   </div>
 </div>
 
@@ -1293,14 +1140,8 @@ const ORG_PRE='ASC';
 // LOGIN
 function login(){
   if(document.getElementById('lu').value===LUSER&&document.getElementById('lp').value===LPASS){
-    localStorage.setItem('ubapff-session','1');
+    sessionStorage.setItem('ok','1');
     document.getElementById('login-screen').style.display='none';
-    document.body.style.background='';
-    loadFromCloud();
-    // Mostrar loading e carregar dados
-    const _mg = document.getElementById('mgrid');
-    if(_mg) _mg.innerHTML = '<div style="padding:40px;text-align:center;color:#888"><div style="font-size:24px;margin-bottom:8px">⏳</div><div style="font-size:13px">Carregando membros...</div></div>';
-    loadFromCloud();
   } else {
     const e=document.getElementById('lerr');
     e.style.display='block';
@@ -1308,17 +1149,8 @@ function login(){
     setTimeout(()=>e.style.display='none',3000);
   }
 }
-function logout(){
-  localStorage.removeItem('ubapff-session');
-  document.getElementById('login-screen').style.display='flex';
-  document.body.style.background='#0a1628';
-  document.getElementById('lu').value='';
-  document.getElementById('lp').value='';
-}
-if(localStorage.getItem('ubapff-session')==='1'){
-  document.getElementById('login-screen').style.display='none';
-  document.body.style.background='';
-}
+function logout(){sessionStorage.removeItem('ok');location.reload();}
+if(sessionStorage.getItem('ok')==='1') document.getElementById('login-screen').style.display='none';
 
 // STATE
 let members=JSON.parse(localStorage.getItem('members')||'[]');
@@ -1328,14 +1160,13 @@ let _pagAtual=1; // Paginação
 // TABS
 function goTab(t){
   document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',
-    (t==='novo'&&i===0)||(t==='lista'&&i===1)||(t==='contabil'&&i===2)||(t==='historico'&&i===3)||(t==='config'&&i===4)
+    (t==='novo'&&i===0)||(t==='lista'&&i===1)||(t==='contabil'&&i===2)||(t==='config'&&i===3)
   ));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+t).classList.add('active');
   if(t==='lista') renderList();
   if(t==='config') goToConfig();
   if(t==='contabil') renderContabil();
-  if(t==='historico') renderHistorico();
 }
 
 // STATUS
@@ -1455,16 +1286,6 @@ async function salvar(){
   const tel=document.getElementById('f-tel').value.trim();
   const nasc=document.getElementById('f-nasc').value;
   if(!nome||!cpf||!tel||!nasc){showA('aerr');return;}
-  if(!photo){
-    alert('❌ Foto obrigatória!\nTire uma foto ou faça upload de uma imagem.');
-    // Scroll até a seção de foto
-    const fotoBtn = document.querySelector('.cam-btn');
-    if(fotoBtn) fotoBtn.scrollIntoView({behavior:'smooth', block:'center'});
-    // Destacar área de foto
-    const prevArea = document.getElementById('preview-area');
-    if(prevArea){ prevArea.style.outline='3px solid #b91c1c'; setTimeout(()=>prevArea.style.outline='',3000); }
-    return;
-  }
   if(!validarCPF(cpf)){
     alert('❌ CPF inválido! Verifique os dígitos.');
     document.getElementById('f-cpf').style.borderColor='#b91c1c';
@@ -1516,7 +1337,6 @@ async function salvar(){
   // Save to localStorage immediately
   localStorage.setItem('members',JSON.stringify(members));
 
-  registrarHistorico('CADASTRO','Novo membro: '+nome,numCred,nome);
   updateCount();
   showA('aok');
   limpar();
@@ -1594,7 +1414,6 @@ function toggleIsento(checked){
   const m = members.find(x=>String(x.id)===String(pagAtualId)||String(x.numCred)===String(pagAtualId));
   if(!m) return;
   m.isento = checked;
-  registrarHistorico('ISENTO',checked?'Isento marcado':'Isenção removida',m.numCred||m.id,m.nome);
   const pagos = m.pagamentos || [];
   renderMesesPag(pagos, checked);
   updatePagSummary(pagos, checked);
@@ -1607,8 +1426,8 @@ function togglePag(mes){
   if(!m) return;
   if(!m.pagamentos) m.pagamentos = [];
   const idx = m.pagamentos.indexOf(mes);
-  if(idx >= 0){ m.pagamentos.splice(idx, 1); removerDataPag(pagAtualId, mes); registrarHistorico('PAGAMENTO','Desmarcado: '+MESES_NOME[mes],m.numCred||m.id,m.nome); }
-  else { m.pagamentos.push(mes); registrarDataPag(pagAtualId, mes); registrarHistorico('PAGAMENTO','Pago: '+MESES_NOME[mes],m.numCred||m.id,m.nome); }
+  if(idx >= 0){ m.pagamentos.splice(idx, 1); removerDataPag(pagAtualId, mes); }
+  else { m.pagamentos.push(mes); registrarDataPag(pagAtualId, mes); }
 
   const pago = m.pagamentos.includes(mes);
   const btn = document.getElementById('pag-mes-'+mes);
@@ -1944,12 +1763,6 @@ function saveEdit(){
   localStorage.setItem('members', JSON.stringify(members));
   save(); // sinc JSONBin
   renderList();
-  // Foto: obrigatória se membro não tinha foto e não enviou nova
-  if(!fotoFinal){
-    alert('❌ Foto obrigatória! Adicione uma foto para este membro.');
-    return;
-  }
-  registrarHistorico('EDICAO','Editado: '+nome,members[idx].numCred||members[idx].id,nome);
   closeEditDirect();
 
   // Feedback
@@ -2088,7 +1901,6 @@ function toggleStatus(id){
   if(!m)return;
   const novo=m.status==='Ativo'?'Inativo':'Ativo';
   if(!confirm((novo==='Ativo'?'\u2705 ATIVAR':'\u26d4 DESATIVAR')+' a credencial de '+m.nome+'?'))return;
-  registrarHistorico('STATUS',(novo==='Ativo'?'Ativado':'Desativado')+': '+m.nome,m.numCred||m.id,m.nome);
   m.status=novo;
   save();
   renderList();
@@ -2131,7 +1943,6 @@ async function reloadMembers(){
 
   updateCount();
   renderList();
-  setTimeout(verificarVencimentos, 1000);
   if(btn){ btn.textContent='✅'; setTimeout(()=>{btn.textContent='🔄';btn.disabled=false;},1500); }
 }
 
@@ -2171,11 +1982,6 @@ async function loadFromCloud(){
 
   renderList();
   updateCount();
-  setTimeout(verificarVencimentos, 2000);
-  // Garantir que a tab lista está visível
-  if(document.getElementById('page-lista').classList.contains('active')){
-    document.getElementById('page-lista').style.display='block';
-  }
 }
 
 async function syncToCloud(){
@@ -2242,16 +2048,13 @@ function gerarCarteirinha(numCred){
   window.open('https://prdlcsmrr.github.io/Associa-o-/carteirinha.html?id='+encodeURIComponent(numCred),'_blank');
 }
 
-function del(id){if(!confirm('Excluir?'))return;const _dm=members.find(m=>m.id===id);if(_dm)registrarHistorico('EXCLUSAO','Excluído: '+_dm.nome,_dm.numCred||id,_dm.nome);members=members.filter(m=>m.id!==id);save();renderList();}
+function del(id){if(!confirm('Excluir?'))return;members=members.filter(m=>m.id!==id);save();renderList();}
 function clearAll(){if(!confirm('Apagar TODOS?'))return;members=[];save();renderList();}
 
 // INIT
+// Use localStorage first, cloud only if empty
 members = JSON.parse(localStorage.getItem('members') || '[]');
 renderList();
-// Carregar da nuvem sempre
-if(localStorage.getItem('ubapff-session')==='1') loadFromCloud();
-// Verificar vencimentos ao carregar (envia ntfy se necessário)
-setTimeout(verificarVencimentos, 3000);
 // ── CONFIG ──────────────────────────────────────────────────────────
 let cfg = JSON.parse(localStorage.getItem('assoc-config') || '{}');
 
@@ -2602,13 +2405,11 @@ function renderContabil(){
   let inadimplentes   = totalMembros - adimplentes;
 
   // CARDS
-  const totalSaidas2026 = saidas.filter(s=>s.data&&s.data.startsWith('2026')).reduce((a,s)=>a+s.valor,0);
-  const saldoGeral = totalAnual - totalSaidas2026;
   const cards = [
-    { icon:'💵', label:'Entradas 2026',    valor:brl(totalArrecadado), cor:'#1a7a3a' },
-    { icon:'💸', label:'Saídas 2026',      valor:brl(totalSaidas2026), cor:'#b91c1c' },
-    { icon:'📊', label:'Saldo',            valor:brl(saldoGeral),      cor: saldoGeral>=0?'#1a7a3a':'#b91c1c' },
-    { icon:'⚠️', label:'Inadimplentes',    valor:inadimplentes,        cor:'#c9972a' },
+    { icon:'💵', label:'Total Arrecadado 2026', valor:brl(totalArrecadado), cor:'#1a7a3a' },
+    { icon:'✅', label:'Adimplentes',            valor:adimplentes+' / '+totalMembros,  cor:'#1a2a5e' },
+    { icon:'⚠️', label:'Inadimplentes',          valor:inadimplentes,                   cor:'#b91c1c' },
+    { icon:'📋', label:'Total em Aberto',        valor:brl(totalEmAberto),              cor:'#c9972a' },
   ];
   document.getElementById('cont-cards').innerHTML = cards.map(c=>`
     <div style="background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.08);padding:16px;border-left:4px solid ${c.cor}">
@@ -2663,9 +2464,6 @@ function renderContabil(){
       <th style="padding:10px 8px;text-align:right;font-size:11px;color:#888;font-weight:700;text-transform:uppercase">Em Aberto</th>
       <th style="padding:10px 14px;text-align:center;font-size:11px;color:#888;font-weight:700;text-transform:uppercase">Situação</th>
     </tr></thead><tbody>${rows}</tbody>`;
-
-  // SAÍDAS
-  renderSaidas(totalAnual);
 
   // ISENTOS
   const isentoEl = document.getElementById('cont-isentos');
@@ -2779,282 +2577,8 @@ function badgeVencimento(validade){
   return '';
 }
 
-
-// ══════════════════════════════════════════
-// MÓDULO DE SAÍDAS / DESPESAS 2026
-// ══════════════════════════════════════════
-let saidas = JSON.parse(localStorage.getItem('ubapff-saidas') || '[]');
-
-function salvarSaidas(){
-  localStorage.setItem('ubapff-saidas', JSON.stringify(saidas));
-}
-
-function abrirModalSaida(id){
-  const modal = document.getElementById('modal-saida');
-  const hoje = new Date().toISOString().slice(0,10);
-  if(id){
-    // Editar
-    const s = saidas.find(x=>x.id===id);
-    if(!s) return;
-    document.getElementById('saida-modal-titulo').textContent = 'Editar Despesa';
-    document.getElementById('saida-edit-id').value = id;
-    document.getElementById('saida-data').value = s.data||hoje;
-    document.getElementById('saida-descricao').value = s.descricao||'';
-    document.getElementById('saida-categoria').value = s.categoria||'Outros';
-    document.getElementById('saida-valor').value = s.valor||'';
-    document.getElementById('saida-responsavel').value = s.responsavel||'';
-  } else {
-    // Nova
-    document.getElementById('saida-modal-titulo').textContent = 'Nova Despesa';
-    document.getElementById('saida-edit-id').value = '';
-    document.getElementById('saida-data').value = hoje;
-    document.getElementById('saida-descricao').value = '';
-    document.getElementById('saida-categoria').value = 'Administrativo';
-    document.getElementById('saida-valor').value = '';
-    document.getElementById('saida-responsavel').value = '';
-  }
-  modal.style.display='flex';
-  modal.classList.add('open');
-}
-
-function fecharModalSaida(e){
-  if(e.target===document.getElementById('modal-saida')) fecharModalSaidaDirect();
-}
-function fecharModalSaidaDirect(){
-  const modal=document.getElementById('modal-saida');
-  if(modal){ modal.classList.remove('open'); modal.style.display='none'; }
-}
-
-function salvarSaida(){
-  const data       = document.getElementById('saida-data').value;
-  const descricao  = document.getElementById('saida-descricao').value.trim();
-  const categoria  = document.getElementById('saida-categoria').value;
-  const valor      = parseFloat(document.getElementById('saida-valor').value);
-  const responsavel= document.getElementById('saida-responsavel').value.trim();
-  const editId     = document.getElementById('saida-edit-id').value;
-
-  if(!data||!descricao||isNaN(valor)||valor<=0){
-    alert('❌ Preencha data, descrição e valor corretamente.');
-    return;
-  }
-
-  if(editId){
-    const idx = saidas.findIndex(x=>x.id===editId);
-    if(idx>=0){
-      saidas[idx] = {...saidas[idx], data, descricao, categoria, valor, responsavel};
-    }
-  } else {
-    saidas.push({
-      id: 'S'+Date.now(),
-      data, descricao, categoria, valor, responsavel,
-      criadoEm: new Date().toISOString()
-    });
-  }
-
-  salvarSaidas();
-  fecharModalSaidaDirect();
-  renderContabil();
-}
-
-function excluirSaida(id){
-  if(!confirm('Excluir esta despesa?')) return;
-  saidas = saidas.filter(x=>x.id!==id);
-  salvarSaidas();
-  renderContabil();
-}
-
-function renderSaidas(totalEntradas){
-  const el = document.getElementById('cont-saidas');
-  const saldoEl = document.getElementById('cont-saldo');
-  if(!el) return;
-
-  // Filtrar só 2026
-  const saidas2026 = saidas.filter(s=>s.data&&s.data.startsWith('2026'))
-    .sort((a,b)=>b.data.localeCompare(a.data));
-
-  const totalSaidas = saidas2026.reduce((acc,s)=>acc+s.valor,0);
-  const saldo = totalEntradas - totalSaidas;
-
-  if(saidas2026.length===0){
-    el.innerHTML='<div style="padding:24px;text-align:center;color:#888;font-size:13px">Nenhuma despesa registrada em 2026.</div>';
-  } else {
-    el.innerHTML = saidas2026.map((s,i)=>`
-      <div style="display:grid;grid-template-columns:1fr auto;align-items:center;padding:12px 20px;border-bottom:1px solid #f3f4f6;background:${i%2===0?'#fff':'#fafafa'}">
-        <div>
-          <div style="font-size:13px;font-weight:700;color:var(--navy)">${s.descricao}</div>
-          <div style="font-size:11px;color:#888;margin-top:2px">
-            📅 ${formatarData(s.data)} · 
-            🏷️ ${s.categoria}
-            ${s.responsavel?'· 👤 '+s.responsavel:''}
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="font-size:14px;font-weight:900;color:#b91c1c;white-space:nowrap">− ${brl(s.valor)}</div>
-          <button onclick="abrirModalSaida('${s.id}')" style="background:#f3f4f6;border:none;border-radius:6px;padding:5px 8px;cursor:pointer;font-size:12px" title="Editar">✏️</button>
-          <button onclick="excluirSaida('${s.id}')" style="background:#fee2e2;border:none;border-radius:6px;padding:5px 8px;cursor:pointer;font-size:12px" title="Excluir">🗑️</button>
-        </div>
-      </div>`).join('') +
-    `<div style="display:grid;grid-template-columns:1fr auto;align-items:center;padding:14px 20px;background:#1a2a5e">
-      <div style="font-size:13px;font-weight:700;color:#fff">TOTAL DESPESAS 2026</div>
-      <div style="font-size:16px;font-weight:900;color:#ff9999">− ${brl(totalSaidas)}</div>
-    </div>`;
-  }
-
-  // Saldo geral
-  const corSaldo = saldo >= 0 ? '#1a7a3a' : '#b91c1c';
-  const iconSaldo = saldo >= 0 ? '📈' : '📉';
-  saldoEl.innerHTML = `
-    <div style="background:${saldo>=0?'#f0fdf4':'#fef2f2'};border:2px solid ${corSaldo};border-radius:14px;padding:20px 24px">
-      <div style="font-size:11px;font-weight:700;color:${corSaldo};text-transform:uppercase;letter-spacing:2px;margin-bottom:12px">${iconSaldo} Saldo Geral 2026</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;text-align:center">
-        <div>
-          <div style="font-size:10px;color:#888;margin-bottom:4px">Entradas</div>
-          <div style="font-size:16px;font-weight:900;color:#1a7a3a">${brl(totalEntradas)}</div>
-        </div>
-        <div>
-          <div style="font-size:10px;color:#888;margin-bottom:4px">Saídas</div>
-          <div style="font-size:16px;font-weight:900;color:#b91c1c">− ${brl(totalSaidas)}</div>
-        </div>
-        <div style="border-left:2px solid ${corSaldo};padding-left:16px">
-          <div style="font-size:10px;color:#888;margin-bottom:4px">Saldo</div>
-          <div style="font-size:18px;font-weight:900;color:${corSaldo}">${saldo>=0?'':'− '}${brl(Math.abs(saldo))}</div>
-        </div>
-      </div>
-    </div>`;
-}
-
-function formatarData(dataStr){
-  if(!dataStr) return '—';
-  const [y,m,d] = dataStr.split('-');
-  return `${d}/${m}/${y}`;
-}
-
-
-// ══════════════════════════════════════════
-// NOTIFICAÇÕES DE VENCIMENTO — ntfy.sh
-// ══════════════════════════════════════════
-const _CANAL_VENC = 'ubapff-signumor-erros-2026';
-
-function verificarVencimentos(){
-  if(!members || members.length === 0) return;
-
-  const hoje = new Date(); hoje.setHours(0,0,0,0);
-  const alertas = [];
-
-  members.forEach(m => {
-    if(!m.validade || m.status !== 'Ativo') return;
-    const val = new Date(m.validade + 'T00:00:00');
-    if(isNaN(val.getTime())) return;
-    const diffDias = Math.ceil((val - hoje) / 86400000);
-
-    if(diffDias < 0){
-      alertas.push({ nome: m.nome, numCred: m.numCred, diffDias, tipo: 'VENCIDA' });
-    } else if(diffDias <= 30){
-      alertas.push({ nome: m.nome, numCred: m.numCred, diffDias, tipo: 'PROXIMA' });
-    }
-  });
-
-  if(alertas.length === 0) return;
-
-  // Verificar se já notificamos hoje (evitar spam)
-  const hoje_str = hoje.toISOString().slice(0,10);
-  const ultimaVerif = localStorage.getItem('ubapff-venc-notif-data');
-  if(ultimaVerif === hoje_str) return;
-
-  // Montar mensagem
-  const vencidas = alertas.filter(a => a.tipo === 'VENCIDA');
-  const proximas = alertas.filter(a => a.tipo === 'PROXIMA');
-
-  let corpo = 'Verificacao diaria de credenciais UBAPFF\n\n';
-
-  if(vencidas.length > 0){
-    corpo += 'VENCIDAS (' + vencidas.length + '):\n';
-    vencidas.forEach(a => {
-      corpo += '- ' + a.nome + ' (' + a.numCred + ') — ' + Math.abs(a.diffDias) + ' dia(s) vencida\n';
-    });
-    corpo += '\n';
-  }
-
-  if(proximas.length > 0){
-    corpo += 'VENCENDO EM BREVE (' + proximas.length + '):\n';
-    proximas.forEach(a => {
-      corpo += '- ' + a.nome + ' (' + a.numCred + ') — vence em ' + a.diffDias + ' dia(s)\n';
-    });
-  }
-
-  const titulo = vencidas.length > 0
-    ? 'Credenciais vencidas: ' + vencidas.length + ' membro(s)'
-    : 'Credenciais vencendo: ' + proximas.length + ' membro(s)';
-
-  const prioridade = vencidas.length > 0 ? 'high' : 'default';
-  const tags = vencidas.length > 0 ? 'rotating_light' : 'warning';
-
-  // Enviar notificação
-  try {
-    fetch('https://ntfy.sh/' + _CANAL_VENC, {
-      method: 'POST',
-      headers: {
-        'Title': titulo,
-        'Priority': prioridade,
-        'Tags': tags
-      },
-      body: corpo
-    }).catch(function(){});
-  } catch(e){}
-
-  // Marcar como notificado hoje
-  localStorage.setItem('ubapff-venc-notif-data', hoje_str);
-}
-
-
-// ══ HISTÓRICO DE ALTERAÇÕES ══
-let historico = JSON.parse(localStorage.getItem('ubapff-historico') || '[]');
-function registrarHistorico(tipo, descricao, memberId, membroNome){
-  historico.unshift({id:'H'+Date.now(),data:new Date().toISOString(),usuario:(cfg&&cfg.loginUser)||'admin',tipo,descricao,memberId:memberId||null,membro:membroNome||null});
-  if(historico.length>200) historico=historico.slice(0,200);
-  localStorage.setItem('ubapff-historico',JSON.stringify(historico));
-}
-function renderHistorico(){
-  const el=document.getElementById('hist-lista'); if(!el) return;
-  const ft=document.getElementById('hist-filtro-tipo')?.value||'';
-  const fq=(document.getElementById('hist-busca')?.value||'').toLowerCase();
-  let lista=historico;
-  if(ft) lista=lista.filter(h=>h.tipo===ft);
-  if(fq) lista=lista.filter(h=>(h.descricao||'').toLowerCase().includes(fq)||(h.membro||'').toLowerCase().includes(fq));
-  if(lista.length===0){el.innerHTML='<div style="padding:30px;text-align:center;color:#888;font-size:13px">Nenhuma alteração registrada ainda.</div>';return;}
-  const ico={'CADASTRO':'➕','EDICAO':'✏️','EXCLUSAO':'🗑️','STATUS':'🔄','PAGAMENTO':'💰','ISENTO':'🔓','SAIDA':'💸'};
-  const cor={'CADASTRO':'#1a7a3a','EDICAO':'#1a2a5e','EXCLUSAO':'#b91c1c','STATUS':'#c2410c','PAGAMENTO':'#c9972a','ISENTO':'#8a6500','SAIDA':'#b91c1c'};
-  el.innerHTML=lista.map((h,i)=>{
-    const dt=new Date(h.data),dia=dt.toLocaleDateString('pt-BR'),hr=dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-    const c=cor[h.tipo]||'#555',ic=ico[h.tipo]||'📋';
-    return `<div style="display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;padding:14px 20px;border-bottom:1px solid #f3f4f6;background:${i%2===0?'#fff':'#fafafa'}">
-      <div style="width:36px;height:36px;border-radius:50%;background:${c}22;border:1.5px solid ${c}55;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${ic}</div>
-      <div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px">
-          <span style="font-size:11px;font-weight:800;color:${c};background:${c}18;padding:2px 8px;border-radius:10px">${h.tipo}</span>
-          <span style="font-size:12px;font-weight:700;color:#1a2a5e">${h.descricao}</span>
-        </div>
-        <div style="font-size:11px;color:#888">👤 ${h.usuario||'admin'} · 📅 ${dia} às ${hr}${h.membro?' · 🪪 '+h.membro:''}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
-function limparHistorico(){
-  if(!confirm('Limpar todo o histórico? Não pode ser desfeito.')) return;
-  historico=[];localStorage.removeItem('ubapff-historico');renderHistorico();
-}
-
 // Expor funções globalmente para onclicks em HTML dinâmico
 window.onCpfInput=onCpfInput;
-window.registrarHistorico=registrarHistorico;
-window.renderHistorico=renderHistorico;
-window.limparHistorico=limparHistorico;
-window.abrirModalSaida=abrirModalSaida;
-window.verificarVencimentos=verificarVencimentos;
-window.excluirSaida=excluirSaida;
-window.salvarSaida=salvarSaida;
-window.fecharModalSaidaDirect=fecharModalSaidaDirect;
-window.fecharModalSaida=fecharModalSaida;
 window.badgeVencimento=badgeVencimento;
 if(typeof openCred!=="undefined") window.openCred=openCred;
 if(typeof closeMD!=="undefined") window.closeMD=closeMD;
