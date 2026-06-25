@@ -1116,6 +1116,19 @@ function onCpfInput(el){
   else el.style.borderColor='';
 }
 
+
+// ── ALERTA VENCIMENTO ──
+function badgeVencimento(validade){
+  if(!validade) return '';
+  var hoje=new Date(); hoje.setHours(0,0,0,0);
+  var val=new Date(validade+'T00:00:00');
+  if(isNaN(val.getTime())) return '';
+  var diff=Math.ceil((val-hoje)/86400000);
+  if(diff<0) return '<div style="display:inline-flex;align-items:center;gap:4px;background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;margin-top:4px">🚨 CREDENCIAL VENCIDA</div>';
+  if(diff<=30) return '<div style="display:inline-flex;align-items:center;gap:4px;background:#fff7ed;color:#c2410c;border:1px solid #fdba74;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;margin-top:4px">⚠️ VENCE EM '+diff+' DIA'+(diff===1?'':'S')+'</div>';
+  return '';
+}
+
 // LOGIN
 function login(){
   if(document.getElementById('lu').value===LUSER&&document.getElementById('lp').value===LPASS){
@@ -1506,6 +1519,7 @@ function renderList(){
         <div class="mcard-name">${m.nome}</div>
         <div class="mcard-cat">${m.cat} · ${m.numCred}</div>
         <div class="mcard-status ${m.status==='Ativo'?'ativo':'inativo'}">● ${m.status==='Ativo'?'Credencial Ativa':'Credencial Inativa'}</div>
+        ${badgeVencimento(m.validade)}
         ${m.isento?'<div style="display:inline-flex;align-items:center;gap:4px;background:rgba(201,151,42,0.12);color:#8a6500;border:1px solid rgba(201,151,42,0.4);padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;margin-top:4px">🔓 ISENTO</div>':''}
         <div style="display:flex;gap:8px;align-items:center">
           <button class="mcard-btn mcard-btn-cred" onclick="openCred(${m.id})" style="flex:1;padding:8px">🪪 Ver Credencial</button>
