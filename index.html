@@ -97,18 +97,18 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 .badge { background:#fff;border:1px solid var(--border);padding:10px 16px;border-radius:8px;font-size:13px;color:var(--muted);white-space:nowrap; }
 .badge strong { color:var(--navy); }
 .mgrid { display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px; }
-.mcard { background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all 0.2s;display:flex;flex-direction:column; }
+.mcard { background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all 0.2s;display:flex;flex-direction:row; }
 .mcard:hover { border-color:var(--navy);box-shadow:0 4px 16px rgba(0,0,0,0.08); }
-.mcard-photo { width:100%;height:120px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;overflow:hidden; }
-.mcard-photo img { width:100%;height:100%;object-fit:cover; }
+.mcard-photo { width:90px;min-width:90px;height:auto;background:#f3f4f6;display:flex;align-items:center;justify-content:center;overflow:hidden; }
+.mcard-photo img { width:90px;height:100%;object-fit:cover; }
 .mcard-ph { display:flex;flex-direction:column;align-items:center;gap:6px;color:#9ca3af;font-size:11px; }
-.mcard-body { padding:14px; }
+.mcard-body { padding:12px;flex:1;min-width:0; }
 .mcard-name { font-size:15px;font-weight:800;color:var(--navy);margin-bottom:2px; }
 .mcard-cat { font-size:11px;color:var(--muted);margin-bottom:8px; }
 .mcard-status { display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase; }
 .mcard-status.ativo { background:rgba(26,122,58,0.1);color:var(--green); }
 .mcard-status.inativo { background:rgba(185,28,28,0.08);color:var(--red); }
-.mcard-acts { display:flex;gap:6px;margin-top:10px; }
+.mcard-acts { display:flex;gap:6px;margin-top:8px;flex-wrap:wrap; }
 .mcard-btn { flex:1;padding:7px;border-radius:6px;border:none;font-size:10px;font-weight:700;cursor:pointer;text-transform:uppercase;transition:all 0.2s; }
 .mcard-btn-cred { background:#f3f4f6;color:var(--navy); }
 .mcard-btn-cred:hover { background:var(--navy);color:#fff; }
