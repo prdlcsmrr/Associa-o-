@@ -1529,7 +1529,7 @@ function saveEdit(){
 }
 
 function openCred(id){
-  const m=members.find(x=>x.id===id); if(!m)return;
+  const m=members.find(x=>String(x.id)===String(id)||String(x.numCred)===String(id)); if(!m)return;
   _credAtualId=m.numCred;
   const ativo=m.status==='Ativo';
 
@@ -1576,11 +1576,12 @@ function openCred(id){
   sit.textContent=ativo?'ATIVO':'INATIVO';
   sit.style.color=ativo?'#111':'#cc0000';
 
-  document.getElementById('modal').classList.add('open');
+  var mc=document.getElementById('modal');
+  if(mc){ mc.style.display='flex'; mc.classList.add('open'); }
 }
 
 function closeM(e){if(e.target===document.getElementById('modal'))closeMD();}
-function closeMD(){document.getElementById('modal').classList.remove('open');}
+function closeMD(){var mc=document.getElementById('modal'); if(mc){mc.style.display='none';mc.classList.remove('open');} goTab('lista');}
 
 function abrirCarteirinha(){
   if(_credAtualId) gerarCarteirinha(_credAtualId);
