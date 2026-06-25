@@ -1550,6 +1550,7 @@ function renderList(){
         <div class="mcard-cat">${m.cat} · ${m.numCred}</div>
         ${m.lotacao?`<div style="font-size:10px;color:#888;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📍 ${m.lotacao}</div>`:''}
         <div class="mcard-status ${m.status==='Ativo'?'ativo':'inativo'}">● ${m.status==='Ativo'?'Credencial Ativa':'Credencial Inativa'}</div>
+        ${badgeVencimento(m.validade)}
         ${m.isento?'<div style="display:inline-flex;align-items:center;gap:4px;background:rgba(201,151,42,0.12);color:#8a6500;border:1px solid rgba(201,151,42,0.4);padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;margin-top:4px">🔓 ISENTO</div>':''}
         <div style="display:flex;gap:8px;align-items:center">
           <button class="mcard-btn mcard-btn-cred" onclick="openCred(${m.id})" style="flex:1;padding:8px">🪪 Ver Credencial</button>
@@ -2558,8 +2559,27 @@ function onCpfInput(el){
   }
 }
 
+
+// ── ALERTA DE VENCIMENTO ────────────────────
+function badgeVencimento(validade){
+  if(!validade) return '';
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const val  = new Date(validade + 'T00:00:00');
+  if(isNaN(val.getTime())) return '';
+  const diffMs   = val - hoje;
+  const diffDias = Math.ceil(diffMs / 86400000);
+  if(diffDias < 0){
+    return '<div style="display:inline-flex;align-items:center;gap:4px;background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;margin-top:4px">🚨 CREDENCIAL VENCIDA</div>';
+  }
+  if(diffDias <= 30){
+    return `<div style="display:inline-flex;align-items:center;gap:4px;background:#fff7ed;color:#c2410c;border:1px solid #fdba74;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;margin-top:4px">⚠️ VENCE EM ${diffDias} DIA${diffDias===1?'':'S'}</div>`;
+  }
+  return '';
+}
+
 // Expor funções globalmente para onclicks em HTML dinâmico
 window.onCpfInput=onCpfInput;
+window.badgeVencimento=badgeVencimento;
 if(typeof openCred!=="undefined") window.openCred=openCred;
 if(typeof closeMD!=="undefined") window.closeMD=closeMD;
 if(typeof toggleStatus!=="undefined") window.toggleStatus=toggleStatus;
