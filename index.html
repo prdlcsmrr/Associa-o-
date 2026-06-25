@@ -2093,14 +2093,28 @@ function saveConfig(){
     ver_porte:document.getElementById('cfg-ver-porte').checked
   };
 
-  localStorage.setItem('assoc-config',JSON.stringify(cfg));
+  // Salvar no localStorage com verificação
+  try {
+    localStorage.setItem('assoc-config', JSON.stringify(cfg));
+    const verificar = localStorage.getItem('assoc-config');
+    if (!verificar) throw new Error('localStorage retornou vazio');
+  } catch(lsErr) {
+    alert('⚠️ Erro ao salvar: ' + lsErr.message + '\n\nVerifique se não está em modo privado.');
+    return;
+  }
   loadConfig();
-  // Clear password fields
+  // Limpar campos de senha
   document.getElementById('cfg-pass-atual').value='';
   document.getElementById('cfg-pass-nova').value='';
   document.getElementById('cfg-pass-conf').value='';
-  alert('✅ Configurações salvas!\nAs mudanças foram aplicadas em toda a página.');
-  goTab('lista');
+  // Feedback visual no botão
+  const btnSalvar = document.querySelector('[onclick="saveConfig()"]');
+  if(btnSalvar){
+    const orig = btnSalvar.textContent;
+    btnSalvar.textContent = '✅ Salvo com sucesso!';
+    btnSalvar.style.background = '#1a7a3a';
+    setTimeout(()=>{ btnSalvar.textContent=orig; btnSalvar.style.background=''; }, 2500);
+  }
 }
 
 function resetConfig(){
