@@ -1441,7 +1441,11 @@ function openEdit(id){
 }
 
 function closeEdit(e){ if(e.target===document.getElementById('modal-edit')) closeEditDirect(); }
-function closeEditDirect(){ document.getElementById('modal-edit').classList.remove('open'); _editId=null; _editFotoData=null; }
+function closeEditDirect(){
+  var m=document.getElementById('modal-edit');
+  if(m){ m.style.display='none'; m.classList.remove('open'); }
+  _editId=null; _editFotoData=null;
+}
 
 function editFotoUpload(input){
   const file = input.files[0]; if(!file) return;
