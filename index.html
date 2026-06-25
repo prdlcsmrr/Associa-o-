@@ -15,7 +15,7 @@
 body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-height:100vh; color:var(--text); }
 
 /* LOGIN */
-#login-screen { position:fixed;inset:0;background:var(--navy2);display:flex;align-items:center;justify-content:center;z-index:9999; }
+#login-screen { position:fixed;inset:0;z-index:9999; }
 .login-box { background:rgba(255,255,255,0.06);border:1px solid rgba(201,151,42,0.25);border-radius:16px;padding:48px 36px;width:100%;max-width:360px;text-align:center; }
 .login-logo { color:var(--gold);font-weight:900;letter-spacing:3px;margin-bottom:4px; }
 .login-sub { font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:4px;text-transform:uppercase;margin:4px 0 32px; }
@@ -23,7 +23,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 .lf label { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35);display:block;margin-bottom:7px; }
 .lf input { width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px 14px;color:#fff;font-size:14px;outline:none;transition:border-color 0.2s; }
 .lf input:focus { border-color:var(--gold); }
-.lbtn { width:100%;background:var(--gold);color:#000;border:none;border-radius:8px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:background 0.2s;margin-top:6px; }
+.lbtn { width:100%;padding:14px;background:linear-gradient(135deg,var(--gold) 0%,#a07820 100%);color:#1a2a5e;border:none;border-radius:10px;font-size:14px;font-weight:900;cursor:pointer;letter-spacing:1px;margin-top:8px;box-shadow:0 4px 16px rgba(201,151,42,0.3); }
 .lbtn:hover { background:var(--gold2); }
 .lerr { display:none;background:rgba(185,28,28,0.2);border:1px solid var(--red);color:#fca5a5;border-radius:8px;padding:10px;font-size:13px;margin-bottom:14px; }
 
@@ -326,16 +326,43 @@ if('serviceWorker' in navigator){
 
 <!-- LOGIN -->
 <div id="login-screen">
-  <div class="login-box">
-    <div class="login-logo">
-      <img src="https://prdlcsmrr.github.io/Associa-o-/logo.png" style="height:80px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto;">
-      <div style="font-size:14px;font-weight:900;letter-spacing:2px;color:var(--gold);margin-top:6px;">A.A.F.F — UBAPFF</div>
+  <div class="login-screen-bg">
+    <div class="login-box">
+
+      <!-- HEADER COM IDENTIDADE -->
+      <div class="login-header">
+        <img src="https://prdlcsmrr.github.io/Associa-o-/logo.png" style="height:72px;object-fit:contain;display:block;margin:0 auto 14px;">
+        <div style="font-size:18px;font-weight:900;letter-spacing:2px;color:var(--gold)">A.A.F.F — UBAPFF</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-top:4px">União Brasileira dos Agentes da Polícia Ferroviária Federal</div>
+        <div style="margin-top:14px;display:inline-flex;align-items:center;gap:6px;background:rgba(201,151,42,0.1);border:1px solid rgba(201,151,42,0.25);border-radius:20px;padding:4px 12px">
+          <span style="width:6px;height:6px;background:#4ade80;border-radius:50%;display:inline-block;box-shadow:0 0 6px #4ade80"></span>
+          <span style="font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:1px">SISTEMA OFICIAL</span>
+        </div>
+      </div>
+
+      <!-- FORMULÁRIO -->
+      <div class="login-body">
+        <div class="login-divider"><span>ACESSO RESTRITO</span></div>
+        <div class="lerr" id="lerr" style="margin-bottom:16px">✗ Usuário ou senha incorretos</div>
+        <div class="lf">
+          <label>Usuário</label>
+          <input id="lu" type="text" autocomplete="username" placeholder="Digite seu usuário" onkeydown="if(event.key==='Enter')login()">
+        </div>
+        <div class="lf">
+          <label>Senha</label>
+          <input id="lp" type="password" autocomplete="current-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()">
+        </div>
+        <button class="lbtn" onclick="login()">🔐 Acessar Sistema</button>
+        <div style="margin-top:20px;font-size:10px;color:rgba(255,255,255,0.2);letter-spacing:1px;line-height:1.6">
+          CNPJ 67.134.819/0001-12<br>
+          Acesso exclusivo para membros autorizados
+        </div>
+        <div style="margin-top:16px;font-size:9px;color:rgba(255,255,255,0.15);letter-spacing:1px">
+          Powered by SIGNUMOR
+        </div>
+      </div>
+
     </div>
-    <div class="login-sub">Sistema de Credencial Funcional</div>
-    <div class="lerr" id="lerr">✗ Usuário ou senha incorretos</div>
-    <div class="lf"><label>Usuário</label><input id="lu" type="text" onkeydown="if(event.key==='Enter')login()"></div>
-    <div class="lf"><label>Senha</label><input id="lp" type="password" onkeydown="if(event.key==='Enter')login()"></div>
-    <button class="lbtn" onclick="login()">Entrar</button>
   </div>
 </div>
 
