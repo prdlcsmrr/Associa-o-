@@ -247,6 +247,11 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 html, body { max-width: 100%; overflow-x: hidden; }
 html { overflow-y: auto; }
 .app-header, .tabs, .content, .page { max-width: 100%; overflow-x: hidden; }
+
+/* Tabs mobile */
+.tabs { overflow:hidden; }
+.tab { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:11px; }
+.tab-more { flex:0 0 44px; font-size:18px; font-weight:900; }
 </style>
 
 <script>
@@ -329,10 +334,21 @@ if('serviceWorker' in navigator){
 </div>
 
 <div class="tabs">
-  <div class="tab" onclick="goTab('novo')">＋ Novo Cadastro</div>
-  <div class="tab active" onclick="goTab('lista')">☰ Membros</div>
-  <div class="tab" onclick="goTab('contabil')">💰 Contabilidade</div>
-  <div class="tab" onclick="goTab('config')">⚙️ Configurações</div>
+  <div class="tab" onclick="goTab('novo')" id="tab-novo">＋ Novo</div>
+  <div class="tab active" onclick="goTab('lista')" id="tab-lista">☰ Membros</div>
+  <div class="tab" onclick="goTab('contabil')" id="tab-contabil">💰 Financeiro</div>
+  <div class="tab tab-more" onclick="toggleTabMenu()" id="tab-more">⋯</div>
+</div>
+<!-- MENU DE ABAS EXTRAS -->
+<div id="tab-menu" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:88888" onclick="fecharTabMenu()">
+  <div style="position:absolute;top:110px;right:10px;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,0.25);overflow:hidden;min-width:200px" onclick="event.stopPropagation()">
+    <div onclick="goTab('historico');fecharTabMenu()" style="display:flex;align-items:center;gap:12px;padding:14px 18px;font-size:14px;font-weight:600;color:#1a2a5e;border-bottom:1px solid #f0f0f0;cursor:pointer">
+      📋 Histórico
+    </div>
+    <div onclick="goTab('config');fecharTabMenu()" style="display:flex;align-items:center;gap:12px;padding:14px 18px;font-size:14px;font-weight:600;color:#1a2a5e;cursor:pointer">
+      ⚙️ Configurações
+    </div>
+  </div>
 </div>
 
 <div class="content">
@@ -2582,6 +2598,8 @@ function badgeVencimento(validade){
 }
 
 // Expor funções globalmente para onclicks em HTML dinâmico
+window.toggleTabMenu=toggleTabMenu;
+window.fecharTabMenu=fecharTabMenu;
 window.onCpfInput=onCpfInput;
 window.badgeVencimento=badgeVencimento;
 if(typeof openCred!=="undefined") window.openCred=openCred;
