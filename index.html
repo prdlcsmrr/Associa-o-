@@ -1296,6 +1296,9 @@ function login(){
     localStorage.setItem('ubapff-session','1');
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app-container').style.display='block';
+    // Mostrar loading e carregar dados
+    const _mg = document.getElementById('mgrid');
+    if(_mg) _mg.innerHTML = '<div style="padding:40px;text-align:center;color:#888"><div style="font-size:24px;margin-bottom:8px">⏳</div><div style="font-size:13px">Carregando membros...</div></div>';
     loadFromCloud();
   } else {
     const e=document.getElementById('lerr');
@@ -2167,6 +2170,7 @@ async function loadFromCloud(){
 
   renderList();
   updateCount();
+  setTimeout(verificarVencimentos, 2000);
 }
 
 async function syncToCloud(){
@@ -2237,11 +2241,16 @@ function del(id){if(!confirm('Excluir?'))return;const _dm=members.find(m=>m.id==
 function clearAll(){if(!confirm('Apagar TODOS?'))return;members=[];save();renderList();}
 
 // INIT
-// Use localStorage first, cloud only if empty
 members = JSON.parse(localStorage.getItem('members') || '[]');
-renderList();
-// Carregar dados da nuvem se logado
-if(localStorage.getItem('ubapff-session')==='1') loadFromCloud();
+// Sempre chamar loadFromCloud — garante dados atualizados
+if(localStorage.getItem('ubapff-session')==='1'){
+  // Mostrar loading enquanto carrega
+  const mgrid = document.getElementById('mgrid');
+  if(mgrid) mgrid.innerHTML = '<div style="padding:40px;text-align:center;color:#888"><div style="font-size:24px;margin-bottom:8px">⏳</div><div style="font-size:13px">Carregando membros...</div></div>';
+  loadFromCloud();
+} else {
+  renderList();
+}
 // Verificar vencimentos ao carregar (envia ntfy se necessário)
 setTimeout(verificarVencimentos, 3000);
 // ── CONFIG ──────────────────────────────────────────────────────────
