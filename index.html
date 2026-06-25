@@ -12,10 +12,10 @@
   --text:#1a1a2e; --muted:#6b7280; --border:#d1d5db;
   --bg:#e8eaed; --white:#fff;
 }
-body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-height:100vh; color:var(--text); }
+body { background:#0a1628; font-family:'Segoe UI',system-ui,sans-serif; min-height:100vh; color:var(--text); }
 
 /* LOGIN */
-#login-screen { position:fixed;inset:0;z-index:99999;background:#0a1628; }
+#login-screen { position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;z-index:99999;background:#0a1628;-webkit-transform:translateZ(0);transform:translateZ(0); }
 .login-box { background:rgba(255,255,255,0.06);border:1px solid rgba(201,151,42,0.25);border-radius:16px;padding:48px 36px;width:100%;max-width:360px;text-align:center; }
 .login-logo { color:var(--gold);font-weight:900;letter-spacing:3px;margin-bottom:4px; }
 .login-sub { font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:4px;text-transform:uppercase;margin:4px 0 32px; }
@@ -1296,6 +1296,7 @@ function login(){
     localStorage.setItem('ubapff-session','1');
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app-container').style.display='block';
+    document.body.style.background='';
     // Mostrar loading e carregar dados
     const _mg = document.getElementById('mgrid');
     if(_mg) _mg.innerHTML = '<div style="padding:40px;text-align:center;color:#888"><div style="font-size:24px;margin-bottom:8px">⏳</div><div style="font-size:13px">Carregando membros...</div></div>';
