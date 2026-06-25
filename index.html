@@ -47,7 +47,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 .tab.active { color:var(--gold);border-bottom-color:var(--gold); }
 
 /* CONTENT */
-.content { padding:16px;max-width:1100px;margin:0 auto;overflow-y:auto; }
+.content { padding:16px;max-width:1100px;margin:0 auto; }
 .page { display:none; }
 .page.active { display:block; }
 
@@ -2706,6 +2706,18 @@ function limparHistorico(){
   if(!confirm('Limpar todo o histórico?')) return;
   historico=[];localStorage.removeItem('ubapff-historico');renderHistorico();
 }
+
+
+// ── MOVER MODAIS PARA O BODY (fix iOS Safari position:fixed) ──
+document.addEventListener('DOMContentLoaded', function(){
+  var ids = ['modal-edit','modal-pag','modal','modal-saida','tab-menu','login-screen'];
+  ids.forEach(function(id){
+    var el = document.getElementById(id);
+    if(el && el.parentElement !== document.body){
+      document.body.appendChild(el);
+    }
+  });
+});
 
 // Expor funções globalmente para onclicks em HTML dinâmico
 window.toggleTabMenu=toggleTabMenu;
