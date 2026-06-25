@@ -2255,11 +2255,11 @@ function brl(v){ return 'R$ '+Number(v).toFixed(2).replace('.',','); }
 
 function renderContabil(){
   const valorMes = parseFloat((cfg&&cfg.valorMensalidade)||'100');
-  const totalMembros = membrosAtivos.length;
   const mesAtual = new Date().getMonth();
 
   const membrosAtivos   = members.filter(m => m.isento !== true);
   const membrosIsentos  = members.filter(m => m.isento === true);
+  const totalMembros    = membrosAtivos.length;
 
   const dadosMembros = membrosAtivos.map(m => {
     const pag = m.pagamentos || [];
