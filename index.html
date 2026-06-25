@@ -1255,7 +1255,8 @@ function limpar(){
   document.getElementById('f-cat').value='Membro';
   setStatus('Ativo');retake();
 }
-function save(){localStorage.setItem('members',JSON.stringify(members));// ── PAGAMENTOS ──────────────────────────────────────────────────────
+function save(){localStorage.setItem('members',JSON.stringify(members));}
+// ── PAGAMENTOS ──────────────────────────────────────────────────────
 const MESES_NOME = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 let pagAtualId = null;
 
