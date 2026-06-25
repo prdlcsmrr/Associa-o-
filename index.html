@@ -1259,7 +1259,7 @@ function openPag(id){
 }
 
 function togglePag(mes){
-  const m = members.find(x=>x.id===pagAtualId);
+  const m = members.find(x=>String(x.id)===String(pagAtualId)||String(x.numCred)===String(pagAtualId));
   if(!m) return;
   if(!m.pagamentos) m.pagamentos = [];
   const idx = m.pagamentos.indexOf(mes);
@@ -1291,8 +1291,11 @@ function savePag(){
 }
 
 function closePag(e){ if(e.target===document.getElementById('modal-pag')) closePagDirect(); }
-function closePagDirect(){ document.getElementById('modal-pag').classList.remove('open'); pagAtualId=null; }
-
+function closePagDirect(){
+  var modal=document.getElementById('modal-pag');
+  if(modal){ modal.style.display='none'; modal.classList.remove('open'); }
+  pagAtualId=null;
+}
 function updatePixPlaceholder(){
   const tipo = document.getElementById('cfg-pix-tipo').value;
   const field = document.getElementById('cfg-pix-chave');
