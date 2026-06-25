@@ -1255,7 +1255,8 @@ function openPag(id){
 
   document.getElementById('pag-meses').innerHTML = html;
   updatePagSummary(pagos);
-  document.getElementById('modal-pag').classList.add('open');
+  var mpag=document.getElementById('modal-pag');
+  if(mpag){ mpag.style.display='flex'; mpag.classList.add('open'); }
 }
 
 function togglePag(mes){
