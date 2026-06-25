@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache">
+<title>Exportar Dados UBAPFF</title>
+<style>
+body{font-family:Arial;background:#1a2a5e;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px;text-align:center}
+h2{color:#c9952a;margin-bottom:20px}
+button{background:#c9952a;color:#fff;border:none;padding:16px 32px;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;margin:10px}
+#result{background:#fff;color:#333;padding:16px;border-radius:8px;margin-top:20px;width:100%;max-width:600px;word-break:break-all;font-size:11px;text-align:left;display:none}
+#status{font-size:18px;margin:20px 0}
+</style>
+</head>
+<body>
+<h2>🛡️ Exportar Dados UBAPFF</h2>
+<div id="status">Carregando...</div>
+<button onclick="exportar()">📤 EXPORTAR E SALVAR</button>
+<div id="result"></div>
+
+<script>
+function exportar(){
+  const members = JSON.parse(localStorage.getItem('members')||'[]');
+  const status = document.getElementById('status');
+  const result = document.getElementById('result');
+  
+  if(!members || members.length === 0){
+    status.textContent = '❌ Nenhum membro encontrado no localStorage';
+    return;
+  }
+  
+  status.textContent = '✅ ' + members.length + ' membros encontrados!';
+  
+  // Mostrar dados
+  result.style.display = 'block';
+  result.textContent = JSON.stringify({membros: members}, null, 2);
+  
+  // Download automático
+  const blob = new Blob([JSON.stringify({membros: members}, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'membros_ubapff_backup.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  
+  status.textContent = '✅ ' + members.length + ' membros exportados! Arquivo baixado.';
+}
+
+// Auto-carregar ao abrir
+window.onload = function(){
+  const members = JSON.parse(localStorage.getItem('members')||'[]');
+  document.getElementById('status').textContent = 
+    members.length > 0 
+      ? '✅ ' + members.length + ' membros no localStorage' 
+      : '❌ Nenhum membro encontrado';
+};
+</script>
+</body>
+</html>
