@@ -230,6 +230,21 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
   .tabs,.header-inner{padding-left:16px;padding-right:16px;}
 }
 </style>
+
+<script>
+(function(){
+  window.onerror = function(msg, src, line){
+    if(!src || !src.includes('prdlcsmrr.github.io')) return false;
+    var t=document.createElement('div');
+    t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#b91c1c;color:#fff;padding:10px 16px;border-radius:8px;font-size:12px;z-index:99999;max-width:90vw;text-align:center;cursor:pointer';
+    t.textContent='⚠️ Erro: '+msg+' (linha '+line+')';
+    t.onclick=function(){alert(t.textContent);};
+    document.body.appendChild(t);
+    setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},8000);
+    return false;
+  };
+})();
+</script>
 </head>
 <body>
 
@@ -1096,7 +1111,8 @@ function limpar(){
   document.getElementById('f-cat').value='Membro';
   setStatus('Ativo');retake();
 }
-function save(){localStorage.setItem('members',JSON.stringify(members));// ── PAGAMENTOS ──────────────────────────────────────────────────────
+function save(){localStorage.setItem('members',JSON.stringify(members));}
+// ── PAGAMENTOS ──────────────────────────────────────────────────────
 const MESES_NOME = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 let pagAtualId = null;
 
@@ -1227,10 +1243,10 @@ function renderList(){
           <div style="position:relative;overflow:visible" id="menu-wrap-${m.id}">
             <button onclick="toggleMenu(${m.id},event)" style="width:36px;height:34px;border-radius:8px;border:1px solid #e0e0e0;background:#f9f9f9;cursor:pointer;font-size:18px;font-weight:900;color:#555;display:flex;align-items:center;justify-content:center" title="Mais opções">⋯</button>
             <div onclick="event.stopPropagation()" id="dd-${m.id}" style="display:none;position:absolute;top:38px;right:0;background:#fff;border:1px solid #e0e0e0;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.35);min-width:210px;z-index:9999;overflow:hidden">
-              <div onclick="openEdit(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">✏️ Editar Cadastro</div>
+              <div onclick="menuEditarMembro('${m.numCred}')" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">✏️ Editar Cadastro</div>
               <div onclick="gerarCarteirinha('${m.numCred}');closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">🖨️ Gerar Carteirinha</div>
               <div onclick="gerarCobranca('${m.numCred}');closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">💰 Cobrança / Carnê</div>
-              <div onclick="openPag(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">📋 Pagamentos</div>
+              <div onclick="menuPagamentos('${m.numCred}')" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#1a2a5e;cursor:pointer;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''">📋 Pagamentos</div>
               <div onclick="toggleStatus(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;cursor:pointer;border-bottom:1px solid #f3f4f6;color:${m.status==='Ativo'?'#b91c1c':'#2a7a38'}" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background=''"> ${m.status==='Ativo'?'⛔ Desativar':'✅ Ativar'} Credencial</div>
               <div onclick="del(${m.id});closeMenus()" style="display:flex;align-items:center;gap:10px;padding:11px 16px;font-size:13px;font-weight:600;color:#b91c1c;cursor:pointer" onmouseover="this.style.background='#fff5f5'" onmouseout="this.style.background=''">🗑️ Excluir Membro</div>
             </div>
@@ -1267,8 +1283,8 @@ let _editId = null;
 let _editFotoData = null;
 
 function openEdit(id){
-  const m = members.find(x=>x.id===id);
-  if(!m) return;
+  const m = members.find(x=>String(x.id)===String(id)||String(x.numCred)===String(id));
+  if(!m){ return; }
   _editId = id;
   _editFotoData = m.foto || null;
 
@@ -2138,6 +2154,15 @@ const ny=new Date();ny.setFullYear(ny.getFullYear()+1);
 document.getElementById('f-validade').value=ny.toISOString().split('T')[0];
 
 loadFromCloud();
+
+function menuEditarMembro(numCred){
+  closeMenus();
+  setTimeout(function(){ openEdit(numCred); }, 100);
+}
+function menuPagamentos(numCred){
+  closeMenus();
+  setTimeout(function(){ openPag(numCred); }, 100);
+}
 </script>
 
 
