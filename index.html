@@ -241,6 +241,12 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
   z-index: 9998;
   filter: grayscale(20%);
 }
+
+/* ── CORREÇÃO OVERFLOW MOBILE ── */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { max-width: 100%; overflow-x: hidden; }
+html { overflow-y: auto; }
+.app-header, .tabs, .content, .page { max-width: 100%; overflow-x: hidden; }
 </style>
 
 <script>
