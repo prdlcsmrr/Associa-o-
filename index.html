@@ -1460,8 +1460,8 @@ function editRemoveFoto(){
 }
 
 function saveEdit(){
-  const idx = members.findIndex(x=>x.id===_editId);
-  if(idx<0){ alert('Membro não encontrado'); return; }
+  const idx = members.findIndex(x=>String(x.id)===String(_editId)||String(x.numCred)===String(_editId));
+  if(idx<0){ alert('Membro não encontrado. editId='+_editId+' membros='+members.length); return; }
 
   const nome = document.getElementById('edit-nome').value.trim();
   const cpf  = document.getElementById('edit-cpf').value.trim();
