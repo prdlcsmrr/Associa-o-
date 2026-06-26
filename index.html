@@ -1530,7 +1530,14 @@ function limpar(){
   document.getElementById('f-cat').value='Membro';
   setStatus('Ativo');retake();
 }
-function save(){localStorage.setItem('members',JSON.stringify(members));}
+function save(){
+  try{
+    localStorage.setItem('members',JSON.stringify(members));
+  }catch(e){
+    if(window.reportarErro) window.reportarErro('Salvar dados', 'Falha ao gravar no aparelho: '+((e&&e.message)||'erro'), false);
+    if(typeof avisoValidacao==='function') avisoValidacao('Não consegui salvar neste aparelho (armazenamento cheio ou navegação privada). Tente de novo.');
+  }
+}
 // ── PAGAMENTOS ──────────────────────────────────────────────────────
 const MESES_NOME = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 let pagAtualId = null;
@@ -2048,8 +2055,14 @@ async function loadFromCloud(){
     if(r2.ok){
       const data2=await r2.json();
       if(data2 && Array.isArray(data2.membros)) cloud=data2.membros;
+    } else if(window.reportarErro){
+      window.reportarErro('db.json', 'Servidor respondeu HTTP '+r2.status+' ao carregar os dados da nuvem.', false);
     }
-  }catch(e){}
+  }catch(e){
+    if(navigator.onLine && window.reportarErro){
+      window.reportarErro('db.json', 'Falha ao carregar dados da nuvem: '+((e&&e.message)||'erro de rede'), false);
+    }
+  }
 
   const local=JSON.parse(localStorage.getItem('members')||'[]');
 
