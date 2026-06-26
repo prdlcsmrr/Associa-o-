@@ -766,6 +766,16 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
         <p style="font-size:11px;color:#9ca3af;margin-top:4px">Deixe nova senha em branco para manter a atual.</p>
       </div>
 
+      <!-- HISTÓRICO DE ALTERAÇÕES -->
+      <div class="box" style="margin-bottom:16px">
+        <div class="box-title" style="display:flex;justify-content:space-between;align-items:center">
+          <span>🕓 Histórico de Alterações</span>
+          <button onclick="limparHistorico()" style="background:none;border:1px solid #e5e7eb;border-radius:6px;color:#b91c1c;font-size:11px;font-weight:600;padding:5px 10px;cursor:pointer">Limpar</button>
+        </div>
+        <div id="hist-lista" style="max-height:340px;overflow-y:auto;border:1px solid #f0f1f4;border-radius:8px;margin-top:8px"></div>
+        <p style="font-size:11px;color:#9ca3af;margin-top:8px">Registra cadastros, edições, exclusões, mudanças de status, pagamentos e saídas. Guardado neste aparelho (últimos 500 registros).</p>
+      </div>
+
       <!-- DADOS BANCÁRIOS -->
       <div class="box" style="margin-bottom:16px">
         <div class="box-title">🏦 Dados Bancários</div>
@@ -1522,6 +1532,7 @@ async function salvar(){
     qrUrl:BASE_URL+'?id='+encodeURIComponent(numCred)
   };
   members.push(m);
+  logHist('Cadastro','Novo membro: '+nome+' ('+numCred+')');
 
   // Save to localStorage immediately
   localStorage.setItem('members',JSON.stringify(members));
@@ -1630,6 +1641,7 @@ function togglePag(mes){
   else { m.pagamentos.push(mes); registrarDataPag(pagAtualId, mes); }
 
   const pago = m.pagamentos.includes(mes);
+  logHist('Pagamento',(pago?'Marcou':'Desmarcou')+' '+MESES_NOME[mes]+' de '+m.nome);
   const btn = document.getElementById('pag-mes-'+mes);
   btn.style.border = '2px solid '+(pago?'#2a7a38':'#e0e0e0');
   btn.style.background = pago?'rgba(26,122,58,0.1)':'#f9f9f9';
@@ -1717,6 +1729,37 @@ function exportDB(){
 }
 
 // LISTA
+// ── HISTÓRICO DE ALTERAÇÕES ──
+let historico = JSON.parse(localStorage.getItem('historico')||'[]');
+function logHist(acao, detalhe){
+  try{
+    historico.unshift({ t:Date.now(), u:(typeof _getUser==='function'?_getUser():'admin'), a:acao, d:detalhe||'' });
+    if(historico.length>500) historico=historico.slice(0,500);
+    localStorage.setItem('historico', JSON.stringify(historico));
+  }catch(e){}
+}
+function renderHist(){
+  const el=document.getElementById('hist-lista');
+  if(!el) return;
+  if(!historico.length){ el.innerHTML='<div style="padding:18px;text-align:center;color:#9ca3af;font-size:13px">Nenhuma alteração registrada ainda.</div>'; return; }
+  const ic={'Cadastro':'➕','Edição':'✏️','Exclusão':'🗑️','Status':'🔄','Pagamento':'💰','Saída':'💸'};
+  el.innerHTML=historico.map(h=>{
+    const d=new Date(h.t);
+    const dt=d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+    return `<div style="display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid #f3f4f6;align-items:flex-start">
+      <span style="font-size:15px;flex:none">${ic[h.a]||'•'}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;color:var(--navy);font-weight:600">${h.d}</div>
+        <div style="font-size:11px;color:#9ca3af;margin-top:2px">${dt} · ${h.u}</div>
+      </div></div>`;
+  }).join('');
+}
+function limparHistorico(){
+  if(!confirm('Limpar todo o histórico de alterações?\n\nIsso não pode ser desfeito.')) return;
+  historico=[]; try{ localStorage.setItem('historico','[]'); }catch(e){}
+  renderHist();
+}
+
 function renderList(){
   const q=(document.getElementById('search').value||'').toLowerCase();
   const f=members.filter(m=>m.nome.toLowerCase().includes(q)||m.cpf.includes(q)||m.numCred.toLowerCase().includes(q)||m.cat.toLowerCase().includes(q)).sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt-BR',{sensitivity:'base'}));
@@ -1913,6 +1956,7 @@ function saveEdit(){
   };
 
   localStorage.setItem('members', JSON.stringify(members));
+  logHist('Edição','Membro editado: '+nome);
   save();
   renderList();
   closeEditDirect();
@@ -2054,6 +2098,7 @@ function toggleStatus(id){
   const novo=m.status==='Ativo'?'Inativo':'Ativo';
   if(!confirm((novo==='Ativo'?'\u2705 ATIVAR':'\u26d4 DESATIVAR')+' a credencial de '+m.nome+'?'))return;
   m.status=novo;
+  logHist('Status',(novo==='Ativo'?'Ativou':'Desativou')+' credencial de '+m.nome);
   save();
   renderList();
   syncToCloud();
@@ -2163,7 +2208,7 @@ function gerarCarteirinha(numCred){
   window.open('carteirinha.html?id='+encodeURIComponent(numCred),'_blank');
 }
 
-function del(id){if(!confirm('Excluir?'))return;members=members.filter(m=>m.id!==id);save();renderList();}
+function del(id){const _m=members.find(x=>x.id===id);if(!confirm('Excluir?'))return;members=members.filter(m=>m.id!==id);if(_m)logHist('Exclusão','Membro excluído: '+_m.nome);save();renderList();}
 function clearAll(){if(!confirm('Apagar TODOS?'))return;members=[];save();renderList();}
 
 // INIT
@@ -2233,6 +2278,7 @@ function shadeColor(color, percent){
 }
 
 function goToConfig(){
+  if(typeof renderHist==='function') renderHist();
   const _cfgSaved = localStorage.getItem('assoc-config');
   const _cfgDefaults = {
     nomeAssoc:     'UBAPFF',
@@ -2503,6 +2549,7 @@ function addSaida(){
   if(!valor||valor<=0) faltam.push('Valor');
   if(faltam.length){ if(typeof avisoValidacao==='function') avisoValidacao('Falta preencher: '+faltam.join(', ')); return; }
   saidas.push({id:Date.now(), data:data, desc:desc, valor:valor, cat:cat});
+  logHist('Saída','Adicionou: '+desc+' ('+brl(valor)+')');
   saveSaidas();
   document.getElementById('s-desc').value='';
   document.getElementById('s-valor').value='';
@@ -2513,6 +2560,7 @@ function delSaida(id){
   if(!s) return;
   if(!confirm('Excluir esta saída?\n\n'+s.desc+' — '+brl(s.valor))) return;
   saidas=saidas.filter(x=>x.id!==id);
+  logHist('Saída','Removeu: '+s.desc+' ('+brl(s.valor)+')');
   saveSaidas();
   renderContabil();
 }
