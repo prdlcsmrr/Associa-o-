@@ -279,7 +279,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">
-      <img src="https://prdlcsmrr.github.io/Associa-o-/logo.png" style="height:80px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto;">
+      <img src="logo.png" style="height:80px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto;">
       <div style="font-size:14px;font-weight:900;letter-spacing:2px;color:var(--gold);margin-top:6px;">A.A.F.F — UBAPFF</div>
     </div>
     <div class="login-sub">Sistema de Credencial Funcional</div>
@@ -295,7 +295,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 <div class="app-header">
   <div class="header-inner">
     <div class="hlogo">
-      <div class="hemblem"><img src="https://prdlcsmrr.github.io/Associa-o-/logo.png" style="width:44px;height:44px;object-fit:contain;"></div>
+      <div class="hemblem"><img src="logo.png" style="width:44px;height:44px;object-fit:contain;"></div>
       <div class="htitles">
         <div class="horg">Sistema Oficial</div>
         <div class="hname">A.A.F.F - UBAPFF</div>
@@ -462,7 +462,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
     <div class="cart-preview" id="cred-card" style="container-type:inline-size">
       <!-- FRENTE -->
       <div class="cart-face" id="cart-frente">
-        <img class="cart-bg" src="https://prdlcsmrr.github.io/Associa-o-/frente.jpg?v=1782205274" crossorigin="anonymous">
+        <img class="cart-bg" src="frente.jpg?v=1782205274" crossorigin="anonymous">
         <div class="cart-overlay">
           <div class="cp-photo" id="cp-photo" style="left:12.6%;top:28.8%;width:13.5%;aspect-ratio:3/4"><div class="cp-photo-ph">👤</div></div>
           <div class="cp-campo" id="cp-cargo"   style="left:34.9%;top:39.6%;font-size:2.2cqw;font-weight:800;color:#1a2a6e"></div>
@@ -475,7 +475,7 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
       </div>
       <!-- VERSO -->
       <div class="cart-face" id="cart-verso">
-        <img class="cart-bg" src="https://prdlcsmrr.github.io/Associa-o-/verso.jpg?v=1782205274" crossorigin="anonymous">
+        <img class="cart-bg" src="verso.jpg?v=1782205274" crossorigin="anonymous">
         <div class="cart-overlay">
           <div id="cp-qr" style="position:absolute;left:3.4%;top:22.4%;width:14%"></div>
           <div class="cp-campo" id="cp-filiacao"     style="left:18.9%;top:24.6%;font-size:1.1cqw;font-weight:700;color:#111;line-height:1.5;white-space:normal;max-width:50%"></div>
@@ -2016,11 +2016,11 @@ document.addEventListener('click', function(e){
 });
 
 function gerarCobranca(numCred){
-  window.open('https://prdlcsmrr.github.io/Associa-o-/cobranca.html?id='+encodeURIComponent(numCred),'_blank');
+  window.open('cobranca.html?id='+encodeURIComponent(numCred),'_blank');
 }
 
 function gerarCarteirinha(numCred){
-  window.open('https://prdlcsmrr.github.io/Associa-o-/carteirinha.html?id='+encodeURIComponent(numCred),'_blank');
+  window.open('carteirinha.html?id='+encodeURIComponent(numCred),'_blank');
 }
 
 function del(id){if(!confirm('Excluir?'))return;members=members.filter(m=>m.id!==id);save();renderList();}
@@ -2075,7 +2075,7 @@ function loadConfig(){
   if(cfg.subAssoc) document.querySelectorAll('.hsub').forEach(e=>e.textContent=cfg.subAssoc);
   // Logo fixa — marca do sistema
   document.querySelectorAll('.hemblem').forEach(e=>{
-    e.innerHTML='<img src="https://prdlcsmrr.github.io/Associa-o-/logo.png" style="width:44px;height:44px;object-fit:contain;">';
+    e.innerHTML='<img src="logo.png" style="width:44px;height:44px;object-fit:contain;">';
   });
 }
 
