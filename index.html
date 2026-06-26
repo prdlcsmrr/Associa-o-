@@ -259,17 +259,70 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 </style>
 
 <script>
+/* ── MONITORAMENTO DE ERROS → ntfy + aviso visual na tela ── */
 (function(){
-  window.onerror = function(msg, src, line){
-    if(!src || !src.includes('prdlcsmrr.github.io')) return false;
-    var t=document.createElement('div');
-    t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#b91c1c;color:#fff;padding:10px 16px;border-radius:8px;font-size:12px;z-index:99999;max-width:90vw;text-align:center;cursor:pointer';
-    t.textContent='⚠️ Erro: '+msg+' (linha '+line+')';
-    t.onclick=function(){alert(t.textContent);};
-    document.body.appendChild(t);
-    setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},8000);
+  var NTFY_URL  = 'https://ntfy.sh/ubapff-signumor-erros-2026';
+  var PAGINA    = 'UBAPFF · ' + ((location.pathname.split('/').pop()) || 'index.html');
+  var _ultimos  = {};   // dedupe por erro
+  var _enviados = 0;    // teto de envios por sessão
+
+  function _enviarNtfy(titulo, corpo){
+    if(_enviados >= 25) return;            // segurança: no máx. 25 avisos por sessão
+    _enviados++;
+    try{
+      fetch(NTFY_URL, {
+        method:'POST',
+        headers:{
+          'Title': String(titulo).replace(/[^\x20-\x7E]/g,'').substring(0,110), // header só ASCII
+          'Priority':'high',
+          'Tags':'warning'
+        },
+        body: corpo
+      }).catch(function(){});
+    }catch(e){}
+  }
+
+  function _toast(txt){
+    try{
+      var t=document.createElement('div');
+      t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#b91c1c;color:#fff;padding:10px 16px;border-radius:8px;font-size:12px;z-index:99999;max-width:90vw;text-align:center;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.35)';
+      t.textContent='⚠️ '+txt;
+      t.onclick=function(){ alert(t.textContent); };
+      document.body.appendChild(t);
+      setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); },8000);
+    }catch(e){}
+  }
+
+  // Reporta um erro: dedupe 30s + envia ntfy + (opcional) aviso na tela
+  window.reportarErro = function(origem, mensagem, mostrarToast){
+    try{
+      var chave = origem+'|'+mensagem;
+      var agora = Date.now();
+      if(_ultimos[chave] && (agora-_ultimos[chave]) < 30000) return; // mesmo erro só a cada 30s
+      _ultimos[chave] = agora;
+
+      var corpo = '🚨 ERRO NO SISTEMA UBAPFF\n\n'
+                + 'Onde: ' + origem + '\n'
+                + 'O quê: ' + mensagem + '\n'
+                + 'Página: ' + PAGINA + '\n'
+                + 'Quando: ' + new Date().toLocaleString('pt-BR') + '\n'
+                + 'Aparelho: ' + (navigator.userAgent||'?').substring(0,90);
+      _enviarNtfy('UBAPFF: '+origem, corpo);
+      if(mostrarToast) _toast(mensagem);
+    }catch(e){}
+  };
+
+  // Erros de JavaScript não tratados
+  window.onerror = function(msg, src, line, col){
+    window.reportarErro('JavaScript', (msg||'erro')+' ('+((src||'').split('/').pop())+':'+line+')', true);
     return false;
   };
+
+  // Promessas rejeitadas (ex.: fetch/rede que falhou)
+  window.addEventListener('unhandledrejection', function(e){
+    var m = (e && e.reason && (e.reason.message || e.reason)) || 'promessa rejeitada';
+    window.reportarErro('Rede/Promise', String(m).substring(0,200), false);
+  });
 })();
 </script>
 </head>
