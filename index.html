@@ -1417,19 +1417,41 @@ function genDocId(ts){const d=new Date(ts);return ORG_PRE+'-'+d.getFullYear()+'-
 
 // SALVAR
 async function salvar(){
+  // ── Campos obrigatórios (aviso específico do que falta) ──
+  const OBRIG=[
+    ['f-nome','Nome'],['f-cpf','CPF'],['f-tel','Telefone'],['f-nasc','Nascimento'],
+    ['f-naturalidade','Naturalidade'],['f-municipio','Município'],
+    ['f-pai','Nome do pai'],['f-mae','Nome da mãe'],
+    ['f-cep','CEP'],['f-rua','Rua'],['f-numero','Número'],
+    ['f-bairro','Bairro'],['f-cidade','Cidade'],['f-uf','UF']
+  ];
+  OBRIG.forEach(function(c){ var el=document.getElementById(c[0]); if(el) el.style.borderColor=''; });
+  var faltando=[], primeiroEl=null;
+  OBRIG.forEach(function(c){
+    var el=document.getElementById(c[0]);
+    if(el && !el.value.trim()){ faltando.push(c[1]); el.style.borderColor='#b91c1c'; if(!primeiroEl) primeiroEl=el; }
+  });
+  if(faltando.length){
+    if(primeiroEl && primeiroEl.scrollIntoView) primeiroEl.scrollIntoView({behavior:'smooth',block:'center'});
+    avisoValidacao('Falta preencher: '+faltando.join(', '));
+    return;
+  }
+
   const nome=document.getElementById('f-nome').value.trim();
   const cpf=document.getElementById('f-cpf').value.trim();
   const tel=document.getElementById('f-tel').value.trim();
   const nasc=document.getElementById('f-nasc').value;
-  if(!nome||!cpf||!tel||!nasc){showA('aerr');return;}
+
   if(!validarCPF(cpf)){
-    alert('❌ CPF inválido! Verifique os dígitos.');
-    document.getElementById('f-cpf').style.borderColor='#b91c1c';
+    var _cf=document.getElementById('f-cpf');
+    _cf.style.borderColor='#b91c1c';
+    if(_cf.scrollIntoView) _cf.scrollIntoView({behavior:'smooth',block:'center'});
+    avisoValidacao('CPF inválido — confira os dígitos.');
     return;
   }
   var _cpfLimpo=cpf.replace(/[^\d]/g,'');
   var _cpfDupl=members.find(function(m){return m.cpf&&m.cpf.replace(/[^\d]/g,'')===_cpfLimpo;});
-  if(_cpfDupl){alert('❌ CPF já cadastrado para: '+_cpfDupl.nome);return;}
+  if(_cpfDupl){ avisoValidacao('CPF já cadastrado para: '+_cpfDupl.nome); return; }
 
   // Foto obrigatória
   if(!photo){
@@ -1437,7 +1459,7 @@ async function salvar(){
     if(_wf){ _wf.style.borderColor='#b91c1c'; _wf.style.boxShadow='0 0 0 2px rgba(185,28,28,.25)'; if(_wf.scrollIntoView) _wf.scrollIntoView({behavior:'smooth',block:'center'}); }
     var _fp=document.getElementById('foto-pendente');
     if(_fp) _fp.style.display='block';
-    alert('❌ Foto obrigatória!\n\nTire uma foto pela câmera (▶ Câmera → 📷 Tirar) ou escolha uma da galeria (📁 Galeria) antes de salvar.');
+    avisoValidacao('Foto obrigatória — tire pela câmera (▶ Câmera → 📷 Tirar) ou escolha da galeria (📁 Galeria).');
     return;
   }
 
@@ -1497,6 +1519,21 @@ async function salvar(){
   }).catch(()=>{});
 }
 function showA(id){const e=document.getElementById(id);e.style.display='block';window.scrollTo(0,0);setTimeout(()=>e.style.display='none',4000);}
+function avisoValidacao(msg){
+  try{
+    var t=document.getElementById('aviso-validacao');
+    if(!t){
+      t=document.createElement('div'); t.id='aviso-validacao';
+      t.style.cssText='position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-12px);max-width:92vw;background:#b91c1c;color:#fff;padding:13px 18px;border-radius:12px;font-size:14px;font-weight:600;z-index:100000;box-shadow:0 8px 24px rgba(0,0,0,.3);opacity:0;transition:opacity .25s,transform .25s;text-align:center;line-height:1.4;cursor:pointer';
+      t.onclick=function(){ t.style.opacity='0'; };
+      document.body.appendChild(t);
+    }
+    t.textContent='⚠️ '+msg;
+    requestAnimationFrame(function(){ t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)'; });
+    clearTimeout(t._tt);
+    t._tt=setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(-12px)'; },5500);
+  }catch(e){ alert(msg); }
+}
 function limpar(){
   ['f-nome','f-cpf','f-tel','f-email','f-obs','f-naturalidade','f-municipio','f-pai','f-mae','f-rua','f-numero','f-complemento','f-bairro','f-cep','f-cidade'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
   ['f-nasc','f-emissao','f-validade'].forEach(i=>document.getElementById(i).value='');
