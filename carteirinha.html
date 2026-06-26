@@ -273,10 +273,9 @@ body { background:#1a1a2e; font-family:'Arial Narrow',Arial,sans-serif; min-heig
 // ══════════════════════════════════════════════════
 // CONFIGURAÇÃO DE DOMÍNIO — alterar quando ir para produção
 // ══════════════════════════════════════════════════
-const PRODUCTION_DOMAIN = false;
-const BASE_DOMAIN = PRODUCTION_DOMAIN
-  ? 'https://ubapff.org.br'
-  : 'https://prdlcsmrr.github.io/Associa-o-';
+// BASE relativo à página atual: assets sempre do mesmo domínio e protocolo (HTTP ou HTTPS).
+// Funciona no github.io e no ubapff.org.br, sem CORS nem redirecionamento que quebra a imagem.
+const BASE_DOMAIN = location.origin + location.pathname.replace(/\/[^/]*$/, '');
 
 
 const DB    = BASE_DOMAIN+'/db.json';
@@ -470,7 +469,7 @@ function renderCard(){
         ${m?.foto?`<img src="${m.foto}" alt="">` : '<div class="f-photo-ph">👤</div>'}
       </div>`;
     } else if(cfg.type==='qr'){
-      const _qUrl=`https://prdlcsmrr.github.io/Associa-o-/verificar.html?id=${encodeURIComponent(m.numCred)}`;
+      const _qUrl=`https://ubapff.org.br/registrooficialcarteirafuncional.html?id=${encodeURIComponent(m.numCred)}`;
       const _qColor=(cfg.color||'#1a2a5e').replace('#','');
       const _qImg=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(_qUrl)}&margin=4&color=${_qColor}`;
       fields+=`<div id="c_${key}" class="f-photo${drag}${selCls}"
