@@ -213,10 +213,8 @@ body {
 </div>
 
 <script>
-const PRODUCTION_DOMAIN = false;
-const BASE_DOMAIN = PRODUCTION_DOMAIN
-  ? 'https://ubapff.org.br'
-  : 'https://prdlcsmrr.github.io/Associa-o-';
+// BASE relativo à página atual: assets do mesmo domínio e protocolo, sem CORS nem redirecionamento.
+const BASE_DOMAIN = location.origin + location.pathname.replace(/\/[^/]*$/, '');
 
 function fmt(d){ if(!d) return '—'; return new Date(d+'T12:00').toLocaleDateString('pt-BR'); }
 const DB_GITHUB = BASE_DOMAIN+'/db.json';
@@ -224,7 +222,7 @@ const BIN_ID = '6a35c2ddda38895dfee044d5';
 
 function showErr(title, msg){
   document.getElementById('app').innerHTML = `
-    <img src="https://prdlcsmrr.github.io/Associa-o-/header-pff.jpg" style="width:100%;display:block">
+    <img src="header-pff.jpg" style="width:100%;display:block">
     <div class="error-box">
       <h2>❌ ${title}</h2>
       <p style="color:#666">${msg}</p>
@@ -270,13 +268,13 @@ function render(m){
   }
   const statusFinal = ativo && !expirada;
 
-  const qrUrl = BASE_DOMAIN+(PRODUCTION_DOMAIN?'/registrooficialcarteirafuncional':'/verificar.html')+'?id='+encodeURIComponent(m.numCred);
+  const qrUrl = 'https://ubapff.org.br/registrooficialcarteirafuncional.html?id='+encodeURIComponent(m.numCred);
   const qrImg = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='+encodeURIComponent(qrUrl)+'&margin=4&color=1b2a5e';
 
   document.getElementById('app').innerHTML = `
     <!-- HEADER OFICIAL -->
     <div style="width:100%;line-height:0">
-      <img src="https://prdlcsmrr.github.io/Associa-o-/header-pff.jpg"
+      <img src="header-pff.jpg"
         style="width:100%;display:block;object-fit:cover"
         alt="Polícia Ferroviária Federal">
     </div>
