@@ -3,6 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+/* ── AUTO-LIMPEZA: mata Service Workers órfãos e caches antigos, sem o usuário precisar limpar nada ── */
+(function(){
+  try{
+    if('serviceWorker' in navigator){
+      var hadController = !!navigator.serviceWorker.controller;
+      navigator.serviceWorker.getRegistrations().then(function(regs){
+        var had = hadController || regs.length>0;
+        return Promise.all(regs.map(function(r){ return r.unregister(); })).then(function(){ return had; });
+      }).then(function(had){
+        if(window.caches && caches.keys){
+          return caches.keys().then(function(keys){
+            return Promise.all(keys.map(function(k){ return caches.delete(k); }));
+          }).then(function(){ return had; });
+        }
+        return had;
+      }).then(function(had){
+        // Se um SW estava controlando esta página (risco de versão velha), recarrega UMA vez para servir a versão limpa
+        if(had && !sessionStorage.getItem('__sw_cleaned')){
+          sessionStorage.setItem('__sw_cleaned','1');
+          location.reload();
+        }
+      }).catch(function(){});
+    }
+  }catch(e){}
+})();
+</script>
 <title>Sistema de Credencial</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
