@@ -1506,17 +1506,6 @@ async function salvar(){
   updateCount();
   showA('aok');
   limpar();
-
-  // Sync to cloud in background (don't await)
-  const dbToSave = JSON.stringify({membros:members});
-  fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5',{
-    method:'PUT',
-    headers:{'Content-Type':'application/json','X-Master-Key':'$2a$10$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'},
-    body:dbToSave
-  }).then(()=>{
-    const si=document.getElementById('sync-ind');
-    if(si){si.style.display='flex';si.textContent='✅ Sincronizado!';setTimeout(()=>si.style.display='none',2000);}
-  }).catch(()=>{});
 }
 function showA(id){const e=document.getElementById(id);e.style.display='block';window.scrollTo(0,0);setTimeout(()=>e.style.display='none',4000);}
 function avisoValidacao(msg){
@@ -1894,7 +1883,7 @@ function saveEdit(){
   };
 
   localStorage.setItem('members', JSON.stringify(members));
-  save(); // sinc JSONBin
+  save();
   renderList();
   closeEditDirect();
 
@@ -2044,35 +2033,7 @@ async function reloadMembers(){
   const btn = event?.target;
   if(btn){ btn.textContent='⏳'; btn.disabled=true; }
 
-  const local = JSON.parse(localStorage.getItem('members')||'[]');
-  let cloud1 = [];
-
-  // Get from JSONBin
-  try{
-    const k='$2a$10$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2';
-    const r=await fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5/latest',{headers:{'X-Master-Key':k,'X-Bin-Meta':'false'}});
-    if(r.ok){ const d=await r.json(); cloud1=d.membros||[]; }
-  }catch(e){}
-
-  // Use whichever has more members
-  if(cloud1.length > local.length){
-    members = cloud1;
-    localStorage.setItem('members', JSON.stringify(members));
-  } else {
-    members = local;
-    // If local has more, push to cloud
-    if(local.length > cloud1.length){
-      try{
-        const k='$2a$10$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2';
-        await fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5',{
-          method:'PUT',
-          headers:{'Content-Type':'application/json','X-Master-Key':k},
-          body:JSON.stringify({membros:members})
-        });
-      }catch(e){}
-    }
-  }
-
+  await loadFromCloud();   // db.json é a fonte primária (merge seguro, preserva cadastros locais)
 
   updateCount();
   renderList();
@@ -2110,19 +2071,9 @@ async function loadFromCloud(){
 }
 
 async function syncToCloud(){
-  const si=document.getElementById('sync-ind');
-  if(si){si.style.display='flex';si.textContent='\u23f3 Sincronizando...';}
-  try{
-    const r=await fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5',{
-      method:'PUT',
-      headers:{'Content-Type':'application/json','X-Master-Key':'\u00242a\u001410\u0024/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'},
-      body:JSON.stringify({membros:members})
-    });
-    if(si){si.textContent='\u2705 Sincronizado!';setTimeout(()=>si.style.display='none',2500);}
-  }catch(e){
-    if(si){ si.style.display='none'; } // falha silenciosa — dados salvos no localStorage
-    console.warn('JSONBin sync falhou:', e.message);
-  }
+  // Sincronização externa removida por segurança (JSONBin instável + chave exposta no código).
+  // Os dados ficam salvos no aparelho (localStorage). Use "Exportar db.json" para enviar ao repositório.
+  return;
 }
 
 let _menuOpen = null;
