@@ -1152,6 +1152,28 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
       <div id="cont-tabela-meses" style="padding:4px 0"></div>
     </div>
 
+    <!-- SAÍDAS / DESPESAS -->
+    <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:24px">
+      <div style="background:#8a1c1c;padding:14px 20px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:16px">💸</span>
+        <span style="font-size:14px;font-weight:700;color:#fff;letter-spacing:1px">SAÍDAS / DESPESAS — 2026</span>
+      </div>
+      <div style="padding:16px 20px;border-bottom:1px solid #f3f4f6;background:#fafafa">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Data</label><input type="date" id="s-data" style="width:100%;padding:9px;border:1px solid #d4dae4;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
+          <div><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Valor (R$)</label><input type="number" id="s-valor" inputmode="decimal" placeholder="0,00" min="0" step="0.01" style="width:100%;padding:9px;border:1px solid #d4dae4;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
+          <div style="grid-column:1/3"><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Descrição</label><input type="text" id="s-desc" placeholder="Ex.: Impressão de carteirinhas" style="width:100%;padding:9px;border:1px solid #d4dae4;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
+          <div style="grid-column:1/3"><label style="font-size:11px;color:#888;font-weight:600;display:block;margin-bottom:3px">Categoria</label>
+            <select id="s-cat" style="width:100%;padding:9px;border:1px solid #d4dae4;border-radius:8px;font-size:14px;background:#fff;box-sizing:border-box">
+              <option>Material</option><option>Serviços</option><option>Taxas/Impostos</option><option>Aluguel</option><option>Eventos</option><option>Outros</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="addSaida()" style="margin-top:12px;width:100%;background:#8a1c1c;color:#fff;border:none;border-radius:9px;padding:12px;font-size:14px;font-weight:700;cursor:pointer">+ Adicionar saída</button>
+      </div>
+      <div id="cont-saidas-lista" style="padding:4px 0"></div>
+    </div>
+
     <div style="background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:24px">
       <div style="background:var(--navy);padding:14px 20px;display:flex;align-items:center;gap:10px">
         <span style="font-size:16px">👤</span>
@@ -1684,7 +1706,7 @@ function updateCount(){const n=members.length;document.getElementById('hcount').
 
 // EXPORT DB.JSON
 function exportDB(){
-  const db={membros:members.map(m=>({...m,foto:m.foto||null}))};
+  const db={membros:members.map(m=>({...m,foto:m.foto||null})), saidas:saidas};
   const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
@@ -2055,6 +2077,9 @@ async function loadFromCloud(){
     if(r2.ok){
       const data2=await r2.json();
       if(data2 && Array.isArray(data2.membros)) cloud=data2.membros;
+      if(data2 && Array.isArray(data2.saidas) && data2.saidas.length>0 && saidas.length===0){
+        saidas=data2.saidas; try{ localStorage.setItem('saidas',JSON.stringify(saidas)); }catch(e){}
+      }
     } else if(window.reportarErro){
       window.reportarErro('db.json', 'Servidor respondeu HTTP '+r2.status+' ao carregar os dados da nuvem.', false);
     }
@@ -2457,6 +2482,40 @@ const MESES_CONT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
                     'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const ANO_CONT = 2026;
 
+// ── SAÍDAS / DESPESAS ──
+let saidas = JSON.parse(localStorage.getItem('saidas')||'[]');
+function saveSaidas(){
+  try{ localStorage.setItem('saidas', JSON.stringify(saidas)); }
+  catch(e){
+    if(window.reportarErro) window.reportarErro('Salvar saída','Falha ao gravar saídas: '+((e&&e.message)||'erro'),false);
+    if(typeof avisoValidacao==='function') avisoValidacao('Não consegui salvar a saída neste aparelho (armazenamento cheio ou navegação privada).');
+  }
+}
+function addSaida(){
+  const data=document.getElementById('s-data').value;
+  const desc=document.getElementById('s-desc').value.trim();
+  const valor=parseFloat((document.getElementById('s-valor').value||'').replace(',','.'));
+  const cat=document.getElementById('s-cat').value;
+  const faltam=[];
+  if(!data) faltam.push('Data');
+  if(!desc) faltam.push('Descrição');
+  if(!valor||valor<=0) faltam.push('Valor');
+  if(faltam.length){ if(typeof avisoValidacao==='function') avisoValidacao('Falta preencher: '+faltam.join(', ')); return; }
+  saidas.push({id:Date.now(), data:data, desc:desc, valor:valor, cat:cat});
+  saveSaidas();
+  document.getElementById('s-desc').value='';
+  document.getElementById('s-valor').value='';
+  renderContabil();
+}
+function delSaida(id){
+  const s=saidas.find(x=>x.id===id);
+  if(!s) return;
+  if(!confirm('Excluir esta saída?\n\n'+s.desc+' — '+brl(s.valor))) return;
+  saidas=saidas.filter(x=>x.id!==id);
+  saveSaidas();
+  renderContabil();
+}
+
 function brl(v){ return 'R$ '+Number(v).toFixed(2).replace('.',','); }
 
 function renderContabil(){
@@ -2484,9 +2543,16 @@ function renderContabil(){
   let adimplentes     = dadosMembros.filter(d=>d.mesesEmAtraso.length===0).length;
   let inadimplentes   = totalMembros - adimplentes;
 
+  // SAÍDAS (ano corrente)
+  const saidas2026 = saidas.filter(s=>{ const d=new Date(s.data+'T00:00:00'); return !isNaN(d.getTime()) && d.getFullYear()===ANO_CONT; });
+  const totalSaidas = saidas2026.reduce((a,s)=>a+(parseFloat(s.valor)||0),0);
+  const saldo = totalArrecadado - totalSaidas;
+
   // CARDS
   const cards = [
     { icon:'💵', label:'Total Arrecadado 2026', valor:brl(totalArrecadado), cor:'#1a7a3a' },
+    { icon:'💸', label:'Total Saídas 2026',      valor:brl(totalSaidas),     cor:'#8a1c1c' },
+    { icon:'⚖️', label:'Saldo (Receita − Saídas)', valor:brl(saldo),         cor: saldo>=0?'#1a7a3a':'#b91c1c' },
     { icon:'✅', label:'Adimplentes',            valor:adimplentes+' / '+totalMembros,  cor:'#1a2a5e' },
     { icon:'⚠️', label:'Inadimplentes',          valor:inadimplentes,                   cor:'#b91c1c' },
     { icon:'📋', label:'Total em Aberto',        valor:brl(totalEmAberto),              cor:'#c9972a' },
@@ -2590,6 +2656,37 @@ function renderContabil(){
         <div style="font-size:13px;font-weight:700;color:#fff">TOTAL EM ABERTO</div>
         <div style="font-size:16px;font-weight:900;color:#fff">${brl(totalAberto)}</div>
       </div>`;
+  }
+
+  // SAÍDAS POR MÊS
+  const saidasEl = document.getElementById('cont-saidas-lista');
+  if(saidasEl){
+    if(saidas2026.length===0){
+      saidasEl.innerHTML='<div style="padding:20px;text-align:center;color:#888;font-size:13px">Nenhuma saída registrada em 2026.</div>';
+    } else {
+      let sh='';
+      for(let i=0;i<=11;i++){
+        const doMes=saidas2026.filter(s=>new Date(s.data+'T00:00:00').getMonth()===i).sort((a,b)=>a.data.localeCompare(b.data));
+        if(doMes.length===0) continue;
+        const subtotal=doMes.reduce((a,s)=>a+(parseFloat(s.valor)||0),0);
+        sh+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:#fbeaea;border-top:1px solid #f3d2d2">
+          <span style="font-size:12px;font-weight:800;color:#8a1c1c;text-transform:uppercase;letter-spacing:.5px">${MESES_CONT[i]}</span>
+          <span style="font-size:13px;font-weight:800;color:#8a1c1c">${brl(subtotal)}</span></div>`;
+        sh+=doMes.map(s=>{
+          const dia=(s.data||'').split('-').reverse().slice(0,2).join('/');
+          return `<div style="display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid #f3f4f6">
+            <span style="font-size:11px;color:#999;white-space:nowrap">${dia}</span>
+            <span style="font-size:13px;color:var(--navy);font-weight:600">${s.desc}<span style="display:block;font-size:10px;color:#aaa;font-weight:500">${s.cat||''}</span></span>
+            <span style="font-size:13px;font-weight:700;color:#8a1c1c;white-space:nowrap">${brl(s.valor)}</span>
+            <button onclick="delSaida(${s.id})" title="Excluir" style="background:none;border:none;color:#b91c1c;font-size:15px;cursor:pointer;padding:2px 4px">🗑</button>
+          </div>`;
+        }).join('');
+      }
+      sh+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:#8a1c1c">
+        <span style="font-size:13px;font-weight:700;color:#fff">TOTAL SAÍDAS 2026</span>
+        <span style="font-size:16px;font-weight:900;color:#fff">${brl(totalSaidas)}</span></div>`;
+      saidasEl.innerHTML=sh;
+    }
   }
 }
 
