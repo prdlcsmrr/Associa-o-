@@ -409,7 +409,8 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
 
       <div>
         <div class="box">
-          <div class="box-title">📷 Foto do Membro</div>
+          <div class="box-title">📷 Foto do Membro <span style="color:#b91c1c;font-weight:800">*</span> <span style="font-size:11px;color:#b91c1c;font-weight:600">obrigatória</span></div>
+          <div id="foto-pendente" style="display:none;background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;border-radius:6px;padding:6px 10px;font-size:12px;font-weight:600;margin-bottom:8px">⚠️ Foto pendente — tire uma foto ou escolha da galeria para concluir o cadastro.</div>
           <div class="wcframe" id="wcframe">
             <video id="video" autoplay playsinline style="display:none"></video>
             <img id="preview" style="display:none">
@@ -1230,11 +1231,15 @@ function closeCam(){
   document.getElementById('bflip').style.display='none';
   document.getElementById('bclose').style.display='none';
 }
+function _fotoOk(){
+  var f=document.getElementById('wcframe'); if(f){ f.style.borderColor=''; f.style.boxShadow=''; }
+  var p=document.getElementById('foto-pendente'); if(p) p.style.display='none';
+}
 function snap(){
   const v=document.getElementById('video'),c=document.getElementById('snap-canvas');
   c.width=v.videoWidth;c.height=v.videoHeight;
   c.getContext('2d').drawImage(v,0,0);
-  photo=c.toDataURL('image/jpeg',0.75);
+  photo=c.toDataURL('image/jpeg',0.75); _fotoOk();
   const p=document.getElementById('preview');
   p.src=photo;p.style.display='block';
   v.style.display='none';
@@ -1245,7 +1250,7 @@ function snap(){
   document.getElementById('bre').style.display='block';
 }
 function retake(){
-  photo=null;
+  photo=null; _fotoOk();
   document.getElementById('preview').style.display='none';
   document.getElementById('wcph').style.display='flex';
   document.getElementById('bon').style.display='block';
@@ -1259,7 +1264,7 @@ function uploadFoto(input){
   if(!input.files||!input.files[0])return;
   const reader=new FileReader();
   reader.onload=function(e){
-    photo=e.target.result;
+    photo=e.target.result; _fotoOk();
     const p=document.getElementById('preview');
     p.src=photo;p.style.display='block';
     document.getElementById('wcph').style.display='none';
@@ -1312,6 +1317,16 @@ async function salvar(){
   var _cpfLimpo=cpf.replace(/[^\d]/g,'');
   var _cpfDupl=members.find(function(m){return m.cpf&&m.cpf.replace(/[^\d]/g,'')===_cpfLimpo;});
   if(_cpfDupl){alert('❌ CPF já cadastrado para: '+_cpfDupl.nome);return;}
+
+  // Foto obrigatória
+  if(!photo){
+    var _wf=document.getElementById('wcframe');
+    if(_wf){ _wf.style.borderColor='#b91c1c'; _wf.style.boxShadow='0 0 0 2px rgba(185,28,28,.25)'; if(_wf.scrollIntoView) _wf.scrollIntoView({behavior:'smooth',block:'center'}); }
+    var _fp=document.getElementById('foto-pendente');
+    if(_fp) _fp.style.display='block';
+    alert('❌ Foto obrigatória!\n\nTire uma foto pela câmera (▶ Câmera → 📷 Tirar) ou escolha uma da galeria (📁 Galeria) antes de salvar.');
+    return;
+  }
 
   // Use current localStorage as base (most up to date)
   const localNow = JSON.parse(localStorage.getItem('members')||'[]');
