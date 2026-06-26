@@ -336,10 +336,25 @@ body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; min-he
       <div style="font-size:14px;font-weight:900;letter-spacing:2px;color:var(--gold);margin-top:6px;">A.A.F.F — UBAPFF</div>
     </div>
     <div class="login-sub">Sistema de Credencial Funcional</div>
-    <div class="lerr" id="lerr">✗ Usuário ou senha incorretos</div>
-    <div class="lf"><label>Usuário</label><input id="lu" type="text" onkeydown="if(event.key==='Enter')login()"></div>
-    <div class="lf"><label>Senha</label><input id="lp" type="password" onkeydown="if(event.key==='Enter')login()"></div>
-    <button class="lbtn" onclick="login()">Entrar</button>
+
+    <!-- LOGIN NORMAL (já existe senha) -->
+    <div id="login-box-normal" style="display:none">
+      <div class="lerr" id="lerr">✗ Usuário ou senha incorretos</div>
+      <div class="lf"><label>Usuário</label><input id="lu" type="text" onkeydown="if(event.key==='Enter')login()"></div>
+      <div class="lf"><label>Senha</label><input id="lp" type="password" onkeydown="if(event.key==='Enter')login()"></div>
+      <button class="lbtn" onclick="login()">Entrar</button>
+    </div>
+
+    <!-- PRIMEIRO ACESSO (criar senha) -->
+    <div id="login-box-create" style="display:none">
+      <div style="font-size:12px;color:rgba(255,255,255,.55);margin-bottom:14px;line-height:1.5">
+        Primeiro acesso neste aparelho.<br>Crie uma senha para proteger o sistema.
+      </div>
+      <div class="lerr" id="cperr">✗ Erro</div>
+      <div class="lf"><label>Criar senha (mín. 4)</label><input id="cp1" type="password" onkeydown="if(event.key==='Enter')criarSenha()"></div>
+      <div class="lf"><label>Confirmar senha</label><input id="cp2" type="password" onkeydown="if(event.key==='Enter')criarSenha()"></div>
+      <button class="lbtn" onclick="criarSenha()">Criar senha e entrar</button>
+    </div>
   </div>
 </div>
 
@@ -1167,9 +1182,25 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
 </div>
 
 <script>
-const LUSER='admin', LPASS='1234';
+const LUSER_DEFAULT='admin';
+const PW_KEY='ubapff_pwhash';
 const BASE_URL='https://ubapff.org.br/registrooficialcarteirafuncional.html';
 const ORG_PRE='ASC';
+
+// ── SENHA (hash SHA-256, guardada só no aparelho — nunca no código nem na nuvem) ──
+async function _sha256(txt){
+  try{
+    const buf=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
+    return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+  }catch(e){
+    var h=5381; for(var i=0;i<txt.length;i++){ h=((h<<5)+h)+txt.charCodeAt(i); h|=0; }
+    return 'fb'+(h>>>0).toString(16);
+  }
+}
+function _getUser(){
+  try{ return (JSON.parse(localStorage.getItem('assoc-config')||'{}').loginUser)||LUSER_DEFAULT; }
+  catch(e){ return LUSER_DEFAULT; }
+}
 
 
 // ── CPF ──
@@ -1211,19 +1242,48 @@ function badgeVencimento(validade){
 }
 
 // LOGIN
-function login(){
-  if(document.getElementById('lu').value===LUSER&&document.getElementById('lp').value===LPASS){
+function _initLoginScreen(){
+  if(sessionStorage.getItem('ok')==='1'){ document.getElementById('login-screen').style.display='none'; return; }
+  var temSenha=!!localStorage.getItem(PW_KEY);
+  var boxN=document.getElementById('login-box-normal');
+  var boxC=document.getElementById('login-box-create');
+  if(temSenha){
+    if(boxN) boxN.style.display='';
+    if(boxC) boxC.style.display='none';
+    var lu=document.getElementById('lu'); if(lu) lu.value=_getUser();
+    var lp=document.getElementById('lp'); if(lp) setTimeout(function(){lp.focus();},100);
+  } else {
+    if(boxN) boxN.style.display='none';
+    if(boxC) boxC.style.display='';
+  }
+}
+async function login(){
+  var u=document.getElementById('lu').value.trim();
+  var p=document.getElementById('lp').value;
+  var hash=await _sha256(p);
+  if(u===_getUser() && hash===localStorage.getItem(PW_KEY)){
     sessionStorage.setItem('ok','1');
     document.getElementById('login-screen').style.display='none';
   } else {
-    const e=document.getElementById('lerr');
+    var e=document.getElementById('lerr');
     e.style.display='block';
     document.getElementById('lp').value='';
-    setTimeout(()=>e.style.display='none',3000);
+    setTimeout(function(){e.style.display='none';},3000);
   }
 }
-function logout(){sessionStorage.removeItem('ok');location.reload();}
-if(sessionStorage.getItem('ok')==='1') document.getElementById('login-screen').style.display='none';
+async function criarSenha(){
+  var p1=document.getElementById('cp1').value;
+  var p2=document.getElementById('cp2').value;
+  var err=document.getElementById('cperr');
+  function fail(msg){ err.textContent='✗ '+msg; err.style.display='block'; setTimeout(function(){err.style.display='none';},3500); }
+  if(p1.length<4) return fail('A senha deve ter pelo menos 4 caracteres.');
+  if(p1!==p2)     return fail('As senhas não coincidem.');
+  localStorage.setItem(PW_KEY, await _sha256(p1));
+  sessionStorage.setItem('ok','1');
+  document.getElementById('login-screen').style.display='none';
+}
+function logout(){ sessionStorage.removeItem('ok'); location.reload(); }
+_initLoginScreen();
 
 // STATE
 let members=JSON.parse(localStorage.getItem('members')||'[]');
@@ -2268,17 +2328,21 @@ function previewFonte(fonte){
   document.body.style.fontFamily=fonte;
 }
 
-function saveConfig(){
+async function saveConfig(){
   const passAtual=document.getElementById('cfg-pass-atual').value;
   const passNova=document.getElementById('cfg-pass-nova').value;
   const passConf=document.getElementById('cfg-pass-conf').value;
-  const currentPass=cfg.loginPass||LPASS;
-  const currentUser=cfg.loginUser||LUSER;
+  const currentUser=cfg.loginUser||LUSER_DEFAULT;
 
   if(passNova){
-    if(passAtual!==currentPass){alert('❌ Senha atual incorreta.');return;}
+    const stored=localStorage.getItem(PW_KEY);
+    if(stored && (await _sha256(passAtual))!==stored){alert('❌ Senha atual incorreta.');return;}
     if(passNova!==passConf){alert('❌ Nova senha e confirmação não coincidem.');return;}
     if(passNova.length<4){alert('❌ Senha deve ter pelo menos 4 caracteres.');return;}
+    localStorage.setItem(PW_KEY, await _sha256(passNova));
+    document.getElementById('cfg-pass-atual').value='';
+    document.getElementById('cfg-pass-nova').value='';
+    document.getElementById('cfg-pass-conf').value='';
   }
 
 
@@ -2292,7 +2356,6 @@ function saveConfig(){
     cor4:document.getElementById('cfg-cor4').value,
     fonte:document.getElementById('cfg-fonte').value,
     loginUser:document.getElementById('cfg-user').value.trim()||currentUser,
-    loginPass:passNova||currentPass,
     valorMensalidade:document.getElementById('cfg-valor').value||'100',
     diaVencimento:document.getElementById('cfg-venc').value||'10',
     pixKey:document.getElementById('cfg-pix').value.trim(),
@@ -2379,23 +2442,10 @@ function menuPagamentos(numCred){
 }
 
 async function backupToGitHub(){
-  try{
-    const t1='ghp_00gXBmz2ix'; const t2='wuqtaW8euciI'; const t3='rj2srd4g01IMUg';
-    const ghToken = t1+t2+t3;
-    const db = {membros: members.map(m=>({...m, foto:m.foto||null}))};
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(db,null,2))));
-    const rGet = await fetch('https://api.github.com/repos/prdlcsmrr/Associa-o-/contents/db.json',{
-      headers:{'Authorization':'token '+ghToken,'Accept':'application/vnd.github.v3+json'}
-    });
-    if(!rGet.ok) return;
-    const dGet = await rGet.json();
-    await fetch('https://api.github.com/repos/prdlcsmrr/Associa-o-/contents/db.json',{
-      method:'PUT',
-      headers:{'Authorization':'token '+ghToken,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},
-      body:JSON.stringify({message:'backup: auto-save '+new Date().toISOString(),content:content,sha:dGet.sha})
-    });
-    console.log('Backup GitHub OK - '+members.length+' membros');
-  }catch(e){ console.warn('Backup GitHub falhou:', e.message); }
+  /* Backup automático desativado por segurança: um site estático público não pode
+     guardar um token de escrita com segurança. Use o botão "Exportar db.json"
+     para salvar os dados e enviá-los ao repositório. */
+  return;
 }
 
 
