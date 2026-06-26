@@ -1888,28 +1888,33 @@ async function reloadMembers(){
 }
 
 async function loadFromCloud(){
-  // SEMPRE buscar db.json primeiro — fonte mais atualizada
+  // db.json é a fonte primária. Membros que só existem no localStorage são preservados (nunca perder cadastro local ainda não exportado).
+  let cloud=null;
   try{
     const r2=await fetch('db.json?t='+Date.now());
     if(r2.ok){
       const data2=await r2.json();
-      if(data2.membros && data2.membros.length>0){
-        members=data2.membros;
-        localStorage.setItem('members',JSON.stringify(members));
-        renderList();
-        updateCount();
-        return;
-      }
+      if(data2 && Array.isArray(data2.membros)) cloud=data2.membros;
     }
   }catch(e){}
 
-  // Fallback: localStorage
-  const localData=JSON.parse(localStorage.getItem('members')||'[]');
-  if(localData.length>0){
-    members=localData;
-    renderList();
-    updateCount();
+  const local=JSON.parse(localStorage.getItem('members')||'[]');
+
+  // db.json indisponível (offline/403/erro): mantém o que já está no localStorage
+  if(cloud===null){
+    if(local.length>0){ members=local; renderList(); updateCount(); }
+    return;
   }
+
+  // Merge por id: db.json vence para membros existentes; membros só-locais preservados
+  const byId={};
+  cloud.forEach(function(m){ if(m && m.id!=null) byId[m.id]=m; });
+  local.forEach(function(m){ if(m && m.id!=null && !byId.hasOwnProperty(m.id)) byId[m.id]=m; });
+  members=Object.keys(byId).map(function(k){ return byId[k]; });
+
+  localStorage.setItem('members',JSON.stringify(members));
+  renderList();
+  updateCount();
 }
 
 async function syncToCloud(){
@@ -1980,9 +1985,10 @@ function del(id){if(!confirm('Excluir?'))return;members=members.filter(m=>m.id!=
 function clearAll(){if(!confirm('Apagar TODOS?'))return;members=[];save();renderList();}
 
 // INIT
-// Use localStorage first, cloud only if empty
+// Render imediato do localStorage (evita tela vazia), depois sincroniza com db.json (fonte primária) e re-renderiza com validade/badges corretos
 members = JSON.parse(localStorage.getItem('members') || '[]');
 renderList();
+loadFromCloud();
 // ── CONFIG ──────────────────────────────────────────────────────────
 let cfg = JSON.parse(localStorage.getItem('assoc-config') || '{}');
 
