@@ -1810,17 +1810,38 @@ function saveEdit(){
   const idx = members.findIndex(x=>String(x.id)===String(_editId)||String(x.numCred)===String(_editId));
   if(idx<0){ alert('Membro não encontrado. editId='+_editId+' membros='+members.length); return; }
 
+  // ── Validação unificada (igual ao cadastro: aviso específico do que falta) ──
+  const OBRIG_E=[
+    ['edit-nome','Nome'],['edit-cpf','CPF'],['edit-tel','Telefone'],['edit-nasc','Nascimento'],
+    ['edit-naturalidade','Naturalidade'],['edit-municipio','Município'],
+    ['edit-pai','Nome do pai'],['edit-mae','Nome da mãe'],
+    ['edit-cep','CEP'],['edit-rua','Rua'],['edit-numero','Número'],
+    ['edit-bairro','Bairro'],['edit-cidade','Cidade'],['edit-uf','UF']
+  ];
+  OBRIG_E.forEach(function(c){ var el=document.getElementById(c[0]); if(el) el.style.borderColor=''; });
+  var faltandoE=[], primeiroElE=null;
+  OBRIG_E.forEach(function(c){
+    var el=document.getElementById(c[0]);
+    if(el && !el.value.trim()){ faltandoE.push(c[1]); el.style.borderColor='#b91c1c'; if(!primeiroElE) primeiroElE=el; }
+  });
+  if(faltandoE.length){
+    if(primeiroElE && primeiroElE.scrollIntoView) primeiroElE.scrollIntoView({behavior:'smooth',block:'center'});
+    avisoValidacao('Falta preencher: '+faltandoE.join(', '));
+    return;
+  }
+
   const nome = document.getElementById('edit-nome').value.trim();
   const cpf  = document.getElementById('edit-cpf').value.trim();
-  if(!nome||!cpf){ alert('Nome e CPF são obrigatórios'); return; }
   if(!validarCPF(cpf)){
-    alert('❌ CPF inválido! Verifique os dígitos.');
-    document.getElementById('edit-cpf').style.borderColor='#b91c1c';
+    var _cfE=document.getElementById('edit-cpf');
+    _cfE.style.borderColor='#b91c1c';
+    if(_cfE.scrollIntoView) _cfE.scrollIntoView({behavior:'smooth',block:'center'});
+    avisoValidacao('CPF inválido — confira os dígitos.');
     return;
   }
   var _cpfE=cpf.replace(/[^\d]/g,'');
   var _cpfDE=members.find(function(m,i){return i!==idx&&m.cpf&&m.cpf.replace(/[^\d]/g,'')===_cpfE;});
-  if(_cpfDE){alert('❌ CPF já cadastrado para: '+_cpfDE.nome);return;}
+  if(_cpfDE){ avisoValidacao('CPF já cadastrado para: '+_cpfDE.nome); return; }
 
   // Foto: prioridade — arquivo carregado > URL digitada > manter existente
   const fotoUrl = document.getElementById('edit-foto-url').value.trim();
