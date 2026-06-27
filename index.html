@@ -369,9 +369,9 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
 <div class="app-header">
   <div class="header-inner">
     <div class="hlogo">
-      <div class="hemblem" style="display:flex;flex-direction:column;align-items:center;gap:3px;">
-        <img src="logo.png" style="width:44px;height:44px;object-fit:contain;">
-        <div style="font-size:7px;font-weight:700;letter-spacing:1.5px;color:var(--gold);opacity:.8;text-transform:uppercase;white-space:nowrap;">SIGNUMOR</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div class="hemblem"><img src="logo.png" style="width:44px;height:44px;object-fit:contain;"></div>
+        <div style="font-size:7px;font-weight:700;letter-spacing:1px;color:var(--gold);opacity:.85;text-transform:uppercase;white-space:nowrap;">SIGNUMOR</div>
       </div>
       <div class="htitles">
         <div class="horg">Sistema Oficial</div>
@@ -2195,9 +2195,9 @@ function loadConfig(){
   // Tema oficial fixo (cores e fonte vêm do CSS :root — sem personalização por aparelho)
   if(cfg.nomeAssoc) document.querySelectorAll('.hname').forEach(e=>e.textContent=cfg.nomeAssoc);
   if(cfg.subAssoc) document.querySelectorAll('.hsub').forEach(e=>e.textContent=cfg.subAssoc);
-  // Logo fixa — marca do sistema (mantém o SIGNUMOR abaixo do emblema)
+  // Logo fixa — marca do sistema (SIGNUMOR fica fora do .hemblem, no wrapper)
   document.querySelectorAll('.hemblem').forEach(e=>{
-    e.innerHTML='<img src="logo.png" style="width:44px;height:44px;object-fit:contain;"><div style="font-size:7px;font-weight:700;letter-spacing:1.5px;color:var(--gold);opacity:.8;text-transform:uppercase;white-space:nowrap;">SIGNUMOR</div>';
+    e.innerHTML='<img src="logo.png" style="width:44px;height:44px;object-fit:contain;">';
   });
 }
 
