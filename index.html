@@ -2195,9 +2195,9 @@ function loadConfig(){
   // Tema oficial fixo (cores e fonte vêm do CSS :root — sem personalização por aparelho)
   if(cfg.nomeAssoc) document.querySelectorAll('.hname').forEach(e=>e.textContent=cfg.nomeAssoc);
   if(cfg.subAssoc) document.querySelectorAll('.hsub').forEach(e=>e.textContent=cfg.subAssoc);
-  // Logo fixa — marca do sistema
+  // Logo fixa — marca do sistema (mantém o SIGNUMOR abaixo do emblema)
   document.querySelectorAll('.hemblem').forEach(e=>{
-    e.innerHTML='<img src="logo.png" style="width:44px;height:44px;object-fit:contain;">';
+    e.innerHTML='<img src="logo.png" style="width:44px;height:44px;object-fit:contain;"><div style="font-size:7px;font-weight:700;letter-spacing:1.5px;color:var(--gold);opacity:.8;text-transform:uppercase;white-space:nowrap;">SIGNUMOR</div>';
   });
 }
 
