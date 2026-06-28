@@ -469,7 +469,7 @@ function renderCard(){
         ${m?.foto?`<img src="${m.foto}" alt="">` : '<div class="f-photo-ph">👤</div>'}
       </div>`;
     } else if(cfg.type==='qr'){
-      const _qUrl=`https://ubapff.org.br/registrooficialcarteirafuncional.html?id=${encodeURIComponent(m.numCred)}`;
+      const _qUrl=`https://ubapff.org.br/sindapff.carteirafuncionaloficial/?id=${encodeURIComponent(m.numCred)}`;
       const _qColor=(cfg.color||'#1a2a5e').replace('#','');
       const _qImg=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(_qUrl)}&margin=4&color=${_qColor}`;
       fields+=`<div id="c_${key}" class="f-photo${drag}${selCls}"
