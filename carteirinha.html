@@ -284,32 +284,33 @@ const BASE  = BASE_DOMAIN;
 const BINKEY= ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
 
 const DEFAULT_F = {
-  f_photo:  { type:'photo', left:9.5, top:24.5, w:20.0, ratio:'3/4' },
-  f_nome:   { left:39.0, top:40.0, size:2.4, bold:true, color:'#111', upper:true },
-  f_cpf:    { left:39.0, top:50.0, size:2.0, bold:true, color:'#111', upper:false },
-  f_emissao:{ left:65.5, top:50.0, size:2.0, bold:true, color:'#111', upper:false },
-  f_mat:    { left:14.0, top:72.0, size:2.0, bold:true, color:'#111', upper:false },
+  f_photo:  { type:'photo', left:9.0, top:24.0, w:20.0, ratio:'3/4' },
+  f_nome:   { left:39.0, top:41.0, size:2.4, bold:true, color:'#111', upper:true },
+  f_cpf:    { left:39.0, top:53.0, size:2.0, bold:true, color:'#111', upper:false },
+  f_emissao:{ left:65.5, top:53.0, size:2.0, bold:true, color:'#111', upper:false },
+  f_mat:    { left:14.0, top:76.0, size:2.0, bold:true, color:'#111', upper:false },
 };
 const DEFAULT_V = {
   v_qr:            { type:'qr',   left:4.0,  top:21.0, w:14.0, color:'#cc0000' },
-  v_filiacao_pai:  { left:22.5, top:21.5, size:2.0, bold:true, color:'#111', upper:false },
-  v_filiacao_mae:  { left:22.5, top:26.0, size:2.0, bold:true, color:'#111', upper:false },
-  v_naturalidade:  { left:22.5, top:34.5, size:2.0, bold:true, color:'#111', upper:true },
-  v_validade:      { left:57.0, top:34.5, size:2.0, bold:true, color:'#cc0000', upper:false },
-  v_nasc:          { left:22.5, top:45.0, size:2.0, bold:true, color:'#111', upper:false },
+  v_filiacao_pai:  { left:22.0, top:24.5, size:2.0, bold:true, color:'#111', upper:false },
+  v_filiacao_mae:  { left:22.0, top:28.0, size:2.0, bold:true, color:'#111', upper:false },
+  v_naturalidade:  { left:22.0, top:35.0, size:2.0, bold:true, color:'#111', upper:true },
+  v_validade:      { left:57.0, top:35.0, size:2.0, bold:true, color:'#cc0000', upper:false },
+  v_nasc:          { left:22.0, top:45.5, size:2.0, bold:true, color:'#111', upper:false },
   v_admissao:      { left:57.0, top:45.5, size:2.0, bold:true, color:'#111', upper:false },
-  v_situacao:      { left:22.5, top:56.0, size:2.0, bold:true, color:'#111', upper:true },
+  v_situacao:      { left:22.0, top:57.0, size:2.0, bold:true, color:'#111', upper:true },
+  v_siape:         { left:57.0, top:57.0, size:2.0, bold:true, color:'#111', upper:false },
 };
 const LABELS = {
   f_photo:'Foto', f_cargo:'Cargo', f_nome:'Nome', f_mat:'Matrícula',
   f_cpf:'CPF', f_emissao:'Expedição', f_hash:'Hash',
   v_filiacao_pai:'Pai', v_filiacao_mae:'Mãe', v_nasc:'Nasc.', v_admissao:'Admissão',
   v_naturalidade:'Naturalidade', v_validade:'Validade',
-  v_municipio:'Município', v_situacao:'Situação',
+  v_municipio:'Município', v_situacao:'Situação', v_siape:'SIAPE',
 };
 const DOT_COLORS = {
   f_photo:'#888',f_cargo:'#1a2a6e',f_nome:'#333',f_mat:'#555',f_cpf:'#555',f_emissao:'#555',f_hash:'#888',
-  v_filiacao_pai:'#111',v_filiacao_mae:'#111',v_nasc:'#333',v_admissao:'#333',v_naturalidade:'#333',v_validade:'#c00',v_municipio:'#333',v_situacao:'#333',
+  v_filiacao_pai:'#111',v_filiacao_mae:'#111',v_nasc:'#333',v_admissao:'#333',v_naturalidade:'#333',v_validade:'#c00',v_municipio:'#333',v_situacao:'#333',v_siape:'#333',
 };
 
 let layoutF={}, layoutV={}, tab='F', editMode=false;
@@ -329,10 +330,12 @@ function loadLayouts(){
   localStorage.removeItem('cart_layout_version');
   localStorage.removeItem('cart_lF_v14');
   localStorage.removeItem('cart_lV_v14');
+  localStorage.removeItem('cart_userSaved_F2');
+  localStorage.removeItem('cart_userSaved_V2');
 
   // Só carregar layout salvo se usuário explicitamente salvou (flag user_saved)
-  const userSavedF = localStorage.getItem('cart_userSaved_F2');
-  const userSavedV = localStorage.getItem('cart_userSaved_V2');
+  const userSavedF = localStorage.getItem('cart_userSaved_F3');
+  const userSavedV = localStorage.getItem('cart_userSaved_V3');
 
   if(userSavedF){
     try{ layoutF = JSON.parse(userSavedF); }catch(e){ layoutF = clone(DEFAULT_F); }
@@ -348,8 +351,8 @@ function loadLayouts(){
 }
 function saveLayout(){
   // Salvar com flag de que o usuário salvou explicitamente
-  localStorage.setItem('cart_userSaved_F2', JSON.stringify(layoutF));
-  localStorage.setItem('cart_userSaved_V2', JSON.stringify(layoutV));
+  localStorage.setItem('cart_userSaved_F3', JSON.stringify(layoutF));
+  localStorage.setItem('cart_userSaved_V3', JSON.stringify(layoutV));
   toast('✅ Layout salvo!','#1a7a3a');
 }
 function saveLayoutSilent(){
@@ -360,8 +363,8 @@ function saveLayoutSilent(){
 }
 function resetLayout(){
   if(!confirm('Resetar layout para o padrão original?')) return;
-  localStorage.removeItem('cart_userSaved_F2');
-  localStorage.removeItem('cart_userSaved_V2');
+  localStorage.removeItem('cart_userSaved_F3');
+  localStorage.removeItem('cart_userSaved_V3');
   sessionStorage.removeItem('cart_session_F');
   sessionStorage.removeItem('cart_session_V');
   layoutF = clone(DEFAULT_F);
@@ -445,13 +448,13 @@ function getData(){
     v_filiacao_pai:(m.pai||'Não informado'), v_filiacao_mae:(m.mae||''), v_nasc:fmt(m.nasc), v_admissao:fmt(m.emissao),
     v_naturalidade:(m.naturalidade||'BRASILEIRO'),
     v_validade:fmt(m.validade), v_municipio:(m.municipio||'—').toUpperCase(),
-    v_situacao:membro.status==='Ativo'?'ATIVO':'INATIVO',
+    v_situacao:membro.status==='Ativo'?'ATIVO':'INATIVO', v_siape:(m.siape||''),
   };
 }
 
 function renderCard(){
   const m=membro, data=getData(), L=layout();
-  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=2026sind1`:`${BASE}/verso.jpg?v=2026sind1`;
+  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=2026sind3`:`${BASE}/verso.jpg?v=2026sind3`;
   let fields='', guides='';
 
   for(const [key,cfg] of Object.entries(L)){
