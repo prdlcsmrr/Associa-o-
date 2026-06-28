@@ -147,9 +147,9 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
 
 
 /* MODAL */
-.modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;padding:20px;overflow-y:auto; }
+.modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto; }
 .modal-overlay.open { display:flex; }
-.modal-inner { display:flex;flex-direction:column;align-items:center;width:100%;max-width:900px; }
+.modal-inner { display:flex;flex-direction:column;align-items:center;width:100%;max-width:900px;margin:auto; }
 
 /* CREDENTIAL CARD */
 .credential { background:#fff;width:100%;border-radius:4px;box-shadow:0 4px 24px rgba(0,0,0,0.3);overflow:hidden;position:relative; }
@@ -541,12 +541,12 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
       <div class="cart-face" id="cart-frente">
         <img class="cart-bg" src="frente.jpg?v=1782205274" crossorigin="anonymous">
         <div class="cart-overlay">
-          <div class="cp-photo" id="cp-photo" style="left:12.6%;top:28.8%;width:13.5%;aspect-ratio:3/4"><div class="cp-photo-ph">👤</div></div>
+          <div class="cp-photo" id="cp-photo" style="left:9%;top:24%;width:20%;aspect-ratio:3/4"><div class="cp-photo-ph">👤</div></div>
           <div class="cp-campo" id="cp-cargo"   style="left:34.9%;top:39.6%;font-size:2.2cqw;font-weight:800;color:#1a2a6e"></div>
-          <div class="cp-campo" id="cp-nome"    style="left:35%;top:51.9%;font-size:2.2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-mat"     style="left:14%;top:65%;font-size:2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-cpf"     style="left:35.1%;top:65.3%;font-size:2.2cqw;font-weight:700;color:#111"></div>
-          <div class="cp-campo" id="cp-emissao" style="left:67.3%;top:65.8%;font-size:2.2cqw;font-weight:700;color:#111"></div>
+          <div class="cp-campo" id="cp-nome"    style="left:39%;top:41%;font-size:2.4cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-mat"     style="left:14%;top:76%;font-size:2cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-cpf"     style="left:39%;top:51.5%;font-size:2cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-emissao" style="left:65.5%;top:51.5%;font-size:2cqw;font-weight:800;color:#111"></div>
           <div class="cp-campo" id="cp-hash"    style="left:35.1%;top:77.5%;font-size:2cqw;font-weight:600;color:#333"></div>
         </div>
       </div>
@@ -554,13 +554,14 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
       <div class="cart-face" id="cart-verso">
         <img class="cart-bg" src="verso.jpg?v=1782205274" crossorigin="anonymous">
         <div class="cart-overlay">
-          <div id="cp-qr" style="position:absolute;left:3.4%;top:22.4%;width:14%"></div>
-          <div class="cp-campo" id="cp-filiacao"     style="left:18.9%;top:24.6%;font-size:1.1cqw;font-weight:700;color:#111;line-height:1.5;white-space:normal;max-width:50%"></div>
-          <div class="cp-campo" id="cp-admissao"     style="left:52.5%;top:25.5%;font-size:2.2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-nasc"         style="left:19%;top:39.7%;font-size:2.2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-validade"     style="left:52.9%;top:39.5%;font-size:2.2cqw;font-weight:800;color:#cc0000"></div>
-          <div class="cp-campo" id="cp-naturalidade" style="left:19.2%;top:51.6%;font-size:2.2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-situacao"     style="left:53%;top:52%;font-size:2.2cqw;font-weight:800;color:#111"></div>
+          <div id="cp-qr" style="position:absolute;left:4%;top:21%;width:14%"></div>
+          <div class="cp-campo" id="cp-filiacao"     style="left:22%;top:24.5%;font-size:2cqw;font-weight:800;color:#111;line-height:1.5;white-space:normal;max-width:50%"></div>
+          <div class="cp-campo" id="cp-admissao"     style="left:57%;top:45.5%;font-size:2cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-nasc"         style="left:22%;top:45.5%;font-size:2cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-validade"     style="left:57%;top:35%;font-size:2cqw;font-weight:800;color:#cc0000"></div>
+          <div class="cp-campo" id="cp-naturalidade" style="left:22%;top:35%;font-size:2cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-situacao"     style="left:22%;top:56.5%;font-size:2cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-siape"        style="left:57%;top:56.5%;font-size:2cqw;font-weight:800;color:#111"></div>
           <div class="cp-campo" id="cp-municipio"    style="left:84%;top:60%;font-size:2.2cqw;font-weight:800;color:#111"></div>
         </div>
       </div>
@@ -1961,9 +1962,36 @@ function openCred(id){
   document.getElementById('cp-naturalidade').textContent=(m.naturalidade||'BRASILEIRO').toUpperCase();
   document.getElementById('cp-validade').textContent=fmt(m.validade);
   document.getElementById('cp-municipio').textContent=(m.municipio||'—').toUpperCase();
+  const cpSiape=document.getElementById('cp-siape'); if(cpSiape) cpSiape.textContent=m.siape||'';
   const sit=document.getElementById('cp-situacao');
   sit.textContent=ativo?'ATIVO':'INATIVO';
   sit.style.color=ativo?'#111':'#cc0000';
+
+  // Aplicar layout salvo do editor (carteirinha.html) ou usar padrão
+  const _defF={
+    f_photo:{type:'photo',left:9,top:24,w:20},
+    f_nome:{left:39,top:41,size:2.4,bold:true,color:'#111'},
+    f_cpf:{left:39,top:51.5,size:2,bold:true,color:'#111'},
+    f_emissao:{left:65.5,top:51.5,size:2,bold:true,color:'#111'},
+    f_mat:{left:14,top:76,size:2,bold:true,color:'#111'},
+  };
+  const _defV={
+    v_qr:{type:'qr',left:4,top:21,w:14},
+    v_filiacao_pai:{left:22,top:24.5,size:2,bold:true,color:'#111'},
+    v_naturalidade:{left:22,top:35,size:2,bold:true,color:'#111'},
+    v_validade:{left:57,top:35,size:2,bold:true,color:'#cc0000'},
+    v_nasc:{left:22,top:45.5,size:2,bold:true,color:'#111'},
+    v_admissao:{left:57,top:45.5,size:2,bold:true,color:'#111'},
+    v_situacao:{left:22,top:56.5,size:2,bold:true,color:'#111'},
+    v_siape:{left:57,top:56.5,size:2,bold:true,color:'#111'},
+  };
+  let _lF=_defF, _lV=_defV;
+  try{ const s=localStorage.getItem('cart_userSaved_F3'); if(s) _lF=JSON.parse(s); }catch(e){}
+  try{ const s=localStorage.getItem('cart_userSaved_V3'); if(s) _lV=JSON.parse(s); }catch(e){}
+  const _MAP_F={f_photo:'cp-photo',f_nome:'cp-nome',f_cpf:'cp-cpf',f_emissao:'cp-emissao',f_mat:'cp-mat',f_cargo:'cp-cargo',f_hash:'cp-hash'};
+  const _MAP_V={v_qr:'cp-qr',v_filiacao_pai:'cp-filiacao',v_naturalidade:'cp-naturalidade',v_validade:'cp-validade',v_nasc:'cp-nasc',v_admissao:'cp-admissao',v_situacao:'cp-situacao',v_siape:'cp-siape',v_municipio:'cp-municipio'};
+  for(const[k,id] of Object.entries(_MAP_F)){const cfg=_lF[k];const el=document.getElementById(id);if(!cfg||!el)continue;el.style.left=cfg.left+'%';el.style.top=cfg.top+'%';if(cfg.type==='photo'){el.style.width=cfg.w+'%';}else{if(cfg.size)el.style.fontSize=cfg.size+'cqw';if(cfg.color)el.style.color=cfg.color;el.style.fontWeight=cfg.bold?'800':'600';}}
+  for(const[k,id] of Object.entries(_MAP_V)){const cfg=_lV[k];const el=document.getElementById(id);if(!cfg||!el)continue;el.style.left=cfg.left+'%';el.style.top=cfg.top+'%';if(cfg.type==='qr'||cfg.type==='photo'){el.style.width=cfg.w+'%';}else{if(cfg.size)el.style.fontSize=cfg.size+'cqw';if(cfg.color&&id!=='cp-situacao')el.style.color=cfg.color;el.style.fontWeight=cfg.bold?'800':'600';}}
 
   var mc=document.getElementById('modal');
   if(mc){ mc.style.display='flex'; mc.classList.add('open'); }
