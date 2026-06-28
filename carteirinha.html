@@ -477,7 +477,7 @@ function renderCard(){
         <img src="${_qImg}" alt="QR" style="width:100%;display:block" crossorigin="anonymous">
       </div>`;
     } else {
-      const val=data[key]||'—';
+      const val=(cfg.override!==undefined?cfg.override:data[key])||'—';
       const fw=cfg.bold?'800':'600';
       const col=`color:${key==='v_situacao'&&val==='INATIVO'?'#cc0000':cfg.color||'#111'};`;
       const up=cfg.upper?val.toUpperCase():val;
@@ -569,6 +569,7 @@ function doDrag(startX,startY,key,cardEl){
 /* SELEÇÃO */
 function selectField(key){
   selKey=key;
+  _ovHistPushed=false;
   // NÃO renderizar tudo — apenas atualizar classes no DOM existente
   document.querySelectorAll('.campo.drag, .f-photo.drag').forEach(el=>{
     el.classList.remove('sel');
@@ -693,6 +694,16 @@ function buildCtrlPanel(){
       </div>
     </div>
     ` : (!isPhoto && !isQr) ? `
+    <!-- Texto customizado -->
+    <div class="ctrl-row" style="flex-wrap:wrap;gap:6px;margin-bottom:6px">
+      <span class="ctrl-label" style="min-width:100%;margin-bottom:2px">Texto</span>
+      <input type="text" id="override-input"
+        value="${cfg.override!==undefined?cfg.override:getData()[selKey]||''}"
+        placeholder="${getData()[selKey]||''}"
+        style="flex:1;background:rgba(255,255,255,.1);border:1.5px solid rgba(201,151,42,.45);border-radius:8px;padding:9px 12px;color:#fff;font-size:13px;font-weight:700;min-width:0;outline:none"
+        oninput="setOverride(this.value)">
+      ${cfg.override!==undefined?`<button class="ic-btn" onclick="clearOverride()" title="Restaurar valor original" style="font-size:10px;padding:0 10px;width:auto;flex-shrink:0;background:rgba(185,28,28,.3);border-color:rgba(185,28,28,.5)">↺ Padrão</button>`:''}
+    </div>
     <!-- Fonte -->
     <div class="ctrl-row">
       <span class="ctrl-label">Fonte</span>
@@ -918,6 +929,24 @@ async function downloadPDF(){
   pdf.addImage(cV.toDataURL('image/png'),'PNG',hw,(h-fh)/2,hw,fh);
   pdf.save(`carteirinha_${membro?.numCred||'x'}.pdf`);
   tab=orig; renderCard();
+}
+
+/* OVERRIDE DE TEXTO */
+let _ovHistPushed = false;
+function setOverride(v){
+  const L=layout(); if(!selKey||L[selKey].type) return;
+  if(!_ovHistPushed){ pushHistory(); _ovHistPushed=true; }
+  L[selKey].override=v;
+  const el=document.getElementById('c_'+selKey);
+  if(el) el.textContent=(L[selKey].upper?v.toUpperCase():v)||'—';
+  saveLayoutSilent();
+}
+function clearOverride(){
+  _ovHistPushed=false;
+  pushHistory();
+  const L=layout(); if(!selKey||L[selKey].type) return;
+  delete L[selKey].override;
+  renderCard(); if(editMode){bindDrag();buildChips();selectField(selKey);}
 }
 
 init();
