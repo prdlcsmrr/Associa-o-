@@ -147,9 +147,16 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
 
 
 /* MODAL */
-.modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto; }
+.modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto; }
 .modal-overlay.open { display:flex; }
-.modal-inner { display:flex;flex-direction:column;align-items:center;width:100%;max-width:900px;margin:auto; }
+.modal-inner { width:100%;max-width:900px;margin:auto; }
+.cred-view-card { background:#fff;width:100%;border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.35); }
+.cred-view-header { background:var(--navy);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:4px solid var(--gold); }
+.cred-view-title small { display:block;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:3px; }
+.cred-view-title strong { display:block;color:#fff;font-size:15px;font-weight:900;letter-spacing:0.5px; }
+.cred-view-close { background:rgba(255,255,255,0.12);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+.cred-view-body { padding:18px;background:#f8fafc; }
+.cred-view-footer { padding:16px 20px;border-top:1px solid #e8e8e8;background:#fff; }
 
 /* CREDENTIAL CARD */
 .credential { background:#fff;width:100%;border-radius:4px;box-shadow:0 4px 24px rgba(0,0,0,0.3);overflow:hidden;position:relative; }
@@ -190,7 +197,7 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
 .cqr-lbl { font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888; }
 .cfooter { background:var(--navy);padding:8px 18px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1; }
 .cft { font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:1px; }
-.modal-acts { display:flex;gap:10px;margin-top:14px;width:100%; }
+.modal-acts { display:flex;gap:10px;width:100%; }
 
 
 /* ── CARTEIRINHA PREVIEW NA MODAL ── */
@@ -256,6 +263,9 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
   .content{padding:16px;}
   .tabs{padding-left:6px;padding-right:6px;}
   .header-inner{padding-left:16px;padding-right:16px;}
+  .cred-view-body{padding:14px;}
+  .cred-view-footer{padding:14px;}
+  .modal-acts{flex-direction:column;}
 }
 </style>
 
@@ -531,45 +541,58 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
 <!-- MODAL CREDENCIAL -->
 <div class="modal-overlay" id="modal" onclick="closeM(event)">
   <div class="modal-inner">
-    <div id="modal-status-bar" class="modal-status-bar ativo" style="width:100%">
-      <span id="cs-icon">✅</span>
-      <span id="cs-badge">CREDENCIAL ATIVA</span>
-      <span style="margin-left:auto;opacity:.6;font-size:10px" id="c-footer">—</span>
-    </div>
-    <div class="cart-preview" id="cred-card" style="container-type:inline-size">
-      <!-- FRENTE -->
-      <div class="cart-face" id="cart-frente">
-        <img class="cart-bg" src="frente.jpg?v=1782205274" crossorigin="anonymous">
-        <div class="cart-overlay">
-          <div class="cp-photo" id="cp-photo" style="left:9%;top:24%;width:20%;aspect-ratio:3/4"><div class="cp-photo-ph">👤</div></div>
-          <div class="cp-campo" id="cp-cargo"   style="left:34.9%;top:39.6%;font-size:2.2cqw;font-weight:800;color:#1a2a6e"></div>
-          <div class="cp-campo" id="cp-nome"    style="left:39%;top:41%;font-size:2.4cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-mat"     style="left:14%;top:76%;font-size:2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-cpf"     style="left:39%;top:51.5%;font-size:2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-emissao" style="left:65.5%;top:51.5%;font-size:2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-hash"    style="left:35.1%;top:77.5%;font-size:2cqw;font-weight:600;color:#333"></div>
+    <div class="cred-view-card">
+      <div class="cred-view-header">
+        <div class="cred-view-title">
+          <small>Visualização</small>
+          <strong>🪪 Ver Credencial</strong>
+        </div>
+        <button class="cred-view-close" type="button" onclick="closeMD()">✕</button>
+      </div>
+      <div class="cred-view-body">
+        <div id="modal-status-bar" class="modal-status-bar ativo">
+          <span id="cs-icon">✅</span>
+          <span id="cs-badge">CREDENCIAL ATIVA</span>
+          <span style="margin-left:auto;opacity:.6;font-size:10px" id="c-footer">—</span>
+        </div>
+        <div class="cart-preview" id="cred-card" style="container-type:inline-size">
+          <!-- FRENTE -->
+          <div class="cart-face" id="cart-frente">
+            <img class="cart-bg" src="frente.jpg?v=1782205274" crossorigin="anonymous">
+            <div class="cart-overlay">
+              <div class="cp-photo" id="cp-photo" style="left:9%;top:24%;width:20%;aspect-ratio:3/4"><div class="cp-photo-ph">👤</div></div>
+              <div class="cp-campo" id="cp-cargo"   style="left:34.9%;top:39.6%;font-size:2.2cqw;font-weight:800;color:#1a2a6e"></div>
+              <div class="cp-campo" id="cp-nome"    style="left:39%;top:41%;font-size:2.4cqw;font-weight:800;color:#111"></div>
+              <div class="cp-campo" id="cp-mat"     style="left:14%;top:76%;font-size:2cqw;font-weight:800;color:#111"></div>
+              <div class="cp-campo" id="cp-cpf"     style="left:39%;top:51.5%;font-size:2cqw;font-weight:800;color:#111"></div>
+              <div class="cp-campo" id="cp-emissao" style="left:65.5%;top:51.5%;font-size:2cqw;font-weight:800;color:#111"></div>
+              <div class="cp-campo" id="cp-hash"    style="left:35.1%;top:77.5%;font-size:2cqw;font-weight:600;color:#333"></div>
+            </div>
+          </div>
+          <!-- VERSO -->
+          <div class="cart-face" id="cart-verso">
+            <img class="cart-bg" src="verso.jpg?v=1782205274" crossorigin="anonymous">
+            <div class="cart-overlay">
+              <div id="cp-qr" style="position:absolute;left:4%;top:21%;width:14%"></div>
+              <div class="cp-campo" id="cp-filiacao"     style="left:22%;top:24.5%;font-size:2cqw;font-weight:800;color:#111;line-height:1.5;white-space:normal;max-width:50%"></div>
+              <div class="cp-campo" id="cp-admissao"     style="left:57%;top:45.5%;font-size:2cqw;font-weight:800;color:#111"></div>
+              <div class="cp-campo" id="cp-nasc"         style="left:22%;top:45.5%;font-size:2cqw;font-weight:800;color:#111"></div>
+              <div class="cp-campo" id="cp-validade"     style="left:57%;top:35%;font-size:2cqw;font-weight:800;color:#cc0000"></div>
+              <div class="cp-campo" id="cp-naturalidade" style="left:22%;top:35%;font-size:2cqw;font-weight:800;color:#111"></div>
+              <div class="cp-campo" id="cp-situacao"     style="left:22%;top:56.5%;font-size:2cqw;font-weight:800;color:#111"></div>
+              <div class="cp-campo" id="cp-siape"        style="left:57%;top:56.5%;font-size:2cqw;font-weight:800;color:#111"></div>
+              <div class="cp-campo" id="cp-municipio"    style="left:84%;top:60%;font-size:2.2cqw;font-weight:800;color:#111"></div>
+            </div>
+          </div>
         </div>
       </div>
-      <!-- VERSO -->
-      <div class="cart-face" id="cart-verso">
-        <img class="cart-bg" src="verso.jpg?v=1782205274" crossorigin="anonymous">
-        <div class="cart-overlay">
-          <div id="cp-qr" style="position:absolute;left:4%;top:21%;width:14%"></div>
-          <div class="cp-campo" id="cp-filiacao"     style="left:22%;top:24.5%;font-size:2cqw;font-weight:800;color:#111;line-height:1.5;white-space:normal;max-width:50%"></div>
-          <div class="cp-campo" id="cp-admissao"     style="left:57%;top:45.5%;font-size:2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-nasc"         style="left:22%;top:45.5%;font-size:2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-validade"     style="left:57%;top:35%;font-size:2cqw;font-weight:800;color:#cc0000"></div>
-          <div class="cp-campo" id="cp-naturalidade" style="left:22%;top:35%;font-size:2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-situacao"     style="left:22%;top:56.5%;font-size:2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-siape"        style="left:57%;top:56.5%;font-size:2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-municipio"    style="left:84%;top:60%;font-size:2.2cqw;font-weight:800;color:#111"></div>
+      <div class="cred-view-footer">
+        <div class="modal-acts">
+          <button class="btn btn-outline" onclick="closeMD()" style="flex:1">✕ Fechar</button>
+          <button class="btn btn-navy" onclick="abrirCarteirinha()" style="flex:1">🪪 Carteirinha Completa</button>
+          <button class="btn btn-gold" onclick="downloadCarteirinhaModal()" style="flex:1">⬇ PNG</button>
         </div>
       </div>
-    </div>
-    <div class="modal-acts">
-      <button class="btn btn-outline" onclick="closeMD()" style="flex:1">✕ Fechar</button>
-      <button class="btn btn-navy" onclick="abrirCarteirinha()" style="flex:1">🪪 Carteirinha Completa</button>
-      <button class="btn btn-gold" onclick="downloadCarteirinhaModal()" style="flex:1">⬇ PNG</button>
     </div>
   </div>
 </div>
