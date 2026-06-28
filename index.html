@@ -418,6 +418,7 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
           <div class="field-row">
             <div class="field"><label>Naturalidade</label><input type="text" id="f-naturalidade" placeholder="Cidade de nascimento"></div>
             <div class="field"><label>Município (residência)</label><input type="text" id="f-municipio" placeholder="Cidade atual"></div>
+            <div class="field"><label>SIAPE</label><input type="text" id="f-siape" placeholder="Matrícula SIAPE"></div>
           </div>
           <div class="field"><label>Nome do Pai</label><input type="text" id="f-pai" placeholder="Nome completo do pai"></div>
           <div class="field"><label>Nome da Mãe</label><input type="text" id="f-mae" placeholder="Nome completo da mãe"></div>
@@ -539,29 +540,30 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
     <div class="cart-preview" id="cred-card" style="container-type:inline-size">
       <!-- FRENTE -->
       <div class="cart-face" id="cart-frente">
-        <img class="cart-bg" src="frente.jpg?v=1782205274" crossorigin="anonymous">
+        <img class="cart-bg" src="frente.jpg?v=2026sind3" crossorigin="anonymous">
         <div class="cart-overlay">
-          <div class="cp-photo" id="cp-photo" style="left:12.6%;top:28.8%;width:13.5%;aspect-ratio:3/4"><div class="cp-photo-ph">👤</div></div>
-          <div class="cp-campo" id="cp-cargo"   style="left:34.9%;top:39.6%;font-size:2.2cqw;font-weight:800;color:#1a2a6e"></div>
-          <div class="cp-campo" id="cp-nome"    style="left:35%;top:51.9%;font-size:2.2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-mat"     style="left:14%;top:65%;font-size:2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-cpf"     style="left:35.1%;top:65.3%;font-size:2.2cqw;font-weight:700;color:#111"></div>
-          <div class="cp-campo" id="cp-emissao" style="left:67.3%;top:65.8%;font-size:2.2cqw;font-weight:700;color:#111"></div>
-          <div class="cp-campo" id="cp-hash"    style="left:35.1%;top:77.5%;font-size:2cqw;font-weight:600;color:#333"></div>
+          <div class="cp-photo" id="cp-photo" style="left:9%;top:24%;width:20%;aspect-ratio:3/4"><div class="cp-photo-ph">👤</div></div>
+          <div class="cp-campo" id="cp-cargo"   style="display:none"></div>
+          <div class="cp-campo" id="cp-nome"    style="left:39%;top:41%;font-size:2.4cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-mat"     style="left:14%;top:76%;font-size:2cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-cpf"     style="left:39%;top:53%;font-size:2cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-emissao" style="left:65.5%;top:53%;font-size:2cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-hash"    style="display:none"></div>
         </div>
       </div>
       <!-- VERSO -->
       <div class="cart-face" id="cart-verso">
-        <img class="cart-bg" src="verso.jpg?v=1782205274" crossorigin="anonymous">
+        <img class="cart-bg" src="verso.jpg?v=2026sind3" crossorigin="anonymous">
         <div class="cart-overlay">
-          <div id="cp-qr" style="position:absolute;left:3.4%;top:22.4%;width:14%"></div>
-          <div class="cp-campo" id="cp-filiacao"     style="left:18.9%;top:24.6%;font-size:1.1cqw;font-weight:700;color:#111;line-height:1.5;white-space:normal;max-width:50%"></div>
-          <div class="cp-campo" id="cp-admissao"     style="left:52.5%;top:25.5%;font-size:2.2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-nasc"         style="left:19%;top:39.7%;font-size:2.2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-validade"     style="left:52.9%;top:39.5%;font-size:2.2cqw;font-weight:800;color:#cc0000"></div>
-          <div class="cp-campo" id="cp-naturalidade" style="left:19.2%;top:51.6%;font-size:2.2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-situacao"     style="left:53%;top:52%;font-size:2.2cqw;font-weight:800;color:#111"></div>
-          <div class="cp-campo" id="cp-municipio"    style="left:84%;top:60%;font-size:2.2cqw;font-weight:800;color:#111"></div>
+          <div id="cp-qr" style="position:absolute;left:4%;top:21%;width:14%"></div>
+          <div class="cp-campo" id="cp-filiacao"     style="left:22%;top:24.5%;font-size:1.7cqw;font-weight:700;color:#111;line-height:1.6;white-space:normal;max-width:48%"></div>
+          <div class="cp-campo" id="cp-naturalidade" style="left:22%;top:35%;font-size:2cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-validade"     style="left:57%;top:35%;font-size:2cqw;font-weight:800;color:#cc0000"></div>
+          <div class="cp-campo" id="cp-nasc"         style="left:22%;top:45.5%;font-size:2cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-admissao"     style="left:57%;top:45.5%;font-size:2cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-situacao"     style="left:22%;top:57%;font-size:2cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-siape"        style="left:57%;top:57%;font-size:2cqw;font-weight:800;color:#111"></div>
+          <div class="cp-campo" id="cp-municipio"    style="display:none"></div>
         </div>
       </div>
     </div>
@@ -974,6 +976,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
           <div class="edit-field"><label>E-mail</label><input type="email" id="edit-email"></div>
           <div class="edit-field"><label>Naturalidade</label><input type="text" id="edit-naturalidade" placeholder="Cidade de nascimento"></div>
           <div class="edit-field"><label>Município (residência)</label><input type="text" id="edit-municipio"></div>
+          <div class="edit-field"><label>SIAPE</label><input type="text" id="edit-siape"></div>
           <div class="edit-field"><label>Nome do Pai</label><input type="text" id="edit-pai"></div>
           <div class="edit-field"><label>Nome da Mãe</label><input type="text" id="edit-mae"></div>
         </div>
@@ -1429,6 +1432,7 @@ async function salvar(){
     email:document.getElementById('f-email').value.trim(),
     naturalidade:document.getElementById('f-naturalidade')?.value.trim()||'',
     municipio:document.getElementById('f-municipio')?.value.trim()||'',
+    siape:document.getElementById('f-siape')?.value.trim()||'',
     pai:document.getElementById('f-pai')?.value.trim()||'',
     mae:document.getElementById('f-mae')?.value.trim()||'',
     rua:document.getElementById('f-rua')?.value.trim()||'',
@@ -1762,6 +1766,7 @@ function openEdit(id){
   sf('edit-email', m.email);
   sf('edit-naturalidade', m.naturalidade);
   sf('edit-municipio', m.municipio);
+  sf('edit-siape', m.siape);
   sf('edit-pai', m.pai);
   sf('edit-mae', m.mae);
   sf('edit-rua', m.rua);
@@ -1876,6 +1881,7 @@ function saveEdit(){
     email:           document.getElementById('edit-email').value.trim(),
     naturalidade:    document.getElementById('edit-naturalidade').value.trim(),
     municipio:       document.getElementById('edit-municipio').value.trim(),
+      siape:           document.getElementById('edit-siape').value.trim(),
     pai:             document.getElementById('edit-pai').value.trim(),
     mae:             document.getElementById('edit-mae').value.trim(),
     cat:             document.getElementById('edit-cat').value,
@@ -1961,6 +1967,7 @@ function openCred(id){
   document.getElementById('cp-naturalidade').textContent=(m.naturalidade||'BRASILEIRO').toUpperCase();
   document.getElementById('cp-validade').textContent=fmt(m.validade);
   document.getElementById('cp-municipio').textContent=(m.municipio||'—').toUpperCase();
+  var _siapeEl=document.getElementById('cp-siape'); if(_siapeEl) _siapeEl.textContent=(m.siape||'—');
   const sit=document.getElementById('cp-situacao');
   sit.textContent=ativo?'ATIVO':'INATIVO';
   sit.style.color=ativo?'#111':'#cc0000';
