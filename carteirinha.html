@@ -284,24 +284,21 @@ const BASE  = BASE_DOMAIN;
 const BINKEY= ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
 
 const DEFAULT_F = {
-  f_photo:  { type:'photo', left:12.6, top:28.8, w:13.5, ratio:'3/4' },
-  f_cargo:  { left:34.9, top:39.6, size:2.2, bold:true,  color:'#1a2a6e', upper:true  },
-  f_nome:   { left:35.0, top:51.9, size:2.2, bold:true,  color:'#111',    upper:true  },
-  f_mat:    { left:12.6, top:64.2, size:2.2, bold:true,  color:'#111',    upper:false },
-  f_cpf:    { left:35.1, top:65.3, size:2.2, bold:true,  color:'#111',    upper:false },
-  f_emissao:{ left:67.3, top:65.8, size:2.2, bold:true,  color:'#111',    upper:false },
-  f_hash:   { left:35.1, top:77.5, size:2.0, bold:false, color:'#333',    upper:false },
+  f_photo:  { type:'photo', left:5.0, top:23.0, w:20.0, ratio:'3/4' },
+  f_nome:   { left:42.0, top:42.5, size:2.2, bold:true, color:'#111', upper:true },
+  f_cpf:    { left:42.0, top:54.5, size:2.2, bold:true, color:'#111', upper:false },
+  f_emissao:{ left:67.0, top:54.5, size:2.2, bold:true, color:'#111', upper:false },
+  f_mat:    { left:8.0,  top:75.5, size:2.0, bold:true, color:'#111', upper:false },
 };
 const DEFAULT_V = {
-  v_qr:            { type:'qr',   left:3.4,  top:22.4, w:14.0, color:'#cc0000' },
-  v_filiacao_pai:  { left:18.9, top:24.6, size:1.6, bold:true,  color:'#111',    upper:false },
-  v_filiacao_mae:  { left:19.0, top:31.5, size:1.6, bold:true,  color:'#111',    upper:false },
-  v_admissao:      { left:52.5, top:25.5, size:2.0, bold:true,  color:'#111',    upper:false },
-  v_nasc:          { left:19.0, top:39.7, size:2.0, bold:true,  color:'#111',    upper:false },
-  v_validade:      { left:52.9, top:39.5, size:2.0, bold:true,  color:'#cc0000', upper:false },
-  v_naturalidade:  { left:19.2, top:51.6, size:2.0, bold:true,  color:'#111',    upper:true  },
-  v_situacao:      { left:53.0, top:52.0, size:2.0, bold:true,  color:'#111',    upper:true  },
-  v_municipio:     { left:84.0, top:60.0, size:2.0, bold:true,  color:'#111',    upper:true  },
+  v_qr:            { type:'qr',   left:81.5, top:47.0, w:15.0, color:'#1a2a5e' },
+  v_filiacao_pai:  { left:23.5, top:23.5, size:1.6, bold:true, color:'#111', upper:false },
+  v_filiacao_mae:  { left:23.5, top:27.0, size:1.6, bold:true, color:'#111', upper:false },
+  v_naturalidade:  { left:23.5, top:36.0, size:2.0, bold:true, color:'#111', upper:true },
+  v_validade:      { left:57.5, top:36.0, size:2.0, bold:true, color:'#cc0000', upper:false },
+  v_nasc:          { left:23.5, top:46.0, size:2.0, bold:true, color:'#111', upper:false },
+  v_admissao:      { left:57.5, top:46.0, size:2.0, bold:true, color:'#111', upper:false },
+  v_situacao:      { left:23.5, top:56.0, size:2.0, bold:true, color:'#111', upper:true },
 };
 const LABELS = {
   f_photo:'Foto', f_cargo:'Cargo', f_nome:'Nome', f_mat:'Matrícula',
@@ -334,8 +331,8 @@ function loadLayouts(){
   localStorage.removeItem('cart_lV_v14');
 
   // Só carregar layout salvo se usuário explicitamente salvou (flag user_saved)
-  const userSavedF = localStorage.getItem('cart_userSaved_F');
-  const userSavedV = localStorage.getItem('cart_userSaved_V');
+  const userSavedF = localStorage.getItem('cart_userSaved_F2');
+  const userSavedV = localStorage.getItem('cart_userSaved_V2');
 
   if(userSavedF){
     try{ layoutF = JSON.parse(userSavedF); }catch(e){ layoutF = clone(DEFAULT_F); }
@@ -351,8 +348,8 @@ function loadLayouts(){
 }
 function saveLayout(){
   // Salvar com flag de que o usuário salvou explicitamente
-  localStorage.setItem('cart_userSaved_F', JSON.stringify(layoutF));
-  localStorage.setItem('cart_userSaved_V', JSON.stringify(layoutV));
+  localStorage.setItem('cart_userSaved_F2', JSON.stringify(layoutF));
+  localStorage.setItem('cart_userSaved_V2', JSON.stringify(layoutV));
   toast('✅ Layout salvo!','#1a7a3a');
 }
 function saveLayoutSilent(){
@@ -363,8 +360,8 @@ function saveLayoutSilent(){
 }
 function resetLayout(){
   if(!confirm('Resetar layout para o padrão original?')) return;
-  localStorage.removeItem('cart_userSaved_F');
-  localStorage.removeItem('cart_userSaved_V');
+  localStorage.removeItem('cart_userSaved_F2');
+  localStorage.removeItem('cart_userSaved_V2');
   sessionStorage.removeItem('cart_session_F');
   sessionStorage.removeItem('cart_session_V');
   layoutF = clone(DEFAULT_F);
@@ -454,7 +451,7 @@ function getData(){
 
 function renderCard(){
   const m=membro, data=getData(), L=layout();
-  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=1782204317`:`${BASE}/verso.jpg?v=1782204317`;
+  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=2026sind1`:`${BASE}/verso.jpg?v=2026sind1`;
   let fields='', guides='';
 
   for(const [key,cfg] of Object.entries(L)){
