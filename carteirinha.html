@@ -300,6 +300,7 @@ const DEFAULT_V = {
   v_admissao:      { left:57.0, top:45.5, size:2.0, bold:true, color:'#111', upper:false },
   v_situacao:      { left:22.0, top:56.5, size:2.0, bold:true, color:'#111', upper:true },
   v_siape:         { left:57.0, top:56.5, size:2.0, bold:true, color:'#111', upper:false },
+  v_municipio:     { left:74.0, top:52.0, size:2.0, bold:true, color:'#111', upper:true },
 };
 const LABELS = {
   f_photo:'Foto', f_cargo:'Cargo', f_nome:'Nome', f_mat:'Matrícula',
@@ -332,10 +333,12 @@ function loadLayouts(){
   localStorage.removeItem('cart_lV_v14');
   localStorage.removeItem('cart_userSaved_F2');
   localStorage.removeItem('cart_userSaved_V2');
+  localStorage.removeItem('cart_userSaved_F3');
+  localStorage.removeItem('cart_userSaved_V3');
 
   // Só carregar layout salvo se usuário explicitamente salvou (flag user_saved)
-  const userSavedF = localStorage.getItem('cart_userSaved_F3');
-  const userSavedV = localStorage.getItem('cart_userSaved_V3');
+  const userSavedF = localStorage.getItem('cart_userSaved_F4');
+  const userSavedV = localStorage.getItem('cart_userSaved_V4');
 
   if(userSavedF){
     try{ layoutF = JSON.parse(userSavedF); }catch(e){ layoutF = clone(DEFAULT_F); }
@@ -344,15 +347,20 @@ function loadLayouts(){
   }
 
   if(userSavedV){
-    try{ layoutV = JSON.parse(userSavedV); }catch(e){ layoutV = clone(DEFAULT_V); }
+    try{
+      const parsed = JSON.parse(userSavedV);
+      // Garantir que v_municipio existe no layout salvo
+      if(!parsed.v_municipio) parsed.v_municipio = clone(DEFAULT_V.v_municipio);
+      layoutV = parsed;
+    }catch(e){ layoutV = clone(DEFAULT_V); }
   } else {
     layoutV = clone(DEFAULT_V);
   }
 }
 function saveLayout(){
   // Salvar com flag de que o usuário salvou explicitamente
-  localStorage.setItem('cart_userSaved_F3', JSON.stringify(layoutF));
-  localStorage.setItem('cart_userSaved_V3', JSON.stringify(layoutV));
+  localStorage.setItem('cart_userSaved_F4', JSON.stringify(layoutF));
+  localStorage.setItem('cart_userSaved_V4', JSON.stringify(layoutV));
   toast('✅ Layout salvo!','#1a7a3a');
 }
 function saveLayoutSilent(){
@@ -363,8 +371,8 @@ function saveLayoutSilent(){
 }
 function resetLayout(){
   if(!confirm('Resetar layout para o padrão original?')) return;
-  localStorage.removeItem('cart_userSaved_F3');
-  localStorage.removeItem('cart_userSaved_V3');
+  localStorage.removeItem('cart_userSaved_F4');
+  localStorage.removeItem('cart_userSaved_V4');
   sessionStorage.removeItem('cart_session_F');
   sessionStorage.removeItem('cart_session_V');
   layoutF = clone(DEFAULT_F);
