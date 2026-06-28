@@ -556,7 +556,8 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
         <img class="cart-bg" src="verso.jpg?v=2026sind3" crossorigin="anonymous">
         <div class="cart-overlay">
           <div id="cp-qr" style="position:absolute;left:4%;top:21%;width:14%"></div>
-          <div class="cp-campo" id="cp-filiacao"     style="left:22%;top:24.5%;font-size:1.7cqw;font-weight:700;color:#111;line-height:1.4;white-space:normal;max-width:48%"></div>
+          <div class="cp-campo" id="cp-filiacao-pai" style="left:22%;top:24.5%;font-size:1.9cqw;font-weight:700;color:#111"></div>
+          <div class="cp-campo" id="cp-filiacao-mae" style="left:22%;top:26%;font-size:1.9cqw;font-weight:700;color:#111"></div>
           <div class="cp-campo" id="cp-naturalidade" style="left:22%;top:35%;font-size:2cqw;font-weight:800;color:#111"></div>
           <div class="cp-campo" id="cp-validade"     style="left:57%;top:35%;font-size:2cqw;font-weight:800;color:#cc0000"></div>
           <div class="cp-campo" id="cp-nasc"         style="left:22%;top:45.5%;font-size:2cqw;font-weight:800;color:#111"></div>
@@ -1955,13 +1956,10 @@ function openCred(id){
   // Filiação: pai e mãe em linhas separadas
   const filPai = m.pai ? m.pai : '';
   const filMae = m.mae ? m.mae : '';
-  const cpFil = document.getElementById('cp-filiacao');
-  if(cpFil){
-    cpFil.innerHTML = '';
-    if(filPai){ const d=document.createElement('div'); d.textContent=filPai; cpFil.appendChild(d); }
-    if(filMae){ const d=document.createElement('div'); d.textContent=filMae; cpFil.appendChild(d); }
-    if(!filPai && !filMae) cpFil.textContent='—';
-  }
+  var elPai=document.getElementById('cp-filiacao-pai');
+  var elMae=document.getElementById('cp-filiacao-mae');
+  if(elPai) elPai.textContent=(filPai||'');
+  if(elMae) elMae.textContent=(filMae||'');
   document.getElementById('cp-nasc').textContent=fmt(m.nasc);
   document.getElementById('cp-admissao').textContent=fmt(m.emissao);
   document.getElementById('cp-naturalidade').textContent=(m.naturalidade||'BRASILEIRO').toUpperCase();
