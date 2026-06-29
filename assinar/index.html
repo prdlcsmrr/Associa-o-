@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Assinatura Digital</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;background:#1a2a5e;font-family:Arial,sans-serif;color:#111;display:flex;align-items:center;justify-content:center;padding:16px}
+    .card{width:100%;max-width:420px;background:#fff;border-radius:14px;box-shadow:0 14px 38px rgba(0,0,0,.35);overflow:hidden}
+    .head{background:#1a2a5e;color:#fff;border-bottom:4px solid #c9972a;padding:18px;text-align:center}
+    .head img{width:72px;height:72px;object-fit:contain;display:block;margin:0 auto 8px}
+    .head h1{font-size:20px}
+    .body{padding:16px;display:flex;flex-direction:column;gap:12px}
+    .status{padding:10px 12px;border-radius:8px;font-size:13px;line-height:1.5}
+    .status.info{background:#eaf1ff;border:1px solid #93c5fd;color:#1e3a8a}
+    .status.ok{background:#dcfce7;border:1px solid #86efac;color:#166534}
+    .status.err{background:#fee2e2;border:1px solid #fca5a5;color:#991b1b}
+    .member{display:none;align-items:center;gap:10px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:10px}
+    .member img{width:56px;height:72px;object-fit:cover;border-radius:6px;background:#e5e7eb}
+    .member .ph{width:56px;height:72px;border-radius:6px;background:#e5e7eb;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:11px;text-align:center}
+    .member-name{font-size:14px;font-weight:700;color:#1a2a5e}
+    .member-id{font-size:12px;color:#64748b;margin-top:3px}
+    .pad-wrap{display:none}
+    .pad-label{font-size:12px;font-weight:700;color:#1a2a5e;margin-bottom:6px}
+    #pad{width:100%;height:200px;border:2px solid #c9972a;border-radius:8px;background:#fff;touch-action:none;display:block}
+    .actions{display:flex;gap:8px}
+    .btn{flex:1;border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:700;cursor:pointer}
+    .btn-clear{background:#b91c1c;color:#fff}
+    .btn-confirm{background:#22a04e;color:#fff}
+    .btn-light{background:#e5e7eb;color:#111}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="head">
+      <img src="/logo.png" alt="Logo UBAPFF">
+      <h1>Assinatura Digital</h1>
+    </div>
+    <div class="body">
+      <div id="status" class="status info">Carregando dados do membro...</div>
+      <div id="member" class="member">
+        <div id="member-photo"></div>
+        <div>
+          <div id="member-name" class="member-name"></div>
+          <div id="member-id" class="member-id"></div>
+        </div>
+      </div>
+      <div id="pad-wrap" class="pad-wrap">
+        <div class="pad-label">Assine no campo abaixo:</div>
+        <canvas id="pad" width="388" height="200"></canvas>
+        <div class="actions" style="margin-top:10px">
+          <button class="btn btn-clear" type="button" id="btn-clear">Limpar</button>
+          <button class="btn btn-confirm" type="button" id="btn-confirm">Confirmar Assinatura</button>
+        </div>
+      </div>
+      <button id="btn-redo" class="btn btn-light" type="button" style="display:none">Refazer assinatura</button>
+    </div>
+  </main>
+
+  <script>
+    const DB_URL='https://ubapff.org.br/db.json';
+    const memberId=(new URLSearchParams(location.search).get('id')||'').trim();
+    const statusEl=document.getElementById('status');
+    const memberEl=document.getElementById('member');
+    const memberPhotoEl=document.getElementById('member-photo');
+    const memberNameEl=document.getElementById('member-name');
+    const memberIdEl=document.getElementById('member-id');
+    const padWrap=document.getElementById('pad-wrap');
+    const canvas=document.getElementById('pad');
+    const ctx=canvas.getContext('2d');
+    const btnClear=document.getElementById('btn-clear');
+    const btnConfirm=document.getElementById('btn-confirm');
+    const btnRedo=document.getElementById('btn-redo');
+
+    let drawing=false;
+    let hasStroke=false;
+    let canEdit=true;
+    let key='';
+
+    function setStatus(msg,type){
+      statusEl.className='status '+type;
+      statusEl.textContent=msg;
+    }
+    function getPos(ev){
+      const r=canvas.getBoundingClientRect();
+      const scaleX=canvas.width/r.width;
+      const scaleY=canvas.height/r.height;
+      if(ev.touches&&ev.touches[0]){
+        return {x:(ev.touches[0].clientX-r.left)*scaleX,y:(ev.touches[0].clientY-r.top)*scaleY};
+      }
+      return {x:(ev.clientX-r.left)*scaleX,y:(ev.clientY-r.top)*scaleY};
+    }
+    function startDraw(ev){
+      if(!canEdit) return;
+      ev.preventDefault();
+      drawing=true;
+      hasStroke=true;
+      const p=getPos(ev);
+      ctx.beginPath();
+      ctx.moveTo(p.x,p.y);
+    }
+    function moveDraw(ev){
+      if(!drawing||!canEdit) return;
+      ev.preventDefault();
+      const p=getPos(ev);
+      ctx.lineTo(p.x,p.y);
+      ctx.stroke();
+    }
+    function endDraw(){
+      drawing=false;
+    }
+    function clearPad(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      hasStroke=false;
+    }
+    function setPadEnabled(enabled){
+      canEdit=enabled;
+      padWrap.style.display='block';
+      btnClear.disabled=!enabled;
+      btnConfirm.disabled=!enabled;
+      btnRedo.style.display=enabled?'none':'block';
+      canvas.style.opacity=enabled?'1':'.85';
+    }
+    async function init(){
+      ctx.lineWidth=2.2;
+      ctx.lineCap='round';
+      ctx.strokeStyle='#111';
+
+      if(!memberId){
+        setStatus('❌ Link inválido: matrícula não informada.','err');
+        return;
+      }
+      key='assinatura_'+memberId;
+
+      try{
+        const res=await fetch(DB_URL+'?t='+Date.now());
+        if(!res.ok) throw new Error('Falha ao carregar base');
+        const data=await res.json();
+        const member=(data.membros||[]).find(x=>x.numCred===memberId);
+        if(!member){
+          setStatus('❌ Membro não encontrado para este ID.','err');
+          return;
+        }
+        memberNameEl.textContent=member.nome||'Membro';
+        memberIdEl.textContent=member.numCred||memberId;
+        if(member.foto){
+          memberPhotoEl.innerHTML='<img src="'+member.foto+'" alt="Foto do membro">';
+        }else{
+          memberPhotoEl.innerHTML='<div class="ph">Sem foto</div>';
+        }
+        memberEl.style.display='flex';
+        padWrap.style.display='block';
+        const existing=localStorage.getItem(key);
+        if(existing){
+          setStatus('Assinatura já registrada.','info');
+          const img=new Image();
+          img.onload=function(){
+            clearPad();
+            ctx.drawImage(img,0,0,canvas.width,canvas.height);
+            setPadEnabled(false);
+          };
+          img.src=existing;
+        }else{
+          setStatus('Assine e toque em "Confirmar Assinatura".','info');
+          setPadEnabled(true);
+        }
+      }catch(err){
+        setStatus('❌ Erro ao consultar base de membros. Tente novamente.','err');
+      }
+    }
+
+    canvas.addEventListener('mousedown',startDraw);
+    canvas.addEventListener('mousemove',moveDraw);
+    window.addEventListener('mouseup',endDraw);
+    canvas.addEventListener('touchstart',startDraw,{passive:false});
+    canvas.addEventListener('touchmove',moveDraw,{passive:false});
+    canvas.addEventListener('touchend',endDraw);
+    btnClear.addEventListener('click',clearPad);
+    btnConfirm.addEventListener('click',function(){
+      if(!canEdit) return;
+      if(!hasStroke){
+        setStatus('Faça a assinatura antes de confirmar.','err');
+        return;
+      }
+      const dataUrl=canvas.toDataURL('image/png');
+      localStorage.setItem(key,dataUrl);
+      setStatus('✅ Assinatura registrada com sucesso!','ok');
+      setPadEnabled(false);
+    });
+    btnRedo.addEventListener('click',function(){
+      clearPad();
+      setPadEnabled(true);
+      setStatus('Refaça a assinatura e confirme novamente.','info');
+    });
+
+    init();
+  </script>
+</body>
+</html>

@@ -152,9 +152,12 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
 .mcard-btn { flex:1;padding:7px;border-radius:6px;border:none;font-size:10px;font-weight:700;cursor:pointer;text-transform:uppercase;transition:all 0.2s; }
 .mcard-btn-cred { background:#f3f4f6;color:var(--navy); }
 .mcard-btn-cred:hover { background:var(--navy);color:#fff; }
+.mcard-btn-sign { background:rgba(34,160,78,0.1);color:#166534;border:1px solid rgba(34,160,78,0.35); }
+.mcard-btn-sign:hover { background:#22a04e;color:#fff;border-color:#22a04e; }
 .mcard-btn-del { background:rgba(185,28,28,0.08);color:var(--red); }
 .mcard-btn-del:hover { background:var(--red);color:#fff; }
 .empty { text-align:center;padding:80px 20px;color:var(--muted);grid-column:1/-1; }
+.sign-badge { display:inline-flex;align-items:center;gap:4px;background:rgba(34,160,78,0.12);color:#166534;border:1px solid rgba(34,160,78,0.4);padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;margin-top:4px; }
 
 /* EXPORT BOX */
 
@@ -163,6 +166,14 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
 .modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto; }
 .modal-overlay.open { display:flex; }
 .modal-inner { width:100%;max-width:900px;margin:auto; }
+.sign-link-card { background:#fff;width:100%;max-width:460px;border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.35);margin:auto; }
+.sign-link-header { background:var(--navy);padding:16px 20px;border-bottom:4px solid var(--gold);display:flex;align-items:center;justify-content:space-between;gap:10px; }
+.sign-link-header strong { color:#fff;font-size:15px; }
+.sign-link-body { padding:18px;background:#fff;display:flex;flex-direction:column;gap:12px; }
+.sign-link-help { font-size:12px;color:#4b5563;line-height:1.5; }
+.sign-link-url { background:#f8fafc;border:1px solid #d1d5db;border-radius:8px;padding:10px;font-size:12px;color:#1f2937;word-break:break-all; }
+.sign-link-qr { width:200px;height:200px;border:1px solid #e5e7eb;border-radius:10px;align-self:center;background:#fff; }
+.sign-link-actions { display:flex;gap:8px; }
 .cred-view-card { background:#fff;width:100%;border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.35); }
 .cred-view-header { background:var(--navy);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:4px solid var(--gold); }
 .cred-view-title small { display:block;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:3px; }
@@ -235,6 +246,9 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
 .cp-photo-ph { font-size:7px;color:#888;text-align:center; }
 .cp-qr { position:absolute; }
 .cp-qr img { display:block; }
+.cp-assinatura-wrap { position:absolute;left:57%;top:69%;width:38%;display:none; }
+.cp-assinatura-label { font-size:1.35cqw;font-weight:700;color:#1a2a5e;text-transform:uppercase;letter-spacing:.2px;margin-bottom:2px; }
+.cp-assinatura-img { width:100%;height:12%;min-height:34px;max-height:48px;object-fit:contain;display:block;border-bottom:1px solid #222; }
 .modal-status-bar {
   display:flex;align-items:center;gap:10px;
   padding:9px 16px; border-radius:6px; margin-bottom:10px;
@@ -596,6 +610,10 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
               <div class="cp-campo" id="cp-situacao"     style="left:22%;top:56.5%;font-size:2cqw;font-weight:800;color:#111"></div>
               <div class="cp-campo" id="cp-siape"        style="left:57%;top:56.5%;font-size:2cqw;font-weight:800;color:#111"></div>
               <div class="cp-campo" id="cp-municipio"    style="left:74%;top:52%;font-size:2cqw;font-weight:800;color:#111"></div>
+              <div id="cp-assinatura-wrap" class="cp-assinatura-wrap">
+                <div id="cp-assinatura-label" class="cp-assinatura-label">Assinatura do Titular</div>
+                <img id="cp-assinatura" class="cp-assinatura-img" alt="Assinatura do titular">
+              </div>
             </div>
           </div>
         </div>
@@ -969,6 +987,26 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
   </div>
 </div>
 
+<!-- MODAL LINK DE ASSINATURA -->
+<div class="modal-overlay" id="modal-sign-link" onclick="closeSignLinkModal(event)">
+  <div class="sign-link-card">
+    <div class="sign-link-header">
+      <strong>✍️ Link de Assinatura</strong>
+      <button class="cred-view-close" type="button" onclick="closeSignLinkModal()">✕</button>
+    </div>
+    <div class="sign-link-body">
+      <div id="sign-link-member" style="font-size:12px;font-weight:700;color:#1a2a5e">—</div>
+      <div class="sign-link-help">Envie este link ou QR Code para o membro assinar pelo celular.</div>
+      <div id="sign-link-url" class="sign-link-url">—</div>
+      <img id="sign-link-qr" class="sign-link-qr" alt="QR Code do link de assinatura">
+      <div class="sign-link-actions">
+        <button class="btn btn-navy" style="flex:1" onclick="copySignLink()">📋 Copiar Link</button>
+        <button class="btn btn-outline" style="flex:1" onclick="closeSignLinkModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <!-- ── MODAL EDIÇÃO DE MEMBRO ── -->
 <div id="modal-edit" onclick="closeEdit(event)">
@@ -1200,6 +1238,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
 const LUSER_DEFAULT='admin';
 const PW_KEY='ubapff_pwhash';
 const BASE_URL='https://ubapff.org.br/registrooficialcarteirafuncional.html';
+const SIGN_BASE_URL='https://ubapff.org.br/assinar/?id=';
 const ORG_PRE='ASC';
 
 // ── SENHA (hash SHA-256, guardada só no aparelho — nunca no código nem na nuvem) ──
@@ -1882,6 +1921,7 @@ function renderList(){
         <div class="mcard-name">${m.nome}</div>
         <div class="mcard-cat">${m.cat} · ${m.numCred}</div>
         <div class="mcard-status ${m.status==='Ativo'?'ativo':'inativo'}">● ${m.status==='Ativo'?'Credencial Ativa':'Credencial Inativa'}</div>
+        ${localStorage.getItem('assinatura_'+m.numCred)?'<div class="sign-badge">✍️ Assinado</div>':''}
         ${(function(){
           if(!m.validade) return '';
           var h=new Date(); h.setHours(0,0,0,0);
@@ -1895,6 +1935,7 @@ function renderList(){
         ${m.isento?'<div style="display:inline-flex;align-items:center;gap:4px;background:rgba(201,151,42,0.12);color:#8a6500;border:1px solid rgba(201,151,42,0.4);padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;margin-top:4px">🔓 ISENTO</div>':''}
         <div style="display:flex;gap:8px;align-items:center">
           <button class="mcard-btn mcard-btn-cred" onclick="openCred(${m.id})" style="flex:1;padding:8px">🪪 Ver Credencial</button>
+          <button class="mcard-btn mcard-btn-sign" onclick="openSignLinkModal('${m.numCred}')" style="flex:1;padding:8px">✍️ Assinar</button>
           <div style="position:relative;overflow:visible" id="menu-wrap-${m.id}">
             <button onclick="toggleMenu(${m.id},event)" style="width:36px;height:34px;border-radius:8px;border:1px solid #e0e0e0;background:#f9f9f9;cursor:pointer;font-size:18px;font-weight:900;color:#555;display:flex;align-items:center;justify-content:center" title="Mais opções">⋯</button>
             <div onclick="event.stopPropagation()" id="dd-${m.id}" style="display:none;position:absolute;top:38px;right:0;background:#fff;border:1px solid #e0e0e0;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.35);min-width:210px;z-index:9999;overflow:hidden">
@@ -2199,6 +2240,18 @@ function openCred(id){
   document.getElementById('cp-siape').textContent=(m.siape||'—');
   const sit=document.getElementById('cp-situacao');
   sit.textContent=ativo?'ATIVO':'INATIVO';
+  const assinaturaWrap=document.getElementById('cp-assinatura-wrap');
+  const assinaturaImg=document.getElementById('cp-assinatura');
+  const assinaturaData=localStorage.getItem('assinatura_'+m.numCred);
+  if(assinaturaWrap && assinaturaImg){
+    if(assinaturaData){
+      assinaturaImg.src=assinaturaData;
+      assinaturaWrap.style.display='block';
+    }else{
+      assinaturaImg.removeAttribute('src');
+      assinaturaWrap.style.display='none';
+    }
+  }
 
   const _layout=readCredLayoutsFromEditor();
   const _lF=_layout.front;
@@ -2393,6 +2446,48 @@ function gerarCobranca(numCred){
 
 function gerarCarteirinha(numCred){
   window.open('carteirinha.html?id='+encodeURIComponent(numCred),'_blank');
+}
+
+let _currentSignLink='';
+function openSignLinkModal(numCred){
+  const m=members.find(x=>String(x.id)===String(numCred)||String(x.numCred)===String(numCred));
+  if(!m||!m.numCred) return;
+  closeMenus();
+  _currentSignLink=SIGN_BASE_URL+encodeURIComponent(m.numCred);
+  const modal=document.getElementById('modal-sign-link');
+  const memberEl=document.getElementById('sign-link-member');
+  const urlEl=document.getElementById('sign-link-url');
+  const qrEl=document.getElementById('sign-link-qr');
+  if(memberEl) memberEl.textContent=(m.nome||'Membro')+' · '+m.numCred;
+  if(urlEl) urlEl.textContent=_currentSignLink;
+  if(qrEl) qrEl.src='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='+encodeURIComponent(_currentSignLink);
+  if(modal){ modal.style.display='flex'; modal.classList.add('open'); }
+}
+function closeSignLinkModal(e){
+  if(e && e.target && e.target!==document.getElementById('modal-sign-link')) return;
+  const modal=document.getElementById('modal-sign-link');
+  if(modal){ modal.style.display='none'; modal.classList.remove('open'); }
+}
+async function copySignLink(){
+  if(!_currentSignLink) return;
+  let copied=false;
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      await navigator.clipboard.writeText(_currentSignLink);
+      copied=true;
+    }
+  }catch(e){}
+  if(!copied){
+    const ta=document.createElement('textarea');
+    ta.value=_currentSignLink;
+    ta.style.position='fixed';
+    ta.style.opacity='0';
+    document.body.appendChild(ta);
+    ta.select();
+    try{ copied=document.execCommand('copy'); }catch(e){}
+    ta.remove();
+  }
+  alert(copied?'✅ Link copiado!':'Não foi possível copiar automaticamente. Copie manualmente.');
 }
 
 function del(id){const _m=members.find(x=>x.id===id);if(!confirm('Excluir?'))return;members=members.filter(m=>m.id!==id);if(_m)logHist('Exclusão','Membro excluído: '+_m.nome);save();renderList();}
