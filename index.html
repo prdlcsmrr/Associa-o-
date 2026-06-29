@@ -574,14 +574,15 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
             <img class="cart-bg" src="verso.jpg?v=20260629" crossorigin="anonymous">
             <div class="cart-overlay">
               <div id="cp-qr" style="position:absolute;left:4%;top:21%;width:14%"></div>
-              <div class="cp-campo" id="cp-filiacao"     style="left:22%;top:24.5%;font-size:2cqw;font-weight:800;color:#111;line-height:1.5;white-space:normal;max-width:50%"></div>
+              <div class="cp-campo" id="cp-filiacao-pai" style="left:22%;top:24.5%;font-size:2cqw;font-weight:800;color:#111;line-height:1.2;white-space:normal;max-width:50%"></div>
+              <div class="cp-campo" id="cp-filiacao-mae" style="left:22%;top:26%;font-size:2cqw;font-weight:800;color:#111;line-height:1.2;white-space:normal;max-width:50%"></div>
               <div class="cp-campo" id="cp-nasc"         style="left:22%;top:45.5%;font-size:2cqw;font-weight:800;color:#111"></div>
               <div class="cp-campo" id="cp-admissao"     style="left:57%;top:45.5%;font-size:2cqw;font-weight:800;color:#111"></div>
               <div class="cp-campo" id="cp-validade"     style="left:57%;top:35%;font-size:2cqw;font-weight:800;color:#cc0000"></div>
               <div class="cp-campo" id="cp-naturalidade" style="left:22%;top:35%;font-size:2cqw;font-weight:800;color:#111"></div>
               <div class="cp-campo" id="cp-situacao"     style="left:22%;top:56.5%;font-size:2cqw;font-weight:800;color:#111"></div>
               <div class="cp-campo" id="cp-siape"        style="left:57%;top:56.5%;font-size:2cqw;font-weight:800;color:#111"></div>
-              <div class="cp-campo" id="cp-municipio"    style="left:84%;top:60%;font-size:2.2cqw;font-weight:800;color:#111"></div>
+              <div class="cp-campo" id="cp-municipio"    style="left:74%;top:52%;font-size:2cqw;font-weight:800;color:#111"></div>
             </div>
           </div>
         </div>
@@ -1750,6 +1751,55 @@ function renderList(){
 // CREDENCIAL MODAL
 let _credAtualId=null;
 
+const CRED_LAYOUT_DEFAULT_F = {
+  f_photo:{type:'photo',left:9.0,top:24.0,w:20.0,ratio:'3/4'},
+  f_nome:{left:39.0,top:41.0,size:2.4,bold:true,color:'#111',upper:true},
+  f_cpf:{left:39.0,top:51.5,size:2.0,bold:true,color:'#111',upper:false},
+  f_emissao:{left:65.5,top:51.5,size:2.0,bold:true,color:'#111',upper:false},
+  f_mat:{left:14.0,top:76.0,size:2.0,bold:true,color:'#111',upper:false},
+};
+const CRED_LAYOUT_DEFAULT_V = {
+  v_qr:{type:'qr',left:4.0,top:21.0,w:14.0,color:'#cc0000'},
+  v_filiacao_pai:{left:22.0,top:24.5,size:2.0,bold:true,color:'#111',upper:false},
+  v_filiacao_mae:{left:22.0,top:26.0,size:2.0,bold:true,color:'#111',upper:false},
+  v_naturalidade:{left:22.0,top:35.0,size:2.0,bold:true,color:'#111',upper:true},
+  v_validade:{left:57.0,top:35.0,size:2.0,bold:true,color:'#cc0000',upper:false},
+  v_nasc:{left:22.0,top:45.5,size:2.0,bold:true,color:'#111',upper:false},
+  v_admissao:{left:57.0,top:45.5,size:2.0,bold:true,color:'#111',upper:false},
+  v_situacao:{left:22.0,top:56.5,size:2.0,bold:true,color:'#111',upper:true},
+  v_siape:{left:57.0,top:56.5,size:2.0,bold:true,color:'#111',upper:false},
+  v_municipio:{left:74.0,top:52.0,size:2.0,bold:true,color:'#111',upper:true},
+};
+
+function cloneCredLayout(o){
+  return JSON.parse(JSON.stringify(o));
+}
+function mergeCredLayout(defaults, saved){
+  if(!saved || typeof saved!=='object') return cloneCredLayout(defaults);
+  const merged = cloneCredLayout(defaults);
+  for(const k of Object.keys(saved)){
+    if(saved[k] && typeof saved[k]==='object'){
+      merged[k] = Object.assign({}, merged[k]||{}, saved[k]);
+    }else{
+      merged[k] = saved[k];
+    }
+  }
+  return merged;
+}
+function readCredLayoutsFromEditor(){
+  let front = cloneCredLayout(CRED_LAYOUT_DEFAULT_F);
+  let back = cloneCredLayout(CRED_LAYOUT_DEFAULT_V);
+  try{
+    const s = localStorage.getItem('cart_userSaved_F4');
+    if(s) front = mergeCredLayout(CRED_LAYOUT_DEFAULT_F, JSON.parse(s));
+  }catch(e){}
+  try{
+    const s = localStorage.getItem('cart_userSaved_V4');
+    if(s) back = mergeCredLayout(CRED_LAYOUT_DEFAULT_V, JSON.parse(s));
+  }catch(e){}
+  return { front, back };
+}
+
 
 
 // ════ BUSCA CEP (ViaCEP) ════
@@ -1952,7 +2002,7 @@ function openCred(id){
 
   // FRENTE — campos
   document.getElementById('cp-cargo').textContent=(m.cat||'').toUpperCase();
-  document.getElementById('cp-nome').textContent=(m.nome||'').toUpperCase();
+  document.getElementById('cp-nome').textContent=(m.nome||'');
   document.getElementById('cp-mat').textContent=m.numCred||'—';
   document.getElementById('cp-cpf').textContent=m.cpf||'—';
   document.getElementById('cp-emissao').textContent=fmt(m.emissao);
@@ -1973,49 +2023,29 @@ function openCred(id){
   // Filiação: pai e mãe em linhas separadas
   const filPai = m.pai ? m.pai : '';
   const filMae = m.mae ? m.mae : '';
-  const cpFil = document.getElementById('cp-filiacao');
-  if(cpFil){
-    cpFil.innerHTML = '';
-    if(filPai){ const d=document.createElement('div'); d.textContent=filPai; cpFil.appendChild(d); }
-    if(filMae){ const d=document.createElement('div'); d.textContent=filMae; cpFil.appendChild(d); }
-    if(!filPai && !filMae) cpFil.textContent='—';
-  }
+  const cpFilPai = document.getElementById('cp-filiacao-pai');
+  const cpFilMae = document.getElementById('cp-filiacao-mae');
+  if(cpFilPai) cpFilPai.textContent = filPai || '—';
+  if(cpFilMae) cpFilMae.textContent = filMae || '';
   document.getElementById('cp-nasc').textContent=fmt(m.nasc);
   document.getElementById('cp-admissao').textContent=fmt(m.emissao);
-  document.getElementById('cp-naturalidade').textContent=(m.naturalidade||'BRASILEIRO').toUpperCase();
+  document.getElementById('cp-naturalidade').textContent=(m.naturalidade||'BRASILEIRO');
   document.getElementById('cp-validade').textContent=fmt(m.validade);
   document.getElementById('cp-municipio').textContent=(m.municipio||'—').toUpperCase();
   document.getElementById('cp-siape').textContent=(m.siape||'—');
   const sit=document.getElementById('cp-situacao');
   sit.textContent=ativo?'ATIVO':'INATIVO';
-  sit.style.color=ativo?'#111':'#cc0000';
 
-  // Aplicar layout salvo do editor (carteirinha.html) ou usar padrão
-  const _defF={
-    f_photo:{type:'photo',left:9,top:24,w:20},
-    f_nome:{left:39,top:41,size:2.4,bold:true,color:'#111'},
-    f_cpf:{left:39,top:51.5,size:2,bold:true,color:'#111'},
-    f_emissao:{left:65.5,top:51.5,size:2,bold:true,color:'#111'},
-    f_mat:{left:14,top:76,size:2,bold:true,color:'#111'},
-  };
-  const _defV={
-    v_qr:{type:'qr',left:4,top:21,w:14},
-    v_filiacao_pai:{left:22,top:24.5,size:2,bold:true,color:'#111'},
-    v_naturalidade:{left:22,top:35,size:2,bold:true,color:'#111'},
-    v_validade:{left:57,top:35,size:2,bold:true,color:'#cc0000'},
-    v_nasc:{left:22,top:45.5,size:2,bold:true,color:'#111'},
-    v_admissao:{left:57,top:45.5,size:2,bold:true,color:'#111'},
-    v_situacao:{left:22,top:56.5,size:2,bold:true,color:'#111'},
-    v_siape:{left:57,top:56.5,size:2,bold:true,color:'#111'},
-    v_municipio:{left:84,top:60,size:2.2,bold:true,color:'#111'},
-  };
-  let _lF=_defF, _lV=_defV;
-  try{ const s=localStorage.getItem('cart_userSaved_F4'); if(s) _lF=JSON.parse(s); }catch(e){}
-  try{ const s=localStorage.getItem('cart_userSaved_V4'); if(s) _lV=JSON.parse(s); }catch(e){}
+  const _layout=readCredLayoutsFromEditor();
+  const _lF=_layout.front;
+  const _lV=_layout.back;
   const _MAP_F={f_photo:'cp-photo',f_nome:'cp-nome',f_cpf:'cp-cpf',f_emissao:'cp-emissao',f_mat:'cp-mat',f_cargo:'cp-cargo',f_hash:'cp-hash'};
-  const _MAP_V={v_qr:'cp-qr',v_filiacao_pai:'cp-filiacao',v_naturalidade:'cp-naturalidade',v_validade:'cp-validade',v_nasc:'cp-nasc',v_admissao:'cp-admissao',v_situacao:'cp-situacao',v_siape:'cp-siape',v_municipio:'cp-municipio'};
+  const _MAP_V={v_qr:'cp-qr',v_filiacao_pai:'cp-filiacao-pai',v_filiacao_mae:'cp-filiacao-mae',v_naturalidade:'cp-naturalidade',v_validade:'cp-validade',v_nasc:'cp-nasc',v_admissao:'cp-admissao',v_situacao:'cp-situacao',v_siape:'cp-siape',v_municipio:'cp-municipio'};
   for(const[k,id] of Object.entries(_MAP_F)){const cfg=_lF[k];const el=document.getElementById(id);if(!cfg||!el)continue;el.style.left=cfg.left+'%';el.style.top=cfg.top+'%';if(cfg.type==='photo'){el.style.width=cfg.w+'%';}else{if(cfg.size)el.style.fontSize=cfg.size+'cqw';if(cfg.color)el.style.color=cfg.color;el.style.fontWeight=cfg.bold?'800':'600';}}
-  for(const[k,id] of Object.entries(_MAP_V)){const cfg=_lV[k];const el=document.getElementById(id);if(!cfg||!el)continue;el.style.left=cfg.left+'%';el.style.top=cfg.top+'%';if(cfg.type==='qr'||cfg.type==='photo'){el.style.width=cfg.w+'%';}else{if(cfg.size)el.style.fontSize=cfg.size+'cqw';if(cfg.color&&id!=='cp-situacao')el.style.color=cfg.color;el.style.fontWeight=cfg.bold?'800':'600';}}
+  for(const[k,id] of Object.entries(_MAP_V)){const cfg=_lV[k];const el=document.getElementById(id);if(!cfg||!el)continue;el.style.left=cfg.left+'%';el.style.top=cfg.top+'%';if(cfg.type==='qr'||cfg.type==='photo'){el.style.width=cfg.w+'%';}else{if(cfg.size)el.style.fontSize=cfg.size+'cqw';if(cfg.color)el.style.color=cfg.color;el.style.fontWeight=cfg.bold?'800':'600';}}
+  for(const[k,id] of Object.entries(_MAP_F)){const cfg=_lF[k];const el=document.getElementById(id);if(!cfg||!el||cfg.type==='photo')continue;const txt=el.textContent||'';el.textContent=cfg.upper?txt.toUpperCase():txt;}
+  for(const[k,id] of Object.entries(_MAP_V)){const cfg=_lV[k];const el=document.getElementById(id);if(!cfg||!el||cfg.type==='qr'||cfg.type==='photo')continue;const txt=el.textContent||'';el.textContent=cfg.upper?txt.toUpperCase():txt;}
+  sit.style.color=ativo?(sit.style.color||'#111'):'#cc0000';
 
   var mc=document.getElementById('modal');
   if(mc){ mc.style.display='flex'; mc.classList.add('open'); }
