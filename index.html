@@ -2002,7 +2002,7 @@ function openCred(id){
 
   // FRENTE — campos
   document.getElementById('cp-cargo').textContent=(m.cat||'').toUpperCase();
-  document.getElementById('cp-nome').textContent=(m.nome||'').toUpperCase();
+  document.getElementById('cp-nome').textContent=(m.nome||'');
   document.getElementById('cp-mat').textContent=m.numCred||'—';
   document.getElementById('cp-cpf').textContent=m.cpf||'—';
   document.getElementById('cp-emissao').textContent=fmt(m.emissao);
@@ -2029,13 +2029,12 @@ function openCred(id){
   if(cpFilMae) cpFilMae.textContent = filMae || '';
   document.getElementById('cp-nasc').textContent=fmt(m.nasc);
   document.getElementById('cp-admissao').textContent=fmt(m.emissao);
-  document.getElementById('cp-naturalidade').textContent=(m.naturalidade||'BRASILEIRO').toUpperCase();
+  document.getElementById('cp-naturalidade').textContent=(m.naturalidade||'BRASILEIRO');
   document.getElementById('cp-validade').textContent=fmt(m.validade);
   document.getElementById('cp-municipio').textContent=(m.municipio||'—').toUpperCase();
   document.getElementById('cp-siape').textContent=(m.siape||'—');
   const sit=document.getElementById('cp-situacao');
   sit.textContent=ativo?'ATIVO':'INATIVO';
-  sit.style.color=ativo?'#111':'#cc0000';
 
   const _layout=readCredLayoutsFromEditor();
   const _lF=_layout.front;
@@ -2043,7 +2042,10 @@ function openCred(id){
   const _MAP_F={f_photo:'cp-photo',f_nome:'cp-nome',f_cpf:'cp-cpf',f_emissao:'cp-emissao',f_mat:'cp-mat',f_cargo:'cp-cargo',f_hash:'cp-hash'};
   const _MAP_V={v_qr:'cp-qr',v_filiacao_pai:'cp-filiacao-pai',v_filiacao_mae:'cp-filiacao-mae',v_naturalidade:'cp-naturalidade',v_validade:'cp-validade',v_nasc:'cp-nasc',v_admissao:'cp-admissao',v_situacao:'cp-situacao',v_siape:'cp-siape',v_municipio:'cp-municipio'};
   for(const[k,id] of Object.entries(_MAP_F)){const cfg=_lF[k];const el=document.getElementById(id);if(!cfg||!el)continue;el.style.left=cfg.left+'%';el.style.top=cfg.top+'%';if(cfg.type==='photo'){el.style.width=cfg.w+'%';}else{if(cfg.size)el.style.fontSize=cfg.size+'cqw';if(cfg.color)el.style.color=cfg.color;el.style.fontWeight=cfg.bold?'800':'600';}}
-  for(const[k,id] of Object.entries(_MAP_V)){const cfg=_lV[k];const el=document.getElementById(id);if(!cfg||!el)continue;el.style.left=cfg.left+'%';el.style.top=cfg.top+'%';if(cfg.type==='qr'||cfg.type==='photo'){el.style.width=cfg.w+'%';}else{if(cfg.size)el.style.fontSize=cfg.size+'cqw';if(cfg.color&&id!=='cp-situacao')el.style.color=cfg.color;el.style.fontWeight=cfg.bold?'800':'600';}}
+  for(const[k,id] of Object.entries(_MAP_V)){const cfg=_lV[k];const el=document.getElementById(id);if(!cfg||!el)continue;el.style.left=cfg.left+'%';el.style.top=cfg.top+'%';if(cfg.type==='qr'||cfg.type==='photo'){el.style.width=cfg.w+'%';}else{if(cfg.size)el.style.fontSize=cfg.size+'cqw';if(cfg.color)el.style.color=cfg.color;el.style.fontWeight=cfg.bold?'800':'600';}}
+  for(const[k,id] of Object.entries(_MAP_F)){const cfg=_lF[k];const el=document.getElementById(id);if(!cfg||!el||cfg.type==='photo')continue;const txt=el.textContent||'';el.textContent=cfg.upper?txt.toUpperCase():txt;}
+  for(const[k,id] of Object.entries(_MAP_V)){const cfg=_lV[k];const el=document.getElementById(id);if(!cfg||!el||cfg.type==='qr'||cfg.type==='photo')continue;const txt=el.textContent||'';el.textContent=cfg.upper?txt.toUpperCase():txt;}
+  sit.style.color=ativo?(sit.style.color||'#111'):'#cc0000';
 
   var mc=document.getElementById('modal');
   if(mc){ mc.style.display='flex'; mc.classList.add('open'); }
