@@ -99,6 +99,19 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
 .wcph { display:flex;flex-direction:column;align-items:center;gap:8px;color:#555;font-size:13px; }
 .wctrls { display:flex;gap:8px;margin-top:12px; }
 #snap-canvas { display:none; }
+.crop-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:3200;align-items:center;justify-content:center;padding:16px}
+.crop-modal.open{display:flex}
+.crop-card{width:100%;max-width:540px;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.35)}
+.crop-head{background:var(--navy);color:#fff;padding:14px 18px;border-bottom:3px solid var(--gold);font-size:13px;font-weight:800;letter-spacing:.6px;text-transform:uppercase}
+.crop-body{padding:16px}
+.crop-stage{background:#111;border-radius:10px;padding:14px;display:flex;justify-content:center}
+.crop-frame{position:relative;width:min(100%,280px);aspect-ratio:3/4;background:#000;overflow:hidden;border:2px solid rgba(255,255,255,.65);border-radius:8px;touch-action:none}
+.crop-frame img{position:absolute;max-width:none;user-select:none;pointer-events:none}
+.crop-hint{margin-top:8px;font-size:11px;color:#6b7280;text-align:center}
+.crop-zoom{margin-top:12px}
+.crop-zoom label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#6b7280;margin-bottom:6px}
+.crop-zoom input{width:100%}
+.crop-actions{padding:14px 16px;border-top:1px solid #ececec;display:flex;gap:10px;justify-content:flex-end}
 
 /* BUTTONS */
 .btn { padding:10px 16px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;text-transform:uppercase; }
@@ -1083,6 +1096,30 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
 </div>
 
 
+<!-- MODAL RECORTE DE FOTO -->
+<div id="crop-modal" class="crop-modal" onclick="closePhotoCropper(event)">
+  <div class="crop-card" onclick="event.stopPropagation()">
+    <div class="crop-head">✂️ Ajustar enquadramento da foto</div>
+    <div class="crop-body">
+      <div class="crop-stage">
+        <div id="crop-frame" class="crop-frame">
+          <img id="crop-img" alt="Prévia para recorte">
+        </div>
+      </div>
+      <div class="crop-hint">Arraste a foto para enquadrar e ajuste o zoom antes de confirmar.</div>
+      <div class="crop-zoom">
+        <label for="crop-zoom">Zoom</label>
+        <input type="range" id="crop-zoom" min="1" max="3" step="0.01" value="1" oninput="onCropZoom(this.value)">
+      </div>
+    </div>
+    <div class="crop-actions">
+      <button type="button" class="btn btn-outline" onclick="cancelPhotoCropper()">Cancelar</button>
+      <button type="button" class="btn btn-green" onclick="confirmPhotoCropper()">Usar recorte</button>
+    </div>
+  </div>
+</div>
+
+
 <!-- CONTABILIDADE -->
 <div class="page" id="page-contabil">
   <div style="max-width:800px;margin:0 auto;padding:8px 0 40px">
@@ -1265,6 +1302,11 @@ _initLoginScreen();
 // STATE
 let members=JSON.parse(localStorage.getItem('members')||'[]');
 let stream=null,photo=null,facing='user',curStatus='Ativo';
+const _cropState={
+  active:false,source:null,img:null,baseScale:1,zoom:1,offX:0,offY:0,
+  frameW:0,frameH:0,drag:false,dragStartX:0,dragStartY:0,startOffX:0,startOffY:0,
+  onConfirm:null
+};
 
 // TABS
 function goTab(t){
@@ -1325,47 +1367,169 @@ function _fotoOk(){
   var f=document.getElementById('wcframe'); if(f){ f.style.borderColor=''; f.style.boxShadow=''; }
   var p=document.getElementById('foto-pendente'); if(p) p.style.display='none';
 }
+function _setupCropperEvents(){
+  const frame=document.getElementById('crop-frame');
+  if(!frame || frame.dataset.ready==='1') return;
+  frame.dataset.ready='1';
+  frame.addEventListener('pointerdown',function(e){
+    if(!_cropState.active) return;
+    _cropState.drag=true;
+    _cropState.dragStartX=e.clientX;
+    _cropState.dragStartY=e.clientY;
+    _cropState.startOffX=_cropState.offX;
+    _cropState.startOffY=_cropState.offY;
+    frame.setPointerCapture(e.pointerId);
+  });
+  frame.addEventListener('pointermove',function(e){
+    if(!_cropState.active || !_cropState.drag) return;
+    _cropState.offX=_cropState.startOffX+(e.clientX-_cropState.dragStartX);
+    _cropState.offY=_cropState.startOffY+(e.clientY-_cropState.dragStartY);
+    _renderCropper();
+  });
+  function endDrag(e){
+    if(!_cropState.drag) return;
+    _cropState.drag=false;
+    try{ frame.releasePointerCapture(e.pointerId); }catch(_){}
+  }
+  frame.addEventListener('pointerup',endDrag);
+  frame.addEventListener('pointercancel',endDrag);
+}
+function _renderCropper(){
+  const imgEl=document.getElementById('crop-img');
+  if(!imgEl || !_cropState.img) return;
+  const totalScale=_cropState.baseScale*_cropState.zoom;
+  const dispW=_cropState.img.naturalWidth*totalScale;
+  const dispH=_cropState.img.naturalHeight*totalScale;
+  const limX=Math.max(0,(dispW-_cropState.frameW)/2);
+  const limY=Math.max(0,(dispH-_cropState.frameH)/2);
+  _cropState.offX=Math.max(-limX,Math.min(limX,_cropState.offX));
+  _cropState.offY=Math.max(-limY,Math.min(limY,_cropState.offY));
+  const left=(_cropState.frameW-dispW)/2+_cropState.offX;
+  const top=(_cropState.frameH-dispH)/2+_cropState.offY;
+  imgEl.style.width=dispW+'px';
+  imgEl.style.height=dispH+'px';
+  imgEl.style.left=left+'px';
+  imgEl.style.top=top+'px';
+}
+function openPhotoCropper(src,onConfirm){
+  const modal=document.getElementById('crop-modal');
+  const frame=document.getElementById('crop-frame');
+  const zoom=document.getElementById('crop-zoom');
+  const imgEl=document.getElementById('crop-img');
+  if(!modal||!frame||!zoom||!imgEl){ if(onConfirm) onConfirm(src); return; }
+  _setupCropperEvents();
+  _cropState.active=true;
+  _cropState.source=src;
+  _cropState.onConfirm=onConfirm;
+  _cropState.zoom=1; _cropState.offX=0; _cropState.offY=0;
+  zoom.value='1';
+  const img=new Image();
+  img.onload=function(){
+    _cropState.img=img;
+    _cropState.frameW=frame.clientWidth||280;
+    _cropState.frameH=frame.clientHeight||Math.round((_cropState.frameW*4)/3);
+    _cropState.baseScale=Math.max(_cropState.frameW/img.naturalWidth,_cropState.frameH/img.naturalHeight);
+    imgEl.src=src;
+    _renderCropper();
+  };
+  img.src=src;
+  modal.classList.add('open');
+}
+function closePhotoCropper(e){
+  if(e && e.target!==document.getElementById('crop-modal')) return;
+  const modal=document.getElementById('crop-modal');
+  if(modal) modal.classList.remove('open');
+  _cropState.active=false;
+  _cropState.drag=false;
+}
+function cancelPhotoCropper(){
+  const done=_cropState.onConfirm;
+  closePhotoCropper();
+  _cropState.onConfirm=null;
+  if(done) done(null);
+}
+function onCropZoom(v){
+  _cropState.zoom=Math.max(1,Math.min(3,parseFloat(v)||1));
+  _renderCropper();
+}
+function confirmPhotoCropper(){
+  if(!_cropState.img){ cancelPhotoCropper(); return; }
+  const totalScale=_cropState.baseScale*_cropState.zoom;
+  const dispW=_cropState.img.naturalWidth*totalScale;
+  const dispH=_cropState.img.naturalHeight*totalScale;
+  const left=(_cropState.frameW-dispW)/2+_cropState.offX;
+  const top=(_cropState.frameH-dispH)/2+_cropState.offY;
+  const sx=Math.max(0,(0-left)/totalScale);
+  const sy=Math.max(0,(0-top)/totalScale);
+  const sw=Math.min(_cropState.img.naturalWidth,_cropState.frameW/totalScale);
+  const sh=Math.min(_cropState.img.naturalHeight,_cropState.frameH/totalScale);
+  const out=document.createElement('canvas');
+  out.width=600; out.height=800;
+  out.getContext('2d').drawImage(_cropState.img,sx,sy,sw,sh,0,0,out.width,out.height);
+  const result=out.toDataURL('image/jpeg',0.82);
+  const done=_cropState.onConfirm;
+  closePhotoCropper();
+  _cropState.onConfirm=null;
+  if(done) done(result);
+}
 function snap(){
   const v=document.getElementById('video'),c=document.getElementById('snap-canvas');
   c.width=v.videoWidth;c.height=v.videoHeight;
   c.getContext('2d').drawImage(v,0,0);
-  photo=c.toDataURL('image/jpeg',0.75); _fotoOk();
-  const p=document.getElementById('preview');
-  p.src=photo;p.style.display='block';
   v.style.display='none';
   if(stream) stream.getTracks().forEach(t=>t.stop());
-  document.getElementById('bsnap').style.display='none';
-  document.getElementById('bflip').style.display='none';
-  document.getElementById('bclose').style.display='none';
-  document.getElementById('bre').style.display='block';
+  stream=null;
+  const shot=c.toDataURL('image/jpeg',0.75);
+  openPhotoCropper(shot,function(cropped){
+    if(!cropped){ retake(); return; }
+    photo=cropped; _fotoOk();
+    const p=document.getElementById('preview');
+    p.src=photo;p.style.display='block';
+    document.getElementById('wcph').style.display='none';
+    document.getElementById('bon').style.display='none';
+    document.getElementById('bsnap').style.display='none';
+    document.getElementById('bflip').style.display='none';
+    document.getElementById('bclose').style.display='none';
+    document.getElementById('bupload').style.display='none';
+    document.getElementById('bre').style.display='block';
+  });
 }
 function retake(){
   photo=null; _fotoOk();
+  document.getElementById('video').style.display='none';
   document.getElementById('preview').style.display='none';
   document.getElementById('wcph').style.display='flex';
   document.getElementById('bon').style.display='block';
   document.getElementById('bre').style.display='none';
   document.getElementById('bsnap').style.display='none';
   document.getElementById('bflip').style.display='none';
+  document.getElementById('bclose').style.display='none';
   document.getElementById('bupload').style.display='flex';
 }
 
 function uploadFoto(input){
   if(!input.files||!input.files[0])return;
   const reader=new FileReader();
+  const file=input.files[0];
   reader.onload=function(e){
-    photo=e.target.result; _fotoOk();
-    const p=document.getElementById('preview');
-    p.src=photo;p.style.display='block';
-    document.getElementById('wcph').style.display='none';
-    if(stream)stream.getTracks().forEach(t=>t.stop());
-    document.getElementById('bon').style.display='none';
-    document.getElementById('bsnap').style.display='none';
-    document.getElementById('bflip').style.display='none';
-    document.getElementById('bupload').style.display='none';
-    document.getElementById('bre').style.display='block';
+    openPhotoCropper(e.target.result,function(cropped){
+      if(!cropped) return;
+      photo=cropped; _fotoOk();
+      const p=document.getElementById('preview');
+      p.src=photo;p.style.display='block';
+      document.getElementById('wcph').style.display='none';
+      if(stream)stream.getTracks().forEach(t=>t.stop());
+      stream=null;
+      document.getElementById('bon').style.display='none';
+      document.getElementById('bsnap').style.display='none';
+      document.getElementById('bflip').style.display='none';
+      document.getElementById('bclose').style.display='none';
+      document.getElementById('bupload').style.display='none';
+      document.getElementById('bre').style.display='block';
+    });
+    input.value='';
   };
-  reader.readAsDataURL(input.files[0]);
+  reader.readAsDataURL(file);
 }
 
 // CPF MASK
