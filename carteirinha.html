@@ -45,6 +45,7 @@ body { background:#1a1a2e; font-family:'Arial Narrow',Arial,sans-serif; min-heig
 .card {
   position:relative; width:100%; border-radius:6px; overflow:hidden;
   box-shadow:0 8px 32px rgba(0,0,0,.6);
+  background:#fff;
   user-select:none; touch-action:none;
 }
 .card img.bg { width:100%; display:block; pointer-events:none; }
@@ -955,7 +956,7 @@ function toggleGuides(){
 /* DOWNLOADS */
 async function downloadPNG(){
   const el=document.getElementById('the-card');
-  const c=await html2canvas(el,{scale:3,useCORS:true,allowTaint:true,backgroundColor:null});
+  const c=await html2canvas(el,{scale:3,useCORS:true,allowTaint:true,backgroundColor:'#ffffff'});
   const a=document.createElement('a');
   a.download=`carteirinha_${tab}_${membro?.numCred||'x'}.png`;
   a.href=c.toDataURL('image/png'); a.click();
@@ -965,9 +966,9 @@ async function downloadPDF(){
   const pdf=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
   const orig=tab;
   tab='F'; renderCard(); await new Promise(r=>setTimeout(r,400));
-  const cF=await html2canvas(document.getElementById('the-card'),{scale:3,useCORS:true,allowTaint:true,backgroundColor:null});
+  const cF=await html2canvas(document.getElementById('the-card'),{scale:3,useCORS:true,allowTaint:true,backgroundColor:'#ffffff'});
   tab='V'; renderCard(); await new Promise(r=>setTimeout(r,400));
-  const cV=await html2canvas(document.getElementById('the-card'),{scale:3,useCORS:true,allowTaint:true,backgroundColor:null});
+  const cV=await html2canvas(document.getElementById('the-card'),{scale:3,useCORS:true,allowTaint:true,backgroundColor:'#ffffff'});
   const w=297,h=210,hw=w/2,fh=(cF.height*hw)/cF.width;
   pdf.addImage(cF.toDataURL('image/png'),'PNG',0,(h-fh)/2,hw,fh);
   pdf.addImage(cV.toDataURL('image/png'),'PNG',hw,(h-fh)/2,hw,fh);
