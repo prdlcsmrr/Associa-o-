@@ -292,7 +292,7 @@ const DEFAULT_F = {
   f_mat:    { left:14.0, top:76.0, size:2.0, bold:true, color:'#111', upper:false },
 };
 const DEFAULT_V = {
-  v_qr:            { type:'qr',   left:4.0,  top:21.0, w:14.0, color:'#cc0000' },
+  v_qr:            { type:'qr',        left:4.0,  top:21.0, w:14.0, color:'#cc0000' },
   v_filiacao_pai:  { left:22.0, top:24.5, size:2.0, bold:true, color:'#111', upper:false },
   v_filiacao_mae:  { left:22.0, top:26.0, size:2.0, bold:true, color:'#111', upper:false },
   v_naturalidade:  { left:22.0, top:35.0, size:2.0, bold:true, color:'#111', upper:true },
@@ -302,7 +302,7 @@ const DEFAULT_V = {
   v_situacao:      { left:22.0, top:56.5, size:2.0, bold:true, color:'#111', upper:true },
   v_siape:         { left:57.0, top:56.5, size:2.0, bold:true, color:'#111', upper:false },
   v_municipio:     { left:74.0, top:52.0, size:2.0, bold:true, color:'#111', upper:true },
-  v_assinatura:    { type:'sign', left:57.0, top:70.0, w:38.0 },
+  v_assinatura:    { type:'signature', left:57.0, top:69.0, w:38.0 },
 };
 const LABELS = {
   f_photo:'Foto', f_cargo:'Cargo', f_nome:'Nome', f_mat:'Matrícula',
@@ -314,7 +314,8 @@ const LABELS = {
 };
 const DOT_COLORS = {
   f_photo:'#888',f_cargo:'#1a2a6e',f_nome:'#333',f_mat:'#555',f_cpf:'#555',f_emissao:'#555',f_hash:'#888',
-  v_filiacao_pai:'#111',v_filiacao_mae:'#111',v_nasc:'#333',v_admissao:'#333',v_naturalidade:'#333',v_validade:'#c00',v_municipio:'#333',v_situacao:'#333',v_siape:'#333',v_assinatura:'#111',
+  v_filiacao_pai:'#111',v_filiacao_mae:'#111',v_nasc:'#333',v_admissao:'#333',v_naturalidade:'#333',v_validade:'#c00',v_municipio:'#333',v_situacao:'#333',v_siape:'#333',
+  v_assinatura:'#555',
 };
 
 let layoutF={}, layoutV={}, tab='F', editMode=false;
@@ -489,12 +490,19 @@ function renderCard(){
         style="${pos}width:${cfg.w}%;aspect-ratio:1;pointer-events:${editMode?'all':'none'};background:#fff;padding:3px;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.2)">
         <img src="${_qImg}" alt="QR" style="width:100%;display:block" crossorigin="anonymous">
       </div>`;
-    } else if(cfg.type==='sign'){
-      const sigData=m?localStorage.getItem('assinatura_'+m.numCred):null;
-      fields+=`<div id="c_${key}" class="f-photo${drag}${selCls}"
-        style="${pos}width:${cfg.w||38}%;pointer-events:${editMode?'all':'none'};background:transparent;border-bottom:1.5px solid #333;min-height:28px">
-        ${sigData?`<img src="${sigData}" alt="Assinatura" style="width:100%;height:100%;max-height:60px;object-fit:contain;display:block">` : ''}
-      </div>`;
+    } else if(cfg.type==='signature'){
+      const sigData=localStorage.getItem('assinatura_'+m.numCred)||'';
+      if(sigData){
+        fields+=`<div id="c_${key}" class="f-photo${drag}${selCls}"
+          style="${pos}width:${cfg.w||38}%;pointer-events:${editMode?'all':'none'};background:transparent">
+          <img src="${sigData}" alt="Assinatura" style="width:100%;height:auto;object-fit:contain;display:block;border-bottom:1.5px solid #333">
+        </div>`;
+      } else if(editMode){
+        fields+=`<div id="c_${key}" class="f-photo${drag}${selCls}"
+          style="${pos}width:${cfg.w||38}%;min-height:28px;pointer-events:all;background:rgba(255,255,255,.1);border:1px dashed rgba(255,255,255,.5);border-radius:4px;display:flex;align-items:center;justify-content:center">
+          <span style="font-size:8px;color:rgba(255,255,255,.55);pointer-events:none">✍️ Sem assinatura</span>
+        </div>`;
+      }
     } else {
       const val=(cfg.override!==undefined?cfg.override:data[key])||'—';
       const fw=cfg.bold?'800':'600';
@@ -648,7 +656,7 @@ function buildCtrlPanel(){
   const L=layout(), panel=document.getElementById('ctrl-panel');
   if(!panel) return;
   if(!selKey||!L[selKey]){ panel.innerHTML='<div class="no-sel">Selecione um campo acima</div>'; return; }
-  const cfg=L[selKey], isPhoto=cfg.type==='photo', isQr=cfg.type==='qr', isSign=cfg.type==='sign';
+  const cfg=L[selKey], isPhoto=cfg.type==='photo', isQr=cfg.type==='qr', isSignature=cfg.type==='signature';
 
   panel.innerHTML=`
     <div style="color:var(--gold);font-size:12px;font-weight:900;margin-bottom:10px;text-align:center">
@@ -712,15 +720,25 @@ function buildCtrlPanel(){
           oninput="setQrColor(this.value)">
       </div>
     </div>
-    ` : isSign ? `
-    <!-- Largura da assinatura -->
+    ` : isSignature ? `
+    <!-- Controles Assinatura -->
     <div class="ctrl-row">
       <span class="ctrl-label">Largura</span>
       <button class="nb" style="width:36px;height:36px;font-size:18px" onclick="adjPhotoW(-1)">−</button>
       <span class="ctrl-val">${cfg.w||38}%</span>
       <button class="nb" style="width:36px;height:36px;font-size:18px" onclick="adjPhotoW(1)">+</button>
     </div>
-    ` : (!isPhoto && !isQr && !isSign) ? `
+    <div class="ctrl-row" style="margin-top:8px;flex-direction:column;gap:6px">
+      <span class="ctrl-label" style="margin-bottom:2px">Upload manual</span>
+      <label style="display:block;background:rgba(201,151,42,.18);border:1px solid rgba(201,151,42,.45);border-radius:8px;padding:9px 12px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;text-align:center">
+        📤 Carregar imagem de assinatura
+        <input type="file" accept="image/*" style="display:none" onchange="uploadSignatureFile(this,'${membro?.numCred||''}')">
+      </label>
+      ${localStorage.getItem('assinatura_'+(membro?.numCred||''))?`
+      <button class="btn btn-red btn-sm" style="width:100%;margin-top:2px" onclick="clearSignatureData('${membro?.numCred||''}')">🗑️ Remover assinatura</button>
+      `:'<div style="font-size:10px;color:rgba(255,255,255,.4);text-align:center;margin-top:2px">Nenhuma assinatura registrada</div>'}
+    </div>
+    ` : (!isPhoto && !isQr && !isSignature) ? `
     <!-- Texto customizado -->
     <div class="ctrl-row" style="flex-wrap:wrap;gap:6px;margin-bottom:6px">
       <span class="ctrl-label" style="min-width:100%;margin-bottom:2px">Texto</span>
@@ -974,6 +992,25 @@ function clearOverride(){
   const L=layout(); if(!selKey||L[selKey].type) return;
   delete L[selKey].override;
   renderCard(); if(editMode){bindDrag();buildChips();selectField(selKey);}
+}
+
+/* ASSINATURA */
+function uploadSignatureFile(input, numCred){
+  if(!input.files||!input.files[0]||!numCred) return;
+  const fr=new FileReader();
+  fr.onload=function(e){
+    localStorage.setItem('assinatura_'+numCred, e.target.result);
+    renderCard(); if(editMode){bindDrag();buildChips();selectField(selKey);}
+    toast('✅ Assinatura carregada!','#1a7a3a');
+  };
+  fr.readAsDataURL(input.files[0]);
+}
+function clearSignatureData(numCred){
+  if(!numCred) return;
+  if(!confirm('Remover a assinatura deste membro?')) return;
+  localStorage.removeItem('assinatura_'+numCred);
+  renderCard(); if(editMode){bindDrag();buildChips();buildCtrlPanel();}
+  toast('Assinatura removida','#b91c1c');
 }
 
 init();
