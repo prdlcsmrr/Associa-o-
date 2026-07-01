@@ -3,33 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script>
-/* ── AUTO-LIMPEZA: mata Service Workers órfãos e caches antigos, sem o usuário precisar limpar nada ── */
-(function(){
-  try{
-    if('serviceWorker' in navigator){
-      var hadController = !!navigator.serviceWorker.controller;
-      navigator.serviceWorker.getRegistrations().then(function(regs){
-        var had = hadController || regs.length>0;
-        return Promise.all(regs.map(function(r){ return r.unregister(); })).then(function(){ return had; });
-      }).then(function(had){
-        if(window.caches && caches.keys){
-          return caches.keys().then(function(keys){
-            return Promise.all(keys.map(function(k){ return caches.delete(k); }));
-          }).then(function(){ return had; });
-        }
-        return had;
-      }).then(function(had){
-        // Se um SW estava controlando esta página (risco de versão velha), recarrega UMA vez para servir a versão limpa
-        if(had && !sessionStorage.getItem('__sw_cleaned')){
-          sessionStorage.setItem('__sw_cleaned','1');
-          location.reload();
-        }
-      }).catch(function(){});
-    }
-  }catch(e){}
-})();
-</script>
 <title>Sistema de Credencial — UBAPFF</title>
 <meta name="description" content="Sistema de gestão e verificação de credenciais funcionais da UBAPFF.">
 <style>
@@ -98,7 +71,8 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
 .wcframe { width:100%;aspect-ratio:4/3;background:#111;border-radius:10px;border:2px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center; }
 .wcframe video,.wcframe img { width:100%;height:100%;object-fit:cover; }
 .wcph { display:flex;flex-direction:column;align-items:center;gap:8px;color:#555;font-size:13px; }
-.wctrls { display:flex;gap:8px;margin-top:12px; }
+.wctrls { display:flex;gap:8px;margin-top:12px;flex-wrap:wrap; }
+.wctrls .btn,.wctrls label.btn { flex:1 1 140px;min-height:44px; }
 #snap-canvas { display:none; }
 .crop-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:3200;align-items:center;justify-content:center;padding:16px}
 .crop-modal.open{display:flex}
@@ -175,6 +149,16 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
 .sign-link-url { background:#f8fafc;border:1px solid #d1d5db;border-radius:8px;padding:10px;font-size:12px;color:#1f2937;word-break:break-all; }
 .sign-link-qr { width:200px;height:200px;border:1px solid #e5e7eb;border-radius:10px;align-self:center;background:#fff; }
 .sign-link-actions { display:flex;gap:8px; }
+.color-input-row { display:flex;gap:8px;align-items:center; }
+.mcard-actions { display:flex;gap:8px;align-items:center;flex-wrap:wrap; }
+.mcard-actions .mcard-btn { flex:1 1 140px;min-width:0; }
+.inline-btn-row { display:flex;gap:8px;margin-top:8px;flex-wrap:wrap; }
+.inline-btn-row .btn { flex:1 1 180px; }
+.pag-modal-card { background:#fff;border-radius:16px;width:100%;max-width:500px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.3) }
+.pag-modal-head { background:var(--navy);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold);gap:12px; }
+.pag-modal-head-actions { display:flex;align-items:center;gap:12px; }
+.pag-modal-body { padding:20px 24px; }
+.pag-summary-row { display:flex;justify-content:space-between;font-size:13px;gap:12px;flex-wrap:wrap; }
 .cred-view-card { background:#fff;width:100%;border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.35); }
 .cred-view-header { background:var(--navy);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:4px solid var(--gold); }
 .cred-view-title small { display:block;font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:3px; }
@@ -294,79 +278,22 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
   .hlogo{min-width:0;}
   .htitles .hname{font-size:15px;line-height:1.2;}
   .hright{width:100%;justify-content:space-between;}
+  .field-row,.cdg,.cmain,.cauth{grid-template-columns:1fr;flex-direction:column;}
+  .cphoto,.cqr{margin:0 auto;}
+  .cstatus{flex-wrap:wrap;}
   .cred-view-body{padding:14px;}
   .cred-view-footer{padding:14px;}
   .modal-acts{flex-direction:column;}
+  .search-row>*{width:100%;}
+  .search-row .badge{width:100%;}
+  .sign-link-actions{flex-direction:column;}
+  .pag-modal-head{padding:16px;align-items:flex-start;flex-wrap:wrap;}
+  .pag-modal-head-actions,.pag-summary-row{width:100%;}
+  .pag-modal-head-actions{justify-content:space-between;}
+  .pag-modal-body{padding:16px;}
+  #pag-meses{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
 }
 </style>
-
-<script>
-/* ── MONITORAMENTO DE ERROS → ntfy + aviso visual na tela ── */
-(function(){
-  var NTFY_URL  = 'https://ntfy.sh/ubapff-signumor-erros-2026';
-  var PAGINA    = 'UBAPFF · ' + ((location.pathname.split('/').pop()) || 'index.html');
-  var _ultimos  = {};   // dedupe por erro
-  var _enviados = 0;    // teto de envios por sessão
-
-  function _enviarNtfy(titulo, corpo){
-    if(_enviados >= 25) return;            // segurança: no máx. 25 avisos por sessão
-    _enviados++;
-    try{
-      fetch(NTFY_URL, {
-        method:'POST',
-        headers:{
-          'Title': String(titulo).replace(/[^\x20-\x7E]/g,'').substring(0,110), // header só ASCII
-          'Priority':'high',
-          'Tags':'warning'
-        },
-        body: corpo
-      }).catch(function(){});
-    }catch(e){}
-  }
-
-  function _toast(txt){
-    try{
-      var t=document.createElement('div');
-      t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#b91c1c;color:#fff;padding:10px 16px;border-radius:8px;font-size:12px;z-index:99999;max-width:90vw;text-align:center;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.35)';
-      t.textContent='⚠️ '+txt;
-      t.onclick=function(){ alert(t.textContent); };
-      document.body.appendChild(t);
-      setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); },8000);
-    }catch(e){}
-  }
-
-  // Reporta um erro: dedupe 30s + envia ntfy + (opcional) aviso na tela
-  window.reportarErro = function(origem, mensagem, mostrarToast){
-    try{
-      var chave = origem+'|'+mensagem;
-      var agora = Date.now();
-      if(_ultimos[chave] && (agora-_ultimos[chave]) < 30000) return; // mesmo erro só a cada 30s
-      _ultimos[chave] = agora;
-
-      var corpo = '🚨 ERRO NO SISTEMA UBAPFF\n\n'
-                + 'Onde: ' + origem + '\n'
-                + 'O quê: ' + mensagem + '\n'
-                + 'Página: ' + PAGINA + '\n'
-                + 'Quando: ' + new Date().toLocaleString('pt-BR') + '\n'
-                + 'Aparelho: ' + (navigator.userAgent||'?').substring(0,90);
-      _enviarNtfy('UBAPFF: '+origem, corpo);
-      if(mostrarToast) _toast(mensagem);
-    }catch(e){}
-  };
-
-  // Erros de JavaScript não tratados
-  window.onerror = function(msg, src, line, col){
-    window.reportarErro('JavaScript', (msg||'erro')+' ('+((src||'').split('/').pop())+':'+line+')', true);
-    return false;
-  };
-
-  // Promessas rejeitadas (ex.: fetch/rede que falhou)
-  window.addEventListener('unhandledrejection', function(e){
-    var m = (e && e.reason && (e.reason.message || e.reason)) || 'promessa rejeitada';
-    window.reportarErro('Rede/Promise', String(m).substring(0,200), false);
-  });
-})();
-</script>
 </head>
 <body>
 
@@ -531,7 +458,7 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
           <div id="foto-pendente" style="display:none;background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;border-radius:6px;padding:6px 10px;font-size:12px;font-weight:600;margin-bottom:8px">⚠️ Foto pendente — tire uma foto ou escolha da galeria para concluir o cadastro.</div>
           <div class="wcframe" id="wcframe">
             <video id="video" autoplay playsinline style="display:none"></video>
-            <img id="preview" alt="Pré-visualização da foto" style="display:none">
+            <img id="preview" alt="Pré-visualização da foto" width="300" height="400" decoding="async" style="display:none">
             <div class="wcph" id="wcph">
               <svg width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
               Câmera desligada
@@ -616,7 +543,7 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
               <div class="cp-campo" id="cp-municipio"    style="left:74%;top:52%;font-size:2cqw;font-weight:800;color:#111"></div>
               <div id="cp-assinatura-wrap" class="cp-assinatura-wrap">
                 <div id="cp-assinatura-label" class="cp-assinatura-label">Assinatura do Titular</div>
-                <img id="cp-assinatura" class="cp-assinatura-img" alt="Assinatura do titular">
+                <img id="cp-assinatura" class="cp-assinatura-img" alt="Assinatura do titular" width="320" height="48" loading="lazy" decoding="async">
               </div>
             </div>
           </div>
@@ -886,14 +813,14 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
         <div class="field-row">
           <div class="field">
             <label>Cor do header</label>
-            <div style="display:flex;gap:8px;align-items:center">
+            <div class="color-input-row">
               <input type="color" id="cfg-ver-cor1" value="#1b2a5e" style="width:52px;height:40px;border:1px solid #ddd;border-radius:6px;cursor:pointer;padding:2px">
               <input type="text" id="cfg-ver-cor1-hex" value="#1b2a5e" style="flex:1" oninput="document.getElementById('cfg-ver-cor1').value=this.value">
             </div>
           </div>
           <div class="field">
             <label>Cor da linha dourada</label>
-            <div style="display:flex;gap:8px;align-items:center">
+            <div class="color-input-row">
               <input type="color" id="cfg-ver-cor2" value="#c9952a" style="width:52px;height:40px;border:1px solid #ddd;border-radius:6px;cursor:pointer;padding:2px">
               <input type="text" id="cfg-ver-cor2-hex" value="#c9952a" style="flex:1" oninput="document.getElementById('cfg-ver-cor2').value=this.value">
             </div>
@@ -903,14 +830,14 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
         <div class="field-row">
           <div class="field">
             <label>Cor badge ATIVA</label>
-            <div style="display:flex;gap:8px;align-items:center">
+            <div class="color-input-row">
               <input type="color" id="cfg-ver-ativo" value="#2a7a38" style="width:52px;height:40px;border:1px solid #ddd;border-radius:6px;cursor:pointer;padding:2px">
               <input type="text" id="cfg-ver-ativo-hex" value="#2a7a38" style="flex:1" oninput="document.getElementById('cfg-ver-ativo').value=this.value">
             </div>
           </div>
           <div class="field">
             <label>Cor badge INATIVA</label>
-            <div style="display:flex;gap:8px;align-items:center">
+            <div class="color-input-row">
               <input type="color" id="cfg-ver-inativo" value="#b91c1c" style="width:52px;height:40px;border:1px solid #ddd;border-radius:6px;cursor:pointer;padding:2px">
               <input type="text" id="cfg-ver-inativo-hex" value="#b91c1c" style="flex:1" oninput="document.getElementById('cfg-ver-inativo').value=this.value">
             </div>
@@ -949,13 +876,13 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
 
 <!-- MODAL PAGAMENTOS -->
 <div class="modal-overlay" id="modal-pag" onclick="closePag(event)">
-  <div style="background:#fff;border-radius:16px;width:100%;max-width:500px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.3)">
-    <div style="background:var(--navy);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold)">
+  <div class="pag-modal-card">
+    <div class="pag-modal-head">
       <div>
         <div style="font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px">Controle de Pagamentos</div>
         <div style="font-size:16px;font-weight:800;color:#fff" id="pag-nome">—</div>
       </div>
-      <div style="display:flex;align-items:center;gap:12px">
+      <div class="pag-modal-head-actions">
         <label id="pag-isento-label" style="display:flex;align-items:center;gap:6px;cursor:pointer;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:6px 12px" title="Marcar como isento">
           <input type="checkbox" id="pag-isento-check" onchange="toggleIsento(this.checked)" style="width:16px;height:16px;cursor:pointer;accent-color:#c9972a">
           <span style="font-size:11px;font-weight:700;color:#fff">ISENTO</span>
@@ -963,7 +890,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
         <button type="button" id="btn-close-pag" onclick="closePagDirect()" style="background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.4);color:#fff;font-size:20px;cursor:pointer;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:100;position:relative;touch-action:manipulation">×</button>
       </div>
     </div>
-    <div style="padding:20px 24px">
+    <div class="pag-modal-body">
       <div id="pag-isento-banner" style="display:none;background:rgba(201,151,42,0.1);border:1px solid rgba(201,151,42,0.4);border-radius:8px;padding:10px 14px;margin-bottom:14px;text-align:center;color:#8a6500;font-size:13px;font-weight:700">
         🔓 Membro isento — pagamentos bloqueados
       </div>
@@ -973,15 +900,15 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
       <div id="pag-meses" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px"></div>
       <div style="background:#f0f9f0;border:1px solid #bbf0bb;border-radius:8px;padding:12px;margin-bottom:16px">
         <div style="font-size:11px;font-weight:800;color:#2a7a38;margin-bottom:4px">📊 Resumo</div>
-        <div style="display:flex;justify-content:space-between;font-size:13px">
+        <div class="pag-summary-row">
           <span style="color:#555">Meses pagos:</span>
           <span style="font-weight:800;color:#2a7a38" id="pag-count">0/12</span>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:13px;margin-top:4px">
+        <div class="pag-summary-row" style="margin-top:4px">
           <span style="color:#555">Total pago:</span>
           <span style="font-weight:800;color:#1a2a5e" id="pag-total">R$ 0,00</span>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:13px;margin-top:4px">
+        <div class="pag-summary-row" style="margin-top:4px">
           <span style="color:#555">Total pendente:</span>
           <span style="font-weight:800;color:#b91c1c" id="pag-pend">R$ 1.200,00</span>
         </div>
@@ -1002,7 +929,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
       <div id="sign-link-member" style="font-size:12px;font-weight:700;color:#1a2a5e">—</div>
       <div class="sign-link-help">Envie este link ou QR Code para o membro assinar pelo celular.</div>
       <div id="sign-link-url" class="sign-link-url">—</div>
-      <img id="sign-link-qr" class="sign-link-qr" alt="QR Code do link de assinatura">
+      <img id="sign-link-qr" class="sign-link-qr" alt="QR Code do link de assinatura" width="200" height="200" loading="lazy" decoding="async">
       <div class="sign-link-actions">
         <button class="btn btn-navy" style="flex:1" onclick="copySignLink()">📋 Copiar Link</button>
         <button class="btn btn-outline" style="flex:1" onclick="closeSignLinkModal()">Fechar</button>
@@ -1031,7 +958,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
               <label for="edit-foto-url">URL da foto ou selecionar arquivo</label>
               <input type="url" id="edit-foto-url" placeholder="https://... ou use o botão abaixo">
             </div>
-            <div style="display:flex;gap:8px;margin-top:8px">
+            <div class="inline-btn-row">
               <button class="btn btn-navy" style="font-size:11px;padding:7px 14px" onclick="document.getElementById('edit-foto-file').click()">📂 Selecionar arquivo</button>
               <input type="file" id="edit-foto-file" accept="image/*" style="display:none" onchange="editFotoUpload(this)">
               <button class="btn btn-outline" style="font-size:11px;padding:7px 14px;color:#b91c1c;border-color:#b91c1c" onclick="editRemoveFoto()">🗑️ Remover</button>
@@ -1146,7 +1073,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
     <div class="crop-body">
       <div class="crop-stage">
         <div id="crop-frame" class="crop-frame">
-          <img id="crop-img" alt="Prévia para recorte">
+          <img id="crop-img" alt="Prévia para recorte" width="300" height="400" decoding="async">
         </div>
       </div>
       <div class="crop-hint">Arraste a foto para enquadrar e ajuste o zoom antes de confirmar.</div>
@@ -1937,7 +1864,7 @@ function renderList(){
           return '';
         })()}
         ${m.isento?'<div style="display:inline-flex;align-items:center;gap:4px;background:rgba(201,151,42,0.12);color:#8a6500;border:1px solid rgba(201,151,42,0.4);padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;margin-top:4px">🔓 ISENTO</div>':''}
-        <div style="display:flex;gap:8px;align-items:center">
+        <div class="mcard-actions">
           <button class="mcard-btn mcard-btn-cred" onclick="openCred(${m.id})" style="flex:1;padding:8px">🪪 Ver Credencial</button>
           <button class="mcard-btn mcard-btn-sign" onclick="openSignLinkModal('${m.numCred}')" style="flex:1;padding:8px">✍️ Assinar</button>
           <div style="position:relative;overflow:visible" id="menu-wrap-${m.id}">
@@ -3032,6 +2959,98 @@ if(typeof closeMenus!=="undefined") window.closeMenus=closeMenus;
 if(typeof gerarCobranca!=="undefined") window.gerarCobranca=gerarCobranca;
 if(typeof closePagDirect!=="undefined") window.closePagDirect=closePagDirect;
 if(typeof closeEditDirect!=="undefined") window.closeEditDirect=closeEditDirect;
+</script>
+
+<script>
+/* ── AUTO-LIMPEZA: mata Service Workers órfãos e caches antigos, sem o usuário precisar limpar nada ── */
+(function(){
+  try{
+    if('serviceWorker' in navigator){
+      var hadController = !!navigator.serviceWorker.controller;
+      navigator.serviceWorker.getRegistrations().then(function(regs){
+        var had = hadController || regs.length>0;
+        return Promise.all(regs.map(function(r){ return r.unregister(); })).then(function(){ return had; });
+      }).then(function(had){
+        if(window.caches && caches.keys){
+          return caches.keys().then(function(keys){
+            return Promise.all(keys.map(function(k){ return caches.delete(k); }));
+          }).then(function(){ return had; });
+        }
+        return had;
+      }).then(function(had){
+        if(had && !sessionStorage.getItem('__sw_cleaned')){
+          sessionStorage.setItem('__sw_cleaned','1');
+          location.reload();
+        }
+      }).catch(function(){});
+    }
+  }catch(e){}
+})();
+</script>
+
+<script>
+/* ── MONITORAMENTO DE ERROS → ntfy + aviso visual na tela ── */
+(function(){
+  var NTFY_URL  = 'https://ntfy.sh/ubapff-signumor-erros-2026';
+  var PAGINA    = 'UBAPFF · ' + ((location.pathname.split('/').pop()) || 'index.html');
+  var _ultimos  = {};
+  var _enviados = 0;
+
+  function _enviarNtfy(titulo, corpo){
+    if(_enviados >= 25) return;
+    _enviados++;
+    try{
+      fetch(NTFY_URL, {
+        method:'POST',
+        headers:{
+          'Title': String(titulo).replace(/[^\x20-\x7E]/g,'').substring(0,110),
+          'Priority':'high',
+          'Tags':'warning'
+        },
+        body: corpo
+      }).catch(function(){});
+    }catch(e){}
+  }
+
+  function _toast(txt){
+    try{
+      var t=document.createElement('div');
+      t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#b91c1c;color:#fff;padding:10px 16px;border-radius:8px;font-size:12px;z-index:99999;max-width:90vw;text-align:center;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.35)';
+      t.textContent='⚠️ '+txt;
+      t.onclick=function(){ alert(t.textContent); };
+      document.body.appendChild(t);
+      setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); },8000);
+    }catch(e){}
+  }
+
+  window.reportarErro = function(origem, mensagem, mostrarToast){
+    try{
+      var chave = origem+'|'+mensagem;
+      var agora = Date.now();
+      if(_ultimos[chave] && (agora-_ultimos[chave]) < 30000) return;
+      _ultimos[chave] = agora;
+
+      var corpo = '🚨 ERRO NO SISTEMA UBAPFF\n\n'
+                + 'Onde: ' + origem + '\n'
+                + 'O quê: ' + mensagem + '\n'
+                + 'Página: ' + PAGINA + '\n'
+                + 'Quando: ' + new Date().toLocaleString('pt-BR') + '\n'
+                + 'Aparelho: ' + (navigator.userAgent||'?').substring(0,90);
+      _enviarNtfy('UBAPFF: '+origem, corpo);
+      if(mostrarToast) _toast(mensagem);
+    }catch(e){}
+  };
+
+  window.onerror = function(msg, src, line, col){
+    window.reportarErro('JavaScript', (msg||'erro')+' ('+((src||'').split('/').pop())+':'+line+')', true);
+    return false;
+  };
+
+  window.addEventListener('unhandledrejection', function(e){
+    var m = (e && e.reason && (e.reason.message || e.reason)) || 'promessa rejeitada';
+    window.reportarErro('Rede/Promise', String(m).substring(0,200), false);
+  });
+})();
 </script>
 
 
