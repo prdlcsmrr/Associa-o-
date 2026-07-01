@@ -290,7 +290,10 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
   .form-grid{grid-template-columns:1fr;}
   .content{padding:16px;}
   .tabs{padding-left:6px;padding-right:6px;}
-  .header-inner{padding-left:16px;padding-right:16px;}
+  .header-inner{padding-left:16px;padding-right:16px;flex-wrap:wrap;gap:10px;}
+  .hlogo{min-width:0;}
+  .htitles .hname{font-size:15px;line-height:1.2;}
+  .hright{width:100%;justify-content:space-between;}
   .cred-view-body{padding:14px;}
   .cred-view-footer{padding:14px;}
   .modal-acts{flex-direction:column;}
@@ -371,7 +374,7 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
 <div id="login-screen" role="dialog" aria-modal="true" aria-label="Login do sistema">
   <div class="login-box">
     <div class="login-logo">
-      <img src="logo.png" alt="Logo UBAPFF" style="height:80px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto;">
+      <img src="logo.png" alt="Logo UBAPFF" width="1151" height="1367" decoding="async" style="height:80px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto;">
       <div style="font-size:11px;font-weight:700;letter-spacing:5px;color:var(--gold);opacity:.7;text-transform:uppercase;margin:8px 0 16px;display:flex;align-items:center;justify-content:center;gap:10px;">
         <span style="width:22px;height:1px;background:var(--gold);opacity:.45;display:inline-block;"></span>
         SIGNUMOR
@@ -408,7 +411,7 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
   <div class="header-inner">
     <div class="hlogo">
       <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-        <div class="hemblem"><img src="logo.png" alt="Logo UBAPFF" style="width:44px;height:44px;object-fit:contain;"></div>
+        <div class="hemblem"><img src="logo.png" alt="Logo UBAPFF" width="44" height="44" decoding="async" style="width:44px;height:44px;object-fit:contain;"></div>
         <div style="font-size:7px;font-weight:700;letter-spacing:1px;color:var(--gold);opacity:.85;text-transform:uppercase;white-space:nowrap;">SIGNUMOR</div>
       </div>
       <div class="htitles">
@@ -586,7 +589,7 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
         <div class="cart-preview" id="cred-card" style="container-type:inline-size">
           <!-- FRENTE -->
           <div class="cart-face" id="cart-frente">
-            <img class="cart-bg" src="frente.jpg?v=20260628" alt="" crossorigin="anonymous">
+            <img class="cart-bg" src="frente.jpg?v=20260628" alt="" width="1920" height="1080" loading="lazy" decoding="async" crossorigin="anonymous">
             <div class="cart-overlay">
               <div class="cp-photo" id="cp-photo" style="left:9%;top:24%;width:20%;aspect-ratio:3/4"><div class="cp-photo-ph">👤</div></div>
               <div class="cp-campo" id="cp-cargo"   style="left:34.9%;top:39.6%;font-size:2.2cqw;font-weight:800;color:#1a2a6e"></div>
@@ -599,7 +602,7 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
           </div>
           <!-- VERSO -->
           <div class="cart-face" id="cart-verso">
-            <img class="cart-bg" src="Verso.png?v=20260629" alt="" crossorigin="anonymous" onerror="this.onerror=null;this.src='verso.jpg?v=20260629';">
+            <img class="cart-bg" src="Verso.png?v=20260629" alt="" width="1920" height="1080" loading="lazy" decoding="async" crossorigin="anonymous" onerror="this.onerror=null;this.src='verso.jpg?v=20260629';">
             <div class="cart-overlay">
               <div id="cp-qr" style="position:absolute;left:4%;top:21%;width:14%"></div>
               <div class="cp-campo" id="cp-filiacao-pai" style="left:22%;top:24.5%;font-size:2cqw;font-weight:800;color:#111;line-height:1.2;white-space:normal;max-width:50%"></div>
@@ -1917,7 +1920,7 @@ function renderList(){
   if(!f.length){g.innerHTML='<div class="empty"><p>Nenhum membro encontrado.</p></div>';return;}
   g.innerHTML=f.map(m=>`
     <div class="mcard">
-      <div class="mcard-photo">${m.foto?`<img src="${m.foto}" alt="">`:`<div class="mcard-ph"><svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Sem foto</span></div>`}</div>
+      <div class="mcard-photo">${m.foto?`<img src="${m.foto}" alt="" width="100" height="120" loading="lazy" decoding="async">`:`<div class="mcard-ph"><svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Sem foto</span></div>`}</div>
       <div class="mcard-body">
         <div class="mcard-name">${m.nome}</div>
         <div class="mcard-cat">${m.cat} · ${m.numCred}</div>
@@ -2060,7 +2063,7 @@ function openEdit(id){
   sf('edit-obs', m.obs);
   sf('edit-foto-url', '');
   var prev=document.getElementById('edit-foto-preview');
-  if(prev) prev.innerHTML=m.foto?'<img src="'+m.foto+'" alt="">':'👤';
+  if(prev) prev.innerHTML=m.foto?'<img src="'+m.foto+'" alt="" width="72" height="90" loading="lazy" decoding="async">':'👤';
   // Carregar isento
   var _isentoEl=document.getElementById('edit-isento');
   if(_isentoEl) _isentoEl.checked = m.isento===true;
@@ -2083,7 +2086,7 @@ function editFotoUpload(input){
   const reader = new FileReader();
   reader.onload = e=>{
     _editFotoData = e.target.result;
-    document.getElementById('edit-foto-preview').innerHTML = `<img src="${_editFotoData}" alt="">`;
+    document.getElementById('edit-foto-preview').innerHTML = `<img src="${_editFotoData}" alt="" width="72" height="90" loading="lazy" decoding="async">`;
   };
   reader.readAsDataURL(file);
 }
@@ -2204,7 +2207,7 @@ function openCred(id){
 
   // FRENTE — foto
   const ph=document.getElementById('cp-photo');
-  ph.innerHTML=m.foto?`<img src="${m.foto}" alt="">` : '<div class="cp-photo-ph">👤</div>';
+  ph.innerHTML=m.foto?`<img src="${m.foto}" alt="" width="300" height="400" loading="lazy" decoding="async">` : '<div class="cp-photo-ph">👤</div>';
 
   // FRENTE — campos
   document.getElementById('cp-cargo').textContent=(m.cat||'').toUpperCase();
@@ -2539,7 +2542,7 @@ function loadConfig(){
   if(cfg.subAssoc) document.querySelectorAll('.hsub').forEach(e=>e.textContent=cfg.subAssoc);
   // Logo fixa — marca do sistema (SIGNUMOR fica fora do .hemblem, no wrapper)
   document.querySelectorAll('.hemblem').forEach(e=>{
-    e.innerHTML='<img src="logo.png" alt="Logo UBAPFF" style="width:44px;height:44px;object-fit:contain;">';
+    e.innerHTML='<img src="logo.png" alt="Logo UBAPFF" width="44" height="44" decoding="async" style="width:44px;height:44px;object-fit:contain;">';
   });
 }
 

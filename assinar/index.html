@@ -35,7 +35,7 @@
 <body>
   <main class="card">
     <div class="head">
-      <img src="/logo.png" alt="Logo UBAPFF">
+      <img src="/logo.png" alt="Logo UBAPFF" width="72" height="72" decoding="async">
       <h1>Assinatura Digital</h1>
     </div>
     <div class="body">
@@ -146,7 +146,7 @@
         memberNameEl.textContent=member.nome||'Membro';
         memberIdEl.textContent=member.numCred||memberId;
         if(member.foto){
-          memberPhotoEl.innerHTML='<img src="'+member.foto+'" alt="Foto do membro">';
+          memberPhotoEl.innerHTML='<img src="'+member.foto+'" alt="Foto do membro" width="56" height="72" loading="lazy" decoding="async">';
         }else{
           memberPhotoEl.innerHTML='<div class="ph">Sem foto</div>';
         }

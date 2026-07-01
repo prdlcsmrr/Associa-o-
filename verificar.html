@@ -205,6 +205,15 @@ body {
 .loading { padding:40px; text-align:center; color:#666; font-size:16px; }
 .error-box { padding:32px 20px; text-align:center; }
 .error-box h2 { color:#b91c1c; margin-bottom:8px; }
+@media (max-width: 560px){
+  .status-bar{flex-wrap:wrap;gap:8px;}
+  .perfil{flex-direction:column;align-items:center;}
+  .perfil-info{width:100%;}
+  .perfil-foto{width:min(52vw,170px);min-height:0;aspect-ratio:3/4;}
+  .secao-body{grid-template-columns:1fr;}
+  .auth-body{flex-direction:column;}
+  .auth-qr{width:120px;height:120px;}
+}
 
 /* ── MARCA D'ÁGUA SIGNUMOR ── */
 .signumor-wm {
@@ -232,6 +241,8 @@ const PRODUCTION_DOMAIN = false;
 const BASE_DOMAIN = PRODUCTION_DOMAIN
   ? 'https://ubapff.org.br'
   : 'https://prdlcsmrr.github.io/Associa-o-';
+const HEADER_IMG_URL = BASE_DOMAIN+'/header-pff.jpg';
+const HEADER_IMG_HTML = `<div style="width:100%;line-height:0"><img src="${HEADER_IMG_URL}" width="1179" height="208" decoding="async" alt="Polícia Ferroviária Federal" style="width:100%;display:block;object-fit:cover"></div>`;
 
 function fmt(d){ if(!d) return '—'; return new Date(d+'T12:00').toLocaleDateString('pt-BR'); }
 const DB_GITHUB = BASE_DOMAIN+'/db.json';
@@ -239,7 +250,7 @@ const BIN_ID = '6a35c2ddda38895dfee044d5';
 
 function showErr(title, msg){
   document.getElementById('app').innerHTML = `
-    <img src="https://prdlcsmrr.github.io/Associa-o-/header-pff.jpg" alt="Cabeçalho PFF" style="width:100%;display:block">
+    ${HEADER_IMG_HTML}
     <div class="error-box">
       <h2>❌ ${title}</h2>
       <p style="color:#666">${msg}</p>
@@ -290,11 +301,7 @@ function render(m){
 
   document.getElementById('app').innerHTML = `
     <!-- HEADER OFICIAL -->
-    <div style="width:100%;line-height:0">
-      <img src="https://prdlcsmrr.github.io/Associa-o-/header-pff.jpg"
-        style="width:100%;display:block;object-fit:cover"
-        alt="Polícia Ferroviária Federal">
-    </div>
+    ${HEADER_IMG_HTML}
 
     <!-- STATUS -->
     <div class="status-bar">
@@ -308,7 +315,7 @@ function render(m){
     <div class="perfil watermark">
       <div class="perfil-foto">
         ${m.foto
-          ? `<img src="${m.foto}" alt="${m.nome}">`
+          ? `<img src="${m.foto}" alt="${m.nome}" width="130" height="160" loading="lazy" decoding="async">`
           : `<svg width="48" height="48" fill="none" stroke="#ccc" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Sem foto</span>`
         }
       </div>
@@ -399,7 +406,7 @@ function render(m){
           </div>
         </div>
         <div class="auth-qr">
-          <img src="${qrImg}" alt="QR Code">
+          <img src="${qrImg}" alt="QR Code" width="100" height="100" loading="lazy" decoding="async">
           <div class="auth-qr-label">BASE LEGAL</div>
         </div>
       </div>
