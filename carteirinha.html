@@ -5,11 +5,11 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Editor de Carteirinha — UBAPFF</title>
 <meta name="description" content="Editor visual de carteirinha funcional para membros da UBAPFF.">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 :root { --navy:#1a2a5e; --gold:#c9972a; --green:#1a7a3a; --purple:#7c3aed; }
@@ -483,7 +483,7 @@ function renderCard(){
     if(cfg.type==='photo'){
       fields+=`<div id="c_${key}" class="f-photo${drag}${selCls}"
         style="${pos}width:${cfg.w}%;aspect-ratio:${cfg.ratio||'3/4'};pointer-events:${editMode?'all':'none'}">
-        ${m?.foto?`<img src="${m.foto}" alt="">` : '<div class="f-photo-ph">👤</div>'}
+        ${m?.foto?`<img src="${m.foto}" alt="" width="300" height="400" loading="lazy" decoding="async">` : '<div class="f-photo-ph">👤</div>'}
       </div>`;
     } else if(cfg.type==='qr'){
       const _qUrl=`https://ubapff.org.br/sindapff.carteirafuncionaloficial/?id=${encodeURIComponent(m.numCred)}`;
@@ -491,14 +491,14 @@ function renderCard(){
       const _qImg=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(_qUrl)}&margin=4&color=${_qColor}`;
       fields+=`<div id="c_${key}" class="f-photo${drag}${selCls}"
         style="${pos}width:${cfg.w}%;aspect-ratio:1;pointer-events:${editMode?'all':'none'};background:#fff;padding:3px;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.2)">
-        <img src="${_qImg}" alt="QR" style="width:100%;display:block" crossorigin="anonymous">
+        <img src="${_qImg}" alt="QR" width="200" height="200" loading="lazy" decoding="async" style="width:100%;display:block" crossorigin="anonymous">
       </div>`;
     } else if(cfg.type==='signature'){
       const sigData=localStorage.getItem('assinatura_'+m.numCred)||'';
       if(sigData){
         fields+=`<div id="c_${key}" class="f-photo${drag}${selCls}"
           style="${pos}width:${cfg.w||38}%;pointer-events:${editMode?'all':'none'};background:transparent">
-          <img src="${sigData}" alt="Assinatura" style="width:100%;height:auto;object-fit:contain;display:block;border-bottom:1.5px solid #333">
+          <img src="${sigData}" alt="Assinatura" width="320" height="120" loading="lazy" decoding="async" style="width:100%;height:auto;object-fit:contain;display:block;border-bottom:1.5px solid #333">
         </div>`;
       } else if(editMode){
         fields+=`<div id="c_${key}" class="f-photo${drag}${selCls}"
@@ -529,7 +529,7 @@ function renderCard(){
 
   document.getElementById('app').innerHTML=`
     <div class="card" id="the-card">
-      <img class="bg" src="${imgSrc}" alt="" crossorigin="anonymous" onerror="if(this.src.includes('/Verso.png')){this.onerror=null;this.src='${BASE}/verso.jpg?v=20260629';}">
+      <img class="bg" src="${imgSrc}" alt="" width="1920" height="1080" loading="lazy" decoding="async" crossorigin="anonymous" onerror="if(this.src.includes('/Verso.png')){this.onerror=null;this.src='${BASE}/verso.jpg?v=20260629';}">
       <div class="grid-overlay" id="grid-overlay" style="display:${showGrid?'block':'none'}"></div>
       <div class="overlay" style="pointer-events:${editMode?'all':'none'}">${fields}${guides}</div>
     </div>`;
