@@ -6,7 +6,8 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Carteirinha v1782255382</title>
+<title>Editor de Carteirinha — UBAPFF</title>
+<meta name="description" content="Editor visual de carteirinha funcional para membros da UBAPFF.">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -208,13 +209,14 @@ body { background:#1a1a2e; font-family:'Arial Narrow',Arial,sans-serif; min-heig
 <body>
 
 <!-- Topbar -->
-<div class="topbar">
+<header class="topbar">
   <button class="btn btn-navy btn-sm" onclick="window.opener?window.close():window.location.href=BASE_DOMAIN">← Voltar</button>
   <span class="topbar-title">🪪 CARTEIRINHA</span>
   <button class="btn btn-purple btn-sm" id="btn-edit" onclick="toggleEdit()">✦ Editar</button>
   <div id="edit-indicator" style="display:none;background:rgba(124,58,237,.9);color:#fff;font-size:9px;font-weight:800;padding:3px 8px;border-radius:10px;letter-spacing:.5px">✏️ EDITANDO</div>
-</div>
+</header>
 
+<main>
 <!-- Tabs -->
 <div class="tabs">
   <div class="tab active" id="tab-F" onclick="switchTab('F')">🪪 FRENTE</div>
@@ -269,6 +271,7 @@ body { background:#1a1a2e; font-family:'Arial Narrow',Arial,sans-serif; min-heig
   <button class="btn btn-gold" style="flex:1" onclick="downloadPNG()">⬇ PNG</button>
   <button class="btn btn-green" style="flex:1" onclick="downloadPDF()">📄 PDF</button>
 </div>
+</main>
 
 <script>
 // ══════════════════════════════════════════════════
@@ -526,7 +529,7 @@ function renderCard(){
 
   document.getElementById('app').innerHTML=`
     <div class="card" id="the-card">
-      <img class="bg" src="${imgSrc}" crossorigin="anonymous" onerror="if(this.src.includes('/Verso.png')){this.onerror=null;this.src='${BASE}/verso.jpg?v=20260629';}">
+      <img class="bg" src="${imgSrc}" alt="" crossorigin="anonymous" onerror="if(this.src.includes('/Verso.png')){this.onerror=null;this.src='${BASE}/verso.jpg?v=20260629';}">
       <div class="grid-overlay" id="grid-overlay" style="display:${showGrid?'block':'none'}"></div>
       <div class="overlay" style="pointer-events:${editMode?'all':'none'}">${fields}${guides}</div>
     </div>`;

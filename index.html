@@ -30,7 +30,8 @@
   }catch(e){}
 })();
 </script>
-<title>Sistema de Credencial</title>
+<title>Sistema de Credencial — UBAPFF</title>
+<meta name="description" content="Sistema de gestão e verificação de credenciais funcionais da UBAPFF.">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 :root {
@@ -367,10 +368,10 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
 <body>
 
 <!-- LOGIN -->
-<div id="login-screen">
+<div id="login-screen" role="dialog" aria-modal="true" aria-label="Login do sistema">
   <div class="login-box">
     <div class="login-logo">
-      <img src="logo.png" style="height:80px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto;">
+      <img src="logo.png" alt="Logo UBAPFF" style="height:80px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto;">
       <div style="font-size:11px;font-weight:700;letter-spacing:5px;color:var(--gold);opacity:.7;text-transform:uppercase;margin:8px 0 16px;display:flex;align-items:center;justify-content:center;gap:10px;">
         <span style="width:22px;height:1px;background:var(--gold);opacity:.45;display:inline-block;"></span>
         SIGNUMOR
@@ -383,8 +384,8 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
     <!-- LOGIN NORMAL (já existe senha) -->
     <div id="login-box-normal" style="display:none">
       <div class="lerr" id="lerr">✗ Usuário ou senha incorretos</div>
-      <div class="lf"><label>Usuário</label><input id="lu" type="text" onkeydown="if(event.key==='Enter')login()"></div>
-      <div class="lf"><label>Senha</label><input id="lp" type="password" onkeydown="if(event.key==='Enter')login()"></div>
+      <div class="lf"><label for="lu">Usuário</label><input id="lu" type="text" onkeydown="if(event.key==='Enter')login()"></div>
+      <div class="lf"><label for="lp">Senha</label><input id="lp" type="password" onkeydown="if(event.key==='Enter')login()"></div>
       <button class="lbtn" onclick="login()">Entrar</button>
     </div>
 
@@ -394,8 +395,8 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
         Primeiro acesso neste aparelho.<br>Crie uma senha para proteger o sistema.
       </div>
       <div class="lerr" id="cperr">✗ Erro</div>
-      <div class="lf"><label>Criar senha (mín. 4)</label><input id="cp1" type="password" onkeydown="if(event.key==='Enter')criarSenha()"></div>
-      <div class="lf"><label>Confirmar senha</label><input id="cp2" type="password" onkeydown="if(event.key==='Enter')criarSenha()"></div>
+      <div class="lf"><label for="cp1">Criar senha (mín. 4)</label><input id="cp1" type="password" onkeydown="if(event.key==='Enter')criarSenha()"></div>
+      <div class="lf"><label for="cp2">Confirmar senha</label><input id="cp2" type="password" onkeydown="if(event.key==='Enter')criarSenha()"></div>
       <button class="lbtn" onclick="criarSenha()">Criar senha e entrar</button>
     </div>
   </div>
@@ -403,11 +404,11 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
 
 <!-- HEADER -->
 <div id="sync-ind" style="display:none;position:fixed;bottom:20px;right:20px;background:#1a2a5e;color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:700;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.3);align-items:center;gap:8px;"></div>
-<div class="app-header">
+<header class="app-header">
   <div class="header-inner">
     <div class="hlogo">
       <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-        <div class="hemblem"><img src="logo.png" style="width:44px;height:44px;object-fit:contain;"></div>
+        <div class="hemblem"><img src="logo.png" alt="Logo UBAPFF" style="width:44px;height:44px;object-fit:contain;"></div>
         <div style="font-size:7px;font-weight:700;letter-spacing:1px;color:var(--gold);opacity:.85;text-transform:uppercase;white-space:nowrap;">SIGNUMOR</div>
       </div>
       <div class="htitles">
@@ -421,16 +422,16 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
       <button class="hbtn" onclick="logout()">Sair</button>
     </div>
   </div>
-</div>
+</header>
 
-<div class="tabs">
+<nav class="tabs" aria-label="Navegação do sistema">
   <div class="tab" onclick="goTab('novo')">＋ Novo Cadastro</div>
   <div class="tab active" onclick="goTab('lista')">☰ Membros</div>
   <div class="tab" onclick="goTab('contabil')">💰 Contabilidade</div>
   <div class="tab" onclick="goTab('config')">⚙️ Configurações</div>
-</div>
+</nav>
 
-<div class="content">
+<main class="content">
 
   <!-- NOVO -->
   <div class="page" id="page-novo">
@@ -441,42 +442,42 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
       <div>
         <div class="box">
           <div class="box-title">👤 Dados Pessoais</div>
-          <div class="field"><label>Nome completo *</label><input type="text" id="f-nome" placeholder="Nome completo"></div>
-          <div class="field"><label>CPF *</label><input type="text" id="f-cpf" placeholder="000.000.000-00" maxlength="14" oninput="onCpfInput(this)"></div>
+          <div class="field"><label for="f-nome">Nome completo *</label><input type="text" id="f-nome" placeholder="Nome completo"></div>
+          <div class="field"><label for="f-cpf">CPF *</label><input type="text" id="f-cpf" placeholder="000.000.000-00" maxlength="14" oninput="onCpfInput(this)"></div>
           <div class="field-row">
-            <div class="field"><label>Data de Nascimento *</label><input type="date" id="f-nasc"></div>
-            <div class="field"><label>Sexo</label>
+            <div class="field"><label for="f-nasc">Data de Nascimento *</label><input type="date" id="f-nasc"></div>
+            <div class="field"><label for="f-sexo">Sexo</label>
               <select id="f-sexo"><option value="">—</option><option>Masculino</option><option>Feminino</option><option>Outro</option></select>
             </div>
           </div>
-          <div class="field"><label>Telefone *</label><input type="tel" id="f-tel" placeholder="(21) 99999-9999"></div>
-          <div class="field"><label>E-mail</label><input type="email" id="f-email" placeholder="email@exemplo.com"></div>
+          <div class="field"><label for="f-tel">Telefone *</label><input type="tel" id="f-tel" placeholder="(21) 99999-9999"></div>
+          <div class="field"><label for="f-email">E-mail</label><input type="email" id="f-email" placeholder="email@exemplo.com"></div>
 
           <div class="field-row">
-            <div class="field"><label>Naturalidade</label><input type="text" id="f-naturalidade" placeholder="Cidade de nascimento"></div>
-            <div class="field"><label>Município (residência)</label><input type="text" id="f-municipio" placeholder="Cidade atual"></div>
+            <div class="field"><label for="f-naturalidade">Naturalidade</label><input type="text" id="f-naturalidade" placeholder="Cidade de nascimento"></div>
+            <div class="field"><label for="f-municipio">Município (residência)</label><input type="text" id="f-municipio" placeholder="Cidade atual"></div>
           </div>
-          <div class="field"><label>Nome do Pai</label><input type="text" id="f-pai" placeholder="Nome completo do pai"></div>
-          <div class="field"><label>Nome da Mãe</label><input type="text" id="f-mae" placeholder="Nome completo da mãe"></div>
+          <div class="field"><label for="f-pai">Nome do Pai</label><input type="text" id="f-pai" placeholder="Nome completo do pai"></div>
+          <div class="field"><label for="f-mae">Nome da Mãe</label><input type="text" id="f-mae" placeholder="Nome completo da mãe"></div>
         </div>
 
         <div class="box">
           <div class="box-title">🏠 Endereço</div>
           <div class="field">
-            <label>Logradouro</label>
+            <label for="f-rua">Logradouro</label>
             <input type="text" id="f-rua" placeholder="Rua, Avenida, Travessa...">
           </div>
           <div class="field-row">
-            <div class="field"><label>Número</label><input type="text" id="f-numero" placeholder="Nº"></div>
-            <div class="field"><label>Complemento</label><input type="text" id="f-complemento" placeholder="Apto, Bloco..."></div>
+            <div class="field"><label for="f-numero">Número</label><input type="text" id="f-numero" placeholder="Nº"></div>
+            <div class="field"><label for="f-complemento">Complemento</label><input type="text" id="f-complemento" placeholder="Apto, Bloco..."></div>
           </div>
           <div class="field-row">
-            <div class="field"><label>Bairro</label><input type="text" id="f-bairro" placeholder="Bairro"></div>
-            <div class="field"><label>CEP</label><input type="text" id="f-cep" placeholder="00000-000" maxlength="9" oninput="buscarCep(this.value)"></div>
+            <div class="field"><label for="f-bairro">Bairro</label><input type="text" id="f-bairro" placeholder="Bairro"></div>
+            <div class="field"><label for="f-cep">CEP</label><input type="text" id="f-cep" placeholder="00000-000" maxlength="9" oninput="buscarCep(this.value)"></div>
           </div>
           <div class="field-row">
-            <div class="field"><label>Cidade</label><input type="text" id="f-cidade" placeholder="Cidade"></div>
-            <div class="field"><label>UF</label>
+            <div class="field"><label for="f-cidade">Cidade</label><input type="text" id="f-cidade" placeholder="Cidade"></div>
+            <div class="field"><label for="f-uf">UF</label>
               <select id="f-uf">
                 <option value="">—</option>
                 <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
@@ -494,25 +495,25 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
         <div class="box">
           <div class="box-title">🪪 Dados da Credencial</div>
           <div class="field">
-            <label>Categoria / Cargo</label>
+            <label for="f-cat">Categoria / Cargo</label>
             <select id="f-cat">
               <option>Membro</option><option>Associado</option><option>Diretor</option>
               <option>Presidente</option><option>Funcionário</option><option>Visitante</option>
             </select>
           </div>
           <div class="field-row">
-            <div class="field"><label>Emissão</label><input type="date" id="f-emissao"></div>
-            <div class="field"><label>Validade</label><input type="date" id="f-validade"></div>
+            <div class="field"><label for="f-emissao">Emissão</label><input type="date" id="f-emissao"></div>
+            <div class="field"><label for="f-validade">Validade</label><input type="date" id="f-validade"></div>
           </div>
           <div class="field">
-            <label>Status da Credencial *</label>
+            <label for="f-status">Status da Credencial *</label>
             <div class="status-toggle">
               <div class="sopt sel-ativo" id="opt-a" onclick="setStatus('Ativo')">✓ Ativa</div>
               <div class="sopt" id="opt-i" onclick="setStatus('Inativo')">✗ Inativa</div>
             </div>
             <input type="hidden" id="f-status" value="Ativo">
           </div>
-          <div class="field"><label>Observações</label><textarea id="f-obs" placeholder="Informações adicionais..."></textarea></div>
+          <div class="field"><label for="f-obs">Observações</label><textarea id="f-obs" placeholder="Informações adicionais..."></textarea></div>
         </div>
 
         <div class="box">
@@ -527,7 +528,7 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
           <div id="foto-pendente" style="display:none;background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;border-radius:6px;padding:6px 10px;font-size:12px;font-weight:600;margin-bottom:8px">⚠️ Foto pendente — tire uma foto ou escolha da galeria para concluir o cadastro.</div>
           <div class="wcframe" id="wcframe">
             <video id="video" autoplay playsinline style="display:none"></video>
-            <img id="preview" style="display:none">
+            <img id="preview" alt="Pré-visualização da foto" style="display:none">
             <div class="wcph" id="wcph">
               <svg width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
               Câmera desligada
@@ -585,7 +586,7 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
         <div class="cart-preview" id="cred-card" style="container-type:inline-size">
           <!-- FRENTE -->
           <div class="cart-face" id="cart-frente">
-            <img class="cart-bg" src="frente.jpg?v=20260628" crossorigin="anonymous">
+            <img class="cart-bg" src="frente.jpg?v=20260628" alt="" crossorigin="anonymous">
             <div class="cart-overlay">
               <div class="cp-photo" id="cp-photo" style="left:9%;top:24%;width:20%;aspect-ratio:3/4"><div class="cp-photo-ph">👤</div></div>
               <div class="cp-campo" id="cp-cargo"   style="left:34.9%;top:39.6%;font-size:2.2cqw;font-weight:800;color:#1a2a6e"></div>
@@ -598,7 +599,7 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
           </div>
           <!-- VERSO -->
           <div class="cart-face" id="cart-verso">
-            <img class="cart-bg" src="Verso.png?v=20260629" crossorigin="anonymous" onerror="this.onerror=null;this.src='verso.jpg?v=20260629';">
+            <img class="cart-bg" src="Verso.png?v=20260629" alt="" crossorigin="anonymous" onerror="this.onerror=null;this.src='verso.jpg?v=20260629';">
             <div class="cart-overlay">
               <div id="cp-qr" style="position:absolute;left:4%;top:21%;width:14%"></div>
               <div class="cp-campo" id="cp-filiacao-pai" style="left:22%;top:24.5%;font-size:2cqw;font-weight:800;color:#111;line-height:1.2;white-space:normal;max-width:50%"></div>
@@ -637,34 +638,34 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
       <div class="box" style="margin-bottom:16px">
         <div class="box-title">🏛️ Dados da Associação</div>
         <div class="field">
-          <label>Nome completo da Associação</label>
+          <label for="cfg-assoc-nome">Nome completo da Associação</label>
           <input type="text" id="cfg-assoc-nome" placeholder="Ex: A.A.F.F - UBAPFF BRASILEIRA DOS PROFISSIONAIS">
         </div>
         <div class="field-row">
           <div class="field">
-            <label>CNPJ</label>
+            <label for="cfg-assoc-cnpj">CNPJ</label>
             <input type="text" id="cfg-assoc-cnpj" placeholder="00.000.000/0001-00" maxlength="18">
           </div>
           <div class="field">
-            <label>Data de Fundação</label>
+            <label for="cfg-assoc-fundacao">Data de Fundação</label>
             <input type="date" id="cfg-assoc-fundacao">
           </div>
         </div>
         <div class="field">
-          <label>Nome do Diretor Geral</label>
+          <label for="cfg-assoc-diretor">Nome do Diretor Geral</label>
           <input type="text" id="cfg-assoc-diretor" placeholder="Nome completo do diretor">
         </div>
         <div class="field">
-          <label>Cargo do Responsável</label>
+          <label for="cfg-assoc-cargo">Cargo do Responsável</label>
           <input type="text" id="cfg-assoc-cargo" placeholder="Ex: Presidente / Diretor Geral">
         </div>
         <div class="field-row">
           <div class="field">
-            <label>Cidade</label>
+            <label for="cfg-assoc-cidade">Cidade</label>
             <input type="text" id="cfg-assoc-cidade" placeholder="Ex: Nova Iguaçu">
           </div>
           <div class="field">
-            <label>UF</label>
+            <label for="cfg-assoc-uf">UF</label>
             <select id="cfg-assoc-uf">
               <option value="">—</option>
               <option>AC</option><option>AL</option><option>AM</option><option>AP</option>
@@ -678,25 +679,25 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
           </div>
         </div>
         <div class="field">
-          <label>Endereço</label>
+          <label for="cfg-assoc-end">Endereço</label>
           <input type="text" id="cfg-assoc-end" placeholder="Rua, número, bairro">
         </div>
         <div class="field-row">
           <div class="field">
-            <label>Telefone</label>
+            <label for="cfg-assoc-tel">Telefone</label>
             <input type="tel" id="cfg-assoc-tel" placeholder="(21) 99999-9999">
           </div>
           <div class="field">
-            <label>E-mail institucional</label>
+            <label for="cfg-assoc-email">E-mail institucional</label>
             <input type="email" id="cfg-assoc-email" placeholder="contato@associacao.org.br">
           </div>
         </div>
         <div class="field">
-          <label>Site / Domínio</label>
+          <label for="cfg-assoc-site">Site / Domínio</label>
           <input type="text" id="cfg-assoc-site" placeholder="www.associacao.org.br">
         </div>
         <div class="field">
-          <label>Texto Legal (rodapé das carteirinhas)</label>
+          <label for="cfg-assoc-legal">Texto Legal (rodapé das carteirinhas)</label>
           <textarea id="cfg-assoc-legal" style="width:100%;background:#fafafa;border:1px solid #ddd;border-radius:8px;padding:11px 13px;font-size:13px;resize:vertical;min-height:60px" placeholder="TEM FÉ PÚBLICA E VALIDADE EM TODO O TERRITÓRIO NACIONAL...">TEM FÉ PÚBLICA E VALIDADE EM TODO O TERRITÓRIO NACIONAL
 ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020</textarea>
         </div>
@@ -706,11 +707,11 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
       <div class="box" style="margin-bottom:16px">
         <div class="box-title">🎨 Identidade Visual</div>
         <div class="field">
-          <label>Nome da Associação</label>
+          <label for="cfg-nome">Nome da Associação</label>
           <input type="text" id="cfg-nome" placeholder="Ex: A.A.F.F - UBAPFF BRASILEIRA">
         </div>
         <div class="field">
-          <label>Subtítulo</label>
+          <label for="cfg-sub">Subtítulo</label>
           <input type="text" id="cfg-sub" placeholder="Ex: Sistema de Verificação de Credencial">
         </div>
 
@@ -721,21 +722,21 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
         <div class="box-title">🔐 Acesso ao Sistema</div>
         <div class="field-row">
           <div class="field">
-            <label>Usuário de acesso</label>
+            <label for="cfg-user">Usuário de acesso</label>
             <input type="text" id="cfg-user" placeholder="admin">
           </div>
           <div class="field">
-            <label>Senha atual</label>
+            <label for="cfg-pass-atual">Senha atual</label>
             <input type="password" id="cfg-pass-atual" placeholder="Digite a senha atual">
           </div>
         </div>
         <div class="field-row">
           <div class="field">
-            <label>Nova senha</label>
+            <label for="cfg-pass-nova">Nova senha</label>
             <input type="password" id="cfg-pass-nova" placeholder="Nova senha (mín. 4 caracteres)">
           </div>
           <div class="field">
-            <label>Confirmar nova senha</label>
+            <label for="cfg-pass-conf">Confirmar nova senha</label>
             <input type="password" id="cfg-pass-conf" placeholder="Repetir nova senha">
           </div>
         </div>
@@ -757,7 +758,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
         <div class="box-title">🏦 Dados Bancários</div>
 
         <div class="field">
-          <label>Banco</label>
+          <label for="cfg-banco">Banco</label>
           <select id="cfg-banco">
             <option value="">Selecione o banco</option>
             <option value="001">001 — Banco do Brasil</option>
@@ -777,24 +778,24 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
         </div>
 
         <div class="field" id="banco-outro-field" style="display:none">
-          <label>Nome do Banco (outro)</label>
+          <label for="cfg-banco-outro">Nome do Banco (outro)</label>
           <input type="text" id="cfg-banco-outro" placeholder="Nome do banco">
         </div>
 
         <div class="field-row">
           <div class="field">
-            <label>Agência</label>
+            <label for="cfg-agencia">Agência</label>
             <input type="text" id="cfg-agencia" placeholder="0000">
           </div>
           <div class="field">
-            <label>Conta</label>
+            <label for="cfg-conta">Conta</label>
             <input type="text" id="cfg-conta" placeholder="00000-0">
           </div>
         </div>
 
         <div class="field-row">
           <div class="field">
-            <label>Tipo de Conta</label>
+            <label for="cfg-tipo-conta">Tipo de Conta</label>
             <select id="cfg-tipo-conta">
               <option value="">Selecione</option>
               <option>Conta Corrente</option>
@@ -803,7 +804,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
             </select>
           </div>
           <div class="field">
-            <label>Titular da Conta</label>
+            <label for="cfg-titular">Titular da Conta</label>
             <input type="text" id="cfg-titular" placeholder="Nome ou razão social">
           </div>
         </div>
@@ -811,7 +812,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
         <div style="background:#f0f4ff;border:1px solid #c0ceff;border-radius:8px;padding:14px;margin-top:4px;margin-bottom:14px">
           <div style="font-size:11px;font-weight:800;color:#1a2a5e;margin-bottom:10px">💚 Dados PIX</div>
           <div class="field">
-            <label>Tipo de Chave PIX</label>
+            <label for="cfg-pix-tipo">Tipo de Chave PIX</label>
             <select id="cfg-pix-tipo" onchange="updatePixPlaceholder()">
               <option value="">Selecione o tipo</option>
               <option value="cpf">CPF</option>
@@ -822,11 +823,11 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
             </select>
           </div>
           <div class="field">
-            <label>Chave PIX</label>
+            <label for="cfg-pix-chave">Chave PIX</label>
             <input type="text" id="cfg-pix-chave" placeholder="Digite a chave PIX">
           </div>
           <div class="field">
-            <label>Nome do favorecido (aparece no PIX)</label>
+            <label for="cfg-pix-favorecido">Nome do favorecido (aparece no PIX)</label>
             <input type="text" id="cfg-pix-favorecido" placeholder="Nome que aparece na transferência">
           </div>
         </div>
@@ -844,16 +845,16 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
         <div class="box-title">💰 Configurações de Cobrança</div>
         <div class="field-row">
           <div class="field">
-            <label>Valor da mensalidade (R$)</label>
+            <label for="cfg-valor">Valor da mensalidade (R$)</label>
             <input type="number" id="cfg-valor" placeholder="100.00" step="0.01" min="0">
           </div>
           <div class="field">
-            <label>Dia de vencimento</label>
+            <label for="cfg-venc">Dia de vencimento</label>
             <input type="number" id="cfg-venc" placeholder="10" min="1" max="28">
           </div>
         </div>
         <div class="field">
-          <label>Chave PIX</label>
+          <label for="cfg-pix">Chave PIX</label>
           <input type="text" id="cfg-pix" placeholder="Ex: associacao@email.com ou 00.000.000/0001-00">
         </div>
       </div>
@@ -863,19 +864,19 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
         <div class="box-title">🔍 Página de Verificação (QR Code)</div>
 
         <div class="field">
-          <label>Título principal do header</label>
+          <label for="cfg-ver-titulo">Título principal do header</label>
           <input type="text" id="cfg-ver-titulo" placeholder="Ex: A.A.F.F - UBAPFF">
         </div>
         <div class="field">
-          <label>Linha 1 (texto pequeno acima)</label>
+          <label for="cfg-ver-linha1">Linha 1 (texto pequeno acima)</label>
           <input type="text" id="cfg-ver-linha1" placeholder="Ex: República Federativa do Brasil">
         </div>
         <div class="field">
-          <label>Linha 2 (texto pequeno)</label>
+          <label for="cfg-ver-linha2">Linha 2 (texto pequeno)</label>
           <input type="text" id="cfg-ver-linha2" placeholder="Ex: Sistema Oficial de Verificação">
         </div>
         <div class="field">
-          <label>Subtítulo itálico</label>
+          <label for="cfg-ver-sub">Subtítulo itálico</label>
           <input type="text" id="cfg-ver-sub" placeholder="Ex: Sistema Oficial de Verificação de Credencial Funcional">
         </div>
 
@@ -914,7 +915,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
         </div>
 
         <div class="field">
-          <label>Texto legal do rodapé (seções de dados)</label>
+          <label for="cfg-ver-rodape">Texto legal do rodapé (seções de dados)</label>
           <textarea id="cfg-ver-rodape" style="width:100%;background:#fafafa;border:1px solid #ddd;border-radius:8px;padding:11px 13px;font-size:13px;resize:vertical;min-height:60px" placeholder="TEM FÉ PÚBLICA E VALIDADE EM TODO O TERRITÓRIO NACIONAL..."></textarea>
         </div>
 
@@ -1024,7 +1025,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
           <div class="edit-foto-preview" id="edit-foto-preview">👤</div>
           <div style="flex:1">
             <div class="edit-field">
-              <label>URL da foto ou selecionar arquivo</label>
+              <label for="edit-foto-url">URL da foto ou selecionar arquivo</label>
               <input type="url" id="edit-foto-url" placeholder="https://... ou use o botão abaixo">
             </div>
             <div style="display:flex;gap:8px;margin-top:8px">
@@ -1040,18 +1041,18 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
       <div class="edit-section">
         <div class="edit-section-title">👤 Dados Pessoais</div>
         <div class="edit-grid">
-          <div class="edit-field" style="grid-column:1/-1"><label>Nome Completo *</label><input type="text" id="edit-nome"></div>
-          <div class="edit-field"><label>CPF *</label><input type="text" id="edit-cpf" maxlength="14" placeholder="000.000.000-00" oninput="onCpfInput(this)"></div>
-          <div class="edit-field"><label>Data de Nascimento</label><input type="date" id="edit-nasc"></div>
-          <div class="edit-field"><label>Sexo</label>
+          <div class="edit-field" style="grid-column:1/-1"><label for="edit-nome">Nome Completo *</label><input type="text" id="edit-nome"></div>
+          <div class="edit-field"><label for="edit-cpf">CPF *</label><input type="text" id="edit-cpf" maxlength="14" placeholder="000.000.000-00" oninput="onCpfInput(this)"></div>
+          <div class="edit-field"><label for="edit-nasc">Data de Nascimento</label><input type="date" id="edit-nasc"></div>
+          <div class="edit-field"><label for="f-sexo">Sexo</label>
             <select id="edit-sexo"><option value="">—</option><option>Masculino</option><option>Feminino</option><option>Outro</option></select>
           </div>
-          <div class="edit-field"><label>Telefone</label><input type="tel" id="edit-tel" placeholder="(21) 99999-9999"></div>
-          <div class="edit-field"><label>E-mail</label><input type="email" id="edit-email"></div>
-          <div class="edit-field"><label>Naturalidade</label><input type="text" id="edit-naturalidade" placeholder="Cidade de nascimento"></div>
-          <div class="edit-field"><label>Município (residência)</label><input type="text" id="edit-municipio"></div>
-          <div class="edit-field"><label>Nome do Pai</label><input type="text" id="edit-pai"></div>
-          <div class="edit-field"><label>Nome da Mãe</label><input type="text" id="edit-mae"></div>
+          <div class="edit-field"><label for="edit-tel">Telefone</label><input type="tel" id="edit-tel" placeholder="(21) 99999-9999"></div>
+          <div class="edit-field"><label for="edit-email">E-mail</label><input type="email" id="edit-email"></div>
+          <div class="edit-field"><label for="edit-naturalidade">Naturalidade</label><input type="text" id="edit-naturalidade" placeholder="Cidade de nascimento"></div>
+          <div class="edit-field"><label for="edit-municipio">Município (residência)</label><input type="text" id="edit-municipio"></div>
+          <div class="edit-field"><label for="edit-pai">Nome do Pai</label><input type="text" id="edit-pai"></div>
+          <div class="edit-field"><label for="edit-mae">Nome da Mãe</label><input type="text" id="edit-mae"></div>
         </div>
       </div>
 
@@ -1059,15 +1060,15 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
       <div class="edit-section">
         <div class="edit-section-title">🏠 Endereço</div>
         <div class="edit-grid col1">
-          <div class="edit-field"><label>Logradouro</label><input type="text" id="edit-rua" placeholder="Rua, Avenida, Travessa..."></div>
+          <div class="edit-field"><label for="edit-rua">Logradouro</label><input type="text" id="edit-rua" placeholder="Rua, Avenida, Travessa..."></div>
         </div>
         <div class="edit-grid">
-          <div class="edit-field"><label>Número</label><input type="text" id="edit-numero" placeholder="Nº"></div>
-          <div class="edit-field"><label>Complemento</label><input type="text" id="edit-complemento" placeholder="Apto, Bloco..."></div>
-          <div class="edit-field"><label>Bairro</label><input type="text" id="edit-bairro" placeholder="Bairro"></div>
-          <div class="edit-field"><label>CEP</label><input type="text" id="edit-cep" placeholder="00000-000" maxlength="9" oninput="buscarCep(this.value,'edit')"></div>
-          <div class="edit-field"><label>Cidade</label><input type="text" id="edit-cidade" placeholder="Cidade"></div>
-          <div class="edit-field"><label>UF</label>
+          <div class="edit-field"><label for="edit-numero">Número</label><input type="text" id="edit-numero" placeholder="Nº"></div>
+          <div class="edit-field"><label for="edit-complemento">Complemento</label><input type="text" id="edit-complemento" placeholder="Apto, Bloco..."></div>
+          <div class="edit-field"><label for="edit-bairro">Bairro</label><input type="text" id="edit-bairro" placeholder="Bairro"></div>
+          <div class="edit-field"><label for="edit-cep">CEP</label><input type="text" id="edit-cep" placeholder="00000-000" maxlength="9" oninput="buscarCep(this.value,'edit')"></div>
+          <div class="edit-field"><label for="edit-cidade">Cidade</label><input type="text" id="edit-cidade" placeholder="Cidade"></div>
+          <div class="edit-field"><label for="edit-uf">UF</label>
             <select id="edit-uf">
               <option value="">—</option>
               <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
@@ -1086,7 +1087,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
       <div class="edit-section">
         <div class="edit-section-title">🪪 Dados Funcionais</div>
         <div class="edit-grid">
-          <div class="edit-field"><label>Cargo / Categoria</label>
+          <div class="edit-field"><label for="edit-cat">Cargo / Categoria</label>
             <select id="edit-cat">
               <option value="Funcionário">Funcionário</option>
               <option value="Agente">Agente</option>
@@ -1099,8 +1100,8 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
               <option value="Colaborador">Colaborador</option>
             </select>
           </div>
-          <div class="edit-field"><label>Matrícula Funcional</label><input type="text" id="edit-numcred" placeholder="Ex: 1234567"></div>
-          <div class="edit-field"><label>Status</label>
+          <div class="edit-field"><label for="edit-numcred">Matrícula Funcional</label><input type="text" id="edit-numcred" placeholder="Ex: 1234567"></div>
+          <div class="edit-field"><label for="edit-status">Status</label>
             <select id="edit-status"><option value="Ativo">Ativo</option><option value="Inativo">Inativo</option></select>
           </div>
           <div class="edit-field" style="grid-column:1/-1">
@@ -1110,9 +1111,9 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
               <span style="font-size:11px;font-weight:400;color:#888">— não entra na contabilidade</span>
             </label>
           </div>
-          <div class="edit-field"><label>Emissão</label><input type="date" id="edit-emissao"></div>
-          <div class="edit-field"><label>Validade</label><input type="date" id="edit-validade"></div>
-          <div class="edit-field"><label>Matrícula</label><input type="text" id="edit-numCred" readonly style="opacity:.6;cursor:not-allowed" title="Matrícula gerada automaticamente"></div>
+          <div class="edit-field"><label for="edit-emissao">Emissão</label><input type="date" id="edit-emissao"></div>
+          <div class="edit-field"><label for="edit-validade">Validade</label><input type="date" id="edit-validade"></div>
+          <div class="edit-field"><label for="edit-numCred">Matrícula</label><input type="text" id="edit-numCred" readonly style="opacity:.6;cursor:not-allowed" title="Matrícula gerada automaticamente"></div>
         </div>
       </div>
 
@@ -1120,9 +1121,9 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
       <div class="edit-section">
         <div class="edit-section-title">📚 Formações / Observações</div>
         <div class="edit-grid col1">
-          <div class="edit-field"><label>Formação Acadêmica</label><input type="text" id="edit-formacao" placeholder="Ex: Bacharel em Direito — UFRJ"></div>
-          <div class="edit-field"><label>Especialização / Cursos</label><input type="text" id="edit-especializacao" placeholder="Ex: Pós-graduação em Segurança Pública"></div>
-          <div class="edit-field"><label>Observações</label><textarea id="edit-obs" placeholder="Informações adicionais, anotações..."></textarea></div>
+          <div class="edit-field"><label for="edit-formacao">Formação Acadêmica</label><input type="text" id="edit-formacao" placeholder="Ex: Bacharel em Direito — UFRJ"></div>
+          <div class="edit-field"><label for="edit-especializacao">Especialização / Cursos</label><input type="text" id="edit-especializacao" placeholder="Ex: Pós-graduação em Segurança Pública"></div>
+          <div class="edit-field"><label for="edit-obs">Observações</label><textarea id="edit-obs" placeholder="Informações adicionais, anotações..."></textarea></div>
         </div>
       </div>
 
@@ -1232,7 +1233,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
     </div>
 
   </div>
-</div>
+</main>
 
 <script>
 const LUSER_DEFAULT='admin';
@@ -2538,7 +2539,7 @@ function loadConfig(){
   if(cfg.subAssoc) document.querySelectorAll('.hsub').forEach(e=>e.textContent=cfg.subAssoc);
   // Logo fixa — marca do sistema (SIGNUMOR fica fora do .hemblem, no wrapper)
   document.querySelectorAll('.hemblem').forEach(e=>{
-    e.innerHTML='<img src="logo.png" style="width:44px;height:44px;object-fit:contain;">';
+    e.innerHTML='<img src="logo.png" alt="Logo UBAPFF" style="width:44px;height:44px;object-fit:contain;">';
   });
 }
 

@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="description" content="Ficha de cadastro para novos membros da UBAPFF. Preencha seus dados pessoais e de endereço para emissão da credencial funcional.">
 <title>UBAPFF — Ficha de Cadastro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -97,7 +98,7 @@
 
 <header>
   <div class="brand">Sistema Oficial · UBAPFF</div>
-  <div class="title">Ficha de Cadastro</div>
+  <h1 class="title">Ficha de Cadastro</h1>
   <div class="subtitle">Preencha seus dados abaixo para a emissão da sua credencial funcional.</div>
 </header>
 
@@ -109,23 +110,23 @@
     <div class="eyebrow"><span class="dot"></span>Dados pessoais</div>
 
     <div class="field">
-      <label>Nome completo <span class="req">*</span></label>
+      <label for="f-nome">Nome completo <span class="req">*</span></label>
       <input id="f-nome" type="text" placeholder="Seu nome completo" autocomplete="name">
     </div>
 
     <div class="field">
-      <label>CPF <span class="req">*</span></label>
+      <label for="f-cpf">CPF <span class="req">*</span></label>
       <input id="f-cpf" type="tel" inputmode="numeric" placeholder="000.000.000-00" maxlength="14"
              oninput="maskCPF(this)" onblur="checkCPF(this)">
       <div class="hint" id="hint-cpf"></div>
     </div>
 
     <div class="field half">
-      <label>Nascimento <span class="req">*</span></label>
+      <label for="f-nasc">Nascimento <span class="req">*</span></label>
       <input id="f-nasc" type="date">
     </div>
     <div class="field half">
-      <label>Sexo <span class="req">*</span></label>
+      <label for="f-sexo">Sexo <span class="req">*</span></label>
       <select id="f-sexo">
         <option value="">—</option>
         <option>Masculino</option>
@@ -135,30 +136,30 @@
     </div>
 
     <div class="field">
-      <label>Telefone (com DDD) <span class="req">*</span></label>
+      <label for="f-tel">Telefone (com DDD) <span class="req">*</span></label>
       <input id="f-tel" type="tel" inputmode="numeric" placeholder="(21) 99999-9999" maxlength="16" oninput="maskTel(this)">
     </div>
 
     <div class="field">
-      <label>E-mail</label>
+      <label for="f-email">E-mail</label>
       <input id="f-email" type="email" placeholder="email@exemplo.com" autocomplete="email">
     </div>
 
     <div class="field half">
-      <label>Naturalidade <span class="req">*</span></label>
+      <label for="f-naturalidade">Naturalidade <span class="req">*</span></label>
       <input id="f-naturalidade" type="text" placeholder="Cidade onde nasceu">
     </div>
     <div class="field half">
-      <label>Município atual <span class="req">*</span></label>
+      <label for="f-municipio">Município atual <span class="req">*</span></label>
       <input id="f-municipio" type="text" placeholder="Cidade onde mora">
     </div>
 
     <div class="field">
-      <label>Nome do pai <span class="req">*</span></label>
+      <label for="f-pai">Nome do pai <span class="req">*</span></label>
       <input id="f-pai" type="text" placeholder="Nome completo do pai">
     </div>
     <div class="field">
-      <label>Nome da mãe <span class="req">*</span></label>
+      <label for="f-mae">Nome da mãe <span class="req">*</span></label>
       <input id="f-mae" type="text" placeholder="Nome completo da mãe">
     </div>
   </section>
@@ -168,37 +169,37 @@
     <div class="eyebrow"><span class="dot"></span>Endereço</div>
 
     <div class="field">
-      <label>CEP <span class="req">*</span></label>
+      <label for="f-cep">CEP <span class="req">*</span></label>
       <input id="f-cep" type="tel" inputmode="numeric" placeholder="00000-000" maxlength="9"
              oninput="maskCEP(this)">
       <div class="hint" id="hint-cep">Digite o CEP que preenchemos o endereço pra você.</div>
     </div>
 
     <div class="field">
-      <label>Rua / Logradouro <span class="req">*</span></label>
+      <label for="f-rua">Rua / Logradouro <span class="req">*</span></label>
       <input id="f-rua" type="text" placeholder="Rua, Avenida, Travessa...">
     </div>
 
     <div class="field half">
-      <label>Número <span class="req">*</span></label>
+      <label for="f-numero">Número <span class="req">*</span></label>
       <input id="f-numero" type="text" inputmode="numeric" placeholder="Nº">
     </div>
     <div class="field half">
-      <label>Complemento</label>
+      <label for="f-complemento">Complemento</label>
       <input id="f-complemento" type="text" placeholder="Apto, Bloco...">
     </div>
 
     <div class="field">
-      <label>Bairro <span class="req">*</span></label>
+      <label for="f-bairro">Bairro <span class="req">*</span></label>
       <input id="f-bairro" type="text" placeholder="Bairro">
     </div>
 
     <div class="field half">
-      <label>Cidade <span class="req">*</span></label>
+      <label for="f-cidade">Cidade <span class="req">*</span></label>
       <input id="f-cidade" type="text" placeholder="Cidade">
     </div>
     <div class="field half">
-      <label>UF <span class="req">*</span></label>
+      <label for="f-uf">UF <span class="req">*</span></label>
       <input id="f-uf" type="text" placeholder="UF" maxlength="2" style="text-transform:uppercase">
     </div>
   </section>

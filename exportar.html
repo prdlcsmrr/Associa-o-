@@ -1,22 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Cache-Control" content="no-cache">
-<title>Exportar Dados UBAPFF</title>
+<meta name="description" content="Ferramenta de exportação de dados dos membros UBAPFF para backup em formato JSON.">
+<title>Exportar Dados — UBAPFF</title>
 <style>
 body{font-family:Arial;background:#1a2a5e;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px;text-align:center}
-h2{color:#c9952a;margin-bottom:20px}
+h1{color:#c9952a;margin-bottom:20px;font-size:1.5em}
 button{background:#c9952a;color:#fff;border:none;padding:16px 32px;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;margin:10px}
 #result{background:#fff;color:#333;padding:16px;border-radius:8px;margin-top:20px;width:100%;max-width:600px;word-break:break-all;font-size:11px;text-align:left;display:none}
 #status{font-size:18px;margin:20px 0}
 </style>
 </head>
 <body>
-<h2>🛡️ Exportar Dados UBAPFF</h2>
+<main>
+<h1>🛡️ Exportar Dados UBAPFF</h1>
 <div id="status">Carregando...</div>
 <button onclick="exportar()">📤 EXPORTAR E SALVAR</button>
 <div id="result"></div>
+</main>
 
 <script>
 function exportar(){
