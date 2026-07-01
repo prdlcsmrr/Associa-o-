@@ -288,24 +288,26 @@ const BASE  = BASE_DOMAIN;
 const BINKEY= ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
 
 const DEFAULT_F = {
-  f_photo:  { type:'photo', left:9.0, top:24.0, w:20.0, ratio:'3/4' },
-  f_nome:   { left:39.0, top:41.0, size:2.4, bold:true, color:'#111', upper:true },
-  f_cpf:    { left:39.0, top:51.5, size:2.0, bold:true, color:'#111', upper:false },
-  f_emissao:{ left:65.5, top:51.5, size:2.0, bold:true, color:'#111', upper:false },
-  f_mat:    { left:14.0, top:76.0, size:2.0, bold:true, color:'#111', upper:false },
+  f_photo:  { type:'photo', left:12.6, top:28.8, w:13.5, ratio:'3/4' },
+  f_cargo:  { left:34.9, top:39.6, size:2.2, bold:true,  color:'#1a2a6e', upper:true  },
+  f_nome:   { left:35.0, top:51.9, size:2.2, bold:true,  color:'#111',    upper:true  },
+  f_mat:    { left:12.6, top:64.2, size:2.2, bold:true,  color:'#111',    upper:false },
+  f_cpf:    { left:35.1, top:65.3, size:2.2, bold:true,  color:'#111',    upper:false },
+  f_emissao:{ left:67.3, top:65.8, size:2.2, bold:true,  color:'#111',    upper:false },
+  f_hash:   { left:35.1, top:77.5, size:2.0, bold:false, color:'#333',    upper:false },
 };
 const DEFAULT_V = {
-  v_qr:            { type:'qr',        left:4.0,  top:21.0, w:14.0, color:'#cc0000' },
-  v_filiacao_pai:  { left:22.0, top:24.5, size:2.0, bold:true, color:'#111', upper:false },
-  v_filiacao_mae:  { left:22.0, top:26.0, size:2.0, bold:true, color:'#111', upper:false },
-  v_naturalidade:  { left:22.0, top:35.0, size:2.0, bold:true, color:'#111', upper:true },
-  v_validade:      { left:57.0, top:35.0, size:2.0, bold:true, color:'#cc0000', upper:false },
-  v_nasc:          { left:22.0, top:45.5, size:2.0, bold:true, color:'#111', upper:false },
-  v_admissao:      { left:57.0, top:45.5, size:2.0, bold:true, color:'#111', upper:false },
-  v_situacao:      { left:22.0, top:56.5, size:2.0, bold:true, color:'#111', upper:true },
-  v_siape:         { left:57.0, top:56.5, size:2.0, bold:true, color:'#111', upper:false },
-  v_municipio:     { left:74.0, top:52.0, size:2.0, bold:true, color:'#111', upper:true },
-  v_assinatura:    { type:'signature', left:57.0, top:69.0, w:38.0 },
+  v_qr:            { type:'qr',        left:3.4,  top:22.4, w:14.0, color:'#cc0000' },
+  v_filiacao_pai:  { left:18.9, top:24.6, size:1.6, bold:true,  color:'#111',    upper:false },
+  v_filiacao_mae:  { left:19.0, top:31.5, size:1.6, bold:true,  color:'#111',    upper:false },
+  v_admissao:      { left:52.5, top:25.5, size:2.0, bold:true,  color:'#111',    upper:false },
+  v_nasc:          { left:19.0, top:39.7, size:2.0, bold:true,  color:'#111',    upper:false },
+  v_validade:      { left:52.9, top:39.5, size:2.0, bold:true,  color:'#cc0000', upper:false },
+  v_naturalidade:  { left:19.2, top:51.6, size:2.0, bold:true,  color:'#111',    upper:true  },
+  v_situacao:      { left:53.0, top:52.0, size:2.0, bold:true,  color:'#111',    upper:true  },
+  v_municipio:     { left:84.0, top:60.0, size:2.0, bold:true,  color:'#111',    upper:true  },
+  v_siape:         { left:53.0, top:62.5, size:2.0, bold:true,  color:'#111',    upper:false },
+  v_assinatura:    { type:'signature', left:22.0, top:70.0, w:38.0 },
 };
 const LABELS = {
   f_photo:'Foto', f_cargo:'Cargo', f_nome:'Nome', f_mat:'Matrícula',
@@ -348,7 +350,13 @@ function loadLayouts(){
   const userSavedV = localStorage.getItem('cart_userSaved_V4');
 
   if(userSavedF){
-    try{ layoutF = JSON.parse(userSavedF); }catch(e){ layoutF = clone(DEFAULT_F); }
+    try{
+      const parsed = JSON.parse(userSavedF);
+      // Garantir que f_cargo e f_hash existem no layout salvo
+      if(!parsed.f_cargo) parsed.f_cargo = clone(DEFAULT_F.f_cargo);
+      if(!parsed.f_hash)  parsed.f_hash  = clone(DEFAULT_F.f_hash);
+      layoutF = parsed;
+    }catch(e){ layoutF = clone(DEFAULT_F); }
   } else {
     layoutF = clone(DEFAULT_F);
   }
@@ -360,6 +368,8 @@ function loadLayouts(){
       if(!parsed.v_municipio) parsed.v_municipio = clone(DEFAULT_V.v_municipio);
       // Garantir que v_assinatura existe no layout salvo
       if(!parsed.v_assinatura) parsed.v_assinatura = clone(DEFAULT_V.v_assinatura);
+      // Garantir que v_siape existe no layout salvo
+      if(!parsed.v_siape) parsed.v_siape = clone(DEFAULT_V.v_siape);
       layoutV = parsed;
     }catch(e){ layoutV = clone(DEFAULT_V); }
   } else {
