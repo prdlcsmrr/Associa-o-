@@ -1188,6 +1188,65 @@ function _getUser(){
   catch(e){ return LUSER_DEFAULT; }
 }
 
+const STORAGE_CRITICAL_LOCAL_KEYS = new Set([PW_KEY,'members','assoc-config']);
+const STORAGE_NON_CRITICAL_LOCAL_KEYS = ['historico','saidas','cart_userSaved_F4','cart_userSaved_V4'];
+function _isQuotaExceeded(err){
+  return !!(err && (err.name==='QuotaExceededError' || err.name==='NS_ERROR_DOM_QUOTA_REACHED' || err.code===22 || err.code===1014));
+}
+function _cleanupStorageNaoCritico(){
+  var removidas=0;
+  try{
+    STORAGE_NON_CRITICAL_LOCAL_KEYS.forEach(function(k){
+      if(localStorage.getItem(k)!=null){ localStorage.removeItem(k); removidas++; }
+    });
+    for(var i=localStorage.length-1;i>=0;i--){
+      var k=localStorage.key(i)||'';
+      if(!k || STORAGE_CRITICAL_LOCAL_KEYS.has(k) || k.indexOf('assinatura_')===0) continue;
+      if(k.indexOf('cache_')===0 || k.indexOf('tmp_')===0 || k.indexOf('draft_')===0 || k.indexOf('ubapff_cache_')===0){
+        localStorage.removeItem(k); removidas++;
+      }
+    }
+  }catch(e){}
+  return removidas;
+}
+function _safeStorageSet(storage,key,value,opts){
+  opts=opts||{};
+  var payload='';
+  try{
+    payload=(typeof value==='string') ? value : JSON.stringify(value);
+  }catch(serr){
+    if(typeof opts.onError==='function') opts.onError(serr);
+    return false;
+  }
+  try{
+    if(storage.getItem(key)===payload) return true;
+    storage.setItem(key,payload);
+    return true;
+  }catch(err){
+    if(!_isQuotaExceeded(err)){
+      if(typeof opts.onError==='function') opts.onError(err);
+      return false;
+    }
+    var removidas=0;
+    if(storage===localStorage && opts.tryCleanup!==false) removidas=_cleanupStorageNaoCritico();
+    try{
+      storage.setItem(key,payload);
+      if(removidas>0 && window.reportarErro){
+        window.reportarErro('Storage quota','Quota atingida ao salvar "'+key+'"; cache não crítico limpo e gravação refeita.',false);
+      }
+      return true;
+    }catch(err2){
+      if(window.reportarErro){
+        window.reportarErro('Storage quota','Falha ao salvar "'+key+'" após limpeza de cache não crítico: '+((err2&&err2.message)||'erro'),false);
+      }
+      if(typeof opts.onError==='function') opts.onError(err2,true);
+      return false;
+    }
+  }
+}
+function safeLocalSetItem(key,value,opts){ return _safeStorageSet(localStorage,key,value,opts); }
+function safeSessionSetItem(key,value,opts){ return _safeStorageSet(sessionStorage,key,value,opts); }
+
 
 // ── CPF ──
 function validarCPF(cpf){
@@ -1248,7 +1307,7 @@ async function login(){
   var p=document.getElementById('lp').value;
   var hash=await _sha256(p);
   if(u===_getUser() && hash===localStorage.getItem(PW_KEY)){
-    sessionStorage.setItem('ok','1');
+    safeSessionSetItem('ok','1',{tryCleanup:false});
     document.getElementById('login-screen').style.display='none';
   } else {
     var e=document.getElementById('lerr');
@@ -1264,8 +1323,11 @@ async function criarSenha(){
   function fail(msg){ err.textContent='✗ '+msg; err.style.display='block'; setTimeout(function(){err.style.display='none';},3500); }
   if(p1.length<4) return fail('A senha deve ter pelo menos 4 caracteres.');
   if(p1!==p2)     return fail('As senhas não coincidem.');
-  localStorage.setItem(PW_KEY, await _sha256(p1));
-  sessionStorage.setItem('ok','1');
+  var pwOk=safeLocalSetItem(PW_KEY, await _sha256(p1), {
+    onError:function(){ fail('Não foi possível salvar a senha neste aparelho agora.'); }
+  });
+  if(!pwOk) return;
+  safeSessionSetItem('ok','1',{tryCleanup:false});
   document.getElementById('login-screen').style.display='none';
 }
 function logout(){ sessionStorage.removeItem('ok'); location.reload(); }
@@ -1615,7 +1677,7 @@ async function salvar(){
   logHist('Cadastro','Novo membro: '+nome+' ('+numCred+')');
 
   // Save to localStorage immediately
-  localStorage.setItem('members',JSON.stringify(members));
+  save();
   syncToCloud();
 
   updateCount();
@@ -1646,12 +1708,12 @@ function limpar(){
   setStatus('Ativo');retake();
 }
 function save(){
-  try{
-    localStorage.setItem('members',JSON.stringify(members));
-  }catch(e){
-    if(window.reportarErro) window.reportarErro('Salvar dados', 'Falha ao gravar no aparelho: '+((e&&e.message)||'erro'), false);
-    if(typeof avisoValidacao==='function') avisoValidacao('Não consegui salvar neste aparelho (armazenamento cheio ou navegação privada). Tente de novo.');
-  }
+  safeLocalSetItem('members',members,{
+    onError:function(e){
+      if(window.reportarErro) window.reportarErro('Salvar dados', 'Falha ao gravar no aparelho: '+((e&&e.message)||'erro'), false);
+      if(typeof avisoValidacao==='function') avisoValidacao('Não consegui salvar neste aparelho (armazenamento cheio ou navegação privada). Tente de novo.');
+    }
+  });
 }
 // ── PAGAMENTOS ──────────────────────────────────────────────────────
 const MESES_NOME = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -1816,7 +1878,7 @@ function logHist(acao, detalhe){
   try{
     historico.unshift({ t:Date.now(), u:(typeof _getUser==='function'?_getUser():'admin'), a:acao, d:detalhe||'' });
     if(historico.length>500) historico=historico.slice(0,500);
-    localStorage.setItem('historico', JSON.stringify(historico));
+    safeLocalSetItem('historico',historico,{ tryCleanup:false });
   }catch(e){}
 }
 function renderHist(){
@@ -1837,7 +1899,7 @@ function renderHist(){
 }
 function limparHistorico(){
   if(!confirm('Limpar todo o histórico de alterações?\n\nIsso não pode ser desfeito.')) return;
-  historico=[]; try{ localStorage.setItem('historico','[]'); }catch(e){}
+  historico=[]; safeLocalSetItem('historico','[]',{ tryCleanup:false });
   renderHist();
 }
 
@@ -2110,7 +2172,6 @@ function saveEdit(){
     foto:            fotoFinal,
   };
 
-  localStorage.setItem('members', JSON.stringify(members));
   logHist('Edição','Membro editado: '+nome);
   save();
   syncToCloud();
@@ -2300,7 +2361,7 @@ async function loadFromCloud(){
       const data2=await r2.json();
       if(data2 && Array.isArray(data2.membros)) cloud=data2.membros;
       if(data2 && Array.isArray(data2.saidas) && data2.saidas.length>0 && saidas.length===0){
-        saidas=data2.saidas; try{ localStorage.setItem('saidas',JSON.stringify(saidas)); }catch(e){}
+        saidas=data2.saidas; safeLocalSetItem('saidas',saidas,{ tryCleanup:false });
       }
     } else if(window.reportarErro){
       window.reportarErro('db.json', 'Servidor respondeu HTTP '+r2.status+' ao carregar os dados da nuvem.', false);
@@ -2325,7 +2386,7 @@ async function loadFromCloud(){
   local.forEach(function(m){ if(m && m.id!=null && !byId.hasOwnProperty(m.id)) byId[m.id]=m; });
   members=Object.keys(byId).map(function(k){ return byId[k]; });
 
-  localStorage.setItem('members',JSON.stringify(members));
+  save();
   renderList();
   updateCount();
 }
@@ -2629,7 +2690,9 @@ async function saveConfig(){
     if(stored && (await _sha256(passAtual))!==stored){alert('❌ Senha atual incorreta.');return;}
     if(passNova!==passConf){alert('❌ Nova senha e confirmação não coincidem.');return;}
     if(passNova.length<4){alert('❌ Senha deve ter pelo menos 4 caracteres.');return;}
-    localStorage.setItem(PW_KEY, await _sha256(passNova));
+    if(!safeLocalSetItem(PW_KEY, await _sha256(passNova),{
+      onError:function(e){ alert('⚠️ Não foi possível salvar a nova senha: '+((e&&e.message)||'erro')); }
+    })) return;
     document.getElementById('cfg-pass-atual').value='';
     document.getElementById('cfg-pass-nova').value='';
     document.getElementById('cfg-pass-conf').value='';
@@ -2688,7 +2751,7 @@ async function saveConfig(){
 
   // Salvar no localStorage com verificação
   try {
-    localStorage.setItem('assoc-config', JSON.stringify(cfg));
+    if(!safeLocalSetItem('assoc-config', cfg, { tryCleanup:false })) throw new Error('Falha ao gravar configurações');
     const verificar = localStorage.getItem('assoc-config');
     if (!verificar) throw new Error('localStorage retornou vazio');
   } catch(lsErr) {
@@ -2744,11 +2807,12 @@ const ANO_CONT = 2026;
 // ── SAÍDAS / DESPESAS ──
 let saidas = JSON.parse(localStorage.getItem('saidas')||'[]');
 function saveSaidas(){
-  try{ localStorage.setItem('saidas', JSON.stringify(saidas)); }
-  catch(e){
-    if(window.reportarErro) window.reportarErro('Salvar saída','Falha ao gravar saídas: '+((e&&e.message)||'erro'),false);
-    if(typeof avisoValidacao==='function') avisoValidacao('Não consegui salvar a saída neste aparelho (armazenamento cheio ou navegação privada).');
-  }
+  safeLocalSetItem('saidas',saidas,{
+    onError:function(e){
+      if(window.reportarErro) window.reportarErro('Salvar saída','Falha ao gravar saídas: '+((e&&e.message)||'erro'),false);
+      if(typeof avisoValidacao==='function') avisoValidacao('Não consegui salvar a saída neste aparelho (armazenamento cheio ou navegação privada).');
+    }
+  });
 }
 function addSaida(){
   const data=document.getElementById('s-data').value;
@@ -2995,7 +3059,7 @@ if(typeof closeEditDirect!=="undefined") window.closeEditDirect=closeEditDirect;
         return had;
       }).then(function(had){
         if(had && !sessionStorage.getItem('__sw_cleaned')){
-          sessionStorage.setItem('__sw_cleaned','1');
+          safeSessionSetItem('__sw_cleaned','1',{tryCleanup:false});
           location.reload();
         }
       }).catch(function(){});
