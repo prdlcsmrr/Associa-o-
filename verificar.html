@@ -262,7 +262,10 @@ async function init(){
   if(!id){ showErr('QR Code inválido','Este código não contém identificador.'); return; }
 
   try{
-    const r = await fetch(DB_GITHUB+'?t='+Date.now());
+    const KEY = ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
+    const r = await fetch('https://api.jsonbin.io/v3/b/'+BIN_ID+'/latest',{
+      headers:{'X-Master-Key':KEY,'X-Bin-Meta':'false'}
+    });
     if(r.ok){
       const data = await r.json();
       const m = (data.membros||[]).find(x=>x.numCred===id);
@@ -271,10 +274,7 @@ async function init(){
   }catch(e){}
 
   try{
-    const KEY = ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
-    const r = await fetch('https://api.jsonbin.io/v3/b/'+BIN_ID+'/latest',{
-      headers:{'X-Master-Key':KEY,'X-Bin-Meta':'false'}
-    });
+    const r = await fetch(DB_GITHUB+'?t='+Date.now());
     if(r.ok){
       const data = await r.json();
       const m = (data.membros||[]).find(x=>x.numCred===id);

@@ -1615,6 +1615,7 @@ async function salvar(){
 
   // Save to localStorage immediately
   localStorage.setItem('members',JSON.stringify(members));
+  syncToCloud();
 
   updateCount();
   showA('aok');
@@ -2109,6 +2110,7 @@ function saveEdit(){
   localStorage.setItem('members', JSON.stringify(members));
   logHist('Edição','Membro editado: '+nome);
   save();
+  syncToCloud();
   renderList();
   closeEditDirect();
 
@@ -2326,9 +2328,20 @@ async function loadFromCloud(){
 }
 
 async function syncToCloud(){
-  // Sincronização externa removida por segurança (JSONBin instável + chave exposta no código).
-  // Os dados ficam salvos no aparelho (localStorage). Use "Exportar db.json" para enviar ao repositório.
-  return;
+  const si=document.getElementById('sync-ind');
+  if(si){si.style.display='flex';si.textContent='⏳ Sincronizando...';}
+  try{
+    const KEY=['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
+    await fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5',{
+      method:'PUT',
+      headers:{'Content-Type':'application/json','X-Master-Key':KEY},
+      body:JSON.stringify({membros:members})
+    });
+    if(si){si.textContent='✅ Sincronizado!';setTimeout(()=>si.style.display='none',2500);}
+  }catch(e){
+    if(si){ si.style.display='none'; }
+    console.warn('JSONBin sync falhou:', e.message);
+  }
 }
 
 let _menuOpen = null;
