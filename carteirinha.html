@@ -475,7 +475,7 @@ function getData(){
     v_filiacao_pai:(m.pai||'Não informado'), v_filiacao_mae:(m.mae||''), v_nasc:fmt(m.nasc), v_admissao:fmt(m.emissao),
     v_naturalidade:(m.naturalidade||'BRASILEIRO'),
     v_validade:fmt(m.validade), v_municipio:(m.municipio||'—').toUpperCase(),
-    v_situacao:membro.status==='Ativo'?'ATIVO':'INATIVO', v_siape:(m.siape||m.siepe||''),
+    v_situacao:membro.status==='Ativo'?'ATIVO':'INATIVO', v_siape:(m.siape||m.siepe||'NÃO INFORMADO'),
   };
 }
 
@@ -521,8 +521,9 @@ function renderCard(){
       const fw=cfg.bold?'800':'600';
       const col=`color:${key==='v_situacao'&&val==='INATIVO'?'#cc0000':cfg.color||'#111'};`;
       const up=cfg.upper?val.toUpperCase():val;
+      const clampSiape = key==='v_siape' ? 'max-width:28%;overflow:hidden;text-overflow:ellipsis;' : '';
       fields+=`<div id="c_${key}" class="campo${drag}${selCls}"
-        style="${pos}font-size:${cfg.size||2.8}vw;font-weight:${fw};${col}pointer-events:${editMode?'all':'none'}">${up}</div>`;
+        style="${pos}${clampSiape}font-size:${cfg.size||2.8}vw;font-weight:${fw};${col}pointer-events:${editMode?'all':'none'}">${up}</div>`;
     }
   }
 
