@@ -10,6 +10,7 @@
 <meta name="description" content="Registro funcional e verificação de credencial de membro da UBAPFF.">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
+html { overflow-x:hidden; }
 body {
   background:#f0f0f0;
   font-family:'Arial',sans-serif;
@@ -18,10 +19,13 @@ body {
   flex-direction:column;
   align-items:center;
   padding-bottom:40px;
+  overflow-x:hidden;
 }
+main { width:100%; }
 .wrap {
   width:100%;
   max-width:600px;
+  overflow:hidden;
   background:#fff;
   box-shadow:0 2px 20px rgba(0,0,0,0.15);
   min-height:100vh;
@@ -209,7 +213,7 @@ const BASE_DOMAIN = PRODUCTION_DOMAIN
   ? 'https://ubapff.org.br'
   : 'https://prdlcsmrr.github.io/Associa-o-';
 const HEADER_IMG_URL = BASE_DOMAIN+'/header-pff.jpg';
-const HEADER_IMG_HTML = `<div style="width:100%;line-height:0"><img src="${HEADER_IMG_URL}" width="1179" height="208" decoding="async" alt="Polícia Ferroviária Federal" style="width:100%;display:block;object-fit:cover"></div>`;
+const HEADER_IMG_HTML = `<div style="width:100%;max-width:100%;overflow:hidden;line-height:0"><img src="${HEADER_IMG_URL}" width="1179" height="208" decoding="async" alt="Polícia Ferroviária Federal" style="width:100%;max-width:100%;height:auto;display:block"></div>`;
 
 function fmt(d){ if(!d) return '—'; return new Date(d+'T12:00').toLocaleDateString('pt-BR'); }
 const DB_GITHUB = BASE_DOMAIN+'/db.json';
