@@ -1031,7 +1031,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
             </select>
           </div>
           <div class="edit-field"><label for="edit-numcred">Matrícula Funcional</label><input type="text" id="edit-numcred" placeholder="Ex: 1234567"></div>
-          <div class="edit-field"><label for="edit-siape">SIEPE</label><input type="text" id="edit-siape" placeholder="Ex: 1234567"></div>
+          <div class="edit-field"><label for="edit-siape">SIAPE</label><input type="text" id="edit-siape" placeholder="Ex: 1234567"></div>
           <div class="edit-field"><label for="edit-status">Status</label>
             <select id="edit-status"><option value="Ativo">Ativo</option><option value="Inativo">Inativo</option></select>
           </div>
@@ -1984,7 +1984,7 @@ function openEdit(id){
   sf('edit-cidade', m.cidade);
   sf('edit-uf', m.uf);
   sf('edit-numcred', m.numCred||'');
-  sf('edit-siape', m.siape||'');
+  sf('edit-siape', m.siape||m.siepe||'');
   sf('edit-cat', m.cat||'Funcionário');
   sf('edit-status', m.status||'Ativo');
   sf('edit-emissao', m.emissao);
@@ -2173,7 +2173,7 @@ function openCred(id){
   document.getElementById('cp-naturalidade').textContent=(m.naturalidade||'BRASILEIRO');
   document.getElementById('cp-validade').textContent=fmt(m.validade);
   document.getElementById('cp-municipio').textContent=(m.municipio||'—').toUpperCase();
-  document.getElementById('cp-siape').textContent=(m.siape||'—');
+  document.getElementById('cp-siape').textContent=(m.siape||m.siepe||'NÃO INFORMADO');
   const sit=document.getElementById('cp-situacao');
   sit.textContent=ativo?'ATIVO':'INATIVO';
   const assinaturaWrap=document.getElementById('cp-assinatura-wrap');

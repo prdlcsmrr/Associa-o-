@@ -475,7 +475,7 @@ function getData(){
     v_filiacao_pai:(m.pai||'Não informado'), v_filiacao_mae:(m.mae||''), v_nasc:fmt(m.nasc), v_admissao:fmt(m.emissao),
     v_naturalidade:(m.naturalidade||'BRASILEIRO'),
     v_validade:fmt(m.validade), v_municipio:(m.municipio||'—').toUpperCase(),
-    v_situacao:membro.status==='Ativo'?'ATIVO':'INATIVO', v_siape:(m.siape||''),
+    v_situacao:membro.status==='Ativo'?'ATIVO':'INATIVO', v_siape:(m.siape||m.siepe||''),
   };
 }
 
