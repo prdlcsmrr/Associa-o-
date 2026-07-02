@@ -1031,6 +1031,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
             </select>
           </div>
           <div class="edit-field"><label for="edit-numcred">Matrícula Funcional</label><input type="text" id="edit-numcred" placeholder="Ex: 1234567"></div>
+          <div class="edit-field"><label for="edit-siape">SIEPE</label><input type="text" id="edit-siape" placeholder="Ex: 1234567"></div>
           <div class="edit-field"><label for="edit-status">Status</label>
             <select id="edit-status"><option value="Ativo">Ativo</option><option value="Inativo">Inativo</option></select>
           </div>
@@ -1983,6 +1984,7 @@ function openEdit(id){
   sf('edit-cidade', m.cidade);
   sf('edit-uf', m.uf);
   sf('edit-numcred', m.numCred||'');
+  sf('edit-siape', m.siape||'');
   sf('edit-cat', m.cat||'Funcionário');
   sf('edit-status', m.status||'Ativo');
   sf('edit-emissao', m.emissao);
@@ -2090,6 +2092,7 @@ function saveEdit(){
     pai:             document.getElementById('edit-pai').value.trim(),
     mae:             document.getElementById('edit-mae').value.trim(),
     cat:             document.getElementById('edit-cat').value,
+    siape:           document.getElementById('edit-siape').value.trim(),
     status:          document.getElementById('edit-status').value,
     emissao:         document.getElementById('edit-emissao').value,
     validade:        document.getElementById('edit-validade').value,
