@@ -514,39 +514,10 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
           <span style="margin-left:auto;opacity:.6;font-size:10px" id="c-footer">—</span>
         </div>
         <div class="cart-preview" id="cred-card" style="container-type:inline-size">
-          <!-- FRENTE -->
-          <div class="cart-face" id="cart-frente">
-            <img class="cart-bg" src="frente.jpg?v=20260628" alt="" width="1920" height="1080" loading="lazy" decoding="async" crossorigin="anonymous">
-            <div class="cart-overlay">
-              <div class="cp-photo" id="cp-photo" style="left:9%;top:24%;width:20%;aspect-ratio:3/4"><div class="cp-photo-ph">👤</div></div>
-              <div class="cp-campo" id="cp-cargo"   style="left:34.9%;top:39.6%;font-size:2.2cqw;font-weight:800;color:#1a2a6e"></div>
-              <div class="cp-campo" id="cp-nome"    style="left:39%;top:41%;font-size:2.4cqw;font-weight:800;color:#111"></div>
-              <div class="cp-campo" id="cp-mat"     style="left:14%;top:76%;font-size:2cqw;font-weight:800;color:#111"></div>
-              <div class="cp-campo" id="cp-cpf"     style="left:39%;top:51.5%;font-size:2cqw;font-weight:800;color:#111"></div>
-              <div class="cp-campo" id="cp-emissao" style="left:65.5%;top:51.5%;font-size:2cqw;font-weight:800;color:#111"></div>
-              <div class="cp-campo" id="cp-hash"    style="left:35.1%;top:77.5%;font-size:2cqw;font-weight:600;color:#333"></div>
-            </div>
-          </div>
-          <!-- VERSO -->
-          <div class="cart-face" id="cart-verso">
-            <img class="cart-bg" src="Verso.png?v=20260629" alt="" width="1920" height="1080" loading="lazy" decoding="async" crossorigin="anonymous" onerror="this.onerror=null;this.src='verso.jpg?v=20260629';">
-            <div class="cart-overlay">
-              <div id="cp-qr" style="position:absolute;left:4%;top:21%;width:14%"></div>
-              <div class="cp-campo" id="cp-filiacao-pai" style="left:22%;top:24.5%;font-size:2cqw;font-weight:800;color:#111;line-height:1.2;white-space:normal;max-width:50%"></div>
-              <div class="cp-campo" id="cp-filiacao-mae" style="left:22%;top:26%;font-size:2cqw;font-weight:800;color:#111;line-height:1.2;white-space:normal;max-width:50%"></div>
-              <div class="cp-campo" id="cp-nasc"         style="left:22%;top:45.5%;font-size:2cqw;font-weight:800;color:#111"></div>
-              <div class="cp-campo" id="cp-admissao"     style="left:57%;top:45.5%;font-size:2cqw;font-weight:800;color:#111"></div>
-              <div class="cp-campo" id="cp-validade"     style="left:57%;top:35%;font-size:2cqw;font-weight:800;color:#cc0000"></div>
-              <div class="cp-campo" id="cp-naturalidade" style="left:22%;top:35%;font-size:2cqw;font-weight:800;color:#111"></div>
-              <div class="cp-campo" id="cp-situacao"     style="left:22%;top:56.5%;font-size:2cqw;font-weight:800;color:#111"></div>
-              <div class="cp-campo" id="cp-siape"        style="left:57%;top:56.5%;font-size:2cqw;font-weight:800;color:#111"></div>
-              <div class="cp-campo" id="cp-municipio"    style="left:74%;top:52%;font-size:2cqw;font-weight:800;color:#111"></div>
-              <div id="cp-assinatura-wrap" class="cp-assinatura-wrap">
-                <div id="cp-assinatura-label" class="cp-assinatura-label">Assinatura do Titular</div>
-                <img id="cp-assinatura" class="cp-assinatura-img" alt="Assinatura do titular" width="320" height="48" loading="lazy" decoding="async">
-              </div>
-            </div>
-          </div>
+          <!-- Renderizador único: mesma engine da carteirinha.html, via iframe.
+               Elimina a duplicação de layout/CSS que antes existia aqui. -->
+          <iframe id="cred-iframe" title="Carteirinha" src="about:blank" loading="lazy"
+            style="width:100%;height:min(72vh,560px);border:0;display:block;background:#fff;border-radius:4px"></iframe>
         </div>
       </div>
       <div class="cred-view-footer">
@@ -1031,7 +1002,6 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
             </select>
           </div>
           <div class="edit-field"><label for="edit-numcred">Matrícula Funcional</label><input type="text" id="edit-numcred" placeholder="Ex: 1234567"></div>
-          <div class="edit-field"><label for="edit-siape">SIAPE</label><input type="text" id="edit-siape" placeholder="Ex: 1234567"></div>
           <div class="edit-field"><label for="edit-status">Status</label>
             <select id="edit-status"><option value="Ativo">Ativo</option><option value="Inativo">Inativo</option></select>
           </div>
@@ -1188,65 +1158,6 @@ function _getUser(){
   catch(e){ return LUSER_DEFAULT; }
 }
 
-const STORAGE_CRITICAL_LOCAL_KEYS = new Set([PW_KEY,'members','assoc-config']);
-const STORAGE_NON_CRITICAL_LOCAL_KEYS = ['historico','saidas','cart_userSaved_F4','cart_userSaved_V4'];
-function _isQuotaExceeded(err){
-  return !!(err && (err.name==='QuotaExceededError' || err.name==='NS_ERROR_DOM_QUOTA_REACHED' || err.code===22 || err.code===1014));
-}
-function _cleanupStorageNaoCritico(){
-  var removidas=0;
-  try{
-    STORAGE_NON_CRITICAL_LOCAL_KEYS.forEach(function(k){
-      if(localStorage.getItem(k)!=null){ localStorage.removeItem(k); removidas++; }
-    });
-    for(var i=localStorage.length-1;i>=0;i--){
-      var k=localStorage.key(i)||'';
-      if(!k || STORAGE_CRITICAL_LOCAL_KEYS.has(k) || k.indexOf('assinatura_')===0) continue;
-      if(k.indexOf('cache_')===0 || k.indexOf('tmp_')===0 || k.indexOf('draft_')===0 || k.indexOf('ubapff_cache_')===0){
-        localStorage.removeItem(k); removidas++;
-      }
-    }
-  }catch(e){}
-  return removidas;
-}
-function _safeStorageSet(storage,key,value,opts){
-  opts=opts||{};
-  var payload='';
-  try{
-    payload=(typeof value==='string') ? value : JSON.stringify(value);
-  }catch(serr){
-    if(typeof opts.onError==='function') opts.onError(serr);
-    return false;
-  }
-  try{
-    if(storage.getItem(key)===payload) return true;
-    storage.setItem(key,payload);
-    return true;
-  }catch(err){
-    if(!_isQuotaExceeded(err)){
-      if(typeof opts.onError==='function') opts.onError(err);
-      return false;
-    }
-    var removidas=0;
-    if(storage===localStorage && opts.tryCleanup!==false) removidas=_cleanupStorageNaoCritico();
-    try{
-      storage.setItem(key,payload);
-      if(removidas>0 && window.reportarErro){
-        window.reportarErro('Storage quota','Quota atingida ao salvar "'+key+'"; cache não crítico limpo e gravação refeita.',false);
-      }
-      return true;
-    }catch(err2){
-      if(window.reportarErro){
-        window.reportarErro('Storage quota','Falha ao salvar "'+key+'" após limpeza de cache não crítico: '+((err2&&err2.message)||'erro'),false);
-      }
-      if(typeof opts.onError==='function') opts.onError(err2,true);
-      return false;
-    }
-  }
-}
-function safeLocalSetItem(key,value,opts){ return _safeStorageSet(localStorage,key,value,opts); }
-function safeSessionSetItem(key,value,opts){ return _safeStorageSet(sessionStorage,key,value,opts); }
-
 
 // ── CPF ──
 function validarCPF(cpf){
@@ -1307,7 +1218,7 @@ async function login(){
   var p=document.getElementById('lp').value;
   var hash=await _sha256(p);
   if(u===_getUser() && hash===localStorage.getItem(PW_KEY)){
-    safeSessionSetItem('ok','1',{tryCleanup:false});
+    sessionStorage.setItem('ok','1');
     document.getElementById('login-screen').style.display='none';
   } else {
     var e=document.getElementById('lerr');
@@ -1323,11 +1234,8 @@ async function criarSenha(){
   function fail(msg){ err.textContent='✗ '+msg; err.style.display='block'; setTimeout(function(){err.style.display='none';},3500); }
   if(p1.length<4) return fail('A senha deve ter pelo menos 4 caracteres.');
   if(p1!==p2)     return fail('As senhas não coincidem.');
-  var pwOk=safeLocalSetItem(PW_KEY, await _sha256(p1), {
-    onError:function(){ fail('Não foi possível salvar a senha neste aparelho agora.'); }
-  });
-  if(!pwOk) return;
-  safeSessionSetItem('ok','1',{tryCleanup:false});
+  localStorage.setItem(PW_KEY, await _sha256(p1));
+  sessionStorage.setItem('ok','1');
   document.getElementById('login-screen').style.display='none';
 }
 function logout(){ sessionStorage.removeItem('ok'); location.reload(); }
@@ -1677,8 +1585,7 @@ async function salvar(){
   logHist('Cadastro','Novo membro: '+nome+' ('+numCred+')');
 
   // Save to localStorage immediately
-  save();
-  syncToCloud();
+  localStorage.setItem('members',JSON.stringify(members));
 
   updateCount();
   showA('aok');
@@ -1708,12 +1615,12 @@ function limpar(){
   setStatus('Ativo');retake();
 }
 function save(){
-  safeLocalSetItem('members',members,{
-    onError:function(e){
-      if(window.reportarErro) window.reportarErro('Salvar dados', 'Falha ao gravar no aparelho: '+((e&&e.message)||'erro'), false);
-      if(typeof avisoValidacao==='function') avisoValidacao('Não consegui salvar neste aparelho (armazenamento cheio ou navegação privada). Tente de novo.');
-    }
-  });
+  try{
+    localStorage.setItem('members',JSON.stringify(members));
+  }catch(e){
+    if(window.reportarErro) window.reportarErro('Salvar dados', 'Falha ao gravar no aparelho: '+((e&&e.message)||'erro'), false);
+    if(typeof avisoValidacao==='function') avisoValidacao('Não consegui salvar neste aparelho (armazenamento cheio ou navegação privada). Tente de novo.');
+  }
 }
 // ── PAGAMENTOS ──────────────────────────────────────────────────────
 const MESES_NOME = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -1878,7 +1785,7 @@ function logHist(acao, detalhe){
   try{
     historico.unshift({ t:Date.now(), u:(typeof _getUser==='function'?_getUser():'admin'), a:acao, d:detalhe||'' });
     if(historico.length>500) historico=historico.slice(0,500);
-    safeLocalSetItem('historico',historico,{ tryCleanup:false });
+    localStorage.setItem('historico', JSON.stringify(historico));
   }catch(e){}
 }
 function renderHist(){
@@ -1899,7 +1806,7 @@ function renderHist(){
 }
 function limparHistorico(){
   if(!confirm('Limpar todo o histórico de alterações?\n\nIsso não pode ser desfeito.')) return;
-  historico=[]; safeLocalSetItem('historico','[]',{ tryCleanup:false });
+  historico=[]; try{ localStorage.setItem('historico','[]'); }catch(e){}
   renderHist();
 }
 
@@ -1950,56 +1857,10 @@ function renderList(){
 
 // CREDENCIAL MODAL
 let _credAtualId=null;
-
-const CRED_LAYOUT_DEFAULT_F = {
-  f_photo:{type:'photo',left:9.0,top:24.0,w:20.0,ratio:'3/4'},
-  f_nome:{left:39.0,top:41.0,size:2.4,bold:true,color:'#111',upper:true},
-  f_cpf:{left:39.0,top:51.5,size:2.0,bold:true,color:'#111',upper:false},
-  f_emissao:{left:65.5,top:51.5,size:2.0,bold:true,color:'#111',upper:false},
-  f_mat:{left:14.0,top:76.0,size:2.0,bold:true,color:'#111',upper:false},
-};
-const CRED_LAYOUT_DEFAULT_V = {
-  v_qr:{type:'qr',left:4.0,top:21.0,w:14.0,color:'#cc0000'},
-  v_filiacao_pai:{left:22.0,top:24.5,size:2.0,bold:true,color:'#111',upper:false},
-  v_filiacao_mae:{left:22.0,top:26.0,size:2.0,bold:true,color:'#111',upper:false},
-  v_naturalidade:{left:22.0,top:35.0,size:2.0,bold:true,color:'#111',upper:true},
-  v_validade:{left:57.0,top:35.0,size:2.0,bold:true,color:'#cc0000',upper:false},
-  v_nasc:{left:22.0,top:45.5,size:2.0,bold:true,color:'#111',upper:false},
-  v_admissao:{left:57.0,top:45.5,size:2.0,bold:true,color:'#111',upper:false},
-  v_situacao:{left:22.0,top:56.5,size:2.0,bold:true,color:'#111',upper:true},
-  v_siape:{left:57.0,top:56.5,size:2.0,bold:true,color:'#111',upper:false},
-  v_municipio:{left:74.0,top:52.0,size:2.0,bold:true,color:'#111',upper:true},
-};
-
-function cloneCredLayout(o){
-  return JSON.parse(JSON.stringify(o));
-}
-function mergeCredLayout(defaults, saved){
-  if(!saved || typeof saved!=='object') return cloneCredLayout(defaults);
-  const merged = cloneCredLayout(defaults);
-  for(const k of Object.keys(saved)){
-    if(saved[k] && typeof saved[k]==='object'){
-      merged[k] = Object.assign({}, merged[k]||{}, saved[k]);
-    }else{
-      merged[k] = saved[k];
-    }
-  }
-  return merged;
-}
-function readCredLayoutsFromEditor(){
-  let front = cloneCredLayout(CRED_LAYOUT_DEFAULT_F);
-  let back = cloneCredLayout(CRED_LAYOUT_DEFAULT_V);
-  try{
-    const s = localStorage.getItem('cart_userSaved_F4');
-    if(s) front = mergeCredLayout(CRED_LAYOUT_DEFAULT_F, JSON.parse(s));
-  }catch(e){}
-  try{
-    const s = localStorage.getItem('cart_userSaved_V4');
-    if(s) back = mergeCredLayout(CRED_LAYOUT_DEFAULT_V, JSON.parse(s));
-  }catch(e){}
-  return { front, back };
-}
-
+// Observação: o layout do cartão (posições, fontes, cores) não é mais duplicado
+// aqui. carteirinha.html é a fonte única da verdade e é reaproveitada via iframe
+// (função openCred), inclusive lendo diretamente as mesmas chaves de localStorage
+// (cart_userSaved_F4/V4) que o editor salva.
 
 
 // ════ BUSCA CEP (ViaCEP) ════
@@ -2046,7 +1907,6 @@ function openEdit(id){
   sf('edit-cidade', m.cidade);
   sf('edit-uf', m.uf);
   sf('edit-numcred', m.numCred||'');
-  sf('edit-siape', m.siape||m.siepe||'');
   sf('edit-cat', m.cat||'Funcionário');
   sf('edit-status', m.status||'Ativo');
   sf('edit-emissao', m.emissao);
@@ -2154,7 +2014,6 @@ function saveEdit(){
     pai:             document.getElementById('edit-pai').value.trim(),
     mae:             document.getElementById('edit-mae').value.trim(),
     cat:             document.getElementById('edit-cat').value,
-    siape:           document.getElementById('edit-siape').value.trim(),
     status:          document.getElementById('edit-status').value,
     emissao:         document.getElementById('edit-emissao').value,
     validade:        document.getElementById('edit-validade').value,
@@ -2172,9 +2031,9 @@ function saveEdit(){
     foto:            fotoFinal,
   };
 
+  localStorage.setItem('members', JSON.stringify(members));
   logHist('Edição','Membro editado: '+nome);
   save();
-  syncToCloud();
   renderList();
   closeEditDirect();
 
@@ -2191,75 +2050,16 @@ function openCred(id){
   _credAtualId=m.numCred;
   const ativo=m.status==='Ativo';
 
-  // Status bar
+  // Status bar (única parte renderizada aqui; o cartão em si vem do iframe)
   const bar=document.getElementById('modal-status-bar');
   bar.className='modal-status-bar '+(ativo?'ativo':'inativo');
   document.getElementById('cs-icon').textContent=ativo?'✅':'❌';
   document.getElementById('cs-badge').textContent=ativo?'CREDENCIAL ATIVA':'CREDENCIAL INATIVA';
   document.getElementById('c-footer').textContent='Emitido em '+(m.dataCad||'—');
 
-  // FRENTE — foto
-  const ph=document.getElementById('cp-photo');
-  ph.innerHTML=m.foto?`<img src="${m.foto}" alt="" width="300" height="400" loading="lazy" decoding="async">` : '<div class="cp-photo-ph">👤</div>';
-
-  // FRENTE — campos
-  document.getElementById('cp-cargo').textContent=(m.cat||'').toUpperCase();
-  document.getElementById('cp-nome').textContent=(m.nome||'');
-  document.getElementById('cp-mat').textContent=m.numCred||'—';
-  document.getElementById('cp-cpf').textContent=m.cpf||'—';
-  document.getElementById('cp-emissao').textContent=fmt(m.emissao);
-  document.getElementById('cp-hash').textContent=m.docId||'—';
-
-  // VERSO — QR
-  const qrUrl=BASE_URL+'?id='+encodeURIComponent(m.numCred);
-  const qrDiv=document.getElementById('cp-qr');
-  if(qrDiv){
-    qrDiv.innerHTML='';
-    const qrImg=document.createElement('img');
-    qrImg.src='https://api.qrserver.com/v1/create-qr-code/?size=120x120&color=cc0000&data='+encodeURIComponent(qrUrl);
-    qrImg.style.cssText='width:100%;height:auto;display:block';
-    qrDiv.appendChild(qrImg);
-  }
-
-  // VERSO — campos
-  // Filiação: pai e mãe em linhas separadas
-  const filPai = m.pai ? m.pai : '';
-  const filMae = m.mae ? m.mae : '';
-  const cpFilPai = document.getElementById('cp-filiacao-pai');
-  const cpFilMae = document.getElementById('cp-filiacao-mae');
-  if(cpFilPai) cpFilPai.textContent = filPai || '—';
-  if(cpFilMae) cpFilMae.textContent = filMae || '';
-  document.getElementById('cp-nasc').textContent=fmt(m.nasc);
-  document.getElementById('cp-admissao').textContent=fmt(m.emissao);
-  document.getElementById('cp-naturalidade').textContent=(m.naturalidade||'BRASILEIRO');
-  document.getElementById('cp-validade').textContent=fmt(m.validade);
-  document.getElementById('cp-municipio').textContent=(m.municipio||'—').toUpperCase();
-  document.getElementById('cp-siape').textContent=(m.siape||m.siepe||'NÃO INFORMADO');
-  const sit=document.getElementById('cp-situacao');
-  sit.textContent=ativo?'ATIVO':'INATIVO';
-  const assinaturaWrap=document.getElementById('cp-assinatura-wrap');
-  const assinaturaImg=document.getElementById('cp-assinatura');
-  const assinaturaData=localStorage.getItem('assinatura_'+m.numCred);
-  if(assinaturaWrap && assinaturaImg){
-    if(assinaturaData){
-      assinaturaImg.src=assinaturaData;
-      assinaturaWrap.style.display='block';
-    }else{
-      assinaturaImg.removeAttribute('src');
-      assinaturaWrap.style.display='none';
-    }
-  }
-
-  const _layout=readCredLayoutsFromEditor();
-  const _lF=_layout.front;
-  const _lV=_layout.back;
-  const _MAP_F={f_photo:'cp-photo',f_nome:'cp-nome',f_cpf:'cp-cpf',f_emissao:'cp-emissao',f_mat:'cp-mat',f_cargo:'cp-cargo',f_hash:'cp-hash'};
-  const _MAP_V={v_qr:'cp-qr',v_filiacao_pai:'cp-filiacao-pai',v_filiacao_mae:'cp-filiacao-mae',v_naturalidade:'cp-naturalidade',v_validade:'cp-validade',v_nasc:'cp-nasc',v_admissao:'cp-admissao',v_situacao:'cp-situacao',v_siape:'cp-siape',v_municipio:'cp-municipio'};
-  for(const[k,id] of Object.entries(_MAP_F)){const cfg=_lF[k];const el=document.getElementById(id);if(!cfg||!el)continue;el.style.left=cfg.left+'%';el.style.top=cfg.top+'%';if(cfg.type==='photo'){el.style.width=cfg.w+'%';}else{if(cfg.size)el.style.fontSize=cfg.size+'cqw';if(cfg.color)el.style.color=cfg.color;el.style.fontWeight=cfg.bold?'800':'600';}}
-  for(const[k,id] of Object.entries(_MAP_V)){const cfg=_lV[k];const el=document.getElementById(id);if(!cfg||!el)continue;el.style.left=cfg.left+'%';el.style.top=cfg.top+'%';if(cfg.type==='qr'||cfg.type==='photo'){el.style.width=cfg.w+'%';}else{if(cfg.size)el.style.fontSize=cfg.size+'cqw';if(cfg.color)el.style.color=cfg.color;el.style.fontWeight=cfg.bold?'800':'600';}}
-  for(const[k,id] of Object.entries(_MAP_F)){const cfg=_lF[k];const el=document.getElementById(id);if(!cfg||!el||cfg.type==='photo')continue;const txt=el.textContent||'';el.textContent=cfg.upper?txt.toUpperCase():txt;}
-  for(const[k,id] of Object.entries(_MAP_V)){const cfg=_lV[k];const el=document.getElementById(id);if(!cfg||!el||cfg.type==='qr'||cfg.type==='photo')continue;const txt=el.textContent||'';el.textContent=cfg.upper?txt.toUpperCase():txt;}
-  sit.style.color=ativo?(sit.style.color||'#111'):'#cc0000';
+  // Cartão: renderizado por carteirinha.html (fonte única da verdade), embutido via iframe.
+  const ifr=document.getElementById('cred-iframe');
+  if(ifr) ifr.src='carteirinha.html?id='+encodeURIComponent(m.numCred)+'&view=1';
 
   var mc=document.getElementById('modal');
   if(mc){ mc.style.display='flex'; mc.classList.add('open'); }
@@ -2273,60 +2073,19 @@ function abrirCarteirinha(){
 }
 
 async function downloadCarteirinhaModal(){
-  const el=document.getElementById('cred-card');
-  if(!window.html2canvas){
-    const s=document.createElement('script');
-    s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-    document.head.appendChild(s);
-    await new Promise(r=>s.onload=r);
+  // Delega o download ao próprio renderizador (carteirinha.html), que já
+  // carrega html2canvas/jsPDF e gera o PNG a partir do cartão real.
+  const ifr=document.getElementById('cred-iframe');
+  if(ifr && ifr.contentWindow){
+    ifr.contentWindow.postMessage({ubapffCredCmd:'downloadPNG'}, '*');
   }
-  const canvas=await html2canvas(el,{scale:3,useCORS:true,allowTaint:true,backgroundColor:null});
-  const a=document.createElement('a');
-  a.download='carteirinha_'+(_credAtualId||'download')+'.png';
-  a.href=canvas.toDataURL('image/png'); a.click();
 }
 
 function printCred(){
-  const c=document.getElementById('cred-card').outerHTML;
-  const w=window.open('','_blank');
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Credencial</title><style>
-*{margin:0;padding:0;box-sizing:border-box;}
-:root{--navy:#1a2a5e;--gold:#c9972a;--green:#1a7a3a;--red:#b91c1c;}
-body{background:#fff;display:flex;justify-content:center;padding:20px;font-family:'Segoe UI',system-ui,sans-serif;}
-.credential{width:480px;border:1px solid #ddd;border-radius:4px;overflow:hidden;position:relative;}
-.watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:80px;font-weight:900;color:var(--navy);opacity:0.04;pointer-events:none;white-space:nowrap;}
-.cred-header{background:var(--navy);padding:14px 18px;display:flex;align-items:center;gap:14px;border-bottom:4px solid var(--gold);}
-.cred-emblem{width:52px;height:52px;background:rgba(201,151,42,0.12);border:2px solid rgba(201,151,42,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
-.ch-text .ch1{font-size:9px;color:rgba(255,255,255,0.45);letter-spacing:1.5px;text-transform:uppercase;}
-.ch-text .ch2{font-size:16px;font-weight:900;color:#fff;letter-spacing:1px;}
-.ch-text .ch3{font-size:10px;color:var(--gold);letter-spacing:0.5px;margin-top:2px;}
-.cstatus{display:flex;align-items:center;gap:10px;padding:10px 18px;background:#f5f6f7;border-bottom:1px solid #e0e0e0;}
-.cstatus-icon{font-size:22px;}.cstatus-lbl{font-size:11px;font-weight:800;color:#333;text-transform:uppercase;}
-.cstatus-badge{padding:5px 16px;border-radius:4px;font-size:12px;font-weight:800;text-transform:uppercase;margin-left:auto;}
-.cstatus-badge.ativo{background:var(--green);color:#fff;}.cstatus-badge.inativo{background:var(--red);color:#fff;}
-.cmain{display:flex;gap:14px;padding:16px 18px;border-bottom:1px solid #e8e8e8;}
-.cphoto{width:105px;height:130px;border:2px solid #c0c0c0;background:#e8e8e8;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;}
-.cphoto img{width:100%;height:100%;object-fit:cover;}
-.cinfo{flex:1;}.ci-lbl{font-size:9px;color:#777;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin-top:8px;}.ci-lbl:first-child{margin-top:0;}
-.ci-val{font-size:16px;font-weight:800;color:var(--navy);line-height:1.2;}.ci-val.sm{font-size:13px;}.ci-val.green{color:var(--green);font-size:13px;}.ci-val.red{color:var(--red);font-size:13px;}
-.matbox{background:var(--navy);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:3px;display:inline-block;margin-top:4px;}
-.csection{padding:12px 18px;border-bottom:1px solid #e8e8e8;}
-.csh{display:flex;align-items:center;gap:7px;background:#e8eaed;padding:5px 10px;border-radius:3px;margin-bottom:10px;}
-.csh-ttl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--navy);}
-.cdg{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.cdlbl{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:2px;}
-.cdval{font-size:13px;font-weight:700;color:var(--navy);}.cdval.xs{font-size:11px;word-break:break-all;}
-.cauth{display:flex;gap:14px;align-items:flex-start;}
-.cqr{display:flex;flex-direction:column;align-items:center;gap:3px;}
-.cqr img{width:85px;height:85px;}.cqr-lbl{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;}
-.cfooter{background:var(--navy);padding:8px 18px;display:flex;align-items:center;justify-content:space-between;}
-.cft{font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:1px;}
-.cphoto-ph{display:flex;flex-direction:column;align-items:center;gap:5px;color:#999;font-size:10px;}
-</style>
-
-
-</body></html>`);
-  w.document.close();setTimeout(()=>w.print(),800);
+  if(!_credAtualId) return;
+  // Abre a própria carteirinha.html em modo visualização + impressão,
+  // eliminando o layout de impressão duplicado que existia aqui.
+  window.open('carteirinha.html?id='+encodeURIComponent(_credAtualId)+'&view=1&print=1','_blank');
 }
 
 function toggleStatus(id){
@@ -2361,7 +2120,7 @@ async function loadFromCloud(){
       const data2=await r2.json();
       if(data2 && Array.isArray(data2.membros)) cloud=data2.membros;
       if(data2 && Array.isArray(data2.saidas) && data2.saidas.length>0 && saidas.length===0){
-        saidas=data2.saidas; safeLocalSetItem('saidas',saidas,{ tryCleanup:false });
+        saidas=data2.saidas; try{ localStorage.setItem('saidas',JSON.stringify(saidas)); }catch(e){}
       }
     } else if(window.reportarErro){
       window.reportarErro('db.json', 'Servidor respondeu HTTP '+r2.status+' ao carregar os dados da nuvem.', false);
@@ -2386,26 +2145,15 @@ async function loadFromCloud(){
   local.forEach(function(m){ if(m && m.id!=null && !byId.hasOwnProperty(m.id)) byId[m.id]=m; });
   members=Object.keys(byId).map(function(k){ return byId[k]; });
 
-  save();
+  localStorage.setItem('members',JSON.stringify(members));
   renderList();
   updateCount();
 }
 
 async function syncToCloud(){
-  const si=document.getElementById('sync-ind');
-  if(si){si.style.display='flex';si.textContent='⏳ Sincronizando...';}
-  try{
-    const KEY=['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
-    await fetch('https://api.jsonbin.io/v3/b/6a35c2ddda38895dfee044d5',{
-      method:'PUT',
-      headers:{'Content-Type':'application/json','X-Master-Key':KEY},
-      body:JSON.stringify({membros:members})
-    });
-    if(si){si.textContent='✅ Sincronizado!';setTimeout(()=>si.style.display='none',2500);}
-  }catch(e){
-    if(si){ si.style.display='none'; }
-    console.warn('JSONBin sync falhou:', e.message);
-  }
+  // Sincronização externa removida por segurança (JSONBin instável + chave exposta no código).
+  // Os dados ficam salvos no aparelho (localStorage). Use "Exportar db.json" para enviar ao repositório.
+  return;
 }
 
 let _menuOpen = null;
@@ -2690,9 +2438,7 @@ async function saveConfig(){
     if(stored && (await _sha256(passAtual))!==stored){alert('❌ Senha atual incorreta.');return;}
     if(passNova!==passConf){alert('❌ Nova senha e confirmação não coincidem.');return;}
     if(passNova.length<4){alert('❌ Senha deve ter pelo menos 4 caracteres.');return;}
-    if(!safeLocalSetItem(PW_KEY, await _sha256(passNova),{
-      onError:function(e){ alert('⚠️ Não foi possível salvar a nova senha: '+((e&&e.message)||'erro')); }
-    })) return;
+    localStorage.setItem(PW_KEY, await _sha256(passNova));
     document.getElementById('cfg-pass-atual').value='';
     document.getElementById('cfg-pass-nova').value='';
     document.getElementById('cfg-pass-conf').value='';
@@ -2751,7 +2497,7 @@ async function saveConfig(){
 
   // Salvar no localStorage com verificação
   try {
-    if(!safeLocalSetItem('assoc-config', cfg, { tryCleanup:false })) throw new Error('Falha ao gravar configurações');
+    localStorage.setItem('assoc-config', JSON.stringify(cfg));
     const verificar = localStorage.getItem('assoc-config');
     if (!verificar) throw new Error('localStorage retornou vazio');
   } catch(lsErr) {
@@ -2807,12 +2553,11 @@ const ANO_CONT = 2026;
 // ── SAÍDAS / DESPESAS ──
 let saidas = JSON.parse(localStorage.getItem('saidas')||'[]');
 function saveSaidas(){
-  safeLocalSetItem('saidas',saidas,{
-    onError:function(e){
-      if(window.reportarErro) window.reportarErro('Salvar saída','Falha ao gravar saídas: '+((e&&e.message)||'erro'),false);
-      if(typeof avisoValidacao==='function') avisoValidacao('Não consegui salvar a saída neste aparelho (armazenamento cheio ou navegação privada).');
-    }
-  });
+  try{ localStorage.setItem('saidas', JSON.stringify(saidas)); }
+  catch(e){
+    if(window.reportarErro) window.reportarErro('Salvar saída','Falha ao gravar saídas: '+((e&&e.message)||'erro'),false);
+    if(typeof avisoValidacao==='function') avisoValidacao('Não consegui salvar a saída neste aparelho (armazenamento cheio ou navegação privada).');
+  }
 }
 function addSaida(){
   const data=document.getElementById('s-data').value;
@@ -3059,7 +2804,7 @@ if(typeof closeEditDirect!=="undefined") window.closeEditDirect=closeEditDirect;
         return had;
       }).then(function(had){
         if(had && !sessionStorage.getItem('__sw_cleaned')){
-          safeSessionSetItem('__sw_cleaned','1',{tryCleanup:false});
+          sessionStorage.setItem('__sw_cleaned','1');
           location.reload();
         }
       }).catch(function(){});
