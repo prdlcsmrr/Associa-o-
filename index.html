@@ -2059,7 +2059,7 @@ function openCred(id){
 
   // Cartão: renderizado por carteirinha.html (fonte única da verdade), embutido via iframe.
   const ifr=document.getElementById('cred-iframe');
-  if(ifr) ifr.src='carteirinha.html?id='+encodeURIComponent(m.numCred)+'&view=1';
+  if(ifr) ifr.src='carteirinha.html?id='+encodeURIComponent(m.numCred)+'&view=1&_t='+Date.now();
 
   var mc=document.getElementById('modal');
   if(mc){ mc.style.display='flex'; mc.classList.add('open'); }
@@ -2085,7 +2085,7 @@ function printCred(){
   if(!_credAtualId) return;
   // Abre a própria carteirinha.html em modo visualização + impressão,
   // eliminando o layout de impressão duplicado que existia aqui.
-  window.open('carteirinha.html?id='+encodeURIComponent(_credAtualId)+'&view=1&print=1','_blank');
+  window.open('carteirinha.html?id='+encodeURIComponent(_credAtualId)+'&view=1&print=1&_t='+Date.now(),'_blank');
 }
 
 function toggleStatus(id){
@@ -2201,7 +2201,7 @@ function gerarCobranca(numCred){
 }
 
 function gerarCarteirinha(numCred){
-  window.open('carteirinha.html?id='+encodeURIComponent(numCred),'_blank');
+  window.open('carteirinha.html?id='+encodeURIComponent(numCred)+'&_t='+Date.now(),'_blank');
 }
 
 let _currentSignLink='';
