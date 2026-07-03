@@ -204,6 +204,19 @@ body { background:#1a1a2e; font-family:'Arial Narrow',Arial,sans-serif; min-heig
   z-index: 9998;
   filter: grayscale(20%);
 }
+
+/* ══════════════════════════════════════════
+   MODO VISUALIZAÇÃO (embed via iframe)
+   Usado pelo painel admin (index.html) para exibir a carteirinha
+   sem duplicar HTML/CSS/JS de renderização — fonte única da verdade.
+   ══════════════════════════════════════════ */
+body.view-mode .topbar,
+body.view-mode .editor-panel,
+body.view-mode #edit-indicator {
+  display:none !important;
+}
+body.view-mode .card-wrap { padding:8px 8px 0; }
+body.view-mode .dl-actions { padding:8px 8px 10px; }
 </style>
 </head>
 <body>
@@ -286,6 +299,16 @@ const DB    = BASE_DOMAIN+'/db.json';
 const BIN   = '6a35c2ddda38895dfee044d5';
 const BASE  = BASE_DOMAIN;
 const BINKEY= ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
+
+// ── MODO VISUALIZAÇÃO (embed via iframe) ──
+// Ativado com ?view=1 na URL. Usado pelo painel admin para reaproveitar
+// este renderizador dentro de um <iframe>, em vez de duplicar o layout.
+const _qs = new URLSearchParams(location.search);
+const VIEW_MODE = _qs.get('view')==='1';
+if(VIEW_MODE) document.body.classList.add('view-mode');
+function _notifyParent(msg){
+  try{ if(window.parent && window.parent!==window) window.parent.postMessage(Object.assign({ubapffCred:true}, msg), '*'); }catch(e){}
+}
 
 const DEFAULT_F = {
   f_photo:  { type:'photo', left:12.6, top:28.8, w:13.5, ratio:'3/4' },
@@ -462,8 +485,13 @@ async function init(){
   if(!m){
     try{ const ls=JSON.parse(localStorage.getItem('members')||'[]'); m=ls.find(x=>x.numCred===id); }catch(e){}
   }
-  if(!m){ document.getElementById('app').innerHTML='<div class="loading">❌ Membro não encontrado<br><small>ID: '+id+'</small></div>'; return; }
+  if(!m){
+    document.getElementById('app').innerHTML='<div class="loading">❌ Membro não encontrado<br><small>ID: '+id+'</small></div>';
+    _notifyParent({status:'not-found', id:id});
+    return;
+  }
   membro=m; renderCard();
+  _notifyParent({status:'ready', numCred:m.numCred, ativo:m.status==='Ativo'});
 }
 
 function getData(){
@@ -475,7 +503,7 @@ function getData(){
     v_filiacao_pai:(m.pai||'Não informado'), v_filiacao_mae:(m.mae||''), v_nasc:fmt(m.nasc), v_admissao:fmt(m.emissao),
     v_naturalidade:(m.naturalidade||'BRASILEIRO'),
     v_validade:fmt(m.validade), v_municipio:(m.municipio||'—').toUpperCase(),
-    v_situacao:membro.status==='Ativo'?'ATIVO':'INATIVO', v_siape:(m.siape||m.siepe||''),
+    v_situacao:membro.status==='Ativo'?'ATIVO':'INATIVO', v_siape:(m.siape||''),
   };
 }
 
@@ -927,6 +955,7 @@ function switchTab(t){
   document.getElementById('tab-F').className='tab'+(t==='F'?' active':'');
   document.getElementById('tab-V').className='tab'+(t==='V'?' active':'');
   renderCard(); buildChips(); buildCtrlPanel();
+  _notifyParent({status:'tab', tab:t});
 }
 function switchEpTab(t){
   epTab=t;
