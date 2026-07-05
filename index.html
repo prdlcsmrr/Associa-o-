@@ -1810,6 +1810,12 @@ function limparHistorico(){
   renderHist();
 }
 
+// Escapa HTML para evitar XSS ao inserir dados de membros (nome, cargo etc.) via innerHTML
+function esc(s){
+  if(s===null||s===undefined) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
 function renderList(){
   const q=(document.getElementById('search').value||'').toLowerCase();
   const f=members.filter(m=>m.nome.toLowerCase().includes(q)||m.cpf.includes(q)||m.numCred.toLowerCase().includes(q)||m.cat.toLowerCase().includes(q)).sort((a,b)=>(a.nome||'').localeCompare(b.nome||'','pt-BR',{sensitivity:'base'}));
@@ -1820,8 +1826,8 @@ function renderList(){
     <div class="mcard">
       <div class="mcard-photo">${m.foto?`<img src="${m.foto}" alt="" width="100" height="120" loading="lazy" decoding="async">`:`<div class="mcard-ph"><svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Sem foto</span></div>`}</div>
       <div class="mcard-body">
-        <div class="mcard-name">${m.nome}</div>
-        <div class="mcard-cat">${m.cat} · ${m.numCred}</div>
+        <div class="mcard-name">${esc(m.nome)}</div>
+        <div class="mcard-cat">${esc(m.cat)} · ${esc(m.numCred)}</div>
         <div class="mcard-status ${m.status==='Ativo'?'ativo':'inativo'}">● ${m.status==='Ativo'?'Credencial Ativa':'Credencial Inativa'}</div>
         ${localStorage.getItem('assinatura_'+m.numCred)?'<div class="sign-badge">✍️ Assinado</div>':''}
         ${(function(){
@@ -2664,7 +2670,7 @@ function renderContabil(){
       ? '<span style="background:#dcfce7;color:#1a7a3a;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700">ADIMPLENTE</span>'
       : `<span style="background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700">${d.mesesEmAtraso.length} EM ATRASO</span>`;
     return `<tr style="background:${i%2===0?'#fff':'#fafafa'};border-bottom:1px solid #f0f0f0">
-      <td style="padding:10px 14px;font-weight:600;color:var(--navy);font-size:12px">${d.m.nome}</td>
+      <td style="padding:10px 14px;font-weight:600;color:var(--navy);font-size:12px">${esc(d.m.nome)}</td>
       <td style="padding:10px 8px;text-align:center;font-size:12px;color:#555">${d.mesesPagos.length}/12</td>
       <td style="padding:10px 8px;text-align:right;font-weight:700;color:#1a7a3a;font-size:12px;white-space:nowrap">${brl(d.totalPago)}</td>
       <td style="padding:10px 8px;text-align:right;font-weight:700;color:${cor};font-size:12px;white-space:nowrap">${d.valorDevido>0?brl(d.valorDevido):'—'}</td>
@@ -2690,8 +2696,8 @@ function renderContabil(){
       isentoEl.innerHTML = membrosIsentos.map((m,i)=>`
         <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid #f3f4f6;background:${i%2===0?'#fff':'#fafafa'}">
           <div>
-            <div style="font-size:13px;font-weight:700;color:var(--navy)">${m.nome}</div>
-            <div style="font-size:11px;color:#888;margin-top:2px">${m.numCred} · ${m.cat||'—'}</div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy)">${esc(m.nome)}</div>
+            <div style="font-size:11px;color:#888;margin-top:2px">${esc(m.numCred)} · ${esc(m.cat)||'—'}</div>
           </div>
           <span style="background:rgba(201,151,42,0.12);color:#8a6500;border:1px solid rgba(201,151,42,0.4);padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700">🔓 ISENTO</span>
         </div>`).join('') +
@@ -2715,8 +2721,8 @@ function renderContabil(){
         const mesesNomes = d.mesesEmAtraso.map(m=>MESES_CONT[m].slice(0,3)).join(', ');
         return `<div style="display:grid;grid-template-columns:1fr auto auto;align-items:center;padding:12px 20px;border-bottom:1px solid #fee2e2;background:${i%2===0?'#fff':'#fef2f2'}">
           <div>
-            <div style="font-size:13px;font-weight:700;color:var(--navy)">${d.m.nome}</div>
-            <div style="font-size:11px;color:#888;margin-top:2px">${d.m.numCred} · Atraso: ${mesesNomes}</div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy)">${esc(d.m.nome)}</div>
+            <div style="font-size:11px;color:#888;margin-top:2px">${esc(d.m.numCred)} · Atraso: ${mesesNomes}</div>
           </div>
           <div style="font-size:11px;color:#b91c1c;font-weight:700;margin-right:16px;white-space:nowrap">${d.mesesEmAtraso.length} mês(es)</div>
           <div style="font-size:14px;font-weight:900;color:#b91c1c;white-space:nowrap">${brl(d.valorDevido)}</div>
