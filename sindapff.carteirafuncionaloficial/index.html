@@ -297,6 +297,15 @@ function render(m){
           <div class="lbl">Cargo:</div>
           <div class="cargo-txt">${(m.cat||'—').toUpperCase()}</div>
         </div>
+        ${(m.siape||m.siepe) ? `
+        <div>
+          <div class="lbl">SIAPE:</div>
+          <div class="cargo-txt">${(m.siape||m.siepe||'').toUpperCase()}</div>
+        </div>` : `
+        <div>
+          <div class="lbl">SIAPE:</div>
+          <div class="cargo-txt" style="color:#aaa;font-style:italic">NÃO INFORMADO</div>
+        </div>`}
         <div class="situacao">
           SITUAÇÃO FUNCIONAL: <span class="${statusFinal?'ativo-txt':'inativo-txt'}">${statusFinal?'ATIVO':'INATIVO'}</span>
         </div>
