@@ -1141,6 +1141,8 @@ const LUSER_DEFAULT='admin';
 const PW_KEY='ubapff_pwhash';
 const BASE_URL='https://ubapff.org.br/registrooficialcarteirafuncional.html';
 const SIGN_BASE_URL='https://ubapff.org.br/assinar/?id=';
+const BIN='6a35c2ddda38895dfee044d5';
+const BINKEY=['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
 const ORG_PRE='ASC';
 
 // ── SENHA (hash SHA-256, guardada só no aparelho — nunca no código nem na nuvem) ──
@@ -1614,6 +1616,7 @@ function limpar(){
   document.getElementById('f-cat').value='Membro';
   setStatus('Ativo');retake();
 }
+let _syncDebounceTimer=null;
 function save(){
   try{
     localStorage.setItem('members',JSON.stringify(members));
@@ -1621,6 +1624,9 @@ function save(){
     if(window.reportarErro) window.reportarErro('Salvar dados', 'Falha ao gravar no aparelho: '+((e&&e.message)||'erro'), false);
     if(typeof avisoValidacao==='function') avisoValidacao('Não consegui salvar neste aparelho (armazenamento cheio ou navegação privada). Tente de novo.');
   }
+  // Sincroniza automaticamente com a nuvem (debounce: evita disparar 1 request por tecla)
+  clearTimeout(_syncDebounceTimer);
+  _syncDebounceTimer=setTimeout(syncToCloud,1200);
 }
 // ── PAGAMENTOS ──────────────────────────────────────────────────────
 const MESES_NOME = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -2118,48 +2124,83 @@ async function reloadMembers(){
 }
 
 async function loadFromCloud(){
-  // db.json é a fonte primária. Membros que só existem no localStorage são preservados (nunca perder cadastro local ainda não exportado).
+  // JSONBin é a fonte viva agora (todo admin sincroniza automaticamente pra lá).
+  // db.json (GitHub Pages) é usado só como reserva se o JSONBin falhar.
+  // Membros que só existem no localStorage são preservados (nunca perder cadastro local ainda não sincronizado).
   let cloud=null;
+
   try{
-    const r2=await fetch('db.json?t='+Date.now());
-    if(r2.ok){
-      const data2=await r2.json();
-      if(data2 && Array.isArray(data2.membros)) cloud=data2.membros;
-      if(data2 && Array.isArray(data2.saidas) && data2.saidas.length>0 && saidas.length===0){
-        saidas=data2.saidas; try{ localStorage.setItem('saidas',JSON.stringify(saidas)); }catch(e){}
+    const r1=await fetch('https://api.jsonbin.io/v3/b/'+BIN+'/latest',{headers:{'X-Master-Key':BINKEY,'X-Bin-Meta':'false'}});
+    if(r1.ok){
+      const data1=await r1.json();
+      if(data1 && Array.isArray(data1.membros)) cloud=data1.membros;
+      if(data1 && Array.isArray(data1.saidas) && data1.saidas.length>0 && saidas.length===0){
+        saidas=data1.saidas; try{ localStorage.setItem('saidas',JSON.stringify(saidas)); }catch(e){}
       }
-    } else if(window.reportarErro){
-      window.reportarErro('db.json', 'Servidor respondeu HTTP '+r2.status+' ao carregar os dados da nuvem.', false);
     }
-  }catch(e){
-    if(navigator.onLine && window.reportarErro){
-      window.reportarErro('db.json', 'Falha ao carregar dados da nuvem: '+((e&&e.message)||'erro de rede'), false);
+  }catch(e){}
+
+  if(cloud===null){
+    try{
+      const r2=await fetch('db.json?t='+Date.now());
+      if(r2.ok){
+        const data2=await r2.json();
+        if(data2 && Array.isArray(data2.membros)) cloud=data2.membros;
+        if(data2 && Array.isArray(data2.saidas) && data2.saidas.length>0 && saidas.length===0){
+          saidas=data2.saidas; try{ localStorage.setItem('saidas',JSON.stringify(saidas)); }catch(e){}
+        }
+      } else if(window.reportarErro){
+        window.reportarErro('db.json', 'Servidor respondeu HTTP '+r2.status+' ao carregar os dados da nuvem.', false);
+      }
+    }catch(e){
+      if(navigator.onLine && window.reportarErro){
+        window.reportarErro('db.json', 'Falha ao carregar dados da nuvem: '+((e&&e.message)||'erro de rede'), false);
+      }
     }
   }
 
   const local=JSON.parse(localStorage.getItem('members')||'[]');
 
-  // db.json indisponível (offline/403/erro): mantém o que já está no localStorage
+  // Nenhuma fonte na nuvem disponível (offline/erro): mantém o que já está no localStorage
   if(cloud===null){
     if(local.length>0){ members=local; renderList(); updateCount(); }
     return;
   }
 
-  // Merge por id: db.json vence para membros existentes; membros só-locais preservados
+  // Merge por id: nuvem vence para membros existentes; membros só-locais preservados
   const byId={};
   cloud.forEach(function(m){ if(m && m.id!=null) byId[m.id]=m; });
-  local.forEach(function(m){ if(m && m.id!=null && !byId.hasOwnProperty(m.id)) byId[m.id]=m; });
+  let haviaSoLocal=false;
+  local.forEach(function(m){ if(m && m.id!=null && !byId.hasOwnProperty(m.id)){ byId[m.id]=m; haviaSoLocal=true; } });
   members=Object.keys(byId).map(function(k){ return byId[k]; });
 
   localStorage.setItem('members',JSON.stringify(members));
   renderList();
   updateCount();
+
+  // Este aparelho tinha cadastro(s) que a nuvem não tinha: sincroniza de volta automaticamente
+  if(haviaSoLocal) syncToCloud();
 }
 
+let _syncing=false;
 async function syncToCloud(){
-  // Sincronização externa removida por segurança (JSONBin instável + chave exposta no código).
-  // Os dados ficam salvos no aparelho (localStorage). Use "Exportar db.json" para enviar ao repositório.
-  return;
+  if(_syncing) return;
+  _syncing=true;
+  try{
+    const payload={membros:members, saidas:saidas};
+    const r=await fetch('https://api.jsonbin.io/v3/b/'+BIN,{
+      method:'PUT',
+      headers:{'Content-Type':'application/json','X-Master-Key':BINKEY,'X-Bin-Meta':'false'},
+      body:JSON.stringify(payload)
+    });
+    if(!r.ok && window.reportarErro){
+      window.reportarErro('Sincronizar nuvem','Servidor respondeu HTTP '+r.status+' ao enviar dados.', false);
+    }
+  }catch(e){
+    if(window.reportarErro) window.reportarErro('Sincronizar nuvem','Falha ao enviar dados para a nuvem: '+((e&&e.message)||'erro de rede'), false);
+  }finally{
+    _syncing=false;
+  }
 }
 
 let _menuOpen = null;
@@ -2256,10 +2297,16 @@ function del(id){const _m=members.find(x=>x.id===id);if(!confirm('Excluir?'))ret
 function clearAll(){if(!confirm('Apagar TODOS?'))return;members=[];save();renderList();}
 
 // INIT
-// Render imediato do localStorage (evita tela vazia), depois sincroniza com db.json (fonte primária) e re-renderiza com validade/badges corretos
+// Render imediato do localStorage (evita tela vazia), depois sincroniza com o JSONBin/db.json (fonte viva) e re-renderiza com validade/badges corretos
 members = JSON.parse(localStorage.getItem('members') || '[]');
 renderList();
 loadFromCloud();
+
+// Mantém vários admins/dispositivos convergindo automaticamente, sem precisar clicar em "atualizar"
+setInterval(function(){ if(sessionStorage.getItem('ok')==='1') loadFromCloud(); }, 45000);
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState==='visible' && sessionStorage.getItem('ok')==='1') loadFromCloud();
+});
 // ── CONFIG ──────────────────────────────────────────────────────────
 let cfg = JSON.parse(localStorage.getItem('assoc-config') || '{}');
 
