@@ -219,18 +219,21 @@ function fmt(d){ if(!d) return '—'; return new Date(d+'T12:00').toLocaleDateSt
 const DB_GITHUB = BASE_DOMAIN+'/db.json';
 const BIN_ID = '6a35c2ddda38895dfee044d5';
 
-function showErr(title, msg){
+function showErr(title, msg, podeTentarNovamente){
   document.getElementById('app').innerHTML = `
     ${HEADER_IMG_HTML}
     <div class="error-box">
       <h2>❌ ${title}</h2>
       <p style="color:#666">${msg}</p>
+      ${podeTentarNovamente ? '<button onclick="init()" style="margin-top:14px;padding:10px 20px;border:none;border-radius:6px;background:#1a2a5e;color:#fff;font-weight:700;cursor:pointer">🔄 Tentar novamente</button>' : ''}
     </div>`;
 }
 
 async function init(){
   const id = new URLSearchParams(location.search).get('id');
-  if(!id){ showErr('QR Code inválido','Este código não contém identificador.'); return; }
+  if(!id){ showErr('QR Code inválido','Este código não contém identificador.', false); return; }
+
+  let dadosCarregados = false;
 
   try{
     const KEY = ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
@@ -239,6 +242,7 @@ async function init(){
     });
     if(r.ok){
       const data = await r.json();
+      dadosCarregados = true;
       const m = (data.membros||[]).find(x=>x.numCred===id);
       if(m){ render(m); return; }
     }
@@ -248,12 +252,17 @@ async function init(){
     const r = await fetch(DB_GITHUB+'?t='+Date.now());
     if(r.ok){
       const data = await r.json();
+      dadosCarregados = true;
       const m = (data.membros||[]).find(x=>x.numCred===id);
       if(m){ render(m); return; }
     }
   }catch(e){}
 
-  showErr('Não encontrado','Nenhum membro com este código foi localizado.');
+  if(!dadosCarregados){
+    showErr('Erro de conexão','Não foi possível carregar os dados agora. Verifique sua internet e tente de novo.', true);
+    return;
+  }
+  showErr('Não encontrado','Nenhum membro com este código foi localizado.', false);
 }
 
 function render(m){
