@@ -232,14 +232,14 @@ function showErr(title, msg, podeTentarNovamente){
 }
 
 async function buscarDados(){
-  // 1º tentar db.json (GitHub Pages, mesma origem)
-  try{
-    const r = await fetch(DB_GITHUB+'?t='+Date.now());
-    if(r.ok) return await r.json();
-  }catch(e){}
-  // 2º fallback: JSONBin (fonte alternativa, útil se o domínio/CDN falhar nesse dispositivo/rede)
+  // 1º tentar JSONBin (fonte viva, atualizada automaticamente por qualquer admin que sincronizar)
   try{
     const r = await fetch('https://api.jsonbin.io/v3/b/'+JSONBIN_ID+'/latest', {headers:{'X-Master-Key':JSONBIN_KEY,'X-Bin-Meta':'false'}});
+    if(r.ok) return await r.json();
+  }catch(e){}
+  // 2º fallback: db.json (snapshot periódico no GitHub Pages, útil se o JSONBin falhar)
+  try{
+    const r = await fetch(DB_GITHUB+'?t='+Date.now());
     if(r.ok) return await r.json();
   }catch(e){}
   return null; // as duas fontes falharam de verdade (rede/conexão)
