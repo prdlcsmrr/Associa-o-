@@ -237,8 +237,8 @@ const BASE_DOMAIN = PRODUCTION_DOMAIN
   : 'https://prdlcsmrr.github.io/Associa-o-';
 
 const DB      = BASE_DOMAIN+'/db.json';
-const BIN_ID  = '6a35c2ddda38895dfee044d5';
-const BINKEY  = ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
+const SB_URL  = 'https://tqcfdqwsjoibeeywoquk.supabase.co';
+const SB_KEY  = 'sb_publishable_x7um7Nsqt250Dpoq74UOow__SATbPgh';
 const MESES   = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 let MEMBRO    = null;
 // Carregar configurações do sistema PRIMEIRO (antes de usar as variáveis)
@@ -258,10 +258,10 @@ async function init(){
   if(!id){ document.getElementById('app').innerHTML='<div class="loading">❌ ID não fornecido</div>'; return; }
 
   let m = null;
-  // JSONBin primeiro (dados mais atualizados)
+  // Supabase primeiro (dados mais atualizados)
   try{
-    const r=await fetch('https://api.jsonbin.io/v3/b/'+BIN_ID+'/latest',{headers:{'X-Master-Key':BINKEY,'X-Bin-Meta':'false'}});
-    if(r.ok){const d=await r.json();m=d.membros?.find(x=>x.numCred===id);}
+    const r=await fetch(SB_URL+'/rest/v1/membros?num_cred=eq.'+encodeURIComponent(id)+'&select=dados',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+    if(r.ok){const rows=await r.json(); if(rows.length>0) m=rows[0].dados;}
   }catch(e){}
   // Fallback: db.json
   if(!m){
