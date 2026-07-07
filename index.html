@@ -1141,8 +1141,8 @@ const LUSER_DEFAULT='admin';
 const PW_KEY='ubapff_pwhash';
 const BASE_URL='https://ubapff.org.br/registrooficialcarteirafuncional.html';
 const SIGN_BASE_URL='https://ubapff.org.br/assinar/?id=';
-const BIN='6a35c2ddda38895dfee044d5';
-const BINKEY=['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
+const SB_URL='https://tqcfdqwsjoibeeywoquk.supabase.co';
+const SB_KEY='sb_publishable_x7um7Nsqt250Dpoq74UOow__SATbPgh';
 const ORG_PRE='ASC';
 
 // ── SENHA (hash SHA-256, guardada só no aparelho — nunca no código nem na nuvem) ──
@@ -2124,25 +2124,37 @@ async function reloadMembers(){
 }
 
 async function loadFromCloud(){
-  // JSONBin é a fonte viva agora (todo admin sincroniza automaticamente pra lá).
-  // db.json (GitHub Pages) é usado só como reserva se o JSONBin falhar.
+  // Supabase é a fonte viva agora (todo admin sincroniza automaticamente pra lá).
+  // db.json (GitHub Pages) é usado só como reserva se o Supabase falhar.
   // Membros que só existem no localStorage são preservados (nunca perder cadastro local ainda não sincronizado).
   let cloud=null;
 
   try{
-    const r1=await fetch('https://api.jsonbin.io/v3/b/'+BIN+'/latest',{headers:{'X-Master-Key':BINKEY,'X-Bin-Meta':'false'}});
+    const r1=await fetch(SB_URL+'/rest/v1/membros?select=dados',{
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+    });
     if(r1.ok){
-      const data1=await r1.json();
-      if(data1 && Array.isArray(data1.membros)) cloud=data1.membros;
-      if(data1 && Array.isArray(data1.saidas) && data1.saidas.length>0 && saidas.length===0){
-        saidas=data1.saidas; try{ localStorage.setItem('saidas',JSON.stringify(saidas)); }catch(e){}
-      }
+      const rows=await r1.json();
+      cloud=rows.map(function(r){ return r.dados; });
     } else if(window.reportarErro){
-      window.reportarErro('JSONBin (ler)', 'Servidor respondeu HTTP '+r1.status+' ao ler dados do JSONBin.', true);
+      window.reportarErro('Supabase (ler)', 'Servidor respondeu HTTP '+r1.status+' ao ler membros.', true);
     }
   }catch(e){
-    if(window.reportarErro) window.reportarErro('JSONBin (ler)', 'Falha ao ler JSONBin: '+((e&&e.message)||'erro de rede'), true);
+    if(window.reportarErro) window.reportarErro('Supabase (ler)', 'Falha ao ler Supabase: '+((e&&e.message)||'erro de rede'), true);
   }
+
+  try{
+    const r1s=await fetch(SB_URL+'/rest/v1/saidas?select=dados',{
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+    });
+    if(r1s.ok){
+      const rowsS=await r1s.json();
+      if(rowsS.length>0 && saidas.length===0){
+        saidas=rowsS.map(function(r){ return r.dados; });
+        try{ localStorage.setItem('saidas',JSON.stringify(saidas)); }catch(e){}
+      }
+    }
+  }catch(e){}
 
   if(cloud===null){
     try{
@@ -2191,14 +2203,48 @@ async function syncToCloud(){
   if(_syncing) return;
   _syncing=true;
   try{
-    const payload={membros:members, saidas:saidas};
-    const r=await fetch('https://api.jsonbin.io/v3/b/'+BIN,{
-      method:'PUT',
-      headers:{'Content-Type':'application/json','X-Master-Key':BINKEY,'X-Bin-Meta':'false'},
-      body:JSON.stringify(payload)
+    const idsAtuais=members.map(function(m){ return m.id; });
+    const rows=members.map(function(m){
+      return { id:m.id, num_cred:String(m.numCred||m.id), nome:m.nome||'', status:m.status||'Ativo', dados:m, updated_at:new Date().toISOString() };
     });
-    if(!r.ok && window.reportarErro){
-      window.reportarErro('Sincronizar nuvem','Servidor respondeu HTTP '+r.status+' ao enviar dados.', true);
+
+    // Upsert: insere ou atualiza cada membro atual
+    const rUp=await fetch(SB_URL+'/rest/v1/membros?on_conflict=id',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,
+        'Prefer':'resolution=merge-duplicates'
+      },
+      body:JSON.stringify(rows)
+    });
+    if(!rUp.ok && window.reportarErro){
+      window.reportarErro('Sincronizar nuvem','Servidor respondeu HTTP '+rUp.status+' ao enviar dados.', true);
+    }
+
+    // Remove da nuvem quem foi excluído neste aparelho (mantém nuvem = espelho do estado atual)
+    if(idsAtuais.length>0){
+      const listaIds='('+idsAtuais.join(',')+')';
+      await fetch(SB_URL+'/rest/v1/membros?id=not.in.'+listaIds,{
+        method:'DELETE',
+        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+      });
+    }
+
+    // Mesma lógica pra saídas (contabilidade)
+    if(saidas.length>0){
+      const idsSaidas=saidas.map(function(s){ return s.id; });
+      const rowsSaidas=saidas.map(function(s){ return { id:s.id, dados:s, updated_at:new Date().toISOString() }; });
+      await fetch(SB_URL+'/rest/v1/saidas?on_conflict=id',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'resolution=merge-duplicates'},
+        body:JSON.stringify(rowsSaidas)
+      });
+      const listaIdsSaidas='('+idsSaidas.join(',')+')';
+      await fetch(SB_URL+'/rest/v1/saidas?id=not.in.'+listaIdsSaidas,{
+        method:'DELETE',
+        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+      });
     }
   }catch(e){
     if(window.reportarErro) window.reportarErro('Sincronizar nuvem','Falha ao enviar dados para a nuvem: '+((e&&e.message)||'erro de rede'), true);
