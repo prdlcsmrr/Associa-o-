@@ -2137,8 +2137,12 @@ async function loadFromCloud(){
       if(data1 && Array.isArray(data1.saidas) && data1.saidas.length>0 && saidas.length===0){
         saidas=data1.saidas; try{ localStorage.setItem('saidas',JSON.stringify(saidas)); }catch(e){}
       }
+    } else if(window.reportarErro){
+      window.reportarErro('JSONBin (ler)', 'Servidor respondeu HTTP '+r1.status+' ao ler dados do JSONBin.', true);
     }
-  }catch(e){}
+  }catch(e){
+    if(window.reportarErro) window.reportarErro('JSONBin (ler)', 'Falha ao ler JSONBin: '+((e&&e.message)||'erro de rede'), true);
+  }
 
   if(cloud===null){
     try{
@@ -2150,11 +2154,11 @@ async function loadFromCloud(){
           saidas=data2.saidas; try{ localStorage.setItem('saidas',JSON.stringify(saidas)); }catch(e){}
         }
       } else if(window.reportarErro){
-        window.reportarErro('db.json', 'Servidor respondeu HTTP '+r2.status+' ao carregar os dados da nuvem.', false);
+        window.reportarErro('db.json', 'Servidor respondeu HTTP '+r2.status+' ao carregar os dados da nuvem.', true);
       }
     }catch(e){
       if(navigator.onLine && window.reportarErro){
-        window.reportarErro('db.json', 'Falha ao carregar dados da nuvem: '+((e&&e.message)||'erro de rede'), false);
+        window.reportarErro('db.json', 'Falha ao carregar dados da nuvem: '+((e&&e.message)||'erro de rede'), true);
       }
     }
   }
@@ -2194,10 +2198,10 @@ async function syncToCloud(){
       body:JSON.stringify(payload)
     });
     if(!r.ok && window.reportarErro){
-      window.reportarErro('Sincronizar nuvem','Servidor respondeu HTTP '+r.status+' ao enviar dados.', false);
+      window.reportarErro('Sincronizar nuvem','Servidor respondeu HTTP '+r.status+' ao enviar dados.', true);
     }
   }catch(e){
-    if(window.reportarErro) window.reportarErro('Sincronizar nuvem','Falha ao enviar dados para a nuvem: '+((e&&e.message)||'erro de rede'), false);
+    if(window.reportarErro) window.reportarErro('Sincronizar nuvem','Falha ao enviar dados para a nuvem: '+((e&&e.message)||'erro de rede'), true);
   }finally{
     _syncing=false;
   }
