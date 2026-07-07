@@ -215,8 +215,8 @@ body {
 <script>
 // BASE relativo à página atual: assets do mesmo domínio e protocolo, sem CORS nem redirecionamento.
 const BASE_DOMAIN = 'https://ubapff.org.br';
-const JSONBIN_ID = '6a35c2ddda38895dfee044d5';
-const JSONBIN_KEY = ['$2a','$10','$/ZpcJaiH2sQlYIOgef9HUeF8XyuxR7ixmFI8D1oGVTnlkiJn77DJ2'].join('');
+const SB_URL = 'https://tqcfdqwsjoibeeywoquk.supabase.co';
+const SB_KEY = 'sb_publishable_x7um7Nsqt250Dpoq74UOow__SATbPgh';
 
 function fmt(d){ if(!d) return '—'; return new Date(d+'T12:00').toLocaleDateString('pt-BR'); }
 const DB_GITHUB = BASE_DOMAIN+'/db.json';
@@ -232,12 +232,15 @@ function showErr(title, msg, podeTentarNovamente){
 }
 
 async function buscarDados(){
-  // 1º tentar JSONBin (fonte viva, atualizada automaticamente por qualquer admin que sincronizar)
+  // 1º tentar Supabase (fonte viva, atualizada automaticamente por qualquer admin que sincronizar)
   try{
-    const r = await fetch('https://api.jsonbin.io/v3/b/'+JSONBIN_ID+'/latest', {headers:{'X-Master-Key':JSONBIN_KEY,'X-Bin-Meta':'false'}});
-    if(r.ok) return await r.json();
+    const r = await fetch(SB_URL+'/rest/v1/membros?select=dados', {headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+    if(r.ok){
+      const rows = await r.json();
+      return { membros: rows.map(function(row){ return row.dados; }) };
+    }
   }catch(e){}
-  // 2º fallback: db.json (snapshot periódico no GitHub Pages, útil se o JSONBin falhar)
+  // 2º fallback: db.json (snapshot periódico no GitHub Pages, útil se o Supabase falhar)
   try{
     const r = await fetch(DB_GITHUB+'?t='+Date.now());
     if(r.ok) return await r.json();
