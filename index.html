@@ -1142,7 +1142,7 @@ const PW_KEY='ubapff_pwhash';
 const BASE_URL='https://ubapff.org.br/registrooficialcarteirafuncional.html';
 const SIGN_BASE_URL='https://ubapff.org.br/assinar/?id=';
 const SB_URL='https://tqcfdqwsjoibeeywoquk.supabase.co';
-const SB_KEY='sb_publishable_x7um7Nsqt250Dpoq74UOow__SATbPgh';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxY2ZkcXdzam9pYmVleXdvcXVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NTIzMTYsImV4cCI6MjA5OTAyODMxNn0.IEZkzqXxS3ZZ-PaUt3mg7NXPS-0qFqxFc9LC3iQQ-dc';
 const ORG_PRE='ASC';
 
 // ── SENHA (hash SHA-256, guardada só no aparelho — nunca no código nem na nuvem) ──
@@ -1222,6 +1222,7 @@ async function login(){
   if(u===_getUser() && hash===localStorage.getItem(PW_KEY)){
     sessionStorage.setItem('ok','1');
     document.getElementById('login-screen').style.display='none';
+    loadFromCloud();
   } else {
     var e=document.getElementById('lerr');
     e.style.display='block';
@@ -1239,6 +1240,7 @@ async function criarSenha(){
   localStorage.setItem(PW_KEY, await _sha256(p1));
   sessionStorage.setItem('ok','1');
   document.getElementById('login-screen').style.display='none';
+  loadFromCloud();
 }
 function logout(){ sessionStorage.removeItem('ok'); location.reload(); }
 _initLoginScreen();
@@ -2347,10 +2349,13 @@ function del(id){const _m=members.find(x=>x.id===id);if(!confirm('Excluir?'))ret
 function clearAll(){if(!confirm('Apagar TODOS?'))return;members=[];save();renderList();}
 
 // INIT
-// Render imediato do localStorage (evita tela vazia), depois sincroniza com o JSONBin/db.json (fonte viva) e re-renderiza com validade/badges corretos
+// Render imediato do localStorage (evita tela vazia). Só sincroniza com a nuvem se já
+// estiver logado (sessão anterior); se ainda não logou, a sincronização só começa
+// depois do login()/criarSenha() bem-sucedidos — nunca antes, pra não arriscar um
+// aviso de erro aparecer em cima da tela de login.
 members = JSON.parse(localStorage.getItem('members') || '[]');
 renderList();
-loadFromCloud();
+if(sessionStorage.getItem('ok')==='1') loadFromCloud();
 
 // Mantém vários admins/dispositivos convergindo automaticamente, sem precisar clicar em "atualizar"
 setInterval(function(){ if(sessionStorage.getItem('ok')==='1') loadFromCloud(); }, 45000);
