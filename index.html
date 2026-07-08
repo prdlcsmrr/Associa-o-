@@ -317,6 +317,9 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
       <div class="lf"><label for="lu">Usuário</label><input id="lu" type="text" onkeydown="if(event.key==='Enter')login()"></div>
       <div class="lf"><label for="lp">Senha</label><input id="lp" type="password" onkeydown="if(event.key==='Enter')login()"></div>
       <button class="lbtn" onclick="login()">Entrar</button>
+      <div style="text-align:center;margin-top:12px">
+        <a href="javascript:void(0)" onclick="esqueciSenha()" style="color:rgba(255,255,255,.5);font-size:12px;text-decoration:underline">Esqueci minha senha</a>
+      </div>
     </div>
 
     <!-- PRIMEIRO ACESSO (criar senha) -->
@@ -1214,6 +1217,11 @@ function _initLoginScreen(){
     if(boxN) boxN.style.display='none';
     if(boxC) boxC.style.display='';
   }
+}
+function esqueciSenha(){
+  if(!confirm('Isso vai limpar a senha salva neste aparelho e pedir pra você criar uma nova.\n\nOs dados dos membros NÃO são apagados (estão salvos na nuvem). Confirma?')) return;
+  localStorage.removeItem(PW_KEY);
+  location.reload();
 }
 async function login(){
   var u=document.getElementById('lu').value.trim();
