@@ -21,11 +21,10 @@ As seguintes funções SEMPRE devem estar no nível raiz (depth=0):
 - openPag, togglePag, savePag, closePag, closePagDirect
 - updatePixPlaceholder, updateDadosBancariosPreview
 
-## 🔑 CREDENCIAIS DO SISTEMA
-- Login: admin / 1234
-- JSONBin ID: 6a35c2ddda38895dfee044d5
-- Repositório: prdlcsmrr/Associa-o-
-- Site: https://prdlcsmrr.github.io/Associa-o-/
+## 🔑 ONDE FICAM AS CREDENCIAIS
+Credenciais reais (login do painel, chaves de API) não ficam mais neste arquivo público.
+O login do painel é local a cada aparelho (senha definida por quem usa). Chaves de
+banco de dados ficam apenas no código-fonte necessário, nunca documentadas aqui.
 
 ## 📋 PROBLEMAS CONHECIDOS E SOLUÇÕES
 
