@@ -434,6 +434,7 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
               <option>Presidente</option><option>Funcionário</option><option>Visitante</option>
             </select>
           </div>
+          <div class="field"><label for="f-siape">SIAPE</label><input type="text" id="f-siape" inputmode="numeric" placeholder="Número SIAPE (opcional)"></div>
           <div class="field-row">
             <div class="field"><label for="f-emissao">Emissão</label><input type="date" id="f-emissao"></div>
             <div class="field"><label for="f-validade">Validade</label><input type="date" id="f-validade"></div>
@@ -1005,6 +1006,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
             </select>
           </div>
           <div class="edit-field"><label for="edit-numcred">Matrícula Funcional</label><input type="text" id="edit-numcred" placeholder="Ex: 1234567"></div>
+          <div class="edit-field"><label for="edit-siape">SIAPE</label><input type="text" id="edit-siape" inputmode="numeric" placeholder="Número SIAPE (opcional)"></div>
           <div class="edit-field"><label for="edit-status">Status</label>
             <select id="edit-status"><option value="Ativo">Ativo</option><option value="Inativo">Inativo</option></select>
           </div>
@@ -1581,6 +1583,7 @@ async function salvar(){
     cidade:document.getElementById('f-cidade')?.value.trim()||'',
     uf:document.getElementById('f-uf')?.value||'',
     cat:document.getElementById('f-cat').value,
+    siape:document.getElementById('f-siape').value.trim(),
     status:curStatus,
     emissao:document.getElementById('f-emissao').value,
     validade:document.getElementById('f-validade').value,
@@ -1620,7 +1623,7 @@ function avisoValidacao(msg){
   }catch(e){ alert(msg); }
 }
 function limpar(){
-  ['f-nome','f-cpf','f-tel','f-email','f-obs','f-naturalidade','f-municipio','f-pai','f-mae','f-rua','f-numero','f-complemento','f-bairro','f-cep','f-cidade'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
+  ['f-nome','f-cpf','f-tel','f-email','f-obs','f-naturalidade','f-municipio','f-pai','f-mae','f-rua','f-numero','f-complemento','f-bairro','f-cep','f-cidade','f-siape'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
   ['f-nasc','f-emissao','f-validade'].forEach(i=>document.getElementById(i).value='');
   document.getElementById('f-sexo').value='';
   document.getElementById('f-cat').value='Membro';
@@ -1929,6 +1932,7 @@ function openEdit(id){
   sf('edit-cidade', m.cidade);
   sf('edit-uf', m.uf);
   sf('edit-numcred', m.numCred||'');
+  sf('edit-siape', m.siape||'');
   sf('edit-cat', m.cat||'Funcionário');
   sf('edit-status', m.status||'Ativo');
   sf('edit-emissao', m.emissao);
@@ -2036,6 +2040,7 @@ function saveEdit(){
     pai:             document.getElementById('edit-pai').value.trim(),
     mae:             document.getElementById('edit-mae').value.trim(),
     cat:             document.getElementById('edit-cat').value,
+    siape:           document.getElementById('edit-siape').value.trim(),
     status:          document.getElementById('edit-status').value,
     emissao:         document.getElementById('edit-emissao').value,
     validade:        document.getElementById('edit-validade').value,
