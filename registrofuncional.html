@@ -307,7 +307,7 @@ function render(m){
           <div class="lbl">Matrícula Funcional:</div>
           <span class="mat-badge">${m.numCred||'—'}</span>
         </div>
-        <div class="porte">PORTE DE ARMA: <strong>HABILITADO</strong></div>
+        <div class="porte">PORTE DE ARMA: <strong>${((m.porteArma||"Habilitado")).toUpperCase()}</strong></div>
         <div>
           <div class="lbl">Cargo:</div>
           <div class="cargo-txt">${(m.cat||'—').toUpperCase()}</div>
