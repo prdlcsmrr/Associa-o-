@@ -2031,6 +2031,13 @@ function saveEdit(){
   const fotoUrl = document.getElementById('edit-foto-url').value.trim();
   const fotoFinal = _editFotoData || (fotoUrl||null) || members[idx].foto || null;
 
+  if(!fotoFinal){
+    var _wfE=document.getElementById('edit-foto-preview');
+    if(_wfE){ _wfE.style.borderColor='#b91c1c'; if(_wfE.scrollIntoView) _wfE.scrollIntoView({behavior:'smooth',block:'center'}); }
+    avisoValidacao('Foto obrigatória — este cadastro não tem foto. Adicione uma antes de salvar.');
+    return;
+  }
+
   // Preservar campos imutáveis
   const keep = {
     id:       members[idx].id,
@@ -2135,6 +2142,10 @@ function toggleStatus(id){
   const m=members.find(x=>x.id===id);
   if(!m)return;
   const novo=m.status==='Ativo'?'Inativo':'Ativo';
+  if(novo==='Ativo' && !m.foto){
+    avisoValidacao('Não é possível ativar: '+m.nome+' não tem foto cadastrada. Edite o cadastro e adicione uma foto primeiro.');
+    return;
+  }
   if(!confirm((novo==='Ativo'?'\u2705 ATIVAR':'\u26d4 DESATIVAR')+' a credencial de '+m.nome+'?'))return;
   m.status=novo;
   logHist('Status',(novo==='Ativo'?'Ativou':'Desativou')+' credencial de '+m.nome);
