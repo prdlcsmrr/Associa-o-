@@ -1862,6 +1862,7 @@ function renderList(){
         <div class="mcard-name">${esc(m.nome)}</div>
         <div class="mcard-cat">${esc(m.cat)} · ${esc(m.numCred)}</div>
         <div class="mcard-status ${m.status==='Ativo'?'ativo':'inativo'}">● ${m.status==='Ativo'?'Credencial Ativa':'Credencial Inativa'}</div>
+        ${!m.foto?'<div style="display:inline-flex;align-items:center;gap:4px;background:#fef3c7;color:#92400e;border:1px solid #fcd34d;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;margin-top:4px">📸 CADASTRO PENDENTE — SEM FOTO</div>':''}
         ${localStorage.getItem('assinatura_'+m.numCred)?'<div class="sign-badge">✍️ Assinado</div>':''}
         ${(function(){
           if(!m.validade) return '';
