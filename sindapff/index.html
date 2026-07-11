@@ -2234,8 +2234,20 @@ async function syncToCloud(){
   if(_syncing) return;
   _syncing=true;
   try{
-    const idsAtuais=members.map(function(m){ return m.id; });
-    const rows=members.map(function(m){
+    // Se por algum motivo existirem 2+ membros locais com o mesmo numCred (ex: edição antiga
+    // que duplicou o registro), mantém só o mais recente pra não quebrar o envio (erro 409).
+    const porNumCred={};
+    members.forEach(function(m){
+      const key=String(m.numCred||m.id);
+      if(!porNumCred[key] || (m.id||0) > (porNumCred[key].id||0)) porNumCred[key]=m;
+    });
+    const membrosParaEnviar=Object.values(porNumCred);
+    if(membrosParaEnviar.length < members.length && window.reportarErro){
+      window.reportarErro('Sincronizar nuvem','Encontrei '+(members.length-membrosParaEnviar.length)+' cadastro(s) duplicado(s) (mesma matrícula) neste aparelho e removi antes de enviar.', true);
+    }
+
+    const idsAtuais=membrosParaEnviar.map(function(m){ return m.id; });
+    const rows=membrosParaEnviar.map(function(m){
       return { id:m.id, num_cred:String(m.numCred||m.id), nome:m.nome||'', status:m.status||'Ativo', dados:m, updated_at:new Date().toISOString() };
     });
 
