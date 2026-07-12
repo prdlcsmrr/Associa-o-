@@ -942,6 +942,7 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
             <div class="inline-btn-row">
               <button class="btn btn-navy" style="font-size:11px;padding:7px 14px" onclick="document.getElementById('edit-foto-file').click()">📂 Selecionar arquivo</button>
               <input type="file" id="edit-foto-file" accept="image/*" style="display:none" onchange="editFotoUpload(this)">
+              <button class="btn btn-outline" style="font-size:11px;padding:7px 14px" onclick="editRecortarFotoAtual()">✂️ Recortar foto atual</button>
               <button class="btn btn-outline" style="font-size:11px;padding:7px 14px;color:#b91c1c;border-color:#b91c1c" onclick="editRemoveFoto()">🗑️ Remover</button>
             </div>
           </div>
@@ -1975,6 +1976,18 @@ function closeEditDirect(){
   _editId=null; _editFotoData=null;
 }
 
+function editRecortarFotoAtual(){
+  const fotoAtual = _editFotoData || (members.find(x=>x.id===_editId)||{}).foto;
+  if(!fotoAtual){
+    avisoValidacao('Este cadastro ainda não tem foto — use "Selecionar arquivo" primeiro.');
+    return;
+  }
+  openPhotoCropper(fotoAtual, function(cropped){
+    if(!cropped) return; // cancelou, mantém como estava
+    _editFotoData = cropped;
+    document.getElementById('edit-foto-preview').innerHTML = `<img src="${_editFotoData}" alt="" width="72" height="90" loading="lazy" decoding="async">`;
+  });
+}
 function editFotoUpload(input){
   const file = input.files[0]; if(!file) return;
   const reader = new FileReader();
