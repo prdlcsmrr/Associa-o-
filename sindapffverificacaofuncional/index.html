@@ -234,7 +234,7 @@ function showErr(title, msg, podeTentarNovamente){
 async function buscarDados(){
   // 1º tentar Supabase (fonte viva, atualizada automaticamente por qualquer admin que sincronizar)
   try{
-    const r = await fetch(SB_URL+'/rest/v1/membros?select=dados', {headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+    const r = await fetch(SB_URL+'/rest/v1/membros?select=dados', {cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
     if(r.ok){
       const rows = await r.json();
       return { membros: rows.map(function(row){ return row.dados; }) };
