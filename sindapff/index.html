@@ -2174,6 +2174,7 @@ async function loadFromCloud(){
 
   try{
     const r1=await fetch(SB_URL+'/rest/v1/membros?select=dados',{
+      cache:'no-store',
       headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
     });
     if(r1.ok){
@@ -2188,6 +2189,7 @@ async function loadFromCloud(){
 
   try{
     const r1s=await fetch(SB_URL+'/rest/v1/saidas?select=dados',{
+      cache:'no-store',
       headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
     });
     if(r1s.ok){
