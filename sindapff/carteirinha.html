@@ -475,7 +475,7 @@ async function init(){
   let m=null;
   // 1º tentar Supabase (dados mais atualizados)
   try{
-    const r=await fetch(SB_URL+'/rest/v1/membros?num_cred=eq.'+encodeURIComponent(id)+'&select=dados',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+    const r=await fetch(SB_URL+'/rest/v1/membros?num_cred=eq.'+encodeURIComponent(id)+'&select=dados',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
     if(r.ok){const rows=await r.json(); if(rows.length>0) m=rows[0].dados;}
   }catch(e){}
   // 2º fallback: db.json (GitHub Pages)
