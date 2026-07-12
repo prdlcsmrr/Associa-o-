@@ -1979,8 +1979,11 @@ function editFotoUpload(input){
   const file = input.files[0]; if(!file) return;
   const reader = new FileReader();
   reader.onload = e=>{
-    _editFotoData = e.target.result;
-    document.getElementById('edit-foto-preview').innerHTML = `<img src="${_editFotoData}" alt="" width="72" height="90" loading="lazy" decoding="async">`;
+    openPhotoCropper(e.target.result, function(cropped){
+      if(!cropped) return; // cancelou o recorte, mantém a foto anterior
+      _editFotoData = cropped;
+      document.getElementById('edit-foto-preview').innerHTML = `<img src="${_editFotoData}" alt="" width="72" height="90" loading="lazy" decoding="async">`;
+    });
   };
   reader.readAsDataURL(file);
 }
