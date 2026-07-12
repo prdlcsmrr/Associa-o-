@@ -271,6 +271,7 @@ async function init(){
 
   try{
     const r = await fetch(SB_URL+'/rest/v1/membros?num_cred=eq.'+encodeURIComponent(id)+'&select=dados',{
+      cache:'no-store',
       headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
     });
     if(r.ok){
