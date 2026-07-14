@@ -533,7 +533,7 @@ function renderCard(){
         <img src="${_qImg}" alt="QR" width="200" height="200" loading="lazy" decoding="async" style="width:100%;display:block" crossorigin="anonymous">
       </div>`;
     } else if(cfg.type==='signature'){
-      const sigData=localStorage.getItem('assinatura_'+m.numCred)||'';
+      const sigData=m.assinatura||localStorage.getItem('assinatura_'+m.numCred)||'';
       if(sigData){
         fields+=`<div id="c_${key}" class="f-photo${drag}${selCls}"
           style="${pos}width:${cfg.w||38}%;pointer-events:${editMode?'all':'none'};background:transparent">
@@ -776,7 +776,7 @@ function buildCtrlPanel(){
         📤 Carregar imagem de assinatura
         <input type="file" accept="image/*" style="display:none" onchange="uploadSignatureFile(this,'${membro?.numCred||''}')">
       </label>
-      ${localStorage.getItem('assinatura_'+(membro?.numCred||''))?`
+      ${(membro?.assinatura||localStorage.getItem('assinatura_'+(membro?.numCred||'')))?`
       <button class="btn btn-red btn-sm" style="width:100%;margin-top:2px" onclick="clearSignatureData('${membro?.numCred||''}')">🗑️ Remover assinatura</button>
       `:'<div style="font-size:10px;color:rgba(255,255,255,.4);text-align:center;margin-top:2px">Nenhuma assinatura registrada</div>'}
     </div>
@@ -1041,10 +1041,26 @@ function clearOverride(){
 function uploadSignatureFile(input, numCred){
   if(!input.files||!input.files[0]||!numCred) return;
   const fr=new FileReader();
-  fr.onload=function(e){
+  fr.onload=async function(e){
     localStorage.setItem('assinatura_'+numCred, e.target.result);
+    if(membro && membro.numCred===numCred) membro.assinatura=e.target.result;
     renderCard(); if(editMode){bindDrag();buildChips();selectField(selKey);}
-    toast('✅ Assinatura carregada!','#1a7a3a');
+    try{
+      const rGet=await fetch(SB_URL+'/rest/v1/membros?num_cred=eq.'+encodeURIComponent(numCred)+'&select=dados',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+      const rows=rGet.ok?await rGet.json():[];
+      if(rows.length>0){
+        const dadosAtual=rows[0].dados;
+        dadosAtual.assinatura=e.target.result;
+        await fetch(SB_URL+'/rest/v1/membros?num_cred=eq.'+encodeURIComponent(numCred),{
+          method:'PATCH',
+          headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},
+          body:JSON.stringify({dados:dadosAtual})
+        });
+      }
+      toast('✅ Assinatura carregada e sincronizada!','#1a7a3a');
+    }catch(err){
+      toast('⚠️ Assinatura salva neste aparelho, mas não sincronizou com a nuvem','#b91c1c');
+    }
   };
   fr.readAsDataURL(input.files[0]);
 }
@@ -1052,7 +1068,23 @@ function clearSignatureData(numCred){
   if(!numCred) return;
   if(!confirm('Remover a assinatura deste membro?')) return;
   localStorage.removeItem('assinatura_'+numCred);
+  if(membro && membro.numCred===numCred) membro.assinatura=null;
   renderCard(); if(editMode){bindDrag();buildChips();buildCtrlPanel();}
+  (async function(){
+    try{
+      const rGet=await fetch(SB_URL+'/rest/v1/membros?num_cred=eq.'+encodeURIComponent(numCred)+'&select=dados',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+      const rows=rGet.ok?await rGet.json():[];
+      if(rows.length>0){
+        const dadosAtual=rows[0].dados;
+        delete dadosAtual.assinatura;
+        await fetch(SB_URL+'/rest/v1/membros?num_cred=eq.'+encodeURIComponent(numCred),{
+          method:'PATCH',
+          headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},
+          body:JSON.stringify({dados:dadosAtual})
+        });
+      }
+    }catch(err){}
+  })();
   toast('Assinatura removida','#b91c1c');
 }
 
