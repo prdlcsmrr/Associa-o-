@@ -61,6 +61,8 @@
 
   <script>
     const DB_URL='https://ubapff.org.br/db.json';
+    const SB_URL='https://tqcfdqwsjoibeeywoquk.supabase.co';
+    const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxY2ZkcXdzam9pYmVleXdvcXVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NTIzMTYsImV4cCI6MjA5OTAyODMxNn0.IEZkzqXxS3ZZ-PaUt3mg7NXPS-0qFqxFc9LC3iQQ-dc';
     const memberId=(new URLSearchParams(location.search).get('id')||'').trim();
     const statusEl=document.getElementById('status');
     const memberEl=document.getElementById('member');
@@ -135,10 +137,17 @@
       key='assinatura_'+memberId;
 
       try{
-        const res=await fetch(DB_URL+'?t='+Date.now());
-        if(!res.ok) throw new Error('Falha ao carregar base');
-        const data=await res.json();
-        const member=(data.membros||[]).find(x=>x.numCred===memberId);
+        let member=null;
+        try{
+          const r1=await fetch(SB_URL+'/rest/v1/membros?num_cred=eq.'+encodeURIComponent(memberId)+'&select=dados',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+          if(r1.ok){ const rows=await r1.json(); if(rows.length>0) member=rows[0].dados; }
+        }catch(e){}
+        if(!member){
+          const res=await fetch(DB_URL+'?t='+Date.now());
+          if(!res.ok) throw new Error('Falha ao carregar base');
+          const data=await res.json();
+          member=(data.membros||[]).find(x=>x.numCred===memberId);
+        }
         if(!member){
           setStatus('❌ Membro não encontrado para este ID.','err');
           return;
@@ -152,7 +161,7 @@
         }
         memberEl.style.display='flex';
         padWrap.style.display='block';
-        const existing=localStorage.getItem(key);
+        const existing=member.assinatura||localStorage.getItem(key);
         if(existing){
           setStatus('Assinatura já registrada.','info');
           const img=new Image();
@@ -178,16 +187,35 @@
     canvas.addEventListener('touchmove',moveDraw,{passive:false});
     canvas.addEventListener('touchend',endDraw);
     btnClear.addEventListener('click',clearPad);
-    btnConfirm.addEventListener('click',function(){
+    btnConfirm.addEventListener('click',async function(){
       if(!canEdit) return;
       if(!hasStroke){
         setStatus('Faça a assinatura antes de confirmar.','err');
         return;
       }
       const dataUrl=canvas.toDataURL('image/png');
-      localStorage.setItem(key,dataUrl);
-      setStatus('✅ Assinatura registrada com sucesso!','ok');
-      setPadEnabled(false);
+      localStorage.setItem(key,dataUrl); // cache local, útil se a rede falhar
+      btnConfirm.disabled=true;
+      setStatus('Enviando assinatura...','info');
+      try{
+        const rGet=await fetch(SB_URL+'/rest/v1/membros?num_cred=eq.'+encodeURIComponent(memberId)+'&select=dados,id',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+        const rows=rGet.ok?await rGet.json():[];
+        if(rows.length===0) throw new Error('Membro não encontrado na nuvem');
+        const dadosAtual=rows[0].dados;
+        dadosAtual.assinatura=dataUrl;
+        const rPatch=await fetch(SB_URL+'/rest/v1/membros?num_cred=eq.'+encodeURIComponent(memberId),{
+          method:'PATCH',
+          headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},
+          body:JSON.stringify({dados:dadosAtual})
+        });
+        if(!rPatch.ok) throw new Error('Falha ao gravar (HTTP '+rPatch.status+')');
+        setStatus('✅ Assinatura registrada com sucesso!','ok');
+        setPadEnabled(false);
+      }catch(err){
+        setStatus('⚠️ Assinatura salva neste aparelho, mas não foi possível enviar pra nuvem agora ('+((err&&err.message)||'erro')+'). Tente novamente com internet estável.','err');
+        setPadEnabled(false);
+      }
+      btnConfirm.disabled=false;
     });
     btnRedo.addEventListener('click',function(){
       clearPad();
