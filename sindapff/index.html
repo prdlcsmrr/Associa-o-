@@ -2797,10 +2797,15 @@ function renderContabil(){
   const totalSaidas = saidas2026.reduce((a,s)=>a+(parseFloat(s.valor)||0),0);
   const saldo = totalArrecadado - totalSaidas;
 
+  // VALOR TOTAL DO MÊS ATUAL (não confundir com o total arrecadado no ano inteiro)
+  const pagantesMesAtual = dadosMembros.filter(d=>d.mesesPagos.includes(mesAtual)).length;
+  const totalMesAtual = pagantesMesAtual * valorMes;
+
   // CARDS
   const cards = [
-    { icon:'💵', label:'Total Arrecadado 2026', valor:brl(totalArrecadado), cor:'#1a7a3a' },
-    { icon:'💸', label:'Total Saídas 2026',      valor:brl(totalSaidas),     cor:'#8a1c1c' },
+    { icon:'📅', label:'Valor Total — '+MESES_CONT[mesAtual]+' ('+pagantesMesAtual+' pagante'+(pagantesMesAtual!==1?'s':'')+')', valor:brl(totalMesAtual), cor:'#c9972a' },
+    { icon:'💵', label:'Total Arrecadado '+ANO_CONT+' (ano)', valor:brl(totalArrecadado), cor:'#1a7a3a' },
+    { icon:'💸', label:'Total Saídas '+ANO_CONT,      valor:brl(totalSaidas),     cor:'#8a1c1c' },
     { icon:'⚖️', label:'Saldo (Receita − Saídas)', valor:brl(saldo),         cor: saldo>=0?'#1a7a3a':'#b91c1c' },
     { icon:'✅', label:'Adimplentes',            valor:adimplentes+' / '+totalMembros,  cor:'#1a2a5e' },
     { icon:'⚠️', label:'Inadimplentes',          valor:inadimplentes,                   cor:'#b91c1c' },
@@ -2832,7 +2837,7 @@ function renderContabil(){
 
   document.getElementById('cont-tabela-meses').innerHTML = mesRows +
     `<div style="display:grid;grid-template-columns:1fr auto;align-items:center;padding:14px 20px;background:var(--navy)">
-      <div style="font-size:13px;font-weight:700;color:#fff">TOTAL ARRECADADO 2026</div>
+      <div style="font-size:13px;font-weight:700;color:#fff">TOTAL ARRECADADO ${ANO_CONT} (ANO)</div>
       <div style="font-size:16px;font-weight:900;color:var(--gold)">${brl(totalAnual)}</div>
     </div>`;
 
