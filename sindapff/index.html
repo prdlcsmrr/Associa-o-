@@ -2800,6 +2800,8 @@ function renderContabil(){
   // VALOR TOTAL DO MÊS ATUAL (não confundir com o total arrecadado no ano inteiro)
   const pagantesMesAtual = dadosMembros.filter(d=>d.mesesPagos.includes(mesAtual)).length;
   const totalMesAtual = pagantesMesAtual * valorMes;
+  const devedoresMesAtual = dadosMembros.filter(d=>d.mesesEmAtraso.includes(mesAtual)).length;
+  const totalEmAbertoMesAtual = devedoresMesAtual * valorMes;
 
   // CARDS
   const cards = [
@@ -2809,7 +2811,8 @@ function renderContabil(){
     { icon:'⚖️', label:'Saldo (Receita − Saídas)', valor:brl(saldo),         cor: saldo>=0?'#1a7a3a':'#b91c1c' },
     { icon:'✅', label:'Adimplentes',            valor:adimplentes+' / '+totalMembros,  cor:'#1a2a5e' },
     { icon:'⚠️', label:'Inadimplentes',          valor:inadimplentes,                   cor:'#b91c1c' },
-    { icon:'📋', label:'Total em Aberto',        valor:brl(totalEmAberto),              cor:'#c9972a' },
+    { icon:'📋', label:'Total em Aberto (ano todo)', valor:brl(totalEmAberto),              cor:'#c9972a' },
+    { icon:'🗓️', label:'Total em Aberto — '+MESES_CONT[mesAtual]+' ('+devedoresMesAtual+' devedor'+(devedoresMesAtual!==1?'es':'')+')', valor:brl(totalEmAbertoMesAtual), cor:'#b91c1c' },
   ];
   document.getElementById('cont-cards').innerHTML = cards.map(c=>`
     <div style="background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.08);padding:16px;border-left:4px solid ${c.cor}">
