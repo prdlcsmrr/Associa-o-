@@ -260,6 +260,12 @@ async function init(){
     return;
   }
 
+  // Config de visibilidade (Matrícula/SIAPE podem ser ocultados pelo admin). Se falhar, mostra por padrão.
+  try{
+    const rc=await fetch(SB_URL+'/rest/v1/config?id=eq.1&select=mostrar_matricula,mostrar_siape',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+    if(rc.ok){ const rows=await rc.json(); if(rows.length>0) window._cfgVisibilidade=rows[0]; }
+  }catch(e){}
+
   const m = (data.membros||[]).find(x=>x.numCred===id);
   if(m){ render(m); return; }
 
@@ -309,16 +315,17 @@ function render(m){
           <div class="lbl">Nome:</div>
           <div class="nome">${(m.nome||'').toUpperCase()}</div>
         </div>
+        ${(window._cfgVisibilidade?.mostrar_matricula!==false) ? `
         <div>
           <div class="lbl">Matrícula Funcional:</div>
           <span class="mat-badge">${m.numCred||'—'}</span>
-        </div>
+        </div>` : ''}
         <div class="porte">PORTE DE ARMA: <strong>${((m.porteArma||"Habilitado")).toUpperCase()}</strong></div>
         <div>
           <div class="lbl">Cargo:</div>
           <div class="cargo-txt">${(m.cat||'—').toUpperCase()}</div>
         </div>
-        ${(m.siape||m.siepe) ? `
+        ${(window._cfgVisibilidade?.mostrar_siape===false) ? '' : ((m.siape||m.siepe) ? `
         <div>
           <div class="lbl">SIAPE:</div>
           <div class="cargo-txt">${(m.siape||m.siepe||'').toUpperCase()}</div>
@@ -326,7 +333,7 @@ function render(m){
         <div>
           <div class="lbl">SIAPE:</div>
           <div class="cargo-txt" style="color:#aaa;font-style:italic">NÃO INFORMADO</div>
-        </div>`}
+        </div>`)}
         <div class="situacao">
           SITUAÇÃO FUNCIONAL: <span class="${statusFinal?'ativo-txt':'inativo-txt'}">${statusFinal?'ATIVO':'INATIVO'}</span>
         </div>
