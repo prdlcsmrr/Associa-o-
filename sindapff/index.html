@@ -841,6 +841,8 @@ ART. 2º INCISO V DA LEI Nº 12.57 DE 2009; ART. 2º INCISO V DA 10.266, DE 2020
             <label style="display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;text-transform:none;letter-spacing:0;cursor:pointer;padding:8px;background:#f9f9f9;border-radius:8px;border:1px solid #eee"><input type="checkbox" id="cfg-ver-emissao" checked style="width:18px;height:18px;cursor:pointer"> Emissão</label>
             <label style="display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;text-transform:none;letter-spacing:0;cursor:pointer;padding:8px;background:#f9f9f9;border-radius:8px;border:1px solid #eee"><input type="checkbox" id="cfg-ver-hash" checked style="width:18px;height:18px;cursor:pointer"> Hash / Autenticação</label>
             <label style="display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;text-transform:none;letter-spacing:0;cursor:pointer;padding:8px;background:#f9f9f9;border-radius:8px;border:1px solid #eee"><input type="checkbox" id="cfg-ver-porte" checked style="width:18px;height:18px;cursor:pointer"> Porte de Arma</label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;text-transform:none;letter-spacing:0;cursor:pointer;padding:8px;background:#f9f9f9;border-radius:8px;border:1px solid #eee"><input type="checkbox" id="cfg-ver-matricula" checked style="width:18px;height:18px;cursor:pointer"> Matrícula</label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;text-transform:none;letter-spacing:0;cursor:pointer;padding:8px;background:#f9f9f9;border-radius:8px;border:1px solid #eee"><input type="checkbox" id="cfg-ver-siape" checked style="width:18px;height:18px;cursor:pointer"> SIAPE</label>
           </div>
         </div>
 
@@ -2475,6 +2477,21 @@ function loadConfig(){
   document.querySelectorAll('.hemblem').forEach(e=>{
     e.innerHTML='<img src="/logo.png" alt="Logo SINDAPFF" width="44" height="44" decoding="async" style="width:44px;height:44px;object-fit:contain;">';
   });
+
+  // Busca o estado real (nuvem) de Matrícula/SIAPE — evita mostrar valor desatualizado
+  // se outro admin mudou isso em outro aparelho.
+  (async function(){
+    try{
+      const r=await fetch(SB_URL+'/rest/v1/config?id=eq.1&select=mostrar_matricula,mostrar_siape',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+      if(r.ok){
+        const rows=await r.json();
+        if(rows.length>0){
+          const elM=document.getElementById('cfg-ver-matricula'); if(elM) elM.checked=rows[0].mostrar_matricula!==false;
+          const elS=document.getElementById('cfg-ver-siape'); if(elS) elS.checked=rows[0].mostrar_siape!==false;
+        }
+      }
+    }catch(e){}
+  })();
 }
 
 // Aplicar config ao carregar a página
@@ -2671,7 +2688,9 @@ async function saveConfig(){
     ver_validade:document.getElementById('cfg-ver-validade').checked,
     ver_emissao:document.getElementById('cfg-ver-emissao').checked,
     ver_hash:document.getElementById('cfg-ver-hash').checked,
-    ver_porte:document.getElementById('cfg-ver-porte').checked
+    ver_porte:document.getElementById('cfg-ver-porte').checked,
+    ver_matricula:document.getElementById('cfg-ver-matricula').checked,
+    ver_siape:document.getElementById('cfg-ver-siape').checked
   };
 
   // Salvar no localStorage com verificação
@@ -2682,6 +2701,18 @@ async function saveConfig(){
   } catch(lsErr) {
     alert('⚠️ Erro ao salvar: ' + lsErr.message + '\n\nVerifique se não está em modo privado.');
     return;
+  }
+
+  // Sincroniza com o Supabase — sem isso, a página de verificação (pública, sem login)
+  // nunca ia saber se Matrícula/SIAPE devem aparecer ou não.
+  try{
+    await fetch(SB_URL+'/rest/v1/config?id=eq.1',{
+      method:'PATCH',
+      headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},
+      body:JSON.stringify({mostrar_matricula:cfg.ver_matricula, mostrar_siape:cfg.ver_siape})
+    });
+  }catch(e){
+    if(window.reportarErro) window.reportarErro('Config visibilidade','Falha ao sincronizar com a nuvem: '+((e&&e.message)||'erro'), true);
   }
   loadConfig();
   // Limpar campos de senha
