@@ -491,6 +491,10 @@ async function init(){
     _notifyParent({status:'not-found', id:id});
     return;
   }
+  try{
+    const rc=await fetch(SB_URL+'/rest/v1/config?id=eq.1&select=mostrar_matricula,mostrar_siape',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+    if(rc.ok){ const rows=await rc.json(); if(rows.length>0) window._cfgVisibilidade=rows[0]; }
+  }catch(e){}
   membro=m; renderCard();
   _notifyParent({status:'ready', numCred:m.numCred, ativo:m.status==='Ativo'});
 }
@@ -498,13 +502,15 @@ async function init(){
 function getData(){
   const m=membro;
   const fil=[m.pai||'',m.mae||''].filter(Boolean).join('\n')||'—';
+  const _mostrarMat = window._cfgVisibilidade?.mostrar_matricula!==false;
+  const _mostrarSiape = window._cfgVisibilidade?.mostrar_siape!==false;
   return {
     f_cargo:(m.cat||'').toUpperCase(), f_nome:m.nome,
-    f_mat:m.numCred, f_cpf:m.cpf, f_emissao:fmt(m.emissao), f_hash:m.docId,
+    f_mat:(_mostrarMat?m.numCred:''), f_cpf:m.cpf, f_emissao:fmt(m.emissao), f_hash:m.docId,
     v_filiacao_pai:(m.pai||'Não informado'), v_filiacao_mae:(m.mae||''), v_nasc:fmt(m.nasc), v_admissao:fmt(m.emissao),
     v_naturalidade:(m.naturalidade||'BRASILEIRO'),
     v_validade:fmt(m.validade), v_municipio:(m.municipio||'—').toUpperCase(),
-    v_situacao:membro.status==='Ativo'?'ATIVO':'INATIVO', v_siape:(m.siape||''),
+    v_situacao:membro.status==='Ativo'?'ATIVO':'INATIVO', v_siape:(_mostrarSiape?(m.siape||''):''),
   };
 }
 
