@@ -83,10 +83,16 @@ body.editing-mode .card-wrap { max-width:820px; }
 }
 .campo.sel {
   outline:2.5px solid var(--gold) !important;
-  background:rgba(255,255,255,.92) !important;
+  background:rgba(255,255,255,.15) !important;
   padding:2px 6px; border-radius:3px;
   z-index:50;
-  box-shadow:0 2px 8px rgba(0,0,0,.25);
+  box-shadow:0 0 0 1px rgba(0,0,0,.15);
+}
+.campo.sel::before {
+  content:'';
+  position:absolute; left:-4px; top:-4px; width:6px; height:6px;
+  background:var(--gold); border:1px solid #000; border-radius:50%;
+  pointer-events:none;
 }
 .f-photo { position:absolute; overflow:hidden; background:#ccc;
   display:flex; align-items:center; justify-content:center; }
@@ -314,25 +320,25 @@ function _notifyParent(msg){
   try{ if(window.parent && window.parent!==window) window.parent.postMessage(Object.assign({ubapffCred:true}, msg), '*'); }catch(e){}
 }
 
-const LAYOUT_VERSION = 2; // bump isso sempre que o DEFAULT_F/V mudar de verdade — força reset de layouts salvos antigos
+const LAYOUT_VERSION = 3; // bump isso sempre que o DEFAULT_F/V mudar de verdade — força reset de layouts salvos antigos
 const DEFAULT_F = {
-  f_photo:  { type:'photo', left:74.0, top:22.0, w:18.0, ratio:'3/4' },
-  f_nome:   { left:14.0, top:40.0, size:2.2, bold:true,  color:'#111',    upper:true  },
-  f_mat:    { left:14.0, top:49.0, size:1.8, bold:true,  color:'#111',    upper:false },
-  f_cpf:    { left:55.0, top:49.0, size:1.8, bold:true,  color:'#111',    upper:false },
-  f_nasc:   { left:14.0, top:60.0, size:1.8, bold:true,  color:'#111',    upper:false },
-  f_cargo:  { left:30.0, top:75.0, size:1.6, bold:true,  color:'#1a2a6e', upper:true  },
-  f_assinatura: { type:'signature', left:58.0, top:85.0, w:25.0 },
+  f_photo:  { type:'photo', left:80.0, top:37.0, w:15.0, ratio:'3/4' },
+  f_nome:   { left:22.0, top:39.0, size:2.0, bold:true,  color:'#111',    upper:true  },
+  f_mat:    { left:22.0, top:48.0, size:1.7, bold:true,  color:'#111',    upper:false },
+  f_cpf:    { left:60.0, top:48.0, size:1.7, bold:true,  color:'#111',    upper:false },
+  f_nasc:   { left:22.0, top:59.0, size:1.7, bold:true,  color:'#111',    upper:false },
+  f_cargo:  { left:33.0, top:75.0, size:1.5, bold:true,  color:'#1a2a6e', upper:true  },
+  f_assinatura: { type:'signature', left:55.0, top:88.0, w:22.0 },
 };
 const DEFAULT_V = {
-  v_qr:            { type:'qr',        left:5.0,  top:78.0, w:16.0, color:'#cc0000' },
-  v_filiacao_pai:  { left:12.0, top:32.5, size:1.5, bold:true,  color:'#111',    upper:false },
-  v_filiacao_mae:  { left:12.0, top:36.0, size:1.5, bold:true,  color:'#111',    upper:false },
-  v_admissao:      { left:36.0, top:38.0, size:1.8, bold:true,  color:'#111',    upper:false },
-  v_validade:      { left:36.0, top:32.5, size:1.8, bold:true,  color:'#cc0000', upper:false },
-  v_naturalidade:  { left:12.0, top:38.0, size:1.8, bold:true,  color:'#111',    upper:true  },
-  v_situacao:      { left:12.0, top:43.0, size:1.8, bold:true,  color:'#111',    upper:true  },
-  v_hash:          { left:36.0, top:43.0, size:1.6, bold:false, color:'#333',    upper:false },
+  v_qr:            { type:'qr',        left:5.0,  top:63.0, w:16.0, color:'#cc0000' },
+  v_filiacao_pai:  { left:19.0, top:35.5, size:1.4, bold:true,  color:'#111',    upper:false },
+  v_filiacao_mae:  { left:19.0, top:39.0, size:1.4, bold:true,  color:'#111',    upper:false },
+  v_admissao:      { left:56.0, top:47.5, size:1.6, bold:true,  color:'#111',    upper:false },
+  v_validade:      { left:54.0, top:36.5, size:1.6, bold:true,  color:'#cc0000', upper:false },
+  v_naturalidade:  { left:19.0, top:47.5, size:1.6, bold:true,  color:'#111',    upper:true  },
+  v_situacao:      { left:19.0, top:58.5, size:1.6, bold:true,  color:'#111',    upper:true  },
+  v_hash:          { left:54.0, top:58.5, size:1.4, bold:false, color:'#333',    upper:false },
 };
 const LABELS = {
   f_photo:'Foto', f_cargo:'Cargo/Função', f_nome:'Nome', f_mat:'Matrícula',
@@ -547,7 +553,7 @@ function getData(){
 
 function renderCard(){
   const m=membro, data=getData(), L=layout();
-  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=20260721`:`${BASE}/Verso.png?v=20260721`;
+  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=20260722`:`${BASE}/Verso.png?v=20260722`;
   let fields='', guides='';
 
   for(const [key,cfg] of Object.entries(L)){
@@ -605,7 +611,7 @@ function renderCard(){
 
   document.getElementById('app').innerHTML=`
     <div class="card" id="the-card">
-      <img class="bg" src="${imgSrc}" alt="" width="${tab==='F'?1560:1560}" height="${tab==='F'?960:1755}" loading="lazy" decoding="async" crossorigin="anonymous" onerror="if(this.src.includes('/Verso.png')){this.onerror=null;this.src='${BASE}/verso.jpg?v=20260721';}">
+      <img class="bg" src="${imgSrc}" alt="" width="1560" height="960" loading="lazy" decoding="async" crossorigin="anonymous" onerror="if(this.src.includes('/Verso.png')){this.onerror=null;this.src='${BASE}/verso.jpg?v=20260722';}">
       <div class="grid-overlay" id="grid-overlay" style="display:${showGrid?'block':'none'}"></div>
       <div class="overlay" style="pointer-events:${editMode?'all':'none'}">${fields}${guides}</div>
     </div>`;
@@ -768,15 +774,15 @@ function buildCtrlPanel(){
     <!-- Nudge pad -->
     <div class="nudge-wrap" style="margin:6px 0">
       <div class="nudge-row">
-        <button class="nb" onclick="nudge(0,-nudgeStep)">▲</button>
+        <button class="nb" type="button" onclick="event.stopPropagation();nudge(0,-nudgeStep)" ontouchend="event.stopPropagation();event.preventDefault();nudge(0,-nudgeStep)">▲</button>
       </div>
       <div class="nudge-row">
-        <button class="nb" onclick="nudge(-nudgeStep,0)">◄</button>
+        <button class="nb" type="button" onclick="event.stopPropagation();nudge(-nudgeStep,0)" ontouchend="event.stopPropagation();event.preventDefault();nudge(-nudgeStep,0)">◄</button>
         <button class="nb nb-ctr" onclick="centerH()">CTR<br>H</button>
-        <button class="nb" onclick="nudge(nudgeStep,0)">►</button>
+        <button class="nb" type="button" onclick="event.stopPropagation();nudge(nudgeStep,0)" ontouchend="event.stopPropagation();event.preventDefault();nudge(nudgeStep,0)">►</button>
       </div>
       <div class="nudge-row">
-        <button class="nb" onclick="nudge(0,nudgeStep)">▼</button>
+        <button class="nb" type="button" onclick="event.stopPropagation();nudge(0,nudgeStep)" ontouchend="event.stopPropagation();event.preventDefault();nudge(0,nudgeStep)">▼</button>
       </div>
     </div>
 
