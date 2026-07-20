@@ -42,7 +42,7 @@ body { background:#1a1a2e; font-family:'Arial Narrow',Arial,sans-serif; min-heig
 .tab:first-child { border-right:1px solid rgba(201,151,42,.3); }
 
 /* CARD — sempre visível, nunca coberto */
-.card-wrap { padding:10px 12px 0; }
+.card-wrap { padding:10px 12px 0; max-width:480px; margin-left:auto; margin-right:auto; }
 .card {
   position:relative; width:100%; border-radius:6px; overflow:hidden;
   box-shadow:0 8px 32px rgba(0,0,0,.6);
@@ -319,32 +319,28 @@ const DEFAULT_F = {
   f_nasc:   { left:14.0, top:52.5, size:2.0, bold:true,  color:'#111',    upper:false },
   f_cargo:  { left:34.0, top:64.0, size:1.8, bold:true,  color:'#1a2a6e', upper:true  },
   f_siape:  { left:35.0, top:79.5, size:1.8, bold:true,  color:'#111',    upper:false },
+  f_assinatura: { type:'signature', left:60.0, top:80.0, w:25.0 },
 };
 const DEFAULT_V = {
   v_qr:            { type:'qr',        left:5.0,  top:78.0, w:16.0, color:'#cc0000' },
   v_filiacao_pai:  { left:12.0, top:32.5, size:1.5, bold:true,  color:'#111',    upper:false },
   v_filiacao_mae:  { left:12.0, top:36.0, size:1.5, bold:true,  color:'#111',    upper:false },
   v_admissao:      { left:36.0, top:38.0, size:1.8, bold:true,  color:'#111',    upper:false },
-  v_nasc:          { left:12.0, top:39.7, size:2.0, bold:true,  color:'#111',    upper:false },
   v_validade:      { left:36.0, top:32.5, size:1.8, bold:true,  color:'#cc0000', upper:false },
   v_naturalidade:  { left:12.0, top:38.0, size:1.8, bold:true,  color:'#111',    upper:true  },
   v_situacao:      { left:12.0, top:43.0, size:1.8, bold:true,  color:'#111',    upper:true  },
-  v_municipio:     { left:52.0, top:41.0, size:1.6, bold:true,  color:'#111',    upper:true  },
   v_hash:          { left:36.0, top:43.0, size:1.6, bold:false, color:'#333',    upper:false },
-  v_assinatura:    { type:'signature', left:60.0, top:80.0, w:25.0 },
 };
 const LABELS = {
   f_photo:'Foto', f_cargo:'Cargo/Função', f_nome:'Nome', f_mat:'Matrícula',
-  f_cpf:'CPF', f_nasc:'Data Nasc. (frente)', f_siape:'SIAPE',
-  v_filiacao_pai:'Pai', v_filiacao_mae:'Mãe', v_nasc:'Nasc. (verso)', v_admissao:'Data Expedição',
+  f_cpf:'CPF', f_nasc:'Data Nasc. (frente)', f_siape:'SIAPE', f_assinatura:'Assinatura',
+  v_filiacao_pai:'Pai', v_filiacao_mae:'Mãe', v_admissao:'Data Expedição',
   v_naturalidade:'Naturalidade', v_validade:'Validade',
-  v_municipio:'Município', v_situacao:'Situação', v_hash:'Código Hash',
-  v_assinatura:'Assinatura',
+  v_situacao:'Situação', v_hash:'Código Hash',
 };
 const DOT_COLORS = {
-  f_photo:'#888',f_cargo:'#1a2a6e',f_nome:'#333',f_mat:'#555',f_cpf:'#555',f_nasc:'#555',f_siape:'#555',
-  v_filiacao_pai:'#111',v_filiacao_mae:'#111',v_nasc:'#333',v_admissao:'#333',v_naturalidade:'#333',v_validade:'#c00',v_municipio:'#333',v_situacao:'#333',v_hash:'#888',
-  v_assinatura:'#555',
+  f_photo:'#888',f_cargo:'#1a2a6e',f_nome:'#333',f_mat:'#555',f_cpf:'#555',f_nasc:'#555',f_siape:'#555',f_assinatura:'#555',
+  v_filiacao_pai:'#111',v_filiacao_mae:'#111',v_admissao:'#333',v_naturalidade:'#333',v_validade:'#c00',v_situacao:'#333',v_hash:'#888',
 };
 
 let layoutF={}, layoutV={}, tab='F', editMode=false;
@@ -378,7 +374,7 @@ function loadLayouts(){
       const parsedF = JSON.parse(userSavedF);
       // Layout salvo é da arte antiga (paisagem) — campos novos da arte atual não existem nele.
       // Em vez de tentar remendar, volta pro padrão da arte nova (o admin pode reajustar arrastando).
-      if(!parsedF.f_nasc || !parsedF.f_siape){
+      if(!parsedF.f_nasc || !parsedF.f_siape || !parsedF.f_assinatura){
         layoutF = clone(DEFAULT_F);
       } else {
         layoutF = parsedF;
@@ -392,7 +388,7 @@ function loadLayouts(){
     try{
       const parsed = JSON.parse(userSavedV);
       // Mesma lógica: layout salvo da arte antiga não serve pra arte nova.
-      if(!parsed.v_hash){
+      if(!parsed.v_hash || parsed.v_municipio || parsed.v_assinatura){
         layoutV = clone(DEFAULT_V);
       } else {
         layoutV = parsed;
@@ -509,9 +505,9 @@ function getData(){
   return {
     f_cargo:(m.cat||'').toUpperCase(), f_nome:m.nome,
     f_mat:(_mostrarMat?m.numCred:''), f_cpf:m.cpf, f_nasc:fmt(m.nasc), f_siape:(_mostrarSiape?(m.siape||''):''),
-    v_filiacao_pai:(m.pai||'Não informado'), v_filiacao_mae:(m.mae||''), v_nasc:fmt(m.nasc), v_admissao:fmt(m.emissao),
+    v_filiacao_pai:(m.pai||'Não informado'), v_filiacao_mae:(m.mae||''), v_admissao:fmt(m.emissao),
     v_naturalidade:(m.naturalidade||'BRASILEIRO'),
-    v_validade:fmt(m.validade), v_municipio:(m.municipio||'—').toUpperCase(),
+    v_validade:fmt(m.validade),
     v_situacao:membro.status==='Ativo'?'ATIVO':'INATIVO', v_hash:m.docId,
   };
 }
