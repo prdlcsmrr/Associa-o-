@@ -123,6 +123,8 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
 .mcard-status { display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase; }
 .mcard-status.ativo { background:rgba(26,122,58,0.1);color:var(--green); }
 .mcard-status.inativo { background:rgba(185,28,28,0.08);color:var(--red); }
+.mcard-status.pendente { background:rgba(201,151,42,0.15);color:#8a6d1a;font-weight:800;animation:pulsePendente 2s ease-in-out infinite; }
+@keyframes pulsePendente { 0%,100%{opacity:1} 50%{opacity:.6} }
 .mcard-acts { display:flex;gap:6px;margin-top:10px; }
 .mcard-btn { flex:1;padding:7px;border-radius:6px;border:none;font-size:10px;font-weight:700;cursor:pointer;text-transform:uppercase;transition:all 0.2s; }
 .mcard-btn-cred { background:#f3f4f6;color:var(--navy); }
@@ -501,6 +503,7 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
       <div class="badge">Total: <strong id="total">0</strong></div>
       <button class="btn btn-red" onclick="clearAll()" style="padding:11px 14px;font-size:12px;">🗑</button>
     </div>
+    <button class="btn btn-navy" style="width:100%;margin-bottom:10px" onclick="gerarLinkCadastro()">🔗 Gerar link de cadastro (uso único)</button>
     <div class="mgrid" id="mgrid"></div>
   </div>
 
@@ -1864,7 +1867,7 @@ function renderList(){
       <div class="mcard-body">
         <div class="mcard-name">${esc(m.nome)}</div>
         <div class="mcard-cat">${esc(m.cat)} · ${esc(m.numCred)}</div>
-        <div class="mcard-status ${m.status==='Ativo'?'ativo':'inativo'}">● ${m.status==='Ativo'?'Credencial Ativa':'Credencial Inativa'}</div>
+        <div class="mcard-status ${m.status==='Ativo'?'ativo':(m.status==='Pendente'?'pendente':'inativo')}">${m.status==='Pendente'?'🆕 Cadastro Pendente — Revisar':'● '+(m.status==='Ativo'?'Credencial Ativa':'Credencial Inativa')}</div>
         ${!m.foto?'<div style="display:inline-flex;align-items:center;gap:4px;background:#fef3c7;color:#92400e;border:1px solid #fcd34d;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;margin-top:4px">📸 CADASTRO PENDENTE — SEM FOTO</div>':''}
         ${m.assinatura?'<div class="sign-badge">✍️ Assinado</div>':''}
         ${(function(){
@@ -2171,6 +2174,27 @@ function toggleStatus(id){
   save();
   renderList();
   syncToCloud();
+}
+
+async function gerarLinkCadastro(){
+  const token = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b=>b.toString(16).padStart(2,'0')).join('');
+  try{
+    const r = await fetch(SB_URL+'/rest/v1/convites',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},
+      body:JSON.stringify([{token:token}])
+    });
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const link = 'https://ubapff.org.br/cadastro-membro.html?token='+token;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      await navigator.clipboard.writeText(link);
+      alert('✅ Link gerado e copiado!\n\n'+link+'\n\nVale só pra 1 cadastro — depois de usado, para de funcionar.');
+    } else {
+      prompt('Link gerado (copie manualmente) — vale só pra 1 cadastro:', link);
+    }
+  }catch(e){
+    alert('Não consegui gerar o link agora. Verifique sua internet e tente de novo.');
+  }
 }
 
 async function reloadMembers(){
