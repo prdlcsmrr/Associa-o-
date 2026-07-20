@@ -34,9 +34,10 @@ body { background:#1a1a2e; font-family:'Arial Narrow',Arial,sans-serif; min-heig
 .btn-sm     { padding:6px 10px; font-size:10px; }
 
 /* TABS */
-.tabs { display:flex; margin:10px 12px 0; border-radius:10px; overflow:hidden; border:1.5px solid rgba(201,151,42,.35); }
-.tab { flex:1; padding:11px; text-align:center; font-size:12px; font-weight:800; cursor:pointer;
-  text-transform:uppercase; letter-spacing:.8px; transition:all .2s;
+.tabs { display:flex; margin:10px 12px 0; border-radius:8px; overflow:hidden; border:1px solid rgba(201,151,42,.35); max-width:480px; margin-left:auto; margin-right:auto; }
+body.editing-mode .tabs { max-width:820px; }
+.tab { flex:1; padding:8px; text-align:center; font-size:11px; font-weight:700; cursor:pointer;
+  text-transform:uppercase; letter-spacing:.5px; transition:all .2s;
   color:rgba(255,255,255,.45); background:rgba(255,255,255,.04); }
 .tab.active { background:var(--gold); color:#000; }
 .tab:first-child { border-right:1px solid rgba(201,151,42,.3); }
@@ -166,10 +167,11 @@ body.editing-mode .card-wrap { max-width:820px; }
 .cp.active, .cp:hover { border-color:#fff; transform:scale(1.1); }
 
 /* Botões de ação */
-.action-row { display:flex; gap:6px; padding:0 12px 12px; }
+.action-row { display:flex; gap:6px; padding:0 12px 12px; max-width:480px; margin-left:auto; margin-right:auto; }
+body.editing-mode .action-row { max-width:820px; }
 
 /* Downloads */
-.dl-actions { display:flex; gap:8px; padding:10px 12px 16px; }
+.dl-actions { display:flex; gap:8px; padding:10px 12px 16px; max-width:480px; margin-left:auto; margin-right:auto; }
 
 /* ── MOBILE RESPONSIVO ── */
 @media (max-width: 480px) {
@@ -312,15 +314,15 @@ function _notifyParent(msg){
   try{ if(window.parent && window.parent!==window) window.parent.postMessage(Object.assign({ubapffCred:true}, msg), '*'); }catch(e){}
 }
 
+const LAYOUT_VERSION = 2; // bump isso sempre que o DEFAULT_F/V mudar de verdade — força reset de layouts salvos antigos
 const DEFAULT_F = {
-  f_photo:  { type:'photo', left:78.0, top:6.0,  w:16.0, ratio:'3/4' },
-  f_nome:   { left:14.0, top:32.0, size:2.4, bold:true,  color:'#111',    upper:true  },
-  f_mat:    { left:14.0, top:39.0, size:2.0, bold:true,  color:'#111',    upper:false },
-  f_cpf:    { left:55.0, top:39.0, size:2.0, bold:true,  color:'#111',    upper:false },
-  f_nasc:   { left:14.0, top:52.5, size:2.0, bold:true,  color:'#111',    upper:false },
-  f_cargo:  { left:34.0, top:64.0, size:1.8, bold:true,  color:'#1a2a6e', upper:true  },
-  f_siape:  { left:35.0, top:79.5, size:1.8, bold:true,  color:'#111',    upper:false },
-  f_assinatura: { type:'signature', left:60.0, top:80.0, w:25.0 },
+  f_photo:  { type:'photo', left:74.0, top:22.0, w:18.0, ratio:'3/4' },
+  f_nome:   { left:14.0, top:40.0, size:2.2, bold:true,  color:'#111',    upper:true  },
+  f_mat:    { left:14.0, top:49.0, size:1.8, bold:true,  color:'#111',    upper:false },
+  f_cpf:    { left:55.0, top:49.0, size:1.8, bold:true,  color:'#111',    upper:false },
+  f_nasc:   { left:14.0, top:60.0, size:1.8, bold:true,  color:'#111',    upper:false },
+  f_cargo:  { left:30.0, top:75.0, size:1.6, bold:true,  color:'#1a2a6e', upper:true  },
+  f_assinatura: { type:'signature', left:58.0, top:85.0, w:25.0 },
 };
 const DEFAULT_V = {
   v_qr:            { type:'qr',        left:5.0,  top:78.0, w:16.0, color:'#cc0000' },
@@ -334,13 +336,13 @@ const DEFAULT_V = {
 };
 const LABELS = {
   f_photo:'Foto', f_cargo:'Cargo/Função', f_nome:'Nome', f_mat:'Matrícula',
-  f_cpf:'CPF', f_nasc:'Data Nasc. (frente)', f_siape:'SIAPE', f_assinatura:'Assinatura',
+  f_cpf:'CPF', f_nasc:'Data Nasc. (frente)', f_assinatura:'Assinatura',
   v_filiacao_pai:'Pai', v_filiacao_mae:'Mãe', v_admissao:'Data Expedição',
   v_naturalidade:'Naturalidade', v_validade:'Validade',
   v_situacao:'Situação', v_hash:'Código Hash',
 };
 const DOT_COLORS = {
-  f_photo:'#888',f_cargo:'#1a2a6e',f_nome:'#333',f_mat:'#555',f_cpf:'#555',f_nasc:'#555',f_siape:'#555',f_assinatura:'#555',
+  f_photo:'#888',f_cargo:'#1a2a6e',f_nome:'#333',f_mat:'#555',f_cpf:'#555',f_nasc:'#555',f_assinatura:'#555',
   v_filiacao_pai:'#111',v_filiacao_mae:'#111',v_admissao:'#333',v_naturalidade:'#333',v_validade:'#c00',v_situacao:'#333',v_hash:'#888',
 };
 
@@ -352,7 +354,7 @@ function clone(o){ return JSON.parse(JSON.stringify(o)); }
 function layout(){ return tab==='F'?layoutF:layoutV; }
 function fmt(d){ if(!d)return'—'; return new Date(d+'T12:00').toLocaleDateString('pt-BR'); }
 
-function loadLayouts(){
+async function loadLayouts(){
   // Limpar TUDO do localStorage de carteirinha sempre
   for(let i=1;i<=20;i++){
     localStorage.removeItem('cart_lF_v'+i);
@@ -366,44 +368,74 @@ function loadLayouts(){
   localStorage.removeItem('cart_userSaved_F3');
   localStorage.removeItem('cart_userSaved_V3');
 
+  // 1ª prioridade: layout padrão salvo na nuvem (vale pra todo mundo, qualquer aparelho)
+  let cloudF=null, cloudV=null;
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/config?id=eq.1&select=layout_frente,layout_verso',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+    if(r.ok){
+      const rows=await r.json();
+      if(rows.length>0){
+        if(rows[0].layout_frente && rows[0].layout_frente._v===LAYOUT_VERSION) cloudF=rows[0].layout_frente;
+        if(rows[0].layout_verso && rows[0].layout_verso._v===LAYOUT_VERSION) cloudV=rows[0].layout_verso;
+      }
+    }
+  }catch(e){}
+  if(cloudF){ layoutF=cloudF; }
+  if(cloudV){ layoutV=cloudV; }
+  if(cloudF && cloudV) return; // nuvem tem os dois, não precisa olhar localStorage
+
   // Só carregar layout salvo se usuário explicitamente salvou (flag user_saved)
   const userSavedF = localStorage.getItem('cart_userSaved_F4');
   const userSavedV = localStorage.getItem('cart_userSaved_V4');
 
-  if(userSavedF){
-    try{
-      const parsedF = JSON.parse(userSavedF);
-      // Layout salvo é da arte antiga (paisagem) — campos novos da arte atual não existem nele.
-      // Em vez de tentar remendar, volta pro padrão da arte nova (o admin pode reajustar arrastando).
-      if(!parsedF.f_nasc || !parsedF.f_siape || !parsedF.f_assinatura){
-        layoutF = clone(DEFAULT_F);
-      } else {
-        layoutF = parsedF;
-      }
-    }catch(e){ layoutF = clone(DEFAULT_F); }
-  } else {
-    layoutF = clone(DEFAULT_F);
+  if(!cloudF){
+    if(userSavedF){
+      try{
+        const parsedF = JSON.parse(userSavedF);
+        // Layout salvo é de uma versão anterior do design — volta pro padrão atual
+        // (o admin pode reajustar arrastando e salvar de novo como padrão).
+        if(parsedF._v !== LAYOUT_VERSION){
+          layoutF = clone(DEFAULT_F);
+        } else {
+          layoutF = parsedF;
+        }
+      }catch(e){ layoutF = clone(DEFAULT_F); }
+    } else {
+      layoutF = clone(DEFAULT_F);
+    }
   }
 
-  if(userSavedV){
-    try{
-      const parsed = JSON.parse(userSavedV);
-      // Mesma lógica: layout salvo da arte antiga não serve pra arte nova.
-      if(!parsed.v_hash || parsed.v_municipio || parsed.v_assinatura){
-        layoutV = clone(DEFAULT_V);
-      } else {
-        layoutV = parsed;
-      }
-    }catch(e){ layoutV = clone(DEFAULT_V); }
-  } else {
-    layoutV = clone(DEFAULT_V);
+  if(!cloudV){
+    if(userSavedV){
+      try{
+        const parsed = JSON.parse(userSavedV);
+        if(parsed._v !== LAYOUT_VERSION){
+          layoutV = clone(DEFAULT_V);
+        } else {
+          layoutV = parsed;
+        }
+      }catch(e){ layoutV = clone(DEFAULT_V); }
+    } else {
+      layoutV = clone(DEFAULT_V);
+    }
   }
 }
-function saveLayout(){
-  // Salvar com flag de que o usuário salvou explicitamente
+async function saveLayout(){
+  layoutF._v = LAYOUT_VERSION;
+  layoutV._v = LAYOUT_VERSION;
   localStorage.setItem('cart_userSaved_F4', JSON.stringify(layoutF));
   localStorage.setItem('cart_userSaved_V4', JSON.stringify(layoutV));
-  toast('✅ Layout salvo!','#1a7a3a');
+  try{
+    const r = await fetch(SB_URL+'/rest/v1/config?id=eq.1',{
+      method:'PATCH',
+      headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},
+      body:JSON.stringify({layout_frente:layoutF, layout_verso:layoutV})
+    });
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    toast('✅ Salvo! Esse é o novo padrão em todas as carteirinhas.','#1a7a3a');
+  }catch(e){
+    toast('⚠️ Salvo neste aparelho, mas não consegui aplicar como padrão geral agora.','#b91c1c');
+  }
 }
 function saveLayoutSilent(){
   // Auto-save silencioso — NÃO sobrescreve o layout do usuário
@@ -468,7 +500,7 @@ function updateUndoBtn(){
 
 
 async function init(){
-  loadLayouts();
+  await loadLayouts();
   const id=new URLSearchParams(location.search).get('id');
   if(!id){ document.getElementById('app').innerHTML='<div class="loading">❌ Acesse pelo sistema principal.</div>'; return; }
   let m=null;
@@ -505,7 +537,7 @@ function getData(){
   const _mostrarSiape = window._cfgVisibilidade?.mostrar_siape!==false;
   return {
     f_cargo:(m.cat||'').toUpperCase(), f_nome:m.nome,
-    f_mat:(_mostrarMat?m.numCred:''), f_cpf:m.cpf, f_nasc:fmt(m.nasc), f_siape:(_mostrarSiape?(m.siape||''):''),
+    f_mat:(_mostrarMat?m.numCred:''), f_cpf:m.cpf, f_nasc:fmt(m.nasc),
     v_filiacao_pai:(m.pai||'Não informado'), v_filiacao_mae:(m.mae||''), v_admissao:fmt(m.emissao),
     v_naturalidade:(m.naturalidade||'BRASILEIRO'),
     v_validade:fmt(m.validade),
@@ -573,7 +605,7 @@ function renderCard(){
 
   document.getElementById('app').innerHTML=`
     <div class="card" id="the-card">
-      <img class="bg" src="${imgSrc}" alt="" width="1560" height="1755" loading="lazy" decoding="async" crossorigin="anonymous" onerror="if(this.src.includes('/Verso.png')){this.onerror=null;this.src='${BASE}/verso.jpg?v=20260721';}">
+      <img class="bg" src="${imgSrc}" alt="" width="${tab==='F'?1560:1560}" height="${tab==='F'?960:1755}" loading="lazy" decoding="async" crossorigin="anonymous" onerror="if(this.src.includes('/Verso.png')){this.onerror=null;this.src='${BASE}/verso.jpg?v=20260721';}">
       <div class="grid-overlay" id="grid-overlay" style="display:${showGrid?'block':'none'}"></div>
       <div class="overlay" style="pointer-events:${editMode?'all':'none'}">${fields}${guides}</div>
     </div>`;
