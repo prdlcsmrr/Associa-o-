@@ -96,6 +96,10 @@
 </head>
 <body>
 
+<div id="token-gate" style="position:fixed;inset:0;background:#F6F7F9;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:24px;text-align:center;gap:12px">
+  <div id="token-gate-msg">⏳ Verificando link de cadastro...</div>
+</div>
+
 <header>
   <div class="brand">Sistema Oficial · SINDAPFF</div>
   <h1 class="title">Ficha de Cadastro</h1>
@@ -213,27 +217,193 @@
   <section>
     <div class="eyebrow"><span class="dot"></span>Foto 3x4</div>
     <ul class="foto-li">
-      <li>Envie <b>1 foto sua</b> junto com a ficha no WhatsApp.</li>
       <li>Rosto centralizado, do peito pra cima.</li>
       <li>Fundo claro e liso (parede branca, se possível).</li>
       <li>Boa luz, sem boné ou óculos escuros.</li>
       <li>Foto nítida — pode ser tirada pelo próprio celular.</li>
     </ul>
+    <div id="foto-preview" style="width:110px;height:140px;border-radius:10px;border:2px dashed var(--line2);background:#f4f5f7;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:10px 0">
+      <span style="font-size:12px;color:var(--muted)">Sem foto</span>
+    </div>
+    <input type="file" id="foto-input" accept="image/*" capture="user" style="display:none" onchange="fotoSelecionada(this)">
+    <button type="button" class="btn btn-copy" style="width:auto;padding:10px 18px;font-size:13px" onclick="document.getElementById('foto-input').click()">📷 Tirar/escolher foto</button>
   </section>
 </main>
 
+<!-- MODAL DE RECORTE DE FOTO -->
+<div id="crop-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;flex-direction:column;padding:16px">
+  <div style="width:100%;max-width:340px">
+    <div id="crop-frame" style="position:relative;width:100%;aspect-ratio:3/4;background:#111;overflow:hidden;border-radius:10px;touch-action:none">
+      <img id="crop-img" alt="" style="position:absolute;left:0;top:0;user-select:none;pointer-events:none">
+    </div>
+    <input type="range" id="crop-zoom" min="1" max="3" step="0.01" value="1" oninput="onCropZoom(this.value)" style="width:100%;margin-top:14px">
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button type="button" class="btn btn-copy" style="flex:1" onclick="cancelCropModal()">Cancelar</button>
+      <button type="button" class="btn btn-wa" id="crop-confirm-btn" style="flex:1" onclick="confirmCropModal()">Usar foto</button>
+    </div>
+  </div>
+</div>
+
 <div class="actions">
-  <button class="btn btn-wa" onclick="enviarWhats()">📲 Enviar no WhatsApp</button>
+  <button class="btn btn-wa" id="btn-cadastrar" onclick="enviarCadastro()">✅ Enviar Cadastro</button>
+  <button class="btn btn-copy" onclick="enviarWhats()">📲 Prefiro mandar por WhatsApp</button>
   <button class="btn btn-copy" onclick="copiarFicha()">📋 Copiar ficha</button>
 </div>
 
 <div id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" defer></script>
 <script>
 /* ════════════ CONFIG ════════════ */
 /* Coloque aqui o WhatsApp que recebe as fichas: 55 + DDD + número (só dígitos).
    Ex.: '5521999998888'. Se ficar vazio, o WhatsApp abre pra escolher o contato. */
 var NUMERO_WHATSAPP = '5521964778156';
+const SB_URL = 'https://tqcfdqwsjoibeeywoquk.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxY2ZkcXdzam9pYmVleXdvcXVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NTIzMTYsImV4cCI6MjA5OTAyODMxNn0.IEZkzqXxS3ZZ-PaUt3mg7NXPS-0qFqxFc9LC3iQQ-dc';
+
+let _tokenValido=null;
+async function verificarToken(){
+  const gate=document.getElementById('token-gate');
+  const msg=document.getElementById('token-gate-msg');
+  const params=new URLSearchParams(location.search);
+  const token=params.get('token');
+  if(!token){
+    msg.innerHTML='<div style="font-size:40px">🔒</div><h2 style="margin:8px 0">Link inválido</h2><p style="color:#6B7280;max-width:340px">Este formulário só pode ser acessado através de um link fornecido pelo administrador. Peça um link de cadastro.</p>';
+    return;
+  }
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/convites?token=eq.'+encodeURIComponent(token)+'&select=usado',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const rows=await r.json();
+    if(rows.length===0){
+      msg.innerHTML='<div style="font-size:40px">🔒</div><h2 style="margin:8px 0">Link inválido</h2><p style="color:#6B7280;max-width:340px">Esse link não existe ou está incorreto. Peça um link novo ao administrador.</p>';
+      return;
+    }
+    if(rows[0].usado){
+      msg.innerHTML='<div style="font-size:40px">⚠️</div><h2 style="margin:8px 0">Link já utilizado</h2><p style="color:#6B7280;max-width:340px">Esse link já foi usado uma vez e não pode ser usado de novo. Se precisar atualizar seu cadastro, peça um link novo ao administrador.</p>';
+      return;
+    }
+    _tokenValido=token;
+    gate.style.display='none';
+  }catch(e){
+    msg.innerHTML='<div style="font-size:40px">📡</div><h2 style="margin:8px 0">Erro de conexão</h2><p style="color:#6B7280;max-width:340px">Não foi possível verificar o link agora. Verifique sua internet e recarregue a página.</p><button onclick="location.reload()" style="margin-top:10px;padding:10px 20px;border:none;border-radius:8px;background:#14233F;color:#fff;font-weight:700">🔄 Tentar de novo</button>';
+  }
+}
+verificarToken();
+
+/* ════════════ FOTO: recorte ════════════ */
+let _fotoRaw=null, _fotoFinal=null;
+let _cropState={img:null, zoom:1, offX:0, offY:0, dragging:false, lastX:0, lastY:0, frameW:0, frameH:0, baseScale:1};
+
+function fotoSelecionada(input){
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    _fotoRaw=e.target.result;
+    abrirCropModal(_fotoRaw);
+  };
+  reader.readAsDataURL(file);
+}
+
+function abrirCropModal(src){
+  const modal=document.getElementById('crop-modal');
+  const frame=document.getElementById('crop-frame');
+  const imgEl=document.getElementById('crop-img');
+  modal.style.display='flex';
+  const img=new Image();
+  img.onload=function(){
+    _cropState.img=img;
+    _cropState.zoom=1; _cropState.offX=0; _cropState.offY=0;
+    document.getElementById('crop-zoom').value=1;
+    _cropState.frameW=frame.clientWidth; _cropState.frameH=frame.clientHeight;
+    _cropState.baseScale=Math.max(_cropState.frameW/img.naturalWidth,_cropState.frameH/img.naturalHeight);
+    imgEl.src=src;
+    _renderCropModalImg();
+  };
+  img.src=src;
+}
+function _renderCropModalImg(){
+  const imgEl=document.getElementById('crop-img');
+  const s=_cropState.baseScale*_cropState.zoom;
+  const w=_cropState.img.naturalWidth*s, h=_cropState.img.naturalHeight*s;
+  const left=(_cropState.frameW-w)/2+_cropState.offX;
+  const top=(_cropState.frameH-h)/2+_cropState.offY;
+  imgEl.style.width=w+'px'; imgEl.style.height=h+'px';
+  imgEl.style.left=left+'px'; imgEl.style.top=top+'px';
+}
+function onCropZoom(v){ _cropState.zoom=parseFloat(v); _renderCropModalImg(); }
+(function(){
+  const frame=document.getElementById('crop-frame');
+  function start(x,y){ _cropState.dragging=true; _cropState.lastX=x; _cropState.lastY=y; }
+  function move(x,y){
+    if(!_cropState.dragging) return;
+    _cropState.offX+=x-_cropState.lastX; _cropState.offY+=y-_cropState.lastY;
+    _cropState.lastX=x; _cropState.lastY=y; _renderCropModalImg();
+  }
+  function end(){ _cropState.dragging=false; }
+  frame.addEventListener('mousedown',e=>start(e.clientX,e.clientY));
+  window.addEventListener('mousemove',e=>move(e.clientX,e.clientY));
+  window.addEventListener('mouseup',end);
+  frame.addEventListener('touchstart',e=>{const t=e.touches[0];start(t.clientX,t.clientY);},{passive:true});
+  frame.addEventListener('touchmove',e=>{const t=e.touches[0];move(t.clientX,t.clientY);},{passive:true});
+  frame.addEventListener('touchend',end);
+})();
+function cancelCropModal(){
+  document.getElementById('crop-modal').style.display='none';
+  document.getElementById('foto-input').value='';
+}
+
+/* ════════════ DETECÇÃO DE ROSTO (roda no navegador, foto não sai do aparelho) ════════════ */
+let _faceModelLoaded=false, _faceModelLoading=null;
+async function _garantirModeloRosto(){
+  if(_faceModelLoaded) return true;
+  if(_faceModelLoading) return _faceModelLoading;
+  _faceModelLoading=(async()=>{
+    try{
+      await faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights');
+      _faceModelLoaded=true; return true;
+    }catch(e){ return false; }
+  })();
+  return _faceModelLoading;
+}
+async function contemRosto(dataUrl){
+  if(typeof faceapi==='undefined') return null;
+  const ok=await _garantirModeloRosto();
+  if(!ok) return null;
+  try{
+    const img=new Image();
+    await new Promise((res,rej)=>{ img.onload=res; img.onerror=rej; img.src=dataUrl; });
+    const det=await faceapi.detectAllFaces(img, new faceapi.TinyFaceDetectorOptions({inputSize:320,scoreThreshold:0.5}));
+    return det.length>0;
+  }catch(e){ return null; }
+}
+
+async function confirmCropModal(){
+  const btn=document.getElementById('crop-confirm-btn');
+  const s=_cropState.baseScale*_cropState.zoom;
+  const dispW=_cropState.img.naturalWidth*s, dispH=_cropState.img.naturalHeight*s;
+  const left=(_cropState.frameW-dispW)/2+_cropState.offX;
+  const top=(_cropState.frameH-dispH)/2+_cropState.offY;
+  const sx=Math.max(0,(0-left)/s), sy=Math.max(0,(0-top)/s);
+  const sw=Math.min(_cropState.img.naturalWidth,_cropState.frameW/s);
+  const sh=Math.min(_cropState.img.naturalHeight,_cropState.frameH/s);
+  const out=document.createElement('canvas'); out.width=600; out.height=800;
+  out.getContext('2d').drawImage(_cropState.img,sx,sy,sw,sh,0,0,600,800);
+  const result=out.toDataURL('image/jpeg',0.85);
+
+  const txtOriginal=btn.textContent;
+  btn.textContent='⏳ Verificando...'; btn.disabled=true;
+  const temRosto=await contemRosto(result);
+  btn.textContent=txtOriginal; btn.disabled=false;
+
+  if(temRosto===false){
+    toast('❌ Não identifiquei um rosto nessa foto. Ajuste o enquadramento ou escolha outra.', true);
+    return;
+  }
+  _fotoFinal=result;
+  document.getElementById('foto-preview').innerHTML='<img src="'+result+'" alt="" style="width:100%;height:100%;object-fit:cover">';
+  document.getElementById('crop-modal').style.display='none';
+}
 
 /* ════════════ MÁSCARAS ════════════ */
 function maskCPF(el){
@@ -355,6 +525,60 @@ function montarFicha(){
 }
 
 /* ════════════ AÇÕES ════════════ */
+async function enviarCadastro(){
+  if(!_tokenValido){
+    toast('Link inválido — não é possível enviar sem um link de cadastro válido.', true);
+    return;
+  }
+  if(!validarTudo()) return;
+  if(!_fotoFinal){
+    toast('Falta a foto — tire ou escolha uma foto antes de enviar.', true);
+    document.getElementById('foto-preview').scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  const btn=document.getElementById('btn-cadastrar');
+  const txtOriginal=btn.textContent;
+  btn.textContent='⏳ Enviando...'; btn.disabled=true;
+
+  const agora=Date.now();
+  const numCredTemp='PEND-'+agora;
+  const membro={
+    id:agora, numCred:numCredTemp, nome:val('f-nome').toUpperCase(), cpf:val('f-cpf'),
+    nasc:val('f-nasc'), sexo:val('f-sexo'), tel:val('f-tel'), email:val('f-email'),
+    naturalidade:val('f-naturalidade').toUpperCase(), municipio:val('f-municipio').toUpperCase(),
+    siape:val('f-siape'), pai:val('f-pai').toUpperCase(), mae:val('f-mae').toUpperCase(),
+    cep:val('f-cep'), rua:val('f-rua'), numero:val('f-numero'), complemento:val('f-complemento'),
+    bairro:val('f-bairro'), cidade:val('f-cidade'), uf:val('f-uf').toUpperCase(),
+    cat:'Membro', status:'Pendente', foto:_fotoFinal,
+    emissao:'', validade:'', obs:'Cadastro público — aguardando revisão do admin',
+    docId:'PEND-'+agora, dataCad:new Date().toLocaleDateString('pt-BR'), pagamentos:[], isento:false
+  };
+
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/membros',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},
+      body:JSON.stringify([{ id:membro.id, num_cred:membro.numCred, nome:membro.nome, status:membro.status, dados:membro }])
+    });
+    if(!r.ok) throw new Error('HTTP '+r.status);
+
+    // Marca o link como usado — não pode ser reaproveitado
+    try{
+      await fetch(SB_URL+'/rest/v1/convites?token=eq.'+encodeURIComponent(_tokenValido),{
+        method:'PATCH',
+        headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},
+        body:JSON.stringify({usado:true, usado_em:new Date().toISOString()})
+      });
+    }catch(e){}
+
+    document.querySelector('main').innerHTML='<div style="text-align:center;padding:60px 10px"><div style="font-size:48px">✅</div><h2 style="color:var(--ok);margin:12px 0 6px">Cadastro enviado!</h2><p style="color:var(--muted)">Sua ficha foi recebida e está aguardando aprovação. Assim que for revisada, sua credencial será liberada.</p></div>';
+    document.querySelector('.actions').style.display='none';
+  }catch(e){
+    btn.textContent=txtOriginal; btn.disabled=false;
+    toast('⚠️ Não consegui enviar agora. Verifique sua internet e tente de novo, ou use o botão do WhatsApp.', true);
+  }
+}
+
 function enviarWhats(){
   if(!validarTudo()) return;
   var txt=encodeURIComponent(montarFicha());
