@@ -312,38 +312,38 @@ function _notifyParent(msg){
 }
 
 const DEFAULT_F = {
-  f_photo:  { type:'photo', left:12.6, top:28.8, w:13.5, ratio:'3/4' },
-  f_cargo:  { left:34.9, top:39.6, size:2.2, bold:true,  color:'#1a2a6e', upper:true  },
-  f_nome:   { left:35.0, top:51.9, size:2.2, bold:true,  color:'#111',    upper:true  },
-  f_mat:    { left:12.6, top:64.2, size:2.2, bold:true,  color:'#111',    upper:false },
-  f_cpf:    { left:35.1, top:65.3, size:2.2, bold:true,  color:'#111',    upper:false },
-  f_emissao:{ left:67.3, top:65.8, size:2.2, bold:true,  color:'#111',    upper:false },
-  f_hash:   { left:35.1, top:77.5, size:2.0, bold:false, color:'#333',    upper:false },
+  f_photo:  { type:'photo', left:78.0, top:6.0,  w:16.0, ratio:'3/4' },
+  f_nome:   { left:14.0, top:32.0, size:2.4, bold:true,  color:'#111',    upper:true  },
+  f_mat:    { left:14.0, top:39.0, size:2.0, bold:true,  color:'#111',    upper:false },
+  f_cpf:    { left:55.0, top:39.0, size:2.0, bold:true,  color:'#111',    upper:false },
+  f_nasc:   { left:14.0, top:52.5, size:2.0, bold:true,  color:'#111',    upper:false },
+  f_cargo:  { left:34.0, top:64.0, size:1.8, bold:true,  color:'#1a2a6e', upper:true  },
+  f_siape:  { left:35.0, top:79.5, size:1.8, bold:true,  color:'#111',    upper:false },
 };
 const DEFAULT_V = {
-  v_qr:            { type:'qr',        left:3.4,  top:22.4, w:14.0, color:'#cc0000' },
-  v_filiacao_pai:  { left:18.9, top:24.6, size:1.6, bold:true,  color:'#111',    upper:false },
-  v_filiacao_mae:  { left:19.0, top:31.5, size:1.6, bold:true,  color:'#111',    upper:false },
-  v_admissao:      { left:52.5, top:25.5, size:2.0, bold:true,  color:'#111',    upper:false },
-  v_nasc:          { left:19.0, top:39.7, size:2.0, bold:true,  color:'#111',    upper:false },
-  v_validade:      { left:52.9, top:39.5, size:2.0, bold:true,  color:'#cc0000', upper:false },
-  v_naturalidade:  { left:19.2, top:51.6, size:2.0, bold:true,  color:'#111',    upper:true  },
-  v_situacao:      { left:53.0, top:52.0, size:2.0, bold:true,  color:'#111',    upper:true  },
-  v_municipio:     { left:84.0, top:60.0, size:2.0, bold:true,  color:'#111',    upper:true  },
-  v_siape:         { left:53.0, top:62.5, size:2.0, bold:true,  color:'#111',    upper:false },
-  v_assinatura:    { type:'signature', left:22.0, top:70.0, w:38.0 },
+  v_qr:            { type:'qr',        left:5.0,  top:78.0, w:16.0, color:'#cc0000' },
+  v_filiacao_pai:  { left:12.0, top:32.5, size:1.5, bold:true,  color:'#111',    upper:false },
+  v_filiacao_mae:  { left:12.0, top:36.0, size:1.5, bold:true,  color:'#111',    upper:false },
+  v_admissao:      { left:36.0, top:38.0, size:1.8, bold:true,  color:'#111',    upper:false },
+  v_nasc:          { left:12.0, top:39.7, size:2.0, bold:true,  color:'#111',    upper:false },
+  v_validade:      { left:36.0, top:32.5, size:1.8, bold:true,  color:'#cc0000', upper:false },
+  v_naturalidade:  { left:12.0, top:38.0, size:1.8, bold:true,  color:'#111',    upper:true  },
+  v_situacao:      { left:12.0, top:43.0, size:1.8, bold:true,  color:'#111',    upper:true  },
+  v_municipio:     { left:52.0, top:41.0, size:1.6, bold:true,  color:'#111',    upper:true  },
+  v_hash:          { left:36.0, top:43.0, size:1.6, bold:false, color:'#333',    upper:false },
+  v_assinatura:    { type:'signature', left:60.0, top:80.0, w:25.0 },
 };
 const LABELS = {
-  f_photo:'Foto', f_cargo:'Cargo', f_nome:'Nome', f_mat:'Matrícula',
-  f_cpf:'CPF', f_emissao:'Expedição', f_hash:'Hash',
-  v_filiacao_pai:'Pai', v_filiacao_mae:'Mãe', v_nasc:'Nasc.', v_admissao:'Admissão',
+  f_photo:'Foto', f_cargo:'Cargo/Função', f_nome:'Nome', f_mat:'Matrícula',
+  f_cpf:'CPF', f_nasc:'Data Nasc. (frente)', f_siape:'SIAPE',
+  v_filiacao_pai:'Pai', v_filiacao_mae:'Mãe', v_nasc:'Nasc. (verso)', v_admissao:'Data Expedição',
   v_naturalidade:'Naturalidade', v_validade:'Validade',
-  v_municipio:'Município', v_situacao:'Situação', v_siape:'SIAPE',
+  v_municipio:'Município', v_situacao:'Situação', v_hash:'Código Hash',
   v_assinatura:'Assinatura',
 };
 const DOT_COLORS = {
-  f_photo:'#888',f_cargo:'#1a2a6e',f_nome:'#333',f_mat:'#555',f_cpf:'#555',f_emissao:'#555',f_hash:'#888',
-  v_filiacao_pai:'#111',v_filiacao_mae:'#111',v_nasc:'#333',v_admissao:'#333',v_naturalidade:'#333',v_validade:'#c00',v_municipio:'#333',v_situacao:'#333',v_siape:'#333',
+  f_photo:'#888',f_cargo:'#1a2a6e',f_nome:'#333',f_mat:'#555',f_cpf:'#555',f_nasc:'#555',f_siape:'#555',
+  v_filiacao_pai:'#111',v_filiacao_mae:'#111',v_nasc:'#333',v_admissao:'#333',v_naturalidade:'#333',v_validade:'#c00',v_municipio:'#333',v_situacao:'#333',v_hash:'#888',
   v_assinatura:'#555',
 };
 
@@ -375,11 +375,14 @@ function loadLayouts(){
 
   if(userSavedF){
     try{
-      const parsed = JSON.parse(userSavedF);
-      // Garantir que f_cargo e f_hash existem no layout salvo
-      if(!parsed.f_cargo) parsed.f_cargo = clone(DEFAULT_F.f_cargo);
-      if(!parsed.f_hash)  parsed.f_hash  = clone(DEFAULT_F.f_hash);
-      layoutF = parsed;
+      const parsedF = JSON.parse(userSavedF);
+      // Layout salvo é da arte antiga (paisagem) — campos novos da arte atual não existem nele.
+      // Em vez de tentar remendar, volta pro padrão da arte nova (o admin pode reajustar arrastando).
+      if(!parsedF.f_nasc || !parsedF.f_siape){
+        layoutF = clone(DEFAULT_F);
+      } else {
+        layoutF = parsedF;
+      }
     }catch(e){ layoutF = clone(DEFAULT_F); }
   } else {
     layoutF = clone(DEFAULT_F);
@@ -388,13 +391,12 @@ function loadLayouts(){
   if(userSavedV){
     try{
       const parsed = JSON.parse(userSavedV);
-      // Garantir que v_municipio existe no layout salvo
-      if(!parsed.v_municipio) parsed.v_municipio = clone(DEFAULT_V.v_municipio);
-      // Garantir que v_assinatura existe no layout salvo
-      if(!parsed.v_assinatura) parsed.v_assinatura = clone(DEFAULT_V.v_assinatura);
-      // Garantir que v_siape existe no layout salvo
-      if(!parsed.v_siape) parsed.v_siape = clone(DEFAULT_V.v_siape);
-      layoutV = parsed;
+      // Mesma lógica: layout salvo da arte antiga não serve pra arte nova.
+      if(!parsed.v_hash){
+        layoutV = clone(DEFAULT_V);
+      } else {
+        layoutV = parsed;
+      }
     }catch(e){ layoutV = clone(DEFAULT_V); }
   } else {
     layoutV = clone(DEFAULT_V);
@@ -506,17 +508,17 @@ function getData(){
   const _mostrarSiape = window._cfgVisibilidade?.mostrar_siape!==false;
   return {
     f_cargo:(m.cat||'').toUpperCase(), f_nome:m.nome,
-    f_mat:(_mostrarMat?m.numCred:''), f_cpf:m.cpf, f_emissao:fmt(m.emissao), f_hash:m.docId,
+    f_mat:(_mostrarMat?m.numCred:''), f_cpf:m.cpf, f_nasc:fmt(m.nasc), f_siape:(_mostrarSiape?(m.siape||''):''),
     v_filiacao_pai:(m.pai||'Não informado'), v_filiacao_mae:(m.mae||''), v_nasc:fmt(m.nasc), v_admissao:fmt(m.emissao),
     v_naturalidade:(m.naturalidade||'BRASILEIRO'),
     v_validade:fmt(m.validade), v_municipio:(m.municipio||'—').toUpperCase(),
-    v_situacao:membro.status==='Ativo'?'ATIVO':'INATIVO', v_siape:(_mostrarSiape?(m.siape||''):''),
+    v_situacao:membro.status==='Ativo'?'ATIVO':'INATIVO', v_hash:m.docId,
   };
 }
 
 function renderCard(){
   const m=membro, data=getData(), L=layout();
-  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=20260629`:`${BASE}/Verso.png?v=20260629`;
+  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=20260720`:`${BASE}/Verso.png?v=20260720`;
   let fields='', guides='';
 
   for(const [key,cfg] of Object.entries(L)){
@@ -574,7 +576,7 @@ function renderCard(){
 
   document.getElementById('app').innerHTML=`
     <div class="card" id="the-card">
-      <img class="bg" src="${imgSrc}" alt="" width="1920" height="1080" loading="lazy" decoding="async" crossorigin="anonymous" onerror="if(this.src.includes('/Verso.png')){this.onerror=null;this.src='${BASE}/verso.jpg?v=20260629';}">
+      <img class="bg" src="${imgSrc}" alt="" width="1560" height="1755" loading="lazy" decoding="async" crossorigin="anonymous" onerror="if(this.src.includes('/Verso.png')){this.onerror=null;this.src='${BASE}/verso.jpg?v=20260720';}">
       <div class="grid-overlay" id="grid-overlay" style="display:${showGrid?'block':'none'}"></div>
       <div class="overlay" style="pointer-events:${editMode?'all':'none'}">${fields}${guides}</div>
     </div>`;
