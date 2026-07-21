@@ -575,8 +575,23 @@ async function enviarCadastro(){
     document.querySelector('.actions').style.display='none';
   }catch(e){
     btn.textContent=txtOriginal; btn.disabled=false;
-    toast('⚠️ Não consegui enviar agora. Verifique sua internet e tente de novo, ou use o botão do WhatsApp.', true);
+    mostrarErroGrandeEnvio((e&&e.message)||'erro de rede');
   }
+}
+
+function mostrarErroGrandeEnvio(detalhe){
+  if(document.getElementById('erro-grande-overlay')) return;
+  const div=document.createElement('div');
+  div.id='erro-grande-overlay';
+  div.style.cssText='position:fixed;inset:0;background:rgba(120,10,10,.97);z-index:999999;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;';
+  div.innerHTML=`
+    <div style="max-width:380px">
+      <div style="font-size:52px;margin-bottom:10px">⚠️</div>
+      <div style="font-size:19px;font-weight:900;color:#fff;margin-bottom:12px">NÃO FOI POSSÍVEL ENVIAR SEU CADASTRO</div>
+      <div style="font-size:13px;color:#ffd7d7;margin-bottom:20px;line-height:1.5">O sistema está com um problema no momento (${detalhe}).<br><br>Seus dados <b>não foram perdidos</b> — feche este aviso, espere alguns minutos e tente enviar de novo. Se continuar falhando, use o botão "Prefiro mandar por WhatsApp".</div>
+      <button onclick="document.getElementById('erro-grande-overlay').remove()" style="padding:12px 24px;border:none;border-radius:8px;background:#fff;color:#780a0a;font-weight:800;cursor:pointer;font-size:14px">Entendi, fechar</button>
+    </div>`;
+  document.body.appendChild(div);
 }
 
 function enviarWhats(){
