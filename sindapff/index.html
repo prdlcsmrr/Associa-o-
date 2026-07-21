@@ -429,6 +429,7 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
 
         <div class="box">
           <div class="box-title">🪪 Dados da Credencial</div>
+          <div class="field"><label for="f-matricula">Matrícula</label><input type="text" id="f-matricula" placeholder="Gerada automaticamente, edite se quiser"></div>
           <div class="field">
             <label for="f-cat">Categoria / Cargo</label>
             <select id="f-cat">
@@ -547,6 +548,14 @@ body { background:var(--bg); font-family:Georgia,'Times New Roman',serif; min-he
   <!-- CONFIG PAGE -->
   <div class="page" id="page-config">
     <div style="max-width:640px;margin:0 auto">
+
+      <!-- BACKUPS AUTOMÁTICOS -->
+      <div class="box" style="margin-bottom:16px">
+        <div class="box-title">🛟 Backups Automáticos</div>
+        <p style="font-size:12px;color:#666;margin:0 0 10px">O sistema guarda uma cópia completa dos dados automaticamente (no máximo a cada 10 min). Se algo se perder, você pode restaurar aqui.</p>
+        <button class="btn btn-navy" style="width:100%" onclick="listarBackups()">📋 Ver backups disponíveis</button>
+        <div id="lista-backups" style="margin-top:10px"></div>
+      </div>
 
       <!-- DADOS DA A.A.F.F - SINDAPFF -->
       <div class="box" style="margin-bottom:16px">
@@ -1583,7 +1592,12 @@ async function salvar(){
   if(localNow.length >= members.length) members = localNow;
 
   const ts=Date.now();
-  const numCred=ORG_PRE+'-'+String(members.length+1).padStart(6,'0');
+  const numCredManual = document.getElementById('f-matricula')?.value.trim();
+  let numCred = numCredManual || (ORG_PRE+'-'+String(members.length+1).padStart(6,'0'));
+  if(numCredManual && members.some(mb=>mb.numCred===numCredManual)){
+    avisoValidacao('Essa matrícula ("'+numCredManual+'") já está sendo usada por outro membro. Escolha outra.');
+    return;
+  }
   const docId=genDocId(ts);
   const m={
     id:ts,nome,cpf,tel,
@@ -1647,6 +1661,8 @@ function limpar(){
   document.getElementById('f-sexo').value='';
   document.getElementById('f-cat').value='Membro';
   document.getElementById('f-porte').value='Habilitado';
+  const elMat=document.getElementById('f-matricula');
+  if(elMat) elMat.value = ORG_PRE+'-'+String(members.length+1).padStart(6,'0');
   setStatus('Ativo');retake();
 }
 let _syncDebounceTimer=null;
@@ -2286,6 +2302,45 @@ async function loadFromCloud(){
 }
 
 let _syncing=false;
+async function listarBackups(){
+  const div=document.getElementById('lista-backups');
+  div.innerHTML='⏳ Carregando...';
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/backups?select=id,criado_em,total_membros&order=criado_em.desc&limit=50',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const rows=await r.json();
+    if(rows.length===0){ div.innerHTML='<p style="font-size:12px;color:#888">Nenhum backup ainda — o primeiro é criado na próxima sincronização.</p>'; return; }
+    div.innerHTML=rows.map(function(b){
+      const data=new Date(b.criado_em).toLocaleString('pt-BR');
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border:1px solid #eee;border-radius:8px;margin-bottom:6px;font-size:12px">'+
+        '<span>'+data+' — '+b.total_membros+' membros</span>'+
+        '<button class="btn btn-navy btn-sm" onclick="restaurarBackup('+b.id+',\''+data+'\')">↺ Restaurar</button>'+
+      '</div>';
+    }).join('');
+  }catch(e){
+    div.innerHTML='<p style="font-size:12px;color:#b91c1c">Erro ao carregar backups.</p>';
+  }
+}
+
+async function restaurarBackup(id, dataTxt){
+  if(!confirm('Restaurar o backup de '+dataTxt+'?\n\nIsso substitui os dados ATUAIS pelos dessa data neste aparelho, e depois sincroniza pra nuvem. Membros cadastrados depois desse backup serão perdidos.\n\nTem certeza?')) return;
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/backups?id=eq.'+id+'&select=dados',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const rows=await r.json();
+    if(rows.length===0){ alert('Backup não encontrado.'); return; }
+    members = rows[0].dados.membros || [];
+    saidas = rows[0].dados.saidas || [];
+    localStorage.setItem('members', JSON.stringify(members));
+    localStorage.setItem('saidas', JSON.stringify(saidas));
+    renderList(); updateCount();
+    await syncToCloud();
+    alert('✅ Backup restaurado e sincronizado com sucesso!');
+  }catch(e){
+    alert('⚠️ Não consegui restaurar agora: '+((e&&e.message)||'erro'));
+  }
+}
+
 async function syncToCloud(){
   if(_syncing) return;
   _syncing=true;
@@ -2345,6 +2400,29 @@ async function syncToCloud(){
         headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
       });
     }
+
+    // Backup automático: guarda uma cópia completa dos dados a cada sincronização,
+    // no máximo 1 a cada 10 minutos (evita acumular linhas demais).
+    try{
+      const ultimoBackup = parseInt(localStorage.getItem('ultimo_backup_ts')||'0', 10);
+      if(Date.now() - ultimoBackup > 10*60*1000){
+        await fetch(SB_URL+'/rest/v1/backups',{
+          method:'POST',
+          headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},
+          body:JSON.stringify([{ total_membros: membrosParaEnviar.length, dados: { membros: membrosParaEnviar, saidas: saidas } }])
+        });
+        localStorage.setItem('ultimo_backup_ts', String(Date.now()));
+        // Mantém só os 50 backups mais recentes
+        const rIds = await fetch(SB_URL+'/rest/v1/backups?select=id&order=criado_em.desc&offset=50',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+        if(rIds.ok){
+          const antigos = await rIds.json();
+          if(antigos.length>0){
+            const idsApagar = '('+antigos.map(r=>r.id).join(',')+')';
+            await fetch(SB_URL+'/rest/v1/backups?id=in.'+idsApagar,{method:'DELETE',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+          }
+        }
+      }
+    }catch(e){}
   }catch(e){
     if(window.reportarErro) window.reportarErro('Sincronizar nuvem','Falha ao enviar dados para a nuvem: '+((e&&e.message)||'erro de rede'), true);
   }finally{
@@ -2446,6 +2524,10 @@ function del(id){const _m=members.find(x=>x.id===id);if(!confirm('Excluir?'))ret
 function clearAll(){if(!confirm('Apagar TODOS?'))return;members=[];save();renderList();}
 
 // INIT
+(function(){
+  const elMat=document.getElementById('f-matricula');
+  if(elMat && !elMat.value) elMat.value = ORG_PRE+'-'+String(members.length+1).padStart(6,'0');
+})();
 // Render imediato do localStorage (evita tela vazia). Só sincroniza com a nuvem se já
 // estiver logado (sessão anterior); se ainda não logou, a sincronização só começa
 // depois do login()/criarSenha() bem-sucedidos — nunca antes, pra não arriscar um
