@@ -1541,6 +1541,10 @@ function genDocId(ts){const d=new Date(ts);return ORG_PRE+'-'+d.getFullYear()+'-
 
 // SALVAR
 async function salvar(){
+  if(_sistemaBloqueado){
+    mostrarBloqueioSistema('Sistema ainda bloqueado por uma falha anterior ao salvar.');
+    return;
+  }
   // ── Campos obrigatórios (aviso específico do que falta) ──
   const OBRIG=[
     ['f-nome','Nome'],['f-cpf','CPF'],['f-tel','Telefone'],['f-nasc','Nascimento'],
@@ -2029,6 +2033,10 @@ function editRemoveFoto(){
 }
 
 function saveEdit(){
+  if(_sistemaBloqueado){
+    mostrarBloqueioSistema('Sistema ainda bloqueado por uma falha anterior ao salvar.');
+    return;
+  }
   const idx = members.findIndex(x=>String(x.id)===String(_editId)||String(x.numCred)===String(_editId));
   if(idx<0){ alert('Membro não encontrado. editId='+_editId+' membros='+members.length); return; }
 
@@ -2226,9 +2234,10 @@ async function reloadMembers(){
 
 async function loadFromCloud(){
   // Supabase é a fonte viva agora (todo admin sincroniza automaticamente pra lá).
-  // db.json (GitHub Pages) é usado só como reserva se o Supabase falhar.
-  // Membros que só existem no localStorage são preservados (nunca perder cadastro local ainda não sincronizado).
+  // db.json (GitHub Pages) é usado só como reserva se o Supabase falhar — e por ser uma
+  // cópia manual/antiga, ELE NUNCA pode sobrescrever dado local já sincronizado (fotos, etc).
   let cloud=null;
+  let cloudEhConfiavel=false; // true só quando vem do Supabase de verdade
 
   try{
     const r1=await fetch(SB_URL+'/rest/v1/membros?select=dados',{
@@ -2238,6 +2247,7 @@ async function loadFromCloud(){
     if(r1.ok){
       const rows=await r1.json();
       cloud=rows.map(function(r){ return r.dados; });
+      cloudEhConfiavel=true;
     } else if(window.reportarErro){
       window.reportarErro('Supabase (ler)', 'Servidor respondeu HTTP '+r1.status+' ao ler membros.', true);
     }
@@ -2264,7 +2274,7 @@ async function loadFromCloud(){
       const r2=await fetch('/db.json?t='+Date.now());
       if(r2.ok){
         const data2=await r2.json();
-        if(data2 && Array.isArray(data2.membros)) cloud=data2.membros;
+        if(data2 && Array.isArray(data2.membros)) cloud=data2.membros; // cloudEhConfiavel continua false
         if(data2 && Array.isArray(data2.saidas) && data2.saidas.length>0 && saidas.length===0){
           saidas=data2.saidas; try{ localStorage.setItem('saidas',JSON.stringify(saidas)); }catch(e){}
         }
@@ -2286,11 +2296,19 @@ async function loadFromCloud(){
     return;
   }
 
-  // Merge por id: nuvem vence para membros existentes; membros só-locais preservados
   const byId={};
-  cloud.forEach(function(m){ if(m && m.id!=null) byId[m.id]=m; });
   let haviaSoLocal=false;
-  local.forEach(function(m){ if(m && m.id!=null && !byId.hasOwnProperty(m.id)){ byId[m.id]=m; haviaSoLocal=true; } });
+
+  if(cloudEhConfiavel){
+    // Supabase de verdade: nuvem vence pra membros existentes; membros só-locais preservados
+    cloud.forEach(function(m){ if(m && m.id!=null) byId[m.id]=m; });
+    local.forEach(function(m){ if(m && m.id!=null && !byId.hasOwnProperty(m.id)){ byId[m.id]=m; haviaSoLocal=true; } });
+  } else {
+    // Caiu no db.json (reserva antiga): LOCAL sempre vence — o db.json só preenche
+    // quem estiver totalmente ausente localmente, nunca sobrescreve o que já existe.
+    local.forEach(function(m){ if(m && m.id!=null) byId[m.id]=m; });
+    cloud.forEach(function(m){ if(m && m.id!=null && !byId.hasOwnProperty(m.id)) byId[m.id]=m; });
+  }
   members=Object.keys(byId).map(function(k){ return byId[k]; });
 
   localStorage.setItem('members',JSON.stringify(members));
@@ -2299,6 +2317,41 @@ async function loadFromCloud(){
 
   // Este aparelho tinha cadastro(s) que a nuvem não tinha: sincroniza de volta automaticamente
   if(haviaSoLocal) syncToCloud();
+}
+
+let _sistemaBloqueado = false;
+function mostrarBloqueioSistema(motivo){
+  _sistemaBloqueado = true;
+  if(document.getElementById('bloqueio-sistema-overlay')) return;
+  const div = document.createElement('div');
+  div.id = 'bloqueio-sistema-overlay';
+  div.style.cssText = 'position:fixed;inset:0;background:rgba(120,10,10,.97);z-index:999999;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;';
+  div.innerHTML = `
+    <div style="max-width:420px">
+      <div style="font-size:56px;margin-bottom:12px">🚫</div>
+      <div style="font-size:20px;font-weight:900;color:#fff;margin-bottom:14px">SISTEMA TEMPORARIAMENTE BLOQUEADO</div>
+      <div style="font-size:14px;color:#ffd7d7;margin-bottom:20px;line-height:1.5">Não foi possível salvar os dados agora:<br><b>${motivo}</b><br><br>Para não arriscar perder cadastros, nenhum novo cadastro ou edição pode ser salvo até isso ser resolvido (verifique a cota/plano do banco de dados, ou tente novamente).</div>
+      <button onclick="tentarDesbloquear()" style="padding:12px 24px;border:none;border-radius:8px;background:#fff;color:#780a0a;font-weight:800;cursor:pointer;font-size:14px">🔄 Já resolvi, tentar de novo</button>
+    </div>`;
+  document.body.appendChild(div);
+}
+async function tentarDesbloquear(){
+  const btn = event?.target;
+  if(btn){ btn.textContent='⏳ Verificando...'; btn.disabled=true; }
+  try{
+    const r = await fetch(SB_URL+'/rest/v1/membros?select=id&limit=1',{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},body:'[]'});
+    if(r.ok || r.status===409 || r.status===400){
+      _sistemaBloqueado = false;
+      const overlay = document.getElementById('bloqueio-sistema-overlay');
+      if(overlay) overlay.remove();
+      alert('✅ Sistema liberado! Pode cadastrar normalmente.');
+    } else {
+      throw new Error('Servidor ainda respondeu HTTP '+r.status);
+    }
+  }catch(e){
+    alert('⚠️ Ainda não consegui salvar dados de teste. O problema continua (HTTP/erro: '+((e&&e.message)||'erro')+'). Confira a cota/plano do banco.');
+    if(btn){ btn.textContent='🔄 Já resolvi, tentar de novo'; btn.disabled=false; }
+  }
 }
 
 let _syncing=false;
@@ -2372,8 +2425,10 @@ async function syncToCloud(){
       },
       body:JSON.stringify(rows)
     });
-    if(!rUp.ok && window.reportarErro){
-      window.reportarErro('Sincronizar nuvem','Servidor respondeu HTTP '+rUp.status+' ao enviar dados.', true);
+    if(!rUp.ok){
+      if(window.reportarErro) window.reportarErro('Sincronizar nuvem','Servidor respondeu HTTP '+rUp.status+' ao enviar dados.', true);
+      mostrarBloqueioSistema('Servidor respondeu HTTP '+rUp.status+' ao tentar salvar.');
+      return;
     }
 
     // Remove da nuvem quem foi excluído neste aparelho (mantém nuvem = espelho do estado atual)
@@ -2425,6 +2480,7 @@ async function syncToCloud(){
     }catch(e){}
   }catch(e){
     if(window.reportarErro) window.reportarErro('Sincronizar nuvem','Falha ao enviar dados para a nuvem: '+((e&&e.message)||'erro de rede'), true);
+    mostrarBloqueioSistema('Falha de conexão ao tentar salvar: '+((e&&e.message)||'erro de rede')+'.');
   }finally{
     _syncing=false;
   }
