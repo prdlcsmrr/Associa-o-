@@ -2040,6 +2040,19 @@ function saveEdit(){
   const idx = members.findIndex(x=>String(x.id)===String(_editId)||String(x.numCred)===String(_editId));
   if(idx<0){ alert('Membro não encontrado. editId='+_editId+' membros='+members.length); return; }
 
+  // Trava de segurança: avisa quando a matrícula muda (mesmo o QR agora usando
+  // id interno permanente, crachás já impressos com a matrícula antiga só continuam
+  // funcionando porque guardamos essa matrícula antiga no histórico do membro).
+  const _novaMatricula = document.getElementById('edit-numcred')?.value.trim();
+  const _matriculaAntiga = members[idx].numCred;
+  let _historicoMatriculas = members[idx].historicoMatriculas || [];
+  if(_novaMatricula && _novaMatricula !== _matriculaAntiga){
+    if(!confirm('Você está mudando a MATRÍCULA de "'+_matriculaAntiga+'" para "'+_novaMatricula+'".\n\nQualquer crachá já impresso com a matrícula antiga continua funcionando normalmente (o sistema guarda o histórico). Tem certeza que quer mudar?')){
+      return;
+    }
+    if(!_historicoMatriculas.includes(_matriculaAntiga)) _historicoMatriculas = [..._historicoMatriculas, _matriculaAntiga];
+  }
+
   // ── Validação unificada (igual ao cadastro: aviso específico do que falta) ──
   const OBRIG_E=[
     ['edit-nome','Nome'],['edit-cpf','CPF'],['edit-tel','Telefone'],['edit-nasc','Nascimento'],
@@ -2098,6 +2111,7 @@ function saveEdit(){
   members[idx] = {
     ...keep,
     numCred: (document.getElementById('edit-numcred')?.value.trim()||members[idx].numCred),
+    historicoMatriculas: _historicoMatriculas,
     nome, cpf,
     nasc:            document.getElementById('edit-nasc').value,
     sexo:            document.getElementById('edit-sexo').value,
@@ -2545,7 +2559,7 @@ function openSignLinkModal(numCred){
   const m=members.find(x=>String(x.id)===String(numCred)||String(x.numCred)===String(numCred));
   if(!m||!m.numCred) return;
   closeMenus();
-  _currentSignLink=SIGN_BASE_URL+encodeURIComponent(m.numCred);
+  _currentSignLink=SIGN_BASE_URL+encodeURIComponent(m.id);
   const modal=document.getElementById('modal-sign-link');
   const memberEl=document.getElementById('sign-link-member');
   const urlEl=document.getElementById('sign-link-url');
