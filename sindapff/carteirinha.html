@@ -320,14 +320,13 @@ function _notifyParent(msg){
   try{ if(window.parent && window.parent!==window) window.parent.postMessage(Object.assign({ubapffCred:true}, msg), '*'); }catch(e){}
 }
 
-const LAYOUT_VERSION = 3; // bump isso sempre que o DEFAULT_F/V mudar de verdade — força reset de layouts salvos antigos
+const LAYOUT_VERSION = 4; // bump isso sempre que o DEFAULT_F/V mudar de verdade — força reset de layouts salvos antigos
 const DEFAULT_F = {
   f_photo:  { type:'photo', left:80.0, top:37.0, w:15.0, ratio:'3/4' },
   f_nome:   { left:22.0, top:39.0, size:2.0, bold:true,  color:'#111',    upper:true  },
   f_mat:    { left:22.0, top:48.0, size:1.7, bold:true,  color:'#111',    upper:false },
   f_cpf:    { left:60.0, top:48.0, size:1.7, bold:true,  color:'#111',    upper:false },
   f_nasc:   { left:22.0, top:59.0, size:1.7, bold:true,  color:'#111',    upper:false },
-  f_cargo:  { left:33.0, top:75.0, size:1.5, bold:true,  color:'#1a2a6e', upper:true  },
   f_assinatura: { type:'signature', left:55.0, top:88.0, w:22.0 },
 };
 const DEFAULT_V = {
@@ -341,14 +340,14 @@ const DEFAULT_V = {
   v_hash:          { left:54.0, top:58.5, size:1.4, bold:false, color:'#333',    upper:false },
 };
 const LABELS = {
-  f_photo:'Foto', f_cargo:'Cargo/Função', f_nome:'Nome', f_mat:'Matrícula',
+  f_photo:'Foto', f_nome:'Nome', f_mat:'Matrícula',
   f_cpf:'CPF', f_nasc:'Data Nasc. (frente)', f_assinatura:'Assinatura',
   v_filiacao_pai:'Pai', v_filiacao_mae:'Mãe', v_admissao:'Data Expedição',
   v_naturalidade:'Naturalidade', v_validade:'Validade',
   v_situacao:'Situação', v_hash:'Código Hash',
 };
 const DOT_COLORS = {
-  f_photo:'#888',f_cargo:'#1a2a6e',f_nome:'#333',f_mat:'#555',f_cpf:'#555',f_nasc:'#555',f_assinatura:'#555',
+  f_photo:'#888',f_nome:'#333',f_mat:'#555',f_cpf:'#555',f_nasc:'#555',f_assinatura:'#555',
   v_filiacao_pai:'#111',v_filiacao_mae:'#111',v_admissao:'#333',v_naturalidade:'#333',v_validade:'#c00',v_situacao:'#333',v_hash:'#888',
 };
 
@@ -505,23 +504,28 @@ function updateUndoBtn(){
 }
 
 
+function _membroCorresponde(m, valor){
+  if(!m) return false;
+  return String(m.id)===String(valor) || m.numCred===valor || (Array.isArray(m.historicoMatriculas) && m.historicoMatriculas.includes(valor));
+}
+
 async function init(){
   await loadLayouts();
   const id=new URLSearchParams(location.search).get('id');
   if(!id){ document.getElementById('app').innerHTML='<div class="loading">❌ Acesse pelo sistema principal.</div>'; return; }
   let m=null;
-  // 1º tentar Supabase (dados mais atualizados)
+  // 1º tentar Supabase (dados mais atualizados) — busca todos e confere id/matrícula/histórico
   try{
-    const r=await fetch(SB_URL+'/rest/v1/membros?num_cred=eq.'+encodeURIComponent(id)+'&select=dados',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
-    if(r.ok){const rows=await r.json(); if(rows.length>0) m=rows[0].dados;}
+    const r=await fetch(SB_URL+'/rest/v1/membros?select=dados',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+    if(r.ok){const rows=await r.json(); m=rows.map(row=>row.dados).find(x=>_membroCorresponde(x,id));}
   }catch(e){}
   // 2º fallback: db.json (GitHub Pages)
   if(!m){
-    try{ const r=await fetch(DB+'?t='+Date.now()); if(r.ok){const d=await r.json();m=d.membros?.find(x=>x.numCred===id);} }catch(e){}
+    try{ const r=await fetch(DB+'?t='+Date.now()); if(r.ok){const d=await r.json();m=d.membros?.find(x=>_membroCorresponde(x,id));} }catch(e){}
   }
   // 3º fallback: localStorage local
   if(!m){
-    try{ const ls=JSON.parse(localStorage.getItem('members')||'[]'); m=ls.find(x=>x.numCred===id); }catch(e){}
+    try{ const ls=JSON.parse(localStorage.getItem('members')||'[]'); m=ls.find(x=>_membroCorresponde(x,id)); }catch(e){}
   }
   if(!m){
     document.getElementById('app').innerHTML='<div class="loading">❌ Membro não encontrado<br><small>ID: '+id+'</small></div>';
@@ -542,7 +546,7 @@ function getData(){
   const _mostrarMat = window._cfgVisibilidade?.mostrar_matricula!==false;
   const _mostrarSiape = window._cfgVisibilidade?.mostrar_siape!==false;
   return {
-    f_cargo:(m.cat||'').toUpperCase(), f_nome:m.nome,
+    f_nome:m.nome,
     f_mat:(_mostrarMat?m.numCred:''), f_cpf:m.cpf, f_nasc:fmt(m.nasc),
     v_filiacao_pai:(m.pai||'Não informado'), v_filiacao_mae:(m.mae||''), v_admissao:fmt(m.emissao),
     v_naturalidade:(m.naturalidade||'BRASILEIRO'),
@@ -568,7 +572,7 @@ function renderCard(){
         ${m?.foto?`<img src="${m.foto}" alt="" width="300" height="400" loading="lazy" decoding="async">` : '<div class="f-photo-ph">👤</div>'}
       </div>`;
     } else if(cfg.type==='qr'){
-      const _qUrl=`https://ubapff.org.br/sindapffverificacaofuncional/?id=${encodeURIComponent(m.numCred)}`;
+      const _qUrl=`https://ubapff.org.br/sindapffverificacaofuncional/?id=${encodeURIComponent(m.id)}`;
       const _qColor=(cfg.color||'#1a2a5e').replace('#','');
       const _qImg=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(_qUrl)}&margin=4&color=${_qColor}`;
       fields+=`<div id="c_${key}" class="f-photo${drag}${selCls}"
@@ -1090,12 +1094,12 @@ function uploadSignatureFile(input, numCred){
     if(membro && membro.numCred===numCred) membro.assinatura=e.target.result;
     renderCard(); if(editMode){bindDrag();buildChips();selectField(selKey);}
     try{
-      const rGet=await fetch(SB_URL+'/rest/v1/membros?num_cred=eq.'+encodeURIComponent(numCred)+'&select=dados',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+      const rGet=await fetch(SB_URL+'/rest/v1/membros?id=eq.'+encodeURIComponent(membro.id)+'&select=dados',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
       const rows=rGet.ok?await rGet.json():[];
       if(rows.length>0){
         const dadosAtual=rows[0].dados;
         dadosAtual.assinatura=e.target.result;
-        await fetch(SB_URL+'/rest/v1/membros?num_cred=eq.'+encodeURIComponent(numCred),{
+        await fetch(SB_URL+'/rest/v1/membros?id=eq.'+encodeURIComponent(membro.id),{
           method:'PATCH',
           headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},
           body:JSON.stringify({dados:dadosAtual})
@@ -1116,12 +1120,12 @@ function clearSignatureData(numCred){
   renderCard(); if(editMode){bindDrag();buildChips();buildCtrlPanel();}
   (async function(){
     try{
-      const rGet=await fetch(SB_URL+'/rest/v1/membros?num_cred=eq.'+encodeURIComponent(numCred)+'&select=dados',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+      const rGet=await fetch(SB_URL+'/rest/v1/membros?id=eq.'+encodeURIComponent(membro.id)+'&select=dados',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
       const rows=rGet.ok?await rGet.json():[];
       if(rows.length>0){
         const dadosAtual=rows[0].dados;
         delete dadosAtual.assinatura;
-        await fetch(SB_URL+'/rest/v1/membros?num_cred=eq.'+encodeURIComponent(numCred),{
+        await fetch(SB_URL+'/rest/v1/membros?id=eq.'+encodeURIComponent(membro.id),{
           method:'PATCH',
           headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},
           body:JSON.stringify({dados:dadosAtual})
