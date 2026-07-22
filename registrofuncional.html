@@ -220,6 +220,11 @@ const DB_GITHUB = BASE_DOMAIN+'/db.json';
 const SB_URL = 'https://tqcfdqwsjoibeeywoquk.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxY2ZkcXdzam9pYmVleXdvcXVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NTIzMTYsImV4cCI6MjA5OTAyODMxNn0.IEZkzqXxS3ZZ-PaUt3mg7NXPS-0qFqxFc9LC3iQQ-dc';
 
+function _membroCorresponde(m, valor){
+  if(!m) return false;
+  return String(m.id)===String(valor) || m.numCred===valor || (Array.isArray(m.historicoMatriculas) && m.historicoMatriculas.includes(valor));
+}
+
 function showErr(title, msg, podeTentarNovamente){
   document.getElementById('app').innerHTML = `
     ${HEADER_IMG_HTML}
@@ -237,14 +242,15 @@ async function init(){
   let dadosCarregados = false;
 
   try{
-    const r = await fetch(SB_URL+'/rest/v1/membros?num_cred=eq.'+encodeURIComponent(id)+'&select=dados',{
+    const r = await fetch(SB_URL+'/rest/v1/membros?select=dados',{
       cache:'no-store',
       headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
     });
     if(r.ok){
       const rows = await r.json();
       dadosCarregados = true;
-      if(rows.length>0){ render(rows[0].dados); return; }
+      const achado = rows.map(row=>row.dados).find(x=>_membroCorresponde(x,id));
+      if(achado){ render(achado); return; }
     }
   }catch(e){}
 
@@ -253,7 +259,7 @@ async function init(){
     if(r.ok){
       const data = await r.json();
       dadosCarregados = true;
-      const m = (data.membros||[]).find(x=>x.numCred===id);
+      const m = (data.membros||[]).find(x=>_membroCorresponde(x,id));
       if(m){ render(m); return; }
     }
   }catch(e){}
