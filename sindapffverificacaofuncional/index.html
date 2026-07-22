@@ -218,6 +218,11 @@ const BASE_DOMAIN = 'https://ubapff.org.br';
 const SB_URL = 'https://tqcfdqwsjoibeeywoquk.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxY2ZkcXdzam9pYmVleXdvcXVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NTIzMTYsImV4cCI6MjA5OTAyODMxNn0.IEZkzqXxS3ZZ-PaUt3mg7NXPS-0qFqxFc9LC3iQQ-dc';
 
+function _membroCorresponde(m, valor){
+  if(!m) return false;
+  return String(m.id)===String(valor) || m.numCred===valor || (Array.isArray(m.historicoMatriculas) && m.historicoMatriculas.includes(valor));
+}
+
 function fmt(d){ if(!d) return '—'; return new Date(d+'T12:00').toLocaleDateString('pt-BR'); }
 const DB_GITHUB = BASE_DOMAIN+'/db.json';
 
@@ -266,7 +271,7 @@ async function init(){
     if(rc.ok){ const rows=await rc.json(); if(rows.length>0) window._cfgVisibilidade=rows[0]; }
   }catch(e){}
 
-  const m = (data.membros||[]).find(x=>x.numCred===id);
+  const m = (data.membros||[]).find(x=>_membroCorresponde(x,id));
   if(m){ render(m); return; }
 
   showErr('Não encontrado','Nenhum membro com este código foi localizado.', false);
