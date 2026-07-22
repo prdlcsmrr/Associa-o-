@@ -63,6 +63,11 @@
     const DB_URL='https://ubapff.org.br/db.json';
     const SB_URL='https://tqcfdqwsjoibeeywoquk.supabase.co';
     const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxY2ZkcXdzam9pYmVleXdvcXVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0NTIzMTYsImV4cCI6MjA5OTAyODMxNn0.IEZkzqXxS3ZZ-PaUt3mg7NXPS-0qFqxFc9LC3iQQ-dc';
+
+function _membroCorresponde(m, valor){
+  if(!m) return false;
+  return String(m.id)===String(valor) || m.numCred===valor || (Array.isArray(m.historicoMatriculas) && m.historicoMatriculas.includes(valor));
+}
     const memberId=(new URLSearchParams(location.search).get('id')||'').trim();
     const statusEl=document.getElementById('status');
     const memberEl=document.getElementById('member');
@@ -139,14 +144,14 @@
       try{
         let member=null;
         try{
-          const r1=await fetch(SB_URL+'/rest/v1/membros?num_cred=eq.'+encodeURIComponent(memberId)+'&select=dados',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
-          if(r1.ok){ const rows=await r1.json(); if(rows.length>0) member=rows[0].dados; }
+          const r1=await fetch(SB_URL+'/rest/v1/membros?select=dados',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+          if(r1.ok){ const rows=await r1.json(); member=rows.map(row=>row.dados).find(x=>_membroCorresponde(x,memberId)); }
         }catch(e){}
         if(!member){
           const res=await fetch(DB_URL+'?t='+Date.now());
           if(!res.ok) throw new Error('Falha ao carregar base');
           const data=await res.json();
-          member=(data.membros||[]).find(x=>x.numCred===memberId);
+          member=(data.membros||[]).find(x=>_membroCorresponde(x,memberId));
         }
         if(!member){
           setStatus('❌ Membro não encontrado para este ID.','err');
