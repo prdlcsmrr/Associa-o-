@@ -252,6 +252,11 @@ function venc(mes,ano){ return `10/${String(mes+1).padStart(2,'0')}/${ano}`; }
 function docNum(id,mes,ano){ return 'ASC-'+String(id).slice(-6)+'-'+String(mes+1).padStart(2,'0')+'-'+ano; }
 function brl(v){ return 'R$ '+v.toFixed(2).replace('.',','); }
 
+function _membroCorresponde(m, valor){
+  if(!m) return false;
+  return String(m.id)===String(valor) || m.numCred===valor || (Array.isArray(m.historicoMatriculas) && m.historicoMatriculas.includes(valor));
+}
+
 async function init(){
   const id  = new URLSearchParams(location.search).get('id');
   const ano = new Date().getFullYear();
@@ -260,17 +265,17 @@ async function init(){
   let m = null;
   // Supabase primeiro (dados mais atualizados)
   try{
-    const r=await fetch(SB_URL+'/rest/v1/membros?num_cred=eq.'+encodeURIComponent(id)+'&select=dados',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
-    if(r.ok){const rows=await r.json(); if(rows.length>0) m=rows[0].dados;}
+    const r=await fetch(SB_URL+'/rest/v1/membros?select=dados',{cache:'no-store',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+    if(r.ok){const rows=await r.json(); m=rows.map(row=>row.dados).find(x=>_membroCorresponde(x,id));}
   }catch(e){}
   // Fallback: db.json
   if(!m){
-    try{ const r=await fetch(DB+'?t='+Date.now()); if(r.ok){const d=await r.json();m=d.membros?.find(x=>x.numCred===id);} }catch(e){}
+    try{ const r=await fetch(DB+'?t='+Date.now()); if(r.ok){const d=await r.json();m=d.membros?.find(x=>_membroCorresponde(x,id));} }catch(e){}
   }
   // localStorage — prioridade pois tem dados mais recentes
   try{
     const ls=JSON.parse(localStorage.getItem('members')||'[]');
-    const lsMembro=ls.find(x=>x.numCred===id);
+    const lsMembro=ls.find(x=>_membroCorresponde(x,id));
     if(lsMembro) m=lsMembro; // sobrescreve com versão mais atual
   }catch(e){}
   if(!m){ document.getElementById('app').innerHTML='<div class="loading">❌ Membro não encontrado (ID: '+id+')</div>'; return; }
