@@ -2249,10 +2249,10 @@ async function loadFromCloud(){
       cloud=rows.map(function(r){ return r.dados; });
       cloudEhConfiavel=true;
     } else if(window.reportarErro){
-      window.reportarErro('Supabase (ler)', 'Servidor respondeu HTTP '+r1.status+' ao ler membros.', true);
+      window.reportarErro('Nuvem — Ler Membros', 'Servidor respondeu HTTP '+r1.status+' ao ler membros.', true);
     }
   }catch(e){
-    if(window.reportarErro) window.reportarErro('Supabase (ler)', 'Falha ao ler Supabase: '+((e&&e.message)||'erro de rede'), true);
+    if(window.reportarErro) window.reportarErro('Nuvem — Ler Membros', 'Falha ao ler Supabase: '+((e&&e.message)||'erro de rede'), true);
   }
 
   try{
@@ -2266,8 +2266,12 @@ async function loadFromCloud(){
         saidas=rowsS.map(function(r){ return r.dados; });
         try{ localStorage.setItem('saidas',JSON.stringify(saidas)); }catch(e){}
       }
+    } else if(window.reportarErro){
+      window.reportarErro('Nuvem — Ler Saídas', 'Servidor respondeu HTTP '+r1s.status+' ao ler saídas.', true);
     }
-  }catch(e){}
+  }catch(e){
+    if(window.reportarErro) window.reportarErro('Nuvem — Ler Saídas', 'Falha ao ler saídas: '+((e&&e.message)||'erro de rede'), true);
+  }
 
   if(cloud===null){
     try{
@@ -2279,11 +2283,11 @@ async function loadFromCloud(){
           saidas=data2.saidas; try{ localStorage.setItem('saidas',JSON.stringify(saidas)); }catch(e){}
         }
       } else if(window.reportarErro){
-        window.reportarErro('db.json', 'Servidor respondeu HTTP '+r2.status+' ao carregar os dados da nuvem.', true);
+        window.reportarErro('Backup de Reserva', 'Servidor respondeu HTTP '+r2.status+' ao carregar os dados da nuvem.', true);
       }
     }catch(e){
       if(navigator.onLine && window.reportarErro){
-        window.reportarErro('db.json', 'Falha ao carregar dados da nuvem: '+((e&&e.message)||'erro de rede'), true);
+        window.reportarErro('Backup de Reserva', 'Falha ao carregar dados da nuvem: '+((e&&e.message)||'erro de rede'), true);
       }
     }
   }
@@ -2477,7 +2481,9 @@ async function syncToCloud(){
           }
         }
       }
-    }catch(e){}
+    }catch(e){
+      if(window.reportarErro) window.reportarErro('Backup automático', 'Falha ao criar backup: '+((e&&e.message)||'erro de rede'), true);
+    }
   }catch(e){
     if(window.reportarErro) window.reportarErro('Sincronizar nuvem','Falha ao enviar dados para a nuvem: '+((e&&e.message)||'erro de rede'), true);
     mostrarBloqueioSistema('Falha de conexão ao tentar salvar: '+((e&&e.message)||'erro de rede')+'.');
@@ -2874,7 +2880,7 @@ async function saveConfig(){
       body:JSON.stringify({mostrar_matricula:cfg.ver_matricula, mostrar_siape:cfg.ver_siape})
     });
   }catch(e){
-    if(window.reportarErro) window.reportarErro('Config visibilidade','Falha ao sincronizar com a nuvem: '+((e&&e.message)||'erro'), true);
+    if(window.reportarErro) window.reportarErro('Configurações','Falha ao sincronizar com a nuvem: '+((e&&e.message)||'erro'), true);
   }
   loadConfig();
   // Limpar campos de senha
@@ -3242,18 +3248,25 @@ if(typeof closeEditDirect!=="undefined") window.closeEditDirect=closeEditDirect;
                 + 'Quando: ' + new Date().toLocaleString('pt-BR') + '\n'
                 + 'Aparelho: ' + (navigator.userAgent||'?').substring(0,90);
       _enviarNtfy('SINDAPFF: '+origem, corpo);
-      if(mostrarToast) _toast(mensagem);
+      if(mostrarToast) _toast('['+origem+'] '+mensagem);
     }catch(e){}
   };
 
   window.onerror = function(msg, src, line, col){
-    window.reportarErro('JavaScript', (msg||'erro')+' ('+((src||'').split('/').pop())+':'+line+')', true);
+    window.reportarErro('Erro no Sistema', (msg||'erro')+' ('+((src||'').split('/').pop())+':'+line+')', true);
     return false;
   };
 
   window.addEventListener('unhandledrejection', function(e){
     var m = (e && e.reason && (e.reason.message || e.reason)) || 'promessa rejeitada';
-    window.reportarErro('Rede/Promise', String(m).substring(0,200), false);
+    window.reportarErro('Erro de Rede', String(m).substring(0,200), true);
+  });
+
+  window.addEventListener('offline', function(){
+    window.reportarErro('Conexão', 'Este aparelho perdeu a conexão com a internet — nada será salvo até a conexão voltar.', true);
+  });
+  window.addEventListener('online', function(){
+    if(typeof syncToCloud==='function' && sessionStorage.getItem('ok')==='1') syncToCloud();
   });
 })();
 </script>
