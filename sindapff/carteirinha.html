@@ -322,22 +322,22 @@ function _notifyParent(msg){
 
 const LAYOUT_VERSION = 5; // bump isso sempre que o DEFAULT_F/V mudar de verdade — força reset de layouts salvos antigos
 const DEFAULT_F = {
-  f_photo:  { type:'photo', left:80.0, top:37.0, w:15.0, ratio:'3/4' },
-  f_nome:   { left:22.0, top:39.0, size:2.0, bold:true,  color:'#111',    upper:true  },
-  f_mat:    { left:22.0, top:48.0, size:1.7, bold:true,  color:'#111',    upper:false, maxW:33 },
-  f_cpf:    { left:60.0, top:48.0, size:1.7, bold:true,  color:'#111',    upper:false },
-  f_nasc:   { left:22.0, top:59.0, size:1.7, bold:true,  color:'#111',    upper:false },
-  f_assinatura: { type:'signature', left:55.0, top:88.0, w:22.0 },
+  f_photo:  { type:'photo', left:3.8,  top:39.7, w:15.0, ratio:'3/4' },
+  f_nome:   { left:21.4, top:39.7, size:2.4, bold:true,  color:'#111',    upper:true  },
+  f_mat:    { left:21.4, top:49.1, size:2.1, bold:true,  color:'#111',    upper:false, maxW:33 },
+  f_cpf:    { left:63.6, top:49.1, size:2.1, bold:true,  color:'#111',    upper:false },
+  f_nasc:   { left:21.5, top:60.1, size:2.1, bold:true,  color:'#111',    upper:false },
+  f_assinatura: { type:'signature', left:38.3, top:81.4, w:22.0 },
 };
 const DEFAULT_V = {
-  v_qr:            { type:'qr',        left:5.0,  top:63.0, w:16.0, color:'#cc0000' },
-  v_filiacao_pai:  { left:19.0, top:35.5, size:1.4, bold:true,  color:'#111',    upper:false },
-  v_filiacao_mae:  { left:19.0, top:39.0, size:1.4, bold:true,  color:'#111',    upper:false },
-  v_admissao:      { left:56.0, top:47.5, size:1.6, bold:true,  color:'#111',    upper:false },
-  v_validade:      { left:54.0, top:36.5, size:1.6, bold:true,  color:'#cc0000', upper:false },
-  v_naturalidade:  { left:19.0, top:47.5, size:1.6, bold:true,  color:'#111',    upper:true  },
-  v_situacao:      { left:19.0, top:58.5, size:1.6, bold:true,  color:'#111',    upper:true  },
-  v_hash:          { left:54.0, top:58.5, size:1.4, bold:false, color:'#333',    upper:false },
+  v_qr:            { type:'qr',        left:1.7,  top:34.9, w:16.0, color:'#cc0000' },
+  v_filiacao_pai:  { left:19.3, top:36.4, size:2.1, bold:true,  color:'#111',    upper:false },
+  v_filiacao_mae:  { left:19.2, top:40.4, size:2.1, bold:true,  color:'#111',    upper:false },
+  v_admissao:      { left:54.1, top:46.2, size:2.1, bold:true,  color:'#111',    upper:false },
+  v_validade:      { left:54.2, top:36.6, size:2.1, bold:true,  color:'#cc0000', upper:false },
+  v_naturalidade:  { left:19.5, top:47.0, size:2.1, bold:true,  color:'#111',    upper:true  },
+  v_situacao:      { left:19.3, top:58.3, size:2.1, bold:true,  color:'#111',    upper:true  },
+  v_hash:          { left:54.3, top:57.6, size:2.1, bold:false, color:'#333',    upper:false },
 };
 const LABELS = {
   f_photo:'Foto', f_nome:'Nome', f_mat:'Matrícula',
@@ -561,6 +561,7 @@ function renderCard(){
   let fields='', guides='';
 
   for(const [key,cfg] of Object.entries(L)){
+    if(key==='_v') continue; // marcador interno de versão, não é um campo
     const sel=selKey===key;
     const drag=editMode?' drag':'';
     const selCls=sel?' sel':'';
@@ -651,28 +652,39 @@ function bindDrag(){
 function doDrag(startX,startY,key,cardEl){
   const L=layout(), rect=cardEl.getBoundingClientRect();
   let _dragging=false, _pushed=false;
-  
+
+  // Guarda o deslocamento entre onde o dedo/cursor tocou e a posição atual do campo
+  // (canto superior-esquerdo), pra mover o campo de forma relativa — não "colar" o
+  // canto do campo embaixo do cursor, o que fazia ele parecer "pular" pra qualquer lugar
+  // que você clicasse dentro do texto.
+  const cliqueLeftPct = (startX-rect.left)/rect.width*100;
+  const cliqueTopPct  = (startY-rect.top) /rect.height*100;
+  const offsetLeft = cliqueLeftPct - L[key].left;
+  const offsetTop  = cliqueTopPct  - L[key].top;
+
   const mu=e=>{
     const ev=e.touches?e.touches[0]:e;
     const dx=ev.clientX-startX, dy=ev.clientY-startY;
-    
+
     // Só começa a mover após 6px de movimento (distingue click de drag)
     if(!_dragging && Math.sqrt(dx*dx+dy*dy) < 6) return;
     _dragging=true;
-    
+
     if(!_pushed){ pushHistory(); _pushed=true; }
-    
-    // Calcular posição relativa ao card
-    const newLeft=Math.max(0,Math.min(98,+((ev.clientX-rect.left)/rect.width*100).toFixed(1)));
-    const newTop =Math.max(0,Math.min(98,+((ev.clientY-rect.top) /rect.height*100).toFixed(1)));
-    
+
+    // Calcular posição relativa ao card, descontando o deslocamento do clique inicial
+    const cursorLeftPct=(ev.clientX-rect.left)/rect.width*100;
+    const cursorTopPct =(ev.clientY-rect.top) /rect.height*100;
+    const newLeft=Math.max(0,Math.min(98,+(cursorLeftPct-offsetLeft).toFixed(1)));
+    const newTop =Math.max(0,Math.min(98,+(cursorTopPct -offsetTop ).toFixed(1)));
+
     L[key].left=newLeft; L[key].top=newTop;
     const el=document.getElementById('c_'+key);
     if(el){ el.style.left=newLeft+'%'; el.style.top=newTop+'%'; }
     buildCtrlPanel();
     if(showGuides) updateGuides();
   };
-  
+
   const up=()=>{
     document.removeEventListener('mousemove',mu); document.removeEventListener('mouseup',up);
     document.removeEventListener('touchmove',mu); document.removeEventListener('touchend',up);
@@ -733,6 +745,7 @@ function buildChips(){
   if(!sc) return;
   sc.innerHTML='';
   for(const key of Object.keys(L)){
+    if(key==='_v') continue; // marcador interno de versão, não é um campo
     const chip=document.createElement('div');
     chip.className='field-chip'+(selKey===key?' active':'');
     chip.innerHTML=`<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${DOT_COLORS[key]||'#555'};margin-right:5px;vertical-align:middle"></span>${LABELS[key]||key}`;
