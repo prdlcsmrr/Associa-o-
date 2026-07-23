@@ -557,7 +557,7 @@ function getData(){
 
 function renderCard(){
   const m=membro, data=getData(), L=layout();
-  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=20260724`:`${BASE}/Verso.png?v=20260724`;
+  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=20260725`:`${BASE}/Verso.png?v=20260725`;
   let fields='', guides='';
 
   for(const [key,cfg] of Object.entries(L)){
@@ -616,7 +616,7 @@ function renderCard(){
 
   document.getElementById('app').innerHTML=`
     <div class="card" id="the-card">
-      <img class="bg" src="${imgSrc}" alt="" width="${tab==='F'?1520:1588}" height="960" loading="lazy" decoding="async" crossorigin="anonymous" onerror="if(this.src.includes('/Verso.png')){this.onerror=null;this.src='${BASE}/verso.jpg?v=20260724';}">
+      <img class="bg" src="${imgSrc}" alt="" width="${tab==='F'?1520:1588}" height="938" loading="lazy" decoding="async" crossorigin="anonymous" onerror="if(this.src.includes('/Verso.png')){this.onerror=null;this.src='${BASE}/verso.jpg?v=20260725';}">
       <div class="grid-overlay" id="grid-overlay" style="display:${showGrid?'block':'none'}"></div>
       <div class="overlay" style="pointer-events:${editMode?'all':'none'}">${fields}${guides}</div>
     </div>`;
