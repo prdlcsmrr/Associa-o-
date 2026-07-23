@@ -320,11 +320,11 @@ function _notifyParent(msg){
   try{ if(window.parent && window.parent!==window) window.parent.postMessage(Object.assign({ubapffCred:true}, msg), '*'); }catch(e){}
 }
 
-const LAYOUT_VERSION = 4; // bump isso sempre que o DEFAULT_F/V mudar de verdade — força reset de layouts salvos antigos
+const LAYOUT_VERSION = 5; // bump isso sempre que o DEFAULT_F/V mudar de verdade — força reset de layouts salvos antigos
 const DEFAULT_F = {
   f_photo:  { type:'photo', left:80.0, top:37.0, w:15.0, ratio:'3/4' },
   f_nome:   { left:22.0, top:39.0, size:2.0, bold:true,  color:'#111',    upper:true  },
-  f_mat:    { left:22.0, top:48.0, size:1.7, bold:true,  color:'#111',    upper:false },
+  f_mat:    { left:22.0, top:48.0, size:1.7, bold:true,  color:'#111',    upper:false, maxW:33 },
   f_cpf:    { left:60.0, top:48.0, size:1.7, bold:true,  color:'#111',    upper:false },
   f_nasc:   { left:22.0, top:59.0, size:1.7, bold:true,  color:'#111',    upper:false },
   f_assinatura: { type:'signature', left:55.0, top:88.0, w:22.0 },
@@ -557,7 +557,7 @@ function getData(){
 
 function renderCard(){
   const m=membro, data=getData(), L=layout();
-  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=20260722`:`${BASE}/Verso.png?v=20260722`;
+  const imgSrc=tab==='F'?`${BASE}/frente.jpg?v=20260723`:`${BASE}/Verso.png?v=20260723`;
   let fields='', guides='';
 
   for(const [key,cfg] of Object.entries(L)){
@@ -597,8 +597,9 @@ function renderCard(){
       const fw=cfg.bold?'800':'600';
       const col=`color:${key==='v_situacao'&&val==='INATIVO'?'#cc0000':cfg.color||'#111'};`;
       const up=cfg.upper?val.toUpperCase():val;
+      const maxW=cfg.maxW?`max-width:${cfg.maxW}%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;`:'';
       fields+=`<div id="c_${key}" class="campo${drag}${selCls}"
-        style="${pos}font-size:${cfg.size||2.8}cqw;font-weight:${fw};${col}pointer-events:${editMode?'all':'none'}">${up}</div>`;
+        style="${pos}font-size:${cfg.size||2.8}cqw;font-weight:${fw};${col}${maxW}pointer-events:${editMode?'all':'none'}">${up}</div>`;
     }
   }
 
@@ -615,7 +616,7 @@ function renderCard(){
 
   document.getElementById('app').innerHTML=`
     <div class="card" id="the-card">
-      <img class="bg" src="${imgSrc}" alt="" width="1560" height="960" loading="lazy" decoding="async" crossorigin="anonymous" onerror="if(this.src.includes('/Verso.png')){this.onerror=null;this.src='${BASE}/verso.jpg?v=20260722';}">
+      <img class="bg" src="${imgSrc}" alt="" width="${tab==='F'?1520:1560}" height="960" loading="lazy" decoding="async" crossorigin="anonymous" onerror="if(this.src.includes('/Verso.png')){this.onerror=null;this.src='${BASE}/verso.jpg?v=20260723';}">
       <div class="grid-overlay" id="grid-overlay" style="display:${showGrid?'block':'none'}"></div>
       <div class="overlay" style="pointer-events:${editMode?'all':'none'}">${fields}${guides}</div>
     </div>`;
