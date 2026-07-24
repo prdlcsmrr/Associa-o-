@@ -1644,7 +1644,7 @@ async function salvar(){
   logHist('Cadastro','Novo membro: '+nome+' ('+numCred+')');
 
   // Save to localStorage immediately
-  localStorage.setItem('members',JSON.stringify(members));
+  salvarMembrosLocal();
 
   updateCount();
   showA('aok');
@@ -1679,7 +1679,7 @@ function limpar(){
 let _syncDebounceTimer=null;
 function save(){
   try{
-    localStorage.setItem('members',JSON.stringify(members));
+    salvarMembrosLocal();
   }catch(e){
     if(window.reportarErro) window.reportarErro('Salvar dados', 'Falha ao gravar no aparelho: '+((e&&e.message)||'erro'), false);
     if(typeof avisoValidacao==='function') avisoValidacao('Não consegui salvar neste aparelho (armazenamento cheio ou navegação privada). Tente de novo.');
@@ -2148,7 +2148,7 @@ function saveEdit(){
     foto:            fotoFinal,
   };
 
-  localStorage.setItem('members', JSON.stringify(members));
+  salvarMembrosLocal();
   logHist('Edição','Membro editado: '+nome);
   save();
   renderList();
@@ -2336,12 +2336,29 @@ async function loadFromCloud(){
   }
   members=Object.keys(byId).map(function(k){ return byId[k]; });
 
-  localStorage.setItem('members',JSON.stringify(members));
+  salvarMembrosLocal();
   renderList();
   updateCount();
 
   // Este aparelho tinha cadastro(s) que a nuvem não tinha: sincroniza de volta automaticamente
   if(haviaSoLocal) syncToCloud();
+}
+
+// Salva a lista de membros no armazenamento local do navegador (cache/backup).
+// O Supabase é a fonte de verdade — se o armazenamento local do navegador estiver
+// cheio (comum depois de muito uso, com fotos acumuladas), NÃO pode travar o
+// sistema. Por isso isso aqui sempre falha "em silêncio" (só avisa), nunca impede
+// o resto de funcionar.
+function salvarMembrosLocal(){
+  try{
+    localStorage.setItem('members', JSON.stringify(members));
+    return true;
+  }catch(e){
+    if(window.reportarErro){
+      window.reportarErro('Armazenamento do navegador', 'O armazenamento local deste navegador está cheio ('+((e&&e.message)||'quota excedida')+'). Os dados continuam salvos normalmente na nuvem, mas considere limpar o cache/dados do site neste aparelho.', true);
+    }
+    return false;
+  }
 }
 
 let _sistemaBloqueado = false;
@@ -2409,7 +2426,7 @@ async function restaurarBackup(id, dataTxt){
     if(rows.length===0){ alert('Backup não encontrado.'); return; }
     members = rows[0].dados.membros || [];
     saidas = rows[0].dados.saidas || [];
-    localStorage.setItem('members', JSON.stringify(members));
+    salvarMembrosLocal();
     localStorage.setItem('saidas', JSON.stringify(saidas));
     renderList(); updateCount();
     await syncToCloud();
