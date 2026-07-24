@@ -2350,8 +2350,17 @@ async function loadFromCloud(){
 // sistema. Por isso isso aqui sempre falha "em silêncio" (só avisa), nunca impede
 // o resto de funcionar.
 function salvarMembrosLocal(){
+  // As fotos (base64) são a maior parte do tamanho dos dados de longe.
+  // O cache local do navegador é só um atalho/reserva — a nuvem (Supabase) já
+  // guarda as fotos de verdade — então aqui guardamos os membros SEM foto,
+  // pra nunca mais estourar o limite de armazenamento do navegador.
   try{
-    localStorage.setItem('members', JSON.stringify(members));
+    const membrosSemFoto = members.map(function(m){
+      const copia = Object.assign({}, m);
+      delete copia.foto;
+      return copia;
+    });
+    localStorage.setItem('members', JSON.stringify(membrosSemFoto));
     return true;
   }catch(e){
     if(window.reportarErro){
