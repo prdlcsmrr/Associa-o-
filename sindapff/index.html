@@ -1361,7 +1361,7 @@ function _setupCropperEvents(){
     _cropState.dragStartY=e.clientY;
     _cropState.startOffX=_cropState.offX;
     _cropState.startOffY=_cropState.offY;
-    frame.setPointerCapture(e.pointerId);
+    try{ frame.setPointerCapture(e.pointerId); }catch(_){}
   });
   frame.addEventListener('pointermove',function(e){
     if(!_cropState.active || !_cropState.drag) return;
@@ -1376,6 +1376,13 @@ function _setupCropperEvents(){
   }
   frame.addEventListener('pointerup',endDrag);
   frame.addEventListener('pointercancel',endDrag);
+  frame.addEventListener('pointerleave',endDrag);
+  // Reforço: garante que o arrasto SEMPRE termina, mesmo se o navegador não entregar
+  // pointerup/pointercancel no quadro (acontece em alguns tablets) — sem isso, o
+  // recorte podia ficar "preso" em modo arrastar e parecer travado.
+  window.addEventListener('pointerup',endDrag);
+  window.addEventListener('pointercancel',endDrag);
+  window.addEventListener('blur',function(){ _cropState.drag=false; });
 }
 function _renderCropper(){
   const imgEl=document.getElementById('crop-img');
