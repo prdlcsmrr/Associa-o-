@@ -1274,7 +1274,7 @@ async function criarSenha(){
   function fail(msg){ err.textContent='✗ '+msg; err.style.display='block'; setTimeout(function(){err.style.display='none';},3500); }
   if(p1.length<4) return fail('A senha deve ter pelo menos 4 caracteres.');
   if(p1!==p2)     return fail('As senhas não coincidem.');
-  localStorage.setItem(PW_KEY, await _sha256(p1));
+  try{ localStorage.setItem(PW_KEY, await _sha256(p1)); }catch(e){ if(window.reportarErro) window.reportarErro('Armazenamento do navegador', 'Não consegui salvar a senha no armazenamento local: '+((e&&e.message)||'quota excedida'), true); }
   sessionStorage.setItem('ok','1');
   document.getElementById('login-screen').style.display='none';
   loadFromCloud();
@@ -2849,7 +2849,7 @@ async function saveConfig(){
     if(stored && (await _sha256(passAtual))!==stored){alert('❌ Senha atual incorreta.');return;}
     if(passNova!==passConf){alert('❌ Nova senha e confirmação não coincidem.');return;}
     if(passNova.length<4){alert('❌ Senha deve ter pelo menos 4 caracteres.');return;}
-    localStorage.setItem(PW_KEY, await _sha256(passNova));
+    try{ localStorage.setItem(PW_KEY, await _sha256(passNova)); }catch(e){ if(window.reportarErro) window.reportarErro('Armazenamento do navegador', 'Não consegui salvar a nova senha: '+((e&&e.message)||'quota excedida'), true); }
     document.getElementById('cfg-pass-atual').value='';
     document.getElementById('cfg-pass-nova').value='';
     document.getElementById('cfg-pass-conf').value='';
