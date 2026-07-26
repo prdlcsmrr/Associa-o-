@@ -1598,10 +1598,6 @@ async function salvar(){
     return;
   }
 
-  // Use current localStorage as base (most up to date)
-  const localNow = JSON.parse(localStorage.getItem('members')||'[]');
-  if(localNow.length >= members.length) members = localNow;
-
   const ts=Date.now();
   const numCredManual = document.getElementById('f-matricula')?.value.trim();
   let numCred = numCredManual || (ORG_PRE+'-'+String(members.length+1).padStart(6,'0'));
