@@ -2507,15 +2507,15 @@ async function syncToCloud(){
     // no máximo 1 a cada 10 minutos (evita acumular linhas demais).
     try{
       const ultimoBackup = parseInt(localStorage.getItem('ultimo_backup_ts')||'0', 10);
-      if(Date.now() - ultimoBackup > 10*60*1000){
+      if(Date.now() - ultimoBackup > 60*60*1000){
         await fetch(SB_URL+'/rest/v1/backups',{
           method:'POST',
           headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},
           body:JSON.stringify([{ total_membros: membrosParaEnviar.length, dados: { membros: membrosParaEnviar, saidas: saidas } }])
         });
         localStorage.setItem('ultimo_backup_ts', String(Date.now()));
-        // Mantém só os 50 backups mais recentes
-        const rIds = await fetch(SB_URL+'/rest/v1/backups?select=id&order=criado_em.desc&offset=50',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+        // Mantém só os 10 backups mais recentes (cada um pode ter alguns MB por causa das fotos)
+        const rIds = await fetch(SB_URL+'/rest/v1/backups?select=id&order=criado_em.desc&offset=10',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
         if(rIds.ok){
           const antigos = await rIds.json();
           if(antigos.length>0){
