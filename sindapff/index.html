@@ -2628,6 +2628,31 @@ async function copySignLink(){
 function del(id){const _m=members.find(x=>x.id===id);if(!confirm('Excluir?'))return;members=members.filter(m=>m.id!==id);if(_m)logHist('Exclusão','Membro excluído: '+_m.nome);save();renderList();}
 function clearAll(){if(!confirm('Apagar TODOS?'))return;members=[];save();renderList();}
 
+// Marcador de versão — atualize sempre que publicar uma mudança importante.
+// Usado pra detectar abas antigas rodando código desatualizado (que causaram
+// mais de um bug sério por ficarem com dado/lógica velha na memória por dias).
+const APP_BUILD = '2026-07-27-01';
+
+async function verificarVersaoNova(){
+  try{
+    const r = await fetch(location.pathname+'?_vcheck='+Date.now(), {cache:'no-store'});
+    if(!r.ok) return;
+    const html = await r.text();
+    const m = html.match(/const APP_BUILD = '([^']+)'/);
+    if(m && m[1] && m[1] !== APP_BUILD){
+      const banner = document.createElement('div');
+      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#1a7a3a;color:#fff;text-align:center;padding:10px;font-weight:700;z-index:999999;font-size:14px';
+      banner.textContent = '🔄 Nova versão do sistema disponível — atualizando automaticamente em 3 segundos...';
+      document.body.appendChild(banner);
+      setTimeout(()=>location.reload(), 3000);
+    }
+  }catch(e){} // falha na checagem nunca deve atrapalhar o uso normal
+}
+// Checa ao abrir e depois a cada 5 minutos — garante que nenhuma aba fique
+// rodando código antigo por muito tempo sem perceber.
+verificarVersaoNova();
+setInterval(verificarVersaoNova, 5*60*1000);
+
 // INIT
 (function(){
   const elMat=document.getElementById('f-matricula');
